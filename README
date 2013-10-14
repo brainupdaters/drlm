@@ -1,0 +1,93 @@
+Desaster Recovery Linux Server
+==============================
+
+Desaster Recovery Linux Server is the leading Open Source bare metal disaster
+recovery and system migration server solution. 
+
+Professional services and support are available.
+
+For more detailed information about Desaster Recovery Linux Server, please
+read the Desaster Recovery Linux Server User Guide.
+
+
+REQUIREMENTS
+------------
+Desaster Recovery Linux Server is written entirely in Bash and does not 
+require any external programs. However, the rescue system that is created by
+Relax-and-Recover requires some programs that are needed to make our
+rescue system work:
+
+ - mingetty
+ - sfdisk
+
+All other required programs (like sort, dd, grep, etc.) are so common, that
+we don't list them as requirements. In case your specific workflow requires
+additional tools, Desaster Recovery Linux Server will tell you.
+
+
+INSTALLATION
+------------
+On RPM based systems you should....
+
+On DEB based systems you should....
+
+
+QUICK START GUIDE
+-----------------
+This quick start guide will show you how to run Desaster Recovery Linux Server
+
+CONFIGURATION
+-------------
+To configure Desaster Recovery Linux Server you have...
+
+USAGE
+-----
+To use Desaster Recovery Linux Server you always call the main script 
+'/usr/sbin/drls':
+
+----
+# drls help
+Usage: drls [-d] [-D] [-s] [-S] [-v] [-V] COMMAND [ARGS...]
+
+Relax-and-Recover comes with ABSOLUTELY NO WARRANTY; for details see
+the GNU General Public License at: http://www.gnu.org/licenses/gpl.html
+
+Available options:
+ -d           debug mode; log debug messages
+ -D           debugscript mode; log every function call
+ -s           simulation mode; show what scripts rear would include
+ -S           step-by-step mode; acknowledge each script individually
+ -v           verbose mode; show more output
+ -V           version information
+
+List of commands:
+ addclient       	blablablabla
+ deleteclient   	blablablabla
+ modifyclient    	blablablabla
+ listclient      	blablablabla
+ addnetwork    	blablablabla
+ deletenetwork    blablablabla
+ modifynetwork    blablablabla
+ listnetwork		blablablabla
+ addbackup			blablablabla
+ deletebackup		blablablabla
+ definebackup		blablablabla
+ listbackup			blablablabla
+ 
+ 
+ 
+
+Use 'drls -v help' for more advanced commands.
+----
+
+To view/verify your configuration, run +rear dump+. It will print out the
+current settings for +BACKUP+ and +OUTPUT+ methods and some system information.
+
+To create a new rescue environment, simply call +rear mkrescue+. Do not forget
+to copy the resulting rescue system away so that you can use it in the case of
+a system failure. Use +rear mkbackup+ instead if you are using the builtin
+backup functions (like +BACKUP=NETFS+)
+
+To recover your system, start the computer from the rescue system and run
++rear recover+. Your system will be recovered and you can restart it and
+continue to use it normally.

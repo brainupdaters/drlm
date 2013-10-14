@@ -1,0 +1,38 @@
+# call StartProgressSubsystem to get more detailed progress reports
+if tty -s <&1; then
+	ProgressStart() {
+		echo -en "\e[2K\r$*\e7"
+	}
+
+	ProgressStop() {
+		echo -e "\e8\e[KOK"
+	}
+
+	ProgressError() {
+		echo -e "\e8\e[KFAILED"
+	}
+
+	ProgressStep() {
+		echo noop >&8
+	}
+
+	ProgressInfo() {
+		echo -en "\e[2K\r$*\e7"
+	}
+
+else
+	# no tty, disable progress animated display altogether
+	ProgressStart() {
+		echo -n "$*  "
+	}
+
+	ProgressStop() {
+		echo -e "OK"
+	}
+
+	ProgressError() {
+		echo -e "FAILED"
+	}
+fi
+####################### END Progress Indicator
+
