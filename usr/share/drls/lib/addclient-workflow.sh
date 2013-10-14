@@ -23,5 +23,5 @@ WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
 WORKFLOW_addclient () {
     echo addclient workflow
-    SourceStage "addclient"
+    SourceStage "client/add"
 }
