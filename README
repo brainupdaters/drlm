@@ -62,17 +62,17 @@ Available options:
 
 List of commands:
  addclient       	blablablabla
- deleteclient   	blablablabla
+ deleteclient   	 blablablabla
  modifyclient    	blablablabla
  listclient      	blablablabla
- addnetwork    	blablablabla
+ addnetwork    	  blablablabla
  deletenetwork    blablablabla
  modifynetwork    blablablabla
- listnetwork		blablablabla
- addbackup			blablablabla
- deletebackup		blablablabla
- definebackup		blablablabla
- listbackup			blablablabla
+ listnetwork		    blablablabla
+ addbackup			     blablablabla
+ deletebackup		   blablablabla
+ definebackup		   blablablabla
+ listbackup			    blablablabla
  
  
  
