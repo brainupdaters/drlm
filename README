@@ -61,18 +61,18 @@ Available options:
  -V           version information
 
 List of commands:
- addclient       	blablablabla
- deleteclient   	 blablablabla
- modifyclient    	blablablabla
- listclient      	blablablabla
- addnetwork    	  blablablabla
+ addclient    blablablabla
+ deleteclient    blablablabla
+ modifyclient    blablablabla
+ listclient    blablablabla
+ addnetwork    blablablabla
  deletenetwork    blablablabla
  modifynetwork    blablablabla
- listnetwork		    blablablabla
- addbackup			     blablablabla
- deletebackup		   blablablabla
- definebackup		   blablablabla
- listbackup			    blablablabla
+ listnetwork    blablablabla
+ addbackup    blablablabla
+ deletebackup    blablablabla
+ definebackup    blablablabla
+ listbackup    blablablabla
  
  
  
