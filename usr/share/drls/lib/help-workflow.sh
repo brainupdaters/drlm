@@ -29,7 +29,6 @@ see The GNU General Public License at: http://www.gnu.org/licenses/gpl.html
 Available options:
  -d           debug mode; log debug messages
  -D           debugscript mode; log every function call
- -r KERNEL    kernel version to use; current: '$KERNEL_VERSION'
  -s           simulation mode; show what scripts rear would include
  -S           step-by-step mode; acknowledge each script individually
  -v           verbose mode; show more output

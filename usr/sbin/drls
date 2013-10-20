@@ -72,7 +72,6 @@ while true; do
 		(-D) DEBUGSCRIPTS=1;;
 		(-s) SIMULATE=1; VERBOSE=1;;
 		(-S) STEPBYSTEP=1;;
-		(-r) KERNEL_VERSION="$2"; shift;;
 		(--) shift; break;;
 		(-*)
 			echo "$PROGNAME: unrecognized option '$option'"

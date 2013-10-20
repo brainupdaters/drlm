@@ -1,7 +1,10 @@
-2013-10-20 17:50:05 Using build area '/tmp/rear.jk7hWMi39xtQGcD'
-2013-10-20 17:50:05 Running help workflow
-2013-10-20 17:50:05 Finished running help workflow
-2013-10-20 17:50:05 Running exit tasks.
-2013-10-20 17:50:05 Finished in 0 seconds
-2013-10-20 17:50:05 Removing build area /tmp/rear.jk7hWMi39xtQGcD
-2013-10-20 17:50:05 End of program reached
+2013-10-20 18:09:17 Using build area '/tmp/rear.xQBrPJE9QFTRM1z'
+mkdir: created directory `/tmp/rear.xQBrPJE9QFTRM1z/rootfs'
+mkdir: created directory `/tmp/rear.xQBrPJE9QFTRM1z/tmp'
+2013-10-20 18:09:17 Running help workflow
+2013-10-20 18:09:17 Finished running help workflow
+2013-10-20 18:09:17 Running exit tasks.
+2013-10-20 18:09:17 Finished in 0 seconds
+2013-10-20 18:09:17 Removing build area /tmp/rear.xQBrPJE9QFTRM1z
+rmdir: removing directory, `/tmp/rear.xQBrPJE9QFTRM1z'
+2013-10-20 18:09:17 End of program reached
