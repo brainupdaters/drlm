@@ -1,10 +1,9 @@
-2013-10-20 18:09:17 Using build area '/tmp/rear.xQBrPJE9QFTRM1z'
-mkdir: created directory `/tmp/rear.xQBrPJE9QFTRM1z/rootfs'
-mkdir: created directory `/tmp/rear.xQBrPJE9QFTRM1z/tmp'
-2013-10-20 18:09:17 Running help workflow
-2013-10-20 18:09:17 Finished running help workflow
-2013-10-20 18:09:17 Running exit tasks.
-2013-10-20 18:09:17 Finished in 0 seconds
-2013-10-20 18:09:17 Removing build area /tmp/rear.xQBrPJE9QFTRM1z
-rmdir: removing directory, `/tmp/rear.xQBrPJE9QFTRM1z'
-2013-10-20 18:09:17 End of program reached
+2013-10-25 10:47:18 Disaster Recovery Linux Server 1.00 / Git
+2013-10-25 10:47:18 Command line options: /home/didac/DRLS/drls/usr/sbin/drls -s runbackup -- -c cli -m mac -a ipaddr -i id_client
+2013-10-25 10:47:18 Using log file: /home/didac/DRLS/drls/var/log/drls/rear-budoglap.log.lockless
+2013-10-25 10:47:18 Simulation mode activated, Disaster-Recovery-Linux-Server base directory: /home/didac/DRLS/drls/usr/share/drls
+2013-10-25 10:47:18 Running runbackup workflow
+2013-10-25 10:47:18 Running 'backup/run' stage
+2013-10-25 10:47:18 Finished running 'backup/run' stage in 0 seconds
+2013-10-25 10:47:18 Finished running runbackup workflow
+2013-10-25 10:47:18 Running exit tasks.

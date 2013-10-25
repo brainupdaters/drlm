@@ -1,23 +1,23 @@
 # input-output-functions.sh
 #
 # NOTE: This is the first file to be sourced (because of _ in the name) which is why
-#	it contains some special stuff like EXIT_TASKS that I want to be available everywhere
+# it contains some special stuff like EXIT_TASKS that I want to be available everywhere
 
-# input-output functions for Relax-and-Recover
+# input-output functions for Disaster Recovery Linux Server
 #
-#    Relax-and-Recover is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
+#  Disaster Recovery Linux Server is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
 
-#    Relax-and-Recover is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  Disaster Recovery Linux Server is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
 
-#    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#  You should have received a copy of the GNU General Public License
+#  along with Disaster Recovery Linux Server; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
 
@@ -142,7 +142,7 @@ BugError() {
 	fi
 	Error "BUG BUG BUG! " "$@" "
 === Issue report ===
-Please report this unexpected issue at: https://github.com/rear/rear/issues
+Please report this unexpected issue at: https://github.com/bainupdaters/drls/issues
 Also include the relevant bits from $LOGFILE
 
 HINT: If you can reproduce the issue, try using the -d or -D option !

@@ -185,7 +185,7 @@ if [[ -e "/etc/rear-release" ]]; then
 fi
 
 [[ -z "$SIMULATE" ]]
-LogPrintIfError "Simulation mode activated, Desaster-Recovery-Linux-Server base directory: $SHARE_DIR"
+LogPrintIfError "Simulation mode activated, Disaster-Recovery-Linux-Server base directory: $SHARE_DIR"
 
 # All workflows need to read the configurations first.
 # Combine configuration files
@@ -222,21 +222,21 @@ $PRODUCT $VERSION / $RELEASE_DATE
 $PRODUCT comes with ABSOLUTELY NO WARRANTY; for details see
 the GNU General Public License at: http://www.gnu.org/licenses/gpl.html
 
-Host $(uname -n) using Backup $BACKUP and Output $OUTPUT
-Build date: $(date -R)
-"
+#Host $(uname -n) using Backup $BACKUP and Output $OUTPUT
+#Build date: $(date -R)
+#"
 
 # create temporary work area and register removal exit task
-BUILD_DIR="$(mktemp -d -t rear.XXXXXXXXXXXXXXX)"
-StopIfError "Could not create build area '$BUILD_DIR'"
-QuietAddExitTask cleanup_build_area_and_end_program
-Log "Using build area '$BUILD_DIR'"
-ROOTFS_DIR=$BUILD_DIR/rootfs
-TMP_DIR=$BUILD_DIR/tmp
-mkdir -p $v $ROOTFS_DIR >&2
-StopIfError "Could not create $ROOTFS_DIR"
-mkdir -p $v $TMP_DIR >&2
-StopIfError "Could not create $TMP_DIR"
+#BUILD_DIR="$(mktemp -d -t rear.XXXXXXXXXXXXXXX)"
+#StopIfError "Could not create build area '$BUILD_DIR'"
+#QuietAddExitTask cleanup_build_area_and_end_program
+#Log "Using build area '$BUILD_DIR'"
+#ROOTFS_DIR=$BUILD_DIR/rootfs
+#TMP_DIR=$BUILD_DIR/tmp
+#mkdir -p $v $ROOTFS_DIR >&2
+#StopIfError "Could not create $ROOTFS_DIR"
+#mkdir -p $v $TMP_DIR >&2
+#StopIfError "Could not create $TMP_DIR"
 
 # Check for and run the requested workflow
 if has_binary WORKFLOW_$WORKFLOW; then
