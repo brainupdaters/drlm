@@ -2,7 +2,8 @@ Disaster Recovery Linux Server
 ==============================
 
 Disaster Recovery Linux Server is an Open Source bare metal disaster
-recovery and system migration server solution. 
+recovery and system migration management server-side solution. 
+DRLS uses ReaR on the client-side.
 
 Professional services and support are available.
 
@@ -12,7 +13,11 @@ read the Disaster Recovery Linux Server User Guide.
 
 REQUIREMENTS
 ------------
-
+isc-dhcpd
+nfs
+tftp
+bash
+gcal
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
 we don't list them as requirements. In case your specific workflow requires
@@ -56,18 +61,19 @@ Available options:
 
 List of commands:
 
- addclient       blablablabla
- deleteclient    blablablabla
- modifyclient    blablablabla
- listclient      blablablabla
- addnetwork      blablablabla
- deletenetwork   blablablabla
- modifynetwork   blablablabla
- listnetwork     blablablabla
- addbackup       blablablabla
- deletebackup    blablablabla
- definebackup    blablablabla
- listbackup      blablablabla
+ addbackup       register backup to database (Not yet implemented)
+ addclient       add client to database (Not yet implemented)
+ addnetwork      add network to DRLS (Not yet implemented)
+ delbackup       delete client backup and unregister from database (Not yet implemented)
+ delclient       delete client (Not yet implemented)
+ delnetwork      delete network from DRLS (Not yet implemented)
+ listbackup      list client backups (Not yet implemented)
+ listclient      list clients (Not yet implemented)
+ listnetwork     list networks (Not yet implemented)
+ modbackup       change backup properties (Not yet implemented)
+ modclient       modify client (Not yet implemented)
+ modnetwork      change network properties (Not yet implemented)
+ runbackup       run client backup and register to database (Not yet implemented)
  
  
  
