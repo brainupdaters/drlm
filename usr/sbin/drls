@@ -52,8 +52,8 @@ STEPBYSTEP=
 SIMULATE=
 VERBOSE=
 DEBUG=
-KEEP_BUILD_DIR=
-RECOVERY_MODE=
+#KEEP_BUILD_DIR=
+#RECOVERY_MODE=
 
 # Parse options
 OPTS="$(getopt -n $PROGRAM -o "dDhsSvVr:" -l "help,version" -- "$@")"

@@ -21,15 +21,87 @@
 WORKFLOW_runbackup_DESCRIPTION="run client backup and register to database"
 WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
+
+
+#while getopts ":c:i:" opt; do
+#  case $opt in
+#    c)
+#      Log "$WORKFLOW option -c was triggered, Value: $OPTARG" >&2
+#      CLINAME=$OPTARG
+#      ;;
+#    i)
+#      Log "$WORKFLOW option -i was triggered, Value: $OPTARG" >&2
+#      IDCLIENT=$OPTARG
+#      ;;
+#    \?)
+#      LogPrint "Invalid option: -$OPTARG" >&2
+#      echo "$WORKFLOW: unrecognized option -$OPTARG"
+#      echo "Try \`$PROGRAM --help' for more information."
+#      exit 1
+#      ;;
+#
+#    :)
+#      echo "$WORKFLOW: Option -$OPTARG requires an argument." >&2
+#      echo "Try \`$PROGRAM --help' for more information."
+#      exit 1
+#      ;;
+#  esac
+#done
+
+
+
+# Parse options
+OPT=
+OPT="$(getopt -n $WORKFLOW -o "c:i:" -l "client:,id:" -- "$@")"
+if (( $? != 0 )); then
+        echo "Try \`$PROGRAM --help' for more information."
+        exit 1
+fi
+
+eval set -- "$OPT"
+while true; do
+        case "$1" in
+                (-c|--client)
+                        # We need to take the option argument
+                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
+			then 
+				CLINAME="$2"
+			else
+				echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+				exit 1
+			fi
+			shift 
+			;;
+                (-i|--id)
+			# We need to take the option argument
+                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
+			then 
+				IDCLIENT="$2" 
+			else
+                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+               	        	exit 1
+			fi 
+			shift
+			;;
+                (--) shift; break;;
+                (-*)
+                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+                        echo "Try \`$PROGRAM --help' for more information."
+                        exit 1
+                        ;;
+        esac
+        shift
+done
+
+if [ -n "$CLINAME" ] && [ -n "$IDCLIENT" ]; then 
+	echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
+        echo "Try \`$PROGRAM --help' for more information."
+        exit 1
+fi
+
 WORKFLOW_runbackup () {
     echo runbackup workflow
     SourceStage "backup/run"
-#echo $0
-echo $1
-echo $2
-echo $3
-echo $4
-echo $5
 }
 
 #1	Check if client reqs. to backup (if is registered and conectivity)

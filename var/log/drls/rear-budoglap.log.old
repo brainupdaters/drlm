@@ -1,0 +1,4 @@
+2013-10-25 16:49:41 Disaster Recovery Linux Server 1.00 / Git
+2013-10-25 16:49:41 Command line options: /home/didac/DRLS/drls/usr/sbin/drls kk
+2013-10-25 16:49:41 ERROR: The specified command 'kk' does not exist !
+2013-10-25 16:49:41 Running exit tasks.

@@ -1,9 +1,27 @@
-2013-10-25 10:47:18 Disaster Recovery Linux Server 1.00 / Git
-2013-10-25 10:47:18 Command line options: /home/didac/DRLS/drls/usr/sbin/drls -s runbackup -- -c cli -m mac -a ipaddr -i id_client
-2013-10-25 10:47:18 Using log file: /home/didac/DRLS/drls/var/log/drls/rear-budoglap.log.lockless
-2013-10-25 10:47:18 Simulation mode activated, Disaster-Recovery-Linux-Server base directory: /home/didac/DRLS/drls/usr/share/drls
-2013-10-25 10:47:18 Running runbackup workflow
-2013-10-25 10:47:18 Running 'backup/run' stage
-2013-10-25 10:47:18 Finished running 'backup/run' stage in 0 seconds
-2013-10-25 10:47:18 Finished running runbackup workflow
-2013-10-25 10:47:18 Running exit tasks.
+2013-10-26 13:18:21.292322206 Disaster Recovery Linux Server 1.00 / Git
+2013-10-26 13:18:21.296212351 Command line options: /home/didac/DRLS/drls/usr/sbin/drls -d runbackup -- -c rear01
+2013-10-26 13:18:21.299889341 Using log file: /home/didac/DRLS/drls/var/log/drls/rear-budoglap.log.lockless
+2013-10-26 13:18:21.306380412 Combining configuration files
+2013-10-26 13:18:21.310195636 Skipping /home/didac/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2013-10-26 13:18:21.314151705 Skipping /home/didac/DRLS/drls/etc/drls/runbackup.conf (file not found or empty)
+2013-10-26 13:18:21.388021774 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2013-10-26 13:18:21.391424051 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2013-10-26 13:18:21.392999859 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2013-10-26 13:18:21.396563654 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2013-10-26 13:18:21.400424918 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2.conf (file not found or empty)
+2013-10-26 13:18:21.404276835 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2/i386.conf (file not found or empty)
+2013-10-26 13:18:21.408286310 Skipping /home/didac/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2013-10-26 13:18:21.412289826 Skipping /home/didac/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2013-10-26 13:18:21.416143332 Skipping /home/didac/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2013-10-26 13:18:21.428320774 Running runbackup workflow
+2013-10-26 13:18:21.432216215 Running 'backup/run' stage
+2013-10-26 13:18:21.450222602 Including backup/run/default/019_check_client_backup_reqs.sh
+2013-10-26 13:18:31.470786538 Client rear01 is not online! aborting...
+2013-10-26 13:18:31.480665079 Skipping /home/didac/DRLS/drls/usr/share/drls/backup/run/default/059_prepare_backup_preservation.sh (file not found or empty)
+2013-10-26 13:18:31.490219029 Skipping /home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh (file not found or empty)
+2013-10-26 13:18:31.499909212 Skipping /home/didac/DRLS/drls/usr/share/drls/backup/run/default/159_register_backup_to_database.sh (file not found or empty)
+2013-10-26 13:18:31.503545127 Finished running 'backup/run' stage in 10 seconds
+2013-10-26 13:18:31.507292050 Finished running runbackup workflow
+2013-10-26 13:18:31.512072687 Running exit tasks.
+2013-10-26 13:18:31.517224643 Exit task 'exec 8>&-'
+2013-10-26 13:18:31.520933911 Exit task 'exec 7>&-'
