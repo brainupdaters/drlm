@@ -50,13 +50,6 @@ function Source() {
 # sort them by their script file name and
 # source them
 function SourceStage() {
-
-#---------------------------
-
-		echo arch: $ARCH os: $OS vendor: $OS_MASTER_VENDOR  vendor_arch: $OS_MASTER_VENDOR_ARCH vendor_version: $OS_MASTER_VENDOR_VERSION $OS_VENDOR","$OS_VENDOR_ARCH
-
-#---------------------------
-
 	stage="$1"
 	shift
 	STARTSTAGE=$SECONDS
