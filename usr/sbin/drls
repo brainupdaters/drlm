@@ -95,12 +95,13 @@ fi
 # keep the remaining command line arguments to feed to the workflow
 ARGS=( "$@" )
 
+#No tenim cap daquests workflows, cal eliminar.
 # the following workflows are always verbose
-case "$WORKFLOW" in
-	(validate|dump|shell|recover)
-		VERBOSE=1
-	;;
-esac
+# case "$WORKFLOW" in
+#	(validate|dump|shell|recover)
+#		VERBOSE=1
+#	;;
+# esac
 
 # Make sure we have the necessary paths (eg. in cron), /sbin will be the first path to search.
 # some needed binaries are in /lib/udev or /usr/lib/udev
@@ -179,10 +180,11 @@ if [[ "$DEBUG" ]]; then
 	KEEP_BUILD_DIR=1
 fi
 
+#Mai es complira aquesta condicio al nostre programa
 # check if we are in recovery mode
-if [[ -e "/etc/rear-release" ]]; then
-	RECOVERY_MODE="y"
-fi
+#if [[ -e "/etc/rear-release" ]]; then
+#	RECOVERY_MODE="y"
+#fi
 
 [[ -z "$SIMULATE" ]]
 LogPrintIfError "Simulation mode activated, Disaster-Recovery-Linux-Server base directory: $SHARE_DIR"
