@@ -59,12 +59,13 @@ NUMERO=${#ARGUMENTS[@]}
 declare -a PARAMETRES1
 declare -a PARAMETRES2
 separador=0
+zona2=0
 
 for (( i=0;i<$NUMERO;i++ )); do
    char1=`echo ${ARGUMENTS[${i}]} | cut -c1`
    char2=`echo ${ARGUMENTS[${i}]} | cut -c2`
 
-   if [ "$separador" == "0" ]; then
+   if [ "$zona2" == "0" ]; then
       if [ "$char1" == "-" ]; then
          PARAMETRES1[$i]=${ARGUMENTS[${i}]}        
          if [ "$char2" == "-" ]; then
@@ -73,6 +74,7 @@ for (( i=0;i<$NUMERO;i++ )); do
          fi
       else
          separador=$i
+         zona2="1"
          PARAMETRES1[$i]=${ARGUMENTS[${i}]}
       fi
    else
@@ -124,14 +126,6 @@ fi
 # keep the remaining command line arguments to feed to the workflow
 set -- ${PARAMETRES2[@]}
 ARGS=( "$@" )
-
-#No tenim cap daquests workflows, cal eliminar.
-# the following workflows are always verbose
-# case "$WORKFLOW" in
-#	(validate|dump|shell|recover)
-#		VERBOSE=1
-#	;;
-# esac
 
 # Make sure we have the necessary paths (eg. in cron), /sbin will be the first path to search.
 # some needed binaries are in /lib/udev or /usr/lib/udev
@@ -210,12 +204,6 @@ if [[ "$DEBUG" ]]; then
 	KEEP_BUILD_DIR=1
 fi
 
-#Mai es complira aquesta condicio al nostre programa
-# check if we are in recovery mode
-#if [[ -e "/etc/rear-release" ]]; then
-#	RECOVERY_MODE="y"
-#fi
-
 [[ -z "$SIMULATE" ]]
 LogPrintIfError "Simulation mode activated, Disaster-Recovery-Linux-Server base directory: $SHARE_DIR"
 
@@ -257,18 +245,6 @@ the GNU General Public License at: http://www.gnu.org/licenses/gpl.html
 #Host $(uname -n) using Backup $BACKUP and Output $OUTPUT
 #Build date: $(date -R)
 #"
-
-# create temporary work area and register removal exit task
-#BUILD_DIR="$(mktemp -d -t rear.XXXXXXXXXXXXXXX)"
-#StopIfError "Could not create build area '$BUILD_DIR'"
-#QuietAddExitTask cleanup_build_area_and_end_program
-#Log "Using build area '$BUILD_DIR'"
-#ROOTFS_DIR=$BUILD_DIR/rootfs
-#TMP_DIR=$BUILD_DIR/tmp
-#mkdir -p $v $ROOTFS_DIR >&2
-#StopIfError "Could not create $ROOTFS_DIR"
-#mkdir -p $v $TMP_DIR >&2
-#StopIfError "Could not create $TMP_DIR"
 
 # Check for and run the requested workflow
 if has_binary WORKFLOW_$WORKFLOW; then
