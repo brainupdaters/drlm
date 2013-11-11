@@ -52,8 +52,37 @@ STEPBYSTEP=
 SIMULATE=
 VERBOSE=
 DEBUG=
-#KEEP_BUILD_DIR=
-#RECOVERY_MODE=
+
+# split the parameters into two parts, one for the DRLS and one for the workflow
+ARGUMENTS=("$@")
+NUMERO=${#ARGUMENTS[@]}
+declare -a PARAMETRES1
+declare -a PARAMETRES2
+separador=0
+
+for (( i=0;i<$NUMERO;i++ )); do
+   char1=`echo ${ARGUMENTS[${i}]} | cut -c1`
+   char2=`echo ${ARGUMENTS[${i}]} | cut -c2`
+
+   if [ "$separador" == "0" ]; then
+      if [ "$char1" == "-" ]; then
+         PARAMETRES1[$i]=${ARGUMENTS[${i}]}        
+         if [ "$char2" == "-" ]; then
+            ((i++))
+            PARAMETRES1[$i]=${ARGUMENTS[${i}]}
+         fi
+      else
+         separador=$i
+         PARAMETRES1[$i]=${ARGUMENTS[${i}]}
+      fi
+   else
+      PARAMETRES2[$(($i-$separador))]=${ARGUMENTS[${i}]}
+   fi
+   char1=`echo`
+   char2=`echo`
+done
+
+set -- ${PARAMETRES1[@]}
 
 # Parse options
 OPTS="$(getopt -n $PROGRAM -o "dDhsSvVr:" -l "help,version" -- "$@")"
@@ -93,6 +122,7 @@ if [[ -z "$WORKFLOW" ]]; then
 fi
 
 # keep the remaining command line arguments to feed to the workflow
+set -- ${PARAMETRES2[@]}
 ARGS=( "$@" )
 
 #No tenim cap daquests workflows, cal eliminar.
