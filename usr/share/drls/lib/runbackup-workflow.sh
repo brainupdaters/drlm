@@ -22,36 +22,7 @@ WORKFLOW_runbackup_DESCRIPTION="run client backup and register to database"
 WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
-
-#while getopts ":c:i:" opt; do
-#  case $opt in
-#    c)
-#      Log "$WORKFLOW option -c was triggered, Value: $OPTARG" >&2
-#      CLINAME=$OPTARG
-#      ;;
-#    i)
-#      Log "$WORKFLOW option -i was triggered, Value: $OPTARG" >&2
-#      IDCLIENT=$OPTARG
-#      ;;
-#    \?)
-#      LogPrint "Invalid option: -$OPTARG" >&2
-#      echo "$WORKFLOW: unrecognized option -$OPTARG"
-#      echo "Try \`$PROGRAM --help' for more information."
-#      exit 1
-#      ;;
-#
-#    :)
-#      echo "$WORKFLOW: Option -$OPTARG requires an argument." >&2
-#      echo "Try \`$PROGRAM --help' for more information."
-#      exit 1
-#      ;;
-#  esac
-#done
-
-
-
 # Parse options
-OPT=
 OPT="$(getopt -n $WORKFLOW -o "c:i:" -l "client:,id:" -- "$@")"
 if (( $? != 0 )); then
         echo "Try \`$PROGRAM --help' for more information."
@@ -112,4 +83,7 @@ WORKFLOW_runbackup () {
 #6	...
 #7	...
 
-
+# TODO -----------------
+# RUBEN: Repassar drls/usr/share/drls/backup/run/default/019_check_client_backup_reqs.sh
+# DIDI:  Fer prover i codi per  drls/usr/share/drls/backup/run/default/109_run_client_backup.sh
+# PAU: Crear pseudocodi i distribuir tasques
