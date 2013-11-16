@@ -1,4 +1,5 @@
 # file with default client functions to implant.
+# CLIENTDB="$VAR_DIR/client.data"
 
 function exist_client_id () {
   local CLI_ID=$1
