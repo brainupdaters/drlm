@@ -54,7 +54,7 @@ function get_client_mac(){
   fi
 }
 
-function check_client_conectiviti(){
+function check_client_connectivity(){
   local CLI_ID=$1
 # Check if parameter $1 is ok
   if ( exist_client_id "$CLI_ID" ) 
