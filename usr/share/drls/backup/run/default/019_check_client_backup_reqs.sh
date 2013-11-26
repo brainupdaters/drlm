@@ -30,7 +30,7 @@ fi
 
 # Check if client is available over the network
 
-ping -c 1 -t 5 $CLIIPADDR
+ping  -c 1 -t 2 $CLIIPADDR &>/dev/null
 if [ $? -eq 0 ] 
 then
 	LogPrint "Client $CLINAME is online!"
