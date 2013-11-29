@@ -15,7 +15,7 @@ eval "$DRLS_EVAL" &>/dev/null
 
 VERBOSE=1
 
-# source Relax-and-Recover functions
+# source DRLS functions
 for script in $SHARE_DIR/lib/*functions.sh ; do source $script ; done
 source $SHARE_DIR/lib/progresssubsystem.nosh
 

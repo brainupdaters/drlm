@@ -2,7 +2,7 @@
 # Check if the target client for backup is in DRLS client database
 
 if test -n "$CLINAME"; then
-	CLIREG=$(grep $CLINAME $CLIENTDB)
+	CLIREG=$(grep $CLINAME $CLIDB)
 	if [ "$(echo $CLIREG | awk 'BEGIN { FS = ":" } ; { print $2}')" == "$CLINAME" ]	
 	then
 		CLIMACADDR=$(echo $CLIREG | awk 'BEGIN { FS = ":" } ; { print $3}')
@@ -13,7 +13,7 @@ if test -n "$CLINAME"; then
 fi
 
 if test -n "$IDCLIENT"; then
-	CLIREG=$(grep $IDCLIENT $CLIENTDB)
+	CLIREG=$(grep $IDCLIENT $CLIDB)
         if [ "$(echo $CLIREG |awk 'BEGIN { FS = ":" } ; { print $1}')" == "$IDCLIENT" ]
         then
         	CLIMACADDR=$(echo $CLIREG | awk 'BEGIN { FS = ":" } ; { print $3}')

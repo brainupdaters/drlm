@@ -10,7 +10,7 @@ if [ $? -eq 0 ]; then
 	LogPrint "Error Reported!"
 	return 0
 else
-	LogPrint "${CMDOUT[@]}"
+	Error "${CMDOUT[@]}"
 	return 1
 fi
 }
@@ -20,13 +20,16 @@ fi
 function ErrReport(){
 
 local ERRMSG=$1
-# Check variables in config file
-report_error_ovo "${ERRMSG}"
+
+if [ ${ERRREPORT} == "yes" ]; then
+	report_error_ovo "${ERRMSG}"
+	return $?
+fi
 
 }
 
 
-# Maybe in backup finctions
+# Maybe in backup functions
 function run_rear_ssh_remote(){
 
 local CLIENT=$1
@@ -50,7 +53,7 @@ BKPOUT=$(ssh -t drls@${CLIENT} '${REARCMD}')
 if [ $? -ne 0 ]
 then    
         LogPrint "${BKPOUT[@]}"
-#       ErrReport ${BKPOUT[@]}
+        ErrReport ${BKPOUT[@]}
         [ $? -eq 0 ] && return 1
 else    
         LogPrint "${CLIENT}: Backup Succesful!"
