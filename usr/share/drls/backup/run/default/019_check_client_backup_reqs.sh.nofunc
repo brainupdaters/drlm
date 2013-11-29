@@ -1,3 +1,5 @@
+# Client database location
+CLIENTDB="$VAR_DIR/client.data"
 
 # Check if the target client for backup is in DRLS client database
 
@@ -8,7 +10,8 @@ if test -n "$CLINAME"; then
 		CLIMACADDR=$(echo $CLIREG | awk 'BEGIN { FS = ":" } ; { print $3}')
 	        CLIIPADDR=$(echo $CLIREG | awk 'BEGIN { FS = ":" } ; { print $4}')
 	else
-		StopIfError "$PROGRAM: Client named: $CLINAME not registered!"
+		LogPrint "$PROGRAM: Client named: $CLINAME not registered!"
+               	exit 1
 	fi
 fi
 
@@ -19,7 +22,8 @@ if test -n "$IDCLIENT"; then
         	CLIMACADDR=$(echo $CLIREG | awk 'BEGIN { FS = ":" } ; { print $3}')
        		CLIIPADDR=$(echo $CLIREG | awk 'BEGIN { FS = ":" } ; { print $4}')
         else
-        	StopIfError "$PROGRAM: Client with ID: $IDCLIENT not registered!"
+        	LogPrint "$PROGRAM: Client with ID: $IDCLIENT not registered!"
+        	exit 1
         fi
 
 fi
@@ -36,6 +40,6 @@ echo ".-.-.-.-.-.-.-.-.-."
 echo $CLIMACADDR
 echo $CLIIPADDR
 else
-	StopIfError "Client $CLINAME is not online! aborting..." 
+	LogPrint "Client $CLINAME is not online! aborting..." 
 fi
 

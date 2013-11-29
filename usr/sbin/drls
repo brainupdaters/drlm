@@ -155,6 +155,7 @@ source $SHARE_DIR/conf/default.conf
 
 # include functions
 for script in $SHARE_DIR/lib/*.sh ; do
+#	echo $script >> /tmp/sourcetest.log
 	source $script
 done
 

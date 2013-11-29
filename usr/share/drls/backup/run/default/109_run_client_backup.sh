@@ -2,13 +2,6 @@
 # Maybe in reporting functions
 function report_error_ovo(){
 
-# HP OVO variables on config files
-OVOCMD="/opt/OV/bin/OpC/opcmsg" 
-OVOAPP="DRLS"
-OVOSEV="Major"
-OVOOBJ="OS"
-OVOMSGGRP="LINUX"
-
 local ERRMSG=$1
 local CMDOUT
 
@@ -58,10 +51,10 @@ if [ $? -ne 0 ]
 then    
         LogPrint "${BKPOUT[@]}"
 #       ErrReport ${BKPOUT[@]}
-        return 1
+        [ $? -eq 0 ] && return 1
 else    
-        LogPrint "Backup succesful!"
-	return 0
+        LogPrint "${CLIENT}: Backup Succesful!"
+	[ $? -eq 0 ] && return 0
 fi
 
 

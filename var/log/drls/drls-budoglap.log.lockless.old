@@ -1,0 +1,17 @@
+2013-11-28 13:08:31 Disaster Recovery Linux Server 1.00 / Git
+2013-11-28 13:08:31 Command line options: ./sbin/drls -v runbackup -c rear03
+2013-11-28 13:08:31 Using log file: /home/didac/DRLS/drls/var/log/drls/drls-budoglap.log.lockless
+2013-11-28 13:08:31 Running runbackup workflow
+2013-11-28 13:08:31 Running 'backup/run' stage
+2013-11-28 13:08:31 Including backup/run/default/019_check_client_backup_reqs.sh
+2013-11-28 13:08:31 ERROR: drls: Client named: rear03 not registered!
+=== Stack trace ===
+Trace 0: ./sbin/drls:253 main
+Trace 1: /home/didac/DRLS/drls/usr/share/drls/lib/runbackup-workflow.sh:75 WORKFLOW_runbackup
+Trace 2: /home/didac/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
+Trace 3: /home/didac/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
+Trace 4: /home/didac/DRLS/drls/usr/share/drls/backup/run/default/019_check_client_backup_reqs.sh:11 source
+Trace 5: /home/didac/DRLS/drls/usr/share/drls/lib/_input-output-functions.sh:131 StopIfError
+Message: drls: Client named: rear03 not registered!
+===================
+2013-11-28 13:08:31 Running exit tasks.
