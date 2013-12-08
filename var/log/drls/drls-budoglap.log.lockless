@@ -1,0 +1,28 @@
+2013-12-08 19:59:00.619992781 Disaster Recovery Linux Server 1.00 / Git
+2013-12-08 19:59:00.623680567 Command line options: usr/sbin/drls -dv runbackup -c rhREARcli
+2013-12-08 19:59:00.626867060 Using log file: /home/didac/DRLS/drls/var/log/drls/drls-budoglap.log.lockless
+2013-12-08 19:59:00.633838766 Combining configuration files
+2013-12-08 19:59:00.638244536 Skipping /home/didac/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2013-12-08 19:59:00.641847702 Skipping /home/didac/DRLS/drls/etc/drls/runbackup.conf (file not found or empty)
+2013-12-08 19:59:00.702466017 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2013-12-08 19:59:00.705029795 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2013-12-08 19:59:00.707980284 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2013-12-08 19:59:00.711735765 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2013-12-08 19:59:00.715758484 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2.conf (file not found or empty)
+2013-12-08 19:59:00.719839729 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2/i386.conf (file not found or empty)
+2013-12-08 19:59:00.724016100 Skipping /home/didac/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2013-12-08 19:59:00.728017404 Skipping /home/didac/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2013-12-08 19:59:00.731258134 Skipping /home/didac/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2013-12-08 19:59:00.744343390 Running runbackup workflow
+2013-12-08 19:59:00.748367551 Running 'backup/run' stage
+2013-12-08 19:59:00.767044407 Including backup/run/default/019_check_client_backup_reqs.sh
+2013-12-08 19:59:00.808826813 Client rhREARcli is online!
+2013-12-08 19:59:00.818541734 Skipping /home/didac/DRLS/drls/usr/share/drls/backup/run/default/059_prepare_backup_preservation.sh (file not found or empty)
+2013-12-08 19:59:00.827931499 Including backup/run/default/109_run_client_backup.sh
+2013-12-08 20:04:31.739845726 rhREARcli: Backup Succesful!
+2013-12-08 20:04:31.743637393 Skipping /home/didac/DRLS/drls/usr/share/drls/backup/run/default/159_register_backup_to_database.sh (file not found or empty)
+2013-12-08 20:04:31.744950919 Finished running 'backup/run' stage in 331 seconds
+2013-12-08 20:04:31.746249552 Finished running runbackup workflow
+2013-12-08 20:04:31.747554097 Running exit tasks.
+2013-12-08 20:04:31.749258198 Exit task 'exec 8>&-'
+2013-12-08 20:04:31.750564860 Exit task 'exec 7>&-'

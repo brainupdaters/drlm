@@ -2,15 +2,22 @@
 # Maybe in reporting functions
 function report_error_ovo(){
 
-local ERRMSG=$1
+local ERRMSG="$@"
+#local ERRMSG="$*"
 local CMDOUT
 
-CMDOUT=$(${OVOCMD} a=${OVOAPP} s=${OVOSEV} o="${OVOOBJ}" msg_text="${ERRMSG}" msg_grp=${OVOMSGGRP};)
+echo "······················"
+echo "$ERRMSG"
+echo "······················"
+
+
+echo "${OVOCMD} a="${OVOAPP}" s="${OVOSEV}" o="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG""
+#CMDOUT=$(${OVOCMD} application="${OVOAPP}" severity="${OVOSEV}" object="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG";)
 if [ $? -eq 0 ]; then
 	LogPrint "Error Reported!"
 	return 0
 else
-	Error "${CMDOUT[@]}"
+	Error "${CMDOUT}"
 	return 1
 fi
 }
@@ -19,9 +26,11 @@ fi
 # Maybe in framework functions
 function ErrReport(){
 
-local ERRMSG=$1
+local ERRMSG="$@"
+#local ERRMSG="$*"
 
-if [ ${ERRREPORT} == "yes" ]; then
+
+if [ "${ERR_REPORT}" == "yes" ]; then
 	report_error_ovo "${ERRMSG}"
 	return $?
 fi
@@ -48,12 +57,12 @@ else
 	fi
 fi
 
-BKPOUT=$(ssh -t drls@${CLIENT} '${REARCMD}')
+BKPOUT=$(ssh -t drls@${CLIENT} ${REARCMD} 2>&1)
 
 if [ $? -ne 0 ]
 then    
-        LogPrint "${BKPOUT[@]}"
-        ErrReport ${BKPOUT[@]}
+        LogPrint "${BKPOUT}"
+        ErrReport "${BKPOUT}"
         [ $? -eq 0 ] && return 1
 else    
         LogPrint "${CLIENT}: Backup Succesful!"

@@ -1,17 +1,181 @@
-2013-11-28 13:08:31 Disaster Recovery Linux Server 1.00 / Git
-2013-11-28 13:08:31 Command line options: ./sbin/drls -v runbackup -c rear03
-2013-11-28 13:08:31 Using log file: /home/didac/DRLS/drls/var/log/drls/drls-budoglap.log.lockless
-2013-11-28 13:08:31 Running runbackup workflow
-2013-11-28 13:08:31 Running 'backup/run' stage
-2013-11-28 13:08:31 Including backup/run/default/019_check_client_backup_reqs.sh
-2013-11-28 13:08:31 ERROR: drls: Client named: rear03 not registered!
-=== Stack trace ===
-Trace 0: ./sbin/drls:253 main
-Trace 1: /home/didac/DRLS/drls/usr/share/drls/lib/runbackup-workflow.sh:75 WORKFLOW_runbackup
-Trace 2: /home/didac/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
-Trace 3: /home/didac/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
-Trace 4: /home/didac/DRLS/drls/usr/share/drls/backup/run/default/019_check_client_backup_reqs.sh:11 source
-Trace 5: /home/didac/DRLS/drls/usr/share/drls/lib/_input-output-functions.sh:131 StopIfError
-Message: drls: Client named: rear03 not registered!
-===================
-2013-11-28 13:08:31 Running exit tasks.
+2013-12-02 18:21:08.041949405 Disaster Recovery Linux Server 1.00 / Git
+2013-12-02 18:21:08.043716550 Command line options: usr/sbin/drls -dD runbackup -c rhREARcli
+2013-12-02 18:21:08.045379795 Using log file: /home/didac/DRLS/drls/var/log/drls/drls-budoglap.log.lockless
+2013-12-02 18:21:08.048097725 Combining configuration files
+2013-12-02 18:21:08.049796652 Skipping /home/didac/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2013-12-02 18:21:08.051436247 Skipping /home/didac/DRLS/drls/etc/drls/runbackup.conf (file not found or empty)
+2013-12-02 18:21:08.116718176 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2013-12-02 18:21:08.118307989 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2013-12-02 18:21:08.119894697 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2013-12-02 18:21:08.121567500 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2013-12-02 18:21:08.123182968 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2.conf (file not found or empty)
+2013-12-02 18:21:08.124793541 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2/i386.conf (file not found or empty)
+2013-12-02 18:21:08.127178267 Skipping /home/didac/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2013-12-02 18:21:08.128987579 Skipping /home/didac/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2013-12-02 18:21:08.130641798 Skipping /home/didac/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2013-12-02 18:21:08.136065119 Running runbackup workflow
+2013-12-02 18:21:08.137744354 Running 'backup/run' stage
+2013-12-02 18:21:08.146265804 Including backup/run/default/019_check_client_backup_reqs.sh
++ . /home/didac/DRLS/drls/usr/share/drls/backup/run/default/019_check_client_backup_reqs.sh
+++ test -n rhREARcli
+++ echo 'by cliname'
+++ exist_client_name rhREARcli
+++ local CLI_NAME=rhREARcli
+++ grep -w rhREARcli /home/didac/DRLS/drls/var/lib/drls/client.data
+++ grep rhREARcli
+++ awk -F: '{print $2}'
+++ '[' 0 == 0 ']'
+++ return 0
+++ echo h1
++++ get_cient_id_by_name rhREARcli
++++ local CLI_NAME=rhREARcli
++++ grep -w rhREARcli /home/didac/DRLS/drls/var/lib/drls/client.data
++++ grep rhREARcli
++++ awk -F: '{print $2}'
++++ '[' 0 == 0 ']'
+++++ grep -w rhREARcli /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $1}'
++++ CLI_ID=0005
++++ echo 0005
+++ IDCLIENT=0005
++++ get_client_mac 0005
++++ local CLI_ID=0005
++++ exist_client_id 0005
++++ local CLI_ID=0005
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $1}'
++++ grep 0005
++++ '[' 0 == 0 ']'
++++ return 0
+++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $3}'
++++ CLI_MAC=
++++ echo
+++ CLIMACADDR=
++++ get_client_ip 0005
++++ local CLI_ID=0005
++++ exist_client_id 0005
++++ local CLI_ID=0005
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $1}'
++++ grep 0005
++++ '[' 0 == 0 ']'
++++ return 0
+++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $4}'
++++ CLI_IP=10.0.0.200
++++ echo 10.0.0.200
+++ CLIIPADDR=10.0.0.200
+++ echo h2
+++ check_client_connectivity 0005
+++ local CLI_ID=0005
+++ exist_client_id 0005
+++ local CLI_ID=0005
+++ awk -F: '{print $1}'
+++ grep 0005
+++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++ '[' 0 == 0 ']'
+++ return 0
++++ awk -F: '{print $4}'
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++ CLI_IP=10.0.0.200
+++ ping -c 1 -t 2 10.0.0.200
+++ '[' 0 -eq 0 ']'
+++ return 0
+++ LogPrint 'Client rhREARcli is online!'
+++ Log 'Client rhREARcli is online!'
+++ test 1 -gt 0
++++ Stamp
++++ date '+%Y-%m-%d %H:%M:%S.%N '
+++ echo '2013-12-02 18:21:08.174963736 Client rhREARcli is online!'
+2013-12-02 18:21:08.174963736 Client rhREARcli is online!
+++ Print 'Client rhREARcli is online!'
+++ test 1
+++ echo -e 'Client rhREARcli is online!'
+++ echo rhREARcli
+++ echo 0005
+++ echo .-.-.-.-.-.-.-.-.-.
+++ echo
+++ echo 10.0.0.200
++ test 1
++ set +x
+2013-12-02 18:21:08.179707267 Skipping /home/didac/DRLS/drls/usr/share/drls/backup/run/default/059_prepare_backup_preservation.sh (file not found or empty)
+2013-12-02 18:21:08.185281795 Including backup/run/default/109_run_client_backup.sh
++ . /home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh
+++ run_rear_ssh_remote rhREARcli B
+++ local CLIENT=rhREARcli
+++ local MODE=B
+++ local REARCMD
+++ local BKPOUT
+++ '[' B == B ']'
+++ REARCMD='sudo rear mkbackup'
++++ ssh -t drls@rhREARcli sudo rear mkbackup
+++ BKPOUT='ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ '[' 143 -ne 0 ']'
+++ LogPrint 'ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ Log 'ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ test 1 -gt 0
++++ Stamp
++++ date '+%Y-%m-%d %H:%M:%S.%N '
+++ echo '2013-12-02 18:23:37.673165882 ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+2013-12-02 18:23:37.673165882 ERROR: Mount command 'mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.
+++ Print 'ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ test 1
+++ echo -e 'ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ ErrReport 'ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ local 'ERRMSG=ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ '[' yes == yes ']'
+++ report_error_ovo 'ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ local 'ERRMSG=ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ local CMDOUT
+++ echo $'\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267'
+++ echo 'ERROR: Mount command '\''mount  -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe /tmp/rear.oHewEDewLyFvmMx/outputfs'\'' failed.
+Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for details
+Connection to rhREARcli closed.'
+++ echo $'\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267'
+++ echo '/opt/OV/bin/OpC/opcmsg a=DRLS s=Major o=OS msg_grp=LINUX msg_text=ERROR:' Mount command ''\''mount' -t nfs -o rw,noatime 10.0.0.100:/REAR/pxe '/tmp/rear.oHewEDewLyFvmMx/outputfs'\''' $'failed.\r' Aborting due to an error, check /var/log/rear/rear-rhREARcli.log for $'details\r' Connection to rhREARcli $'closed.\r'
+++ '[' 0 -eq 0 ']'
+++ LogPrint 'Error Reported!'
+++ Log 'Error Reported!'
+++ test 1 -gt 0
++++ Stamp
++++ date '+%Y-%m-%d %H:%M:%S.%N '
+++ echo '2013-12-02 18:23:37.675855480 Error Reported!'
+2013-12-02 18:23:37.675855480 Error Reported!
+++ Print 'Error Reported!'
+++ test 1
+++ echo -e 'Error Reported!'
+++ return 0
+++ return 0
+++ '[' 0 -eq 0 ']'
+++ return 1
++ test 1
++ set +x
+2013-12-02 18:23:37.679832378 Skipping /home/didac/DRLS/drls/usr/share/drls/backup/run/default/159_register_backup_to_database.sh (file not found or empty)
+2013-12-02 18:23:37.681320565 Finished running 'backup/run' stage in 149 seconds
+2013-12-02 18:23:37.683047122 Finished running runbackup workflow
+2013-12-02 18:23:37.684882473 Running exit tasks.
+2013-12-02 18:23:37.687002107 Exit task 'exec 8>&-'
+2013-12-02 18:23:37.688394552 Exit task 'exec 7>&-'
