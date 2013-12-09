@@ -1,0 +1,83 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# This is the debhelper compatibility version to use.
+export DH_COMPAT=5
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+	# noop
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	# noop
+	dh_clean
+
+# Build architecture-independent files here.
+binary-indep: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	
+	# The DESTDIR Has To Be Exactly debian/drls
+	mkdir -vp \
+		debian/drls/etc/ \
+		debian/drls/usr/sbin/ \
+		debian/drls/usr/share/ \
+		debian/drls/var/lib/drls/ \
+		debian/drls/var/log/drls/
+	
+#		debian/drls/usr/share/man/man8/ \
+
+	# copy drls components into directories
+	cp -av etc/drls debian/drls/etc/
+	cp -av usr/sbin/drls debian/drls/usr/sbin/
+	cp -av usr/share/drls debian/drls/usr/share/
+	cp -av var/lib/drls debian/drls/var/lib/
+	
+	# patch drls main script with correct locations for drls components
+	sed -i  \
+		-e 's#^CONFIG_DIR=.*#CONFIG_DIR="/etc/drls"#' \
+		-e 's#^SHARE_DIR=.*#SHARE_DIR="/usr/share/drls"#' \
+		-e 's#^VAR_DIR=.*#VAR_DIR="/var/lib/drls"#' \
+		debian/drls/usr/sbin/drls
+	
+	# update man page with correct locations
+#	install -Dp -m0644 doc/drls.8 debian/drls/usr/share/man/man8/drls.8
+#	sed -i \
+#		-e 's#/usr/share/doc/packages#/usr/share/doc#' \
+#		debian/drls/usr/share/man/man8/drls.8
+#	
+	# --- end custom part for installing
+	
+#	dh_installdocs README doc/*
+	dh_installdocs README
+	dh_installchangelogs
+	# dh_installman usr/share/drls/doc/drls.8
+	find debian/drls -name ".git*" -exec rm {} \;
+#	rm debian/drls/usr/share/doc/drls/Makefile
+#	rm debian/drls/usr/share/doc/drls/drls.8.txt
+#	rm debian/drls/usr/share/doc/drls/user-guide/Makefile
+#	rm debian/drls/usr/share/doc/drls/drls.8
+	dh_link
+	dh_strip
+	dh_fixperms
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: build
+
+binary: binary-arch binary-indep
+.PHONY: build clean binary-indep binary-arch binary

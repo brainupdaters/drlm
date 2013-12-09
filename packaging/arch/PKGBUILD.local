@@ -1,0 +1,25 @@
+Maintainer:
+pkgname=drls
+pkgver=VERSION
+pkgrel=1
+pkgdesc="Disaster Recovery Linux Server"
+arch=(any)
+url="http://future_drls_web/"
+license=('GPL')
+#depends=(lsb-release iproute2 parted mingetty cpio openssl)
+depends=()
+#optdepends=( 'nfs-utils: to save images to NFS shares'
+#             'cdrkit: to create ISO images'
+#             'syslinux: to create bootable media')
+makedepends=('git' 'asciidoc' 'xmlto')
+provides=('drls')
+backup=('etc/drls/local.conf')
+source=(SOURCE)
+md5sums=(MD5SUM)
+
+package() {
+  cd $srcdir/drls-*/
+  make DESTDIR="${pkgdir}/" install
+}
+
+# vim:set ts=2 sw=2 et:

@@ -1,0 +1,12 @@
+Source: drls
+Section: misc
+Priority: optional
+Maintainer: See AUTHORS file
+Homepage: not yet 
+
+Package: drls
+Architecture: all
+Provides: drls
+Build-Depends: debhelper (>> 5.0.0)
+Depends: 
+Description: 
