@@ -11,7 +11,7 @@ Version: 1.00-git201312082025
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
-URL: Not yet
+#URL: 
 
 Source: https://future_drls_website/drls/1.00-git201312082025/drls-1.00-git201312082025-git201312082027.tar.gz
 
@@ -88,7 +88,7 @@ Requires: crontabs
 #Requires: redhat-lsb
 %endif
 
-Obsoletes: 
+#Obsoletes: 
 
 %description
 DRLS is an Open Source disaster recovery and system ...
