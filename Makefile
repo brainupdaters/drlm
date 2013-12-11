@@ -152,6 +152,8 @@ install-var:
 	@echo -e "\033[1m== Installing working directory ==\033[0;0m"
 	install -d -m0755 $(DESTDIR)$(localstatedir)/lib/drls/
 	install -d -m0755 $(DESTDIR)$(localstatedir)/log/drls/
+	cp -a var/lib/drls/. $(DESTDIR)$(localstatedir)/lib/drls/
+	-find $(DESTDIR)$(localstatedir)/lib/drls/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 
 install-doc:
 #	@echo -e "\033[1m== Installing documentation ==\033[0;0m"

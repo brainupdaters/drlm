@@ -1,19 +1,19 @@
-%define rpmrelease .git201312082027
+%define rpmrelease .git
 
 ### Work-around the fact that OpenSUSE/SLES _always_ defined both :-/
 %if 0%{?sles_version} == 0
 %undefine sles_version
 %endif
 
-Summary: Relax-and-Recover is a Linux disaster recovery and system migration tool
+Summary: DRLS
 Name: drls
-Version: 1.00-git201312082025
-Release: 1%{?rpmrelease}%{?dist}
+Version: 1.00
+Release: %{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
 #URL: 
 
-Source: https://future_drls_website/drls/1.00-git201312082025/drls-1.00-git201312082025-git201312082027.tar.gz
+Source: https://future_drls_website/drls/drls-1.00.tar.gz
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -98,7 +98,7 @@ DRLS is an Open Source disaster recovery and system ...
 Professional services and support are available.
 
 %prep
-%setup -q -n drls-1.00-git201312082025-git201312082027
+%setup -q -n drls-1.00-git
 
 #echo "55 0 * * * root /usr/sbin/drls sched" >drls.cron
 
