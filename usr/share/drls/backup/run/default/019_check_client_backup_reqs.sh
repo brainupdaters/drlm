@@ -12,6 +12,7 @@ if test -n "$CLINAME"; then
 else
         if exist_client_id "$IDCLIENT" ;
         then
+		CLINAME=$(get_cient_name $IDCLIENT)
         	CLIMACADDR=$(get_client_mac $IDCLIENT)
 	        CLIIPADDR=$(get_client_ip $IDCLIENT)
         else
