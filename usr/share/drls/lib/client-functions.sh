@@ -1,4 +1,4 @@
-# file with default client functions to implant.
+# file with default client functions to implement.
 # $CLIDB is the defaul.conf variable of Client file
 
 function exist_client_id () {
