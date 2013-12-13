@@ -96,3 +96,28 @@ function check_client_connectivity () {
   fi
 }
 
+function check_client_ssh () {
+  local CLI_ID=$1
+# Check if parameter $1 is ok
+  if exist_client_id "$CLI_ID" ;
+  then
+        # Get IP and NAME  
+        CLI_IP=$(get_client_ip $CLI_ID)
+        CLI_NAME=$(get_client_name $CLI_ID)
+        #get hostname to compare with cliname , if ok , return client name
+        CLI_NAME_CHECK=`ssh -o BatchMode=yes -o ConnectTimeout=3 $CLI_IP hostname -s`
+        if [ $? -eq 0 ]
+        then
+                if [ "$CLI_NAME" = "$CLI_NAME_CHECK" ];then echo $CLI_NAME; else LogPrint "ERROR: Client Name do not match" ;exit 1;fi
+        else
+                LogPrint "ERROR: Client not available"
+                exit 1
+        fi
+  else
+        # Error client not exist "exit X"?
+        LogPrint "ERROR: Client not exist"
+        exit 1
+
+  fi
+}
+
