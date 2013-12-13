@@ -1,2 +1,2 @@
-id:clientid:filename:date::
-000001:0001:backupname.tar.bz:ddmmyyhhmm::
+id:clientid:filenameBackup:filenamePXE:::
+20131212195642:0001:rear01.20131212195642.bak.arch:rear01.20131212195642.pxe,arch:::
