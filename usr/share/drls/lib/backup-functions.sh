@@ -3,7 +3,7 @@
 function run_mkbackup_ssh_remote () {
    #returns stdo of ssh
    local CLI_ID=$1
-   local CLIENT=get_client_name $CLI_ID
+   local CLIENT=$(get_client_name $CLI_ID)
    local REARCMD
    local BKPOUT
    BKPOUT=$(ssh -t drls@${CLIENT} 'sudo rear mkbackup' 2>&1)
@@ -18,7 +18,7 @@ function run_mkbackup_ssh_remote () {
 function run_mkrescue_ssh_remote () {
    #returns stdo of ssh
    local CLI_ID=$1
-   local CLIENT=get_client_name $CLI_ID
+   local CLIENT=$(get_client_name $CLI_ID)
    local REARCMD
    local BKPOUT
    BKPOUT=$(ssh -t drls@${CLIENT} 'sudo rear mkrescue' 2>&1)
