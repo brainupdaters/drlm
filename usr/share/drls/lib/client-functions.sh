@@ -30,7 +30,7 @@ function get_cient_id_by_name(){
   else 
 	# Error client not exist "exit X"?
 	LogPrint "ERROR: Client not exist"
-	exit 1
+	return 1
   fi
 }
 
@@ -45,7 +45,7 @@ function get_client_ip(){
   else
 	# Error client not exist "exit X"?
 	LogPrint "ERROR: Client not exist"
-	exit 1
+	return 1
   fi
 }
 
@@ -60,7 +60,7 @@ function get_client_name(){
   else
 	# Error client not exist "exit X"?
 	LogPrint "ERROR: Client not exist"
-	exit 1
+	return 1
   fi
 }
 
@@ -75,7 +75,7 @@ function get_client_mac(){
   else
 	# Error client not exist "exit X"?
 	LogPrint "ERROR: Client not exist"
-	exit 1
+	return 1
   fi
 }
 
@@ -91,7 +91,7 @@ function check_client_connectivity () {
   else
 	# Error client not exist "exit X"?
 	LogPrint "ERROR: Client not exist"
-	exit 1
+	return 1
 
   fi
 }
@@ -108,15 +108,15 @@ function check_client_ssh () {
         CLI_NAME_CHECK=$(ssh -o BatchMode=yes -o ConnectTimeout=3 drls@$CLI_IP hostname -s)
         if [ $? -eq 0 ]
         then
-                if [ "$CLI_NAME" = "$CLI_NAME_CHECK" ];then echo $CLI_NAME; else LogPrint "ERROR: Client Name do not match" ;exit 1;fi
+                if [ "$CLI_NAME" = "$CLI_NAME_CHECK" ];then echo $CLI_NAME; else LogPrint "ERROR: Client Name do not match" ;return 1;fi
         else
                 LogPrint "ERROR: Client not available"
-                exit 1
+                return 1
         fi
   else
         # Error client not exist "exit X"?
         LogPrint "ERROR: Client not exist"
-        exit 1
+        return 1
 
   fi
 }
