@@ -1,0 +1,276 @@
+2013-12-15 23:37:13.221776658 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2013-12-15 23:37:13.224879482 Command line options: usr/sbin/drls -dDv runbackup -c rhREARcli
+2013-12-15 23:37:13.227999936 Using log file: /home/didac/DRLS/drls/var/log/drls/drls-budoglap.log.lockless
+2013-12-15 23:37:13.232245041 Combining configuration files
+2013-12-15 23:37:13.236515468 Skipping /home/didac/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2013-12-15 23:37:13.240670593 Skipping /home/didac/DRLS/drls/etc/drls/runbackup.conf (file not found or empty)
+2013-12-15 23:37:13.321589672 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2013-12-15 23:37:13.324813681 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2013-12-15 23:37:13.326177694 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2013-12-15 23:37:13.329959617 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2013-12-15 23:37:13.333861889 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2.conf (file not found or empty)
+2013-12-15 23:37:13.337392487 Skipping /home/didac/DRLS/drls/usr/share/drls/conf/Debian/7.2/i386.conf (file not found or empty)
+2013-12-15 23:37:13.341197172 Skipping /home/didac/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2013-12-15 23:37:13.345136954 Skipping /home/didac/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2013-12-15 23:37:13.349224096 Skipping /home/didac/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2013-12-15 23:37:13.362399816 Running runbackup workflow
+2013-12-15 23:37:13.366259299 Running 'backup/run' stage
+2013-12-15 23:37:13.386362826 Including backup/run/default/019_check_client_backup_reqs.sh
++ . /home/didac/DRLS/drls/usr/share/drls/backup/run/default/019_check_client_backup_reqs.sh
+++ test -n rhREARcli
+++ exist_client_name rhREARcli
+++ local CLI_NAME=rhREARcli
+++ grep -w rhREARcli /home/didac/DRLS/drls/var/lib/drls/client.data
+++ awk -F: '{print $2}'
+++ grep rhREARcli
+++ '[' 0 == 0 ']'
+++ return 0
++++ get_cient_id_by_name rhREARcli
++++ local CLI_NAME=rhREARcli
++++ grep -w rhREARcli /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $2}'
++++ grep rhREARcli
++++ '[' 0 == 0 ']'
+++++ grep -w rhREARcli /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $1}'
++++ CLI_ID=0005
++++ echo 0005
+++ IDCLIENT=0005
++++ get_client_mac 0005
++++ local CLI_ID=0005
++++ exist_client_id 0005
++++ local CLI_ID=0005
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $1}'
++++ grep 0005
++++ '[' 0 == 0 ']'
++++ return 0
+++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $3}'
++++ CLI_MAC=
++++ echo
+++ CLIMACADDR=
++++ get_client_ip 0005
++++ local CLI_ID=0005
++++ exist_client_id 0005
++++ local CLI_ID=0005
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $1}'
++++ grep 0005
++++ '[' 0 == 0 ']'
++++ return 0
+++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $4}'
++++ CLI_IP=10.0.0.200
++++ echo 10.0.0.200
+++ CLIIPADDR=10.0.0.200
+++ check_client_connectivity 0005
+++ local CLI_ID=0005
+++ exist_client_id 0005
+++ local CLI_ID=0005
+++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++ awk -F: '{print $1}'
+++ grep 0005
+++ '[' 0 == 0 ']'
+++ return 0
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $4}'
+++ CLI_IP=10.0.0.200
+++ ping -c 1 -t 2 10.0.0.200
+++ '[' 0 -eq 0 ']'
+++ return 0
+++ LogPrint 'Client rhREARcli is online!'
+++ Log 'Client rhREARcli is online!'
+++ test 1 -gt 0
++++ Stamp
++++ date '+%Y-%m-%d %H:%M:%S.%N '
+++ echo '2013-12-15 23:37:13.454876676 Client rhREARcli is online!'
+2013-12-15 23:37:13.454876676 Client rhREARcli is online!
+++ Print 'Client rhREARcli is online!'
+++ test 1
+++ echo -e 'Client rhREARcli is online!'
+++ check_client_ssh 0005
+++ local CLI_ID=0005
+++ exist_client_id 0005
+++ local CLI_ID=0005
+++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++ awk -F: '{print $1}'
+++ grep 0005
+++ '[' 0 == 0 ']'
+++ return 0
++++ get_client_ip 0005
++++ local CLI_ID=0005
++++ exist_client_id 0005
++++ local CLI_ID=0005
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $1}'
++++ grep 0005
++++ '[' 0 == 0 ']'
++++ return 0
+++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $4}'
++++ CLI_IP=10.0.0.200
++++ echo 10.0.0.200
+++ CLI_IP=10.0.0.200
++++ get_client_name 0005
++++ local CLI_ID=0005
++++ exist_client_id 0005
++++ local CLI_ID=0005
++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
++++ awk -F: '{print $1}'
++++ grep 0005
++++ '[' 0 == 0 ']'
++++ return 0
+++++ grep -w 0005 /home/didac/DRLS/drls/var/lib/drls/client.data
+++++ awk -F: '{print $2}'
++++ CLI_NAME=rhREARcli
++++ echo rhREARcli
+++ CLI_NAME=rhREARcli
++++ ssh -o BatchMode=yes -o ConnectTimeout=3 drls@10.0.0.200 hostname -s
+++ CLI_NAME_CHECK=rhREARcli
+++ '[' 0 -eq 0 ']'
+++ '[' rhREARcli = rhREARcli ']'
+++ echo rhREARcli
+++ LogPrint 'Client rhREARcli SSH Server is online!'
+++ Log 'Client rhREARcli SSH Server is online!'
+++ test 1 -gt 0
++++ Stamp
++++ date '+%Y-%m-%d %H:%M:%S.%N '
+++ echo '2013-12-15 23:37:14.414229533 Client rhREARcli SSH Server is online!'
+2013-12-15 23:37:14.414229533 Client rhREARcli SSH Server is online!
+++ Print 'Client rhREARcli SSH Server is online!'
+++ test 1
+++ echo -e 'Client rhREARcli SSH Server is online!'
++ test 1
++ set +x
+2013-12-15 23:37:14.418035914 Including backup/run/default/059_prepare_backup_preservation.sh
++ . /home/didac/DRLS/drls/usr/share/drls/backup/run/default/059_prepare_backup_preservation.sh
+/home/didac/DRLS/drls/usr/share/drls/backup/run/default/059_prepare_backup_preservation.sh: line 31: syntax error near unexpected token `fi'
+/home/didac/DRLS/drls/usr/share/drls/backup/run/default/059_prepare_backup_preservation.sh: line 31: `fi'
++ test 1
++ set +x
+2013-12-15 23:37:14.421838727 Including backup/run/default/109_run_client_backup.sh
++ . /home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh
+++ run_rear_ssh_remote rhREARcli B
+++ local CLIENT=rhREARcli
+++ local MODE=B
+++ local REARCMD
+++ local BKPOUT
+++ '[' B == B ']'
+++ REARCMD='sudo rear mkbackup'
++++ ssh -t drls@rhREARcli sudo rear mkbackup
+++ BKPOUT='^CConnection to rhREARcli closed.'
+++ '[' 130 -ne 0 ']'
+++ LogPrint '^CConnection to rhREARcli closed.'
+++ Log '^CConnection to rhREARcli closed.'
+++ test 1 -gt 0
++++ Stamp
++++ date '+%Y-%m-%d %H:%M:%S.%N '
+++ echo '2013-12-15 23:38:50.752772389 ^CConnection to rhREARcli closed.'
+2013-12-15 23:38:50.752772389 ^CConnection to rhREARcli closed.
+++ Print '^CConnection to rhREARcli closed.'
+++ test 1
+++ echo -e '^CConnection to rhREARcli closed.'
+++ ErrReport '^CConnection to rhREARcli closed.'
+++ local 'ERRMSG=^CConnection to rhREARcli closed.'
+++ '[' yes == yes ']'
+++ report_error_ovo '^CConnection to rhREARcli closed.'
+++ local 'ERRMSG=^CConnection to rhREARcli closed.'
+++ local CMDOUT
+++ echo $'\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267'
+++ echo '^CConnection to rhREARcli closed.'
+++ echo $'\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267\302\267'
++++ /opt/OV/bin/OpC/opcmsg application=DRLS severity=Major object=OS msg_grp=LINUX 'msg_text=^CConnection to rhREARcli closed.'
+/home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh: line 15: /opt/OV/bin/OpC/opcmsg: No such file or directory
+++ CMDOUT=
+++ '[' 127 -eq 0 ']'
+++ Error ''
+++ '[' -eq ']'
+++ EXIT_CODE=
+++ shift
+++ VERBOSE=1
+++ LogPrint 'ERROR: '
+++ Log 'ERROR: '
+++ test 1 -gt 0
++++ Stamp
++++ date '+%Y-%m-%d %H:%M:%S.%N '
+++ echo '2013-12-15 23:38:50.755729253 ERROR: '
+2013-12-15 23:38:50.755729253 ERROR: 
+++ Print 'ERROR: '
+++ test 1
+++ echo -e 'ERROR: '
+++ has_binary caller
+++ for bin in '$@'
+++ type caller
+++ return 0
+++ echo '=== Stack trace ==='
+=== Stack trace ===
+++ local c=0
+++ caller 0
+++ :
+++ caller 1
+++ :
+++ caller 2
+++ :
+++ caller 3
+++ :
+++ caller 4
+++ :
+++ caller 5
+++ :
+++ caller 6
+++ :
+++ caller 7
+++ :
+++ caller 8
+++ awk '
+				{ l[NR]=$3":"$1" "$2 }
+				END { for (i=NR; i>0;) print "Trace "NR-i": "l[i--] }
+			'
+Trace 0: usr/sbin/drls:253 main
+Trace 1: /home/didac/DRLS/drls/usr/share/drls/lib/runbackup-workflow.sh:75 WORKFLOW_runbackup
+Trace 2: /home/didac/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
+Trace 3: /home/didac/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
+Trace 4: /home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh:78 source
+Trace 5: /home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh:65 run_rear_ssh_remote
+Trace 6: /home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh:34 ErrReport
+Trace 7: /home/didac/DRLS/drls/usr/share/drls/backup/run/default/109_run_client_backup.sh:20 report_error_ovo
+++ echo 'Message: '
+Message: 
+++ echo ===================
+===================
+++ kill -USR1 6973
++++ echo 'Aborting due to an error, check /home/didac/DRLS/drls/var/log/drls/drls-budoglap.log for details'
++++ kill 6973
++++ DoExitTasks
++++ Log 'Running exit tasks.'
++++ test 1 -gt 0
+++++ Stamp
+++++ date '+%Y-%m-%d %H:%M:%S.%N '
++++ echo '2013-12-15 23:38:50.759987868 Running exit tasks.'
+2013-12-15 23:38:50.759987868 Running exit tasks.
++++ JOBS=($(jobs -p))
+++++ jobs -p
++++ test ''
++++ for task in '"${EXIT_TASKS[@]}"'
++++ Debug 'Exit task '\''exec 8>&-'\'''
++++ test 1
++++ Log 'Exit task '\''exec 8>&-'\'''
++++ test 1 -gt 0
+++++ Stamp
+++++ date '+%Y-%m-%d %H:%M:%S.%N '
++++ echo '2013-12-15 23:38:50.762293144 Exit task '\''exec 8>&-'\'''
+2013-12-15 23:38:50.762293144 Exit task 'exec 8>&-'
++++ eval 'exec 8>&-'
+++++ exec
++++ for task in '"${EXIT_TASKS[@]}"'
++++ Debug 'Exit task '\''exec 7>&-'\'''
++++ test 1
++++ Log 'Exit task '\''exec 7>&-'\'''
++++ test 1 -gt 0
+++++ Stamp
+++++ date '+%Y-%m-%d %H:%M:%S.%N '
++++ echo '2013-12-15 23:38:50.770458233 Exit task '\''exec 7>&-'\'''
+2013-12-15 23:38:50.770458233 Exit task 'exec 7>&-'
++++ eval 'exec 7>&-'
+++++ exec

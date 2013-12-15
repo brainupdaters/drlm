@@ -9,6 +9,40 @@ function error_reporting () {
    fi
 }
 
+function report_error_ovo () {
+# Report $ERR_MSG through ovo
+# Return 0 for ok, return 1 not ok
+   local ERRMSG="$@"
+   local CMDOUT
+   CMDOUT=$(${OVOCMD} application="${OVOAPP}" severity="${OVOSEV}" object="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG";)
+   if [ $? -eq 0 ]; then
+      return 0
+   else
+      Error "${CMDOUT}"
+      return 1
+   fi
+}
+
+function report_error_nagios () {
+# Report $ERR_MSG through nagios
+# Return 0 for ok, return 1 not ok
+   local ERRMSG="$@"
+
+}
+
+function report_error_zabbix () {
+# Report $ERR_MSG through zabbix
+# Return 0 for ok, return 1 not ok
+   local ERRMSG="$@"
+
+}
+
+function report_error_mail () {
+# Report $ERR_MSG through mail
+# Return 0 for ok, return 1 not ok
+   local ERRMSG="$@"
+}
+
 function report_error () {
 # triggers the correct reporting type $REPORT_TYPE [ovo|nagios|zabbix|mail|...]
 # Return 0 for ok return 1 not ok 
@@ -34,37 +68,4 @@ function report_error () {
          ;;
       esac
    fi
-}
-
-function report_error_ovo () {
-# Report $ERR_MSG through ovo
-# Return 0 for ok, return 1 not ok
-   local ERRMSG="$@"
-   local CMDOUT
-   CMDOUT=$(${OVOCMD} application="${OVOAPP}" severity="${OVOSEV}" object="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG";)
-   if [ $? -eq 0 ]; then
-      return 0
-   else
-      return 1
-   fi
-}
-
-function report_error_nagios () {
-# Report $ERR_MSG through nagios
-# Return 0 for ok, return 1 not ok
-   local ERRMSG="$@"
-
-}
-
-function report_error_zabbix () {
-# Report $ERR_MSG through zabbix
-# Return 0 for ok, return 1 not ok
-   local ERRMSG="$@"
-
-}
-
-function report_error_mail () {
-# Report $ERR_MSG through mail
-# Return 0 for ok, return 1 not ok
-   local ERRMSG="$@"
 }
