@@ -76,3 +76,11 @@ fi
 # Main
 
 run_rear_ssh_remote $CLINAME B
+if [ $? -ne 0 ]
+then
+        rm -vf ${PXEDIR}/${CLIENT}/.lockfile ${PXEDIR}/${CLIENT}/*
+        rm -vf ${BKPDIR}/${CLIENT}/*
+        tar -C ${PXEDIR}/${CLIENT} -xf ${PXEDIR}/${CLIENT}/.archive/${CLIENT}.${PXEDATE}.pxe.arch
+        tar -C ${BKPDIR}/${CLIENT} -xf ${BKPDIR}/${CLIENT}/.archive/${CLIENT}.${BKPDATE}.bkp.arch
+	StopIfError "Backup Failed! See log ${LOGFILE} for details"
+fi
