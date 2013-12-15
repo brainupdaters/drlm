@@ -105,7 +105,7 @@ function check_client_ssh () {
         CLI_IP=$(get_client_ip $CLI_ID)
         CLI_NAME=$(get_client_name $CLI_ID)
         #get hostname to compare with cliname , if ok , return client name
-        CLI_NAME_CHECK=`ssh -o BatchMode=yes -o ConnectTimeout=3 $CLI_IP hostname -s`
+        CLI_NAME_CHECK=$(ssh -o BatchMode=yes -o ConnectTimeout=3 drls@$CLI_IP hostname -s)
         if [ $? -eq 0 ]
         then
                 if [ "$CLI_NAME" = "$CLI_NAME_CHECK" ];then echo $CLI_NAME; else LogPrint "ERROR: Client Name do not match" ;exit 1;fi

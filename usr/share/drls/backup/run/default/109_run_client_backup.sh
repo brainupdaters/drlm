@@ -11,8 +11,8 @@ echo "$ERRMSG"
 echo "······················"
 
 
-echo "${OVOCMD} a="${OVOAPP}" s="${OVOSEV}" o="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG""
-#CMDOUT=$(${OVOCMD} application="${OVOAPP}" severity="${OVOSEV}" object="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG";)
+#echo "${OVOCMD} a="${OVOAPP}" s="${OVOSEV}" o="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG""
+CMDOUT=$(${OVOCMD} application="${OVOAPP}" severity="${OVOSEV}" object="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG";)
 if [ $? -eq 0 ]; then
 	LogPrint "Error Reported!"
 	return 0

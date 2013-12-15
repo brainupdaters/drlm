@@ -25,13 +25,15 @@ fi
 if check_client_connectivity "$IDCLIENT" ; 
 then
 	LogPrint "Client $CLINAME is online!"
-	echo $CLINAME
-	echo $IDCLIENT
-	echo ".-.-.-.-.-.-.-.-.-."
-	echo $CLIMACADDR
-	echo $CLIIPADDR
 else
 	StopIfError "Client $CLINAME is not online! aborting..." 
 fi
 
 
+# Check if client  SSH Server is available over the network
+if check_client_ssh "$IDCLIENT" ; 
+then
+	LogPrint "Client $CLINAME SSH Server is online!"
+else
+	StopIfError "Client $CLINAME SSH Server is not online! aborting..." 
+fi
