@@ -14,8 +14,7 @@ function exist_client_name(){
   grep -w $CLI_NAME $CLIDB|awk -F":" '{print $2}'|grep $CLI_NAME &> /dev/null
   if [ $? == 0 ];then return 0; else return 1; fi
 
-# Check if parameter $1 is ok and if exists client with this name in database. Return 0 for ok
-, return 1 not ok.
+# Check if parameter $1 is ok and if exists client with this name in database. Return 0 for ok , return 1 not ok.
 }
 
 function get_cient_id_by_name(){
@@ -29,7 +28,6 @@ function get_cient_id_by_name(){
 	echo $CLI_ID
   else 
 	# Error client not exist "exit X"?
-	LogPrint "ERROR: Client not exist"
 	return 1
   fi
 }
@@ -44,7 +42,6 @@ function get_client_ip(){
 	echo $CLI_IP
   else
 	# Error client not exist "exit X"?
-	LogPrint "ERROR: Client not exist"
 	return 1
   fi
 }
@@ -59,7 +56,6 @@ function get_client_name(){
 	echo $CLI_NAME
   else
 	# Error client not exist "exit X"?
-	LogPrint "ERROR: Client not exist"
 	return 1
   fi
 }
@@ -74,7 +70,6 @@ function get_client_mac(){
 	echo $CLI_MAC	
   else
 	# Error client not exist "exit X"?
-	LogPrint "ERROR: Client not exist"
 	return 1
   fi
 }
@@ -90,7 +85,6 @@ function check_client_connectivity () {
 	if [ $? -eq 0 ];then return 0; else return 1;fi
   else
 	# Error client not exist "exit X"?
-	LogPrint "ERROR: Client not exist"
 	return 1
 
   fi
@@ -105,17 +99,15 @@ function check_client_ssh () {
         CLI_IP=$(get_client_ip $CLI_ID)
         CLI_NAME=$(get_client_name $CLI_ID)
         #get hostname to compare with cliname , if ok , return client name
-        CLI_NAME_CHECK=$(ssh -o BatchMode=yes -o ConnectTimeout=3 drls@$CLI_IP hostname -s)
+        CLI_NAME_CHECK=$(ssh -o BatchMode=yes -o ConnectTimeout=33 drls@$CLI_IP hostname -s)
         if [ $? -eq 0 ]
         then
-                if [ "$CLI_NAME" = "$CLI_NAME_CHECK" ];then echo $CLI_NAME; else LogPrint "ERROR: Client Name do not match" ;return 1;fi
+#                if [ "$CLI_NAME" = "$CLI_NAME_CHECK" ];then return 0; else return 1;fi
+		return 0
         else
-                LogPrint "ERROR: Client not available"
                 return 1
         fi
   else
-        # Error client not exist "exit X"?
-        LogPrint "ERROR: Client not exist"
         return 1
 
   fi
