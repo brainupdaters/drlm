@@ -9,33 +9,6 @@ function error_reporting () {
    fi
 }
 
-function report_error () {
-# triggers the correct reporting type $REPORT_TYPE [ovo|nagios|zabbix|mail|...]
-# Return 0 for ok return 1 not ok 
-   local ERRMSG="$@"
-   
-   if error_reporting ;
-   then
-      case $REPORT_TYPE in
-         ovo)
-            return $(report_error_ovo "${ERRMSG}")
-         ;;
-         nagios)
-            return $(report_error_nagios "${ERRMSG}")
-         ;;
-         zabbix)
-            return $(report_error_zabbix "${ERRMSG}")
-         ;;
-         mail)
-            return $(report_error_mail "${ERRMSG}")
-         ;;
-         *)
-            return 1
-         ;;
-      esac
-   fi
-}
-
 function report_error_ovo () {
 # Report $ERR_MSG through ovo
 # Return 0 for ok, return 1 not ok
@@ -68,4 +41,31 @@ function report_error_mail () {
 # Report $ERR_MSG through mail
 # Return 0 for ok, return 1 not ok
    local ERRMSG="$@"
+}
+
+function report_error () {
+# triggers the correct reporting type $REPORT_TYPE [ovo|nagios|zabbix|mail|...]
+# Return 0 for ok return 1 not ok 
+   local ERRMSG="$@"
+   
+   if error_reporting ;
+   then
+      case $REPORT_TYPE in
+         ovo)
+            return $(report_error_ovo "${ERRMSG}")
+         ;;
+         nagios)
+            return $(report_error_nagios "${ERRMSG}")
+         ;;
+         zabbix)
+            return $(report_error_zabbix "${ERRMSG}")
+         ;;
+         mail)
+            return $(report_error_mail "${ERRMSG}")
+         ;;
+         *)
+            return 1
+         ;;
+      esac
+   fi
 }
