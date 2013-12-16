@@ -18,7 +18,7 @@ function report_error_ovo () {
    if [ $? -eq 0 ]; then
       return 0
    else
-      echo "$CMDOUT"
+      eval echo "$CMDOUT"
       return 1
    fi
 }
@@ -57,7 +57,7 @@ function report_error () {
 	     then
 		     return 0
 	     else
-		     echo "$ERR"
+		     eval echo "$ERR"
 		     return 1
 	     fi
            # return $(report_error_ovo "${ERRMSG}")

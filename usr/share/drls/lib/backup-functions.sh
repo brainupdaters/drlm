@@ -9,7 +9,7 @@ function run_mkbackup_ssh_remote () {
    BKPOUT=$(ssh -t drls@${CLIENT} 'sudo rear mkbackup' 2>&1)
    if [ $? -ne 0 ]
    then    
-        echo "${BKPOUT}"
+        eval echo "${BKPOUT}"
 	return 1
    else    
         return 0
@@ -25,7 +25,7 @@ function run_mkrescue_ssh_remote () {
    BKPOUT=$(ssh -t drls@${CLIENT} 'sudo rear mkrescue' 2>&1)
    if [ $? -ne 0 ]
    then    
-        echo "${BKPOUT}"
+        eval echo "${BKPOUT}"
 	return 1
    else    
         return 0

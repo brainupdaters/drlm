@@ -25,7 +25,8 @@ function get_cient_id_by_name(){
   then 
 	# Get client id from database and return it
 	CLI_ID=`grep -w $CLI_NAME $CLIDB|awk -F":" '{print $1}'`
-	echo $CLI_ID
+	eval echo $CLI_ID
+	return 0
   else 
 	# Error client not exist "exit X"?
 	return 1
@@ -39,7 +40,8 @@ function get_client_ip(){
   then
 	# Get client ip from database and return it
 	CLI_IP=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $4}'`
-	echo $CLI_IP
+	eval echo $CLI_IP
+	return 0
   else
 	# Error client not exist "exit X"?
 	return 1
@@ -53,7 +55,8 @@ function get_client_name(){
   then
 	# Get client name from database and return it
 	CLI_NAME=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $2}'`
-	echo $CLI_NAME
+	eval echo $CLI_NAME
+	return 0
   else
 	# Error client not exist "exit X"?
 	return 1
@@ -67,7 +70,8 @@ function get_client_mac(){
   then
 	# Get client mac from database and return it
 	CLI_MAC=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $3}'`
-	echo $CLI_MAC	
+	eval echo $CLI_MAC	
+	return 0
   else
 	# Error client not exist "exit X"?
 	return 1
