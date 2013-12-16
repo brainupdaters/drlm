@@ -1,11 +1,11 @@
-if OUTPUT=$(run_mkbackup_ssh_remote $IDCLIENT) ;
+if OUT=$(run_mkbackup_ssh_remote $IDCLIENT) ;
 then
 	echo $?
 	LogPrint "${CLIENT}: Backup Succesful!"
 else
 	#report_error $?
 	echo $?
-	report_error "$OUTPUT"
+	report_error "$OUT"
 	rm -vf ${PXEDIR}/${CLINAME}/.lockfile ${PXEDIR}/${CLINAME}/*
 	rm -vf ${BKPDIR}/${CLINAME}/*     
 	tar -C ${PXEDIR}/${CLINAME} -xf ${PXEDIR}/${CLINAME}/.archive/${CLINAME}.${PXEDATE}.pxe.arch

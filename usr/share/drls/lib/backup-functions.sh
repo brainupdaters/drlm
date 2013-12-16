@@ -10,6 +10,7 @@ function run_mkbackup_ssh_remote () {
    if [ $? -ne 0 ]
    then    
         echo "${BKPOUT}"
+	return 1
    else    
         return 0
    fi
@@ -25,6 +26,7 @@ function run_mkrescue_ssh_remote () {
    if [ $? -ne 0 ]
    then    
         echo "${BKPOUT}"
+	return 1
    else    
         return 0
    fi

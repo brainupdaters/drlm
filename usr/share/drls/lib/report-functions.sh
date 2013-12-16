@@ -10,7 +10,7 @@ function error_reporting () {
 }
 
 function report_error_ovo () {
-# Report $ERR_MSG through ovo
+# Report $ERRMSG through ovo
 # Return 0 for ok, return 1 not ok
    local ERRMSG="$@"
    local CMDOUT
@@ -47,12 +47,20 @@ function report_error () {
 # triggers the correct reporting type $REPORT_TYPE [ovo|nagios|zabbix|mail|...]
 # Return 0 for ok return 1 not ok 
    local ERRMSG="$@"
+   local ERR
    
    if error_reporting ;
    then
       case $REPORT_TYPE in
          ovo)
-            return $(report_error_ovo "${ERRMSG}")
+	     if ERR=$(report_error_ovo "${ERRMSG}");
+	     then
+		     return 0
+	     else
+		     echo "$ERR"
+		     return 1
+	     fi
+           # return $(report_error_ovo "${ERRMSG}")
          ;;
          nagios)
             return $(report_error_nagios "${ERRMSG}")
