@@ -12,7 +12,7 @@ function error_reporting () {
 function report_error_ovo () {
 # Report $ERRMSG through ovo
 # Return 0 for ok, return 1 not ok
-   local ERRMSG="$@"
+local ERRMSG=$( echo "$@" | tr "\\n" " - " )
    local CMDOUT
    CMDOUT=$(${OVOCMD} application="${OVOAPP}" severity="${OVOSEV}" object="${OVOOBJ}" msg_grp="${OVOMSGGRP}" msg_text="$ERRMSG";)
    if [ $? -eq 0 ]; then
@@ -53,7 +53,7 @@ function report_error () {
    then
       case $REPORT_TYPE in
          ovo)
-	     if ERR=$(report_error_ovo "${ERRMSG}");
+	     if ERR=$(report_error_ovo "$ERRMSG");
 	     then
 		     return 0
 	     else
@@ -63,13 +63,13 @@ function report_error () {
            # return $(report_error_ovo "${ERRMSG}")
          ;;
          nagios)
-            return $(report_error_nagios "${ERRMSG}")
+            return $(report_error_nagios "$ERRMSG")
          ;;
          zabbix)
-            return $(report_error_zabbix "${ERRMSG}")
+            return $(report_error_zabbix "$ERRMSG")
          ;;
          mail)
-            return $(report_error_mail "${ERRMSG}")
+            return $(report_error_mail "$ERRMSG")
          ;;
          *)
             return 1
