@@ -18,7 +18,7 @@ function report_error_ovo () {
    if [ $? -eq 0 ]; then
       return 0
    else
-      Error "${CMDOUT}"
+      echo "$CMDOUT"
       return 1
    fi
 }
