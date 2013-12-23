@@ -12,16 +12,16 @@ O_BKP_ID="${O_BKPDATE}${O_BKPTIME}"
 
 # MARK PREV BACKUP AS ARCHIVED
 
-ISARCH=$(grep -w ${O_BKP_ID} ${BKPDB} | awk -F":" '{print $5}')
+ISARCH=`grep -w ${O_BKP_ID} ${BKPDB} | awk -F":" '{print $5}'`
 
 if [ "$ISARCH" == "false" ]
 then
-	$(ex ${BKPDB} <<< $':/${O_BKP_ID}/s/false/true/g\nwq')
+	`ex ${BKPDB} <<< $':/${O_BKP_ID}/s/false/true/g\nwq'`
 fi
 
 # REGISTER BACKUP TO DATABASE
 
-NNOARCH=$(grep -w ${CLINAME} ${BKPDB} | grep -v true | wc -l)
+NNOARCH=`grep -w ${CLINAME} ${BKPDB} | grep -v true | wc -l`
 
 if [ $NNOARCH -eq 0 ]
 then
