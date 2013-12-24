@@ -21,8 +21,8 @@ then
 	F_BKP2CLR=$(grep -w ${BKPID2CLR} ${BKPDB} | awk -F":" '{print $3}')
 	F_PXE2CLR=$(grep -w ${BKPID2CLR} ${BKPDB} | awk -F":" '{print $4}')
 
-	rm -rf ${PXEDIR}/${CLINAME}/.archive/${F_BKP2CLR}
-	rm -rf ${BKPDIR}/${CLINAME}/.archive/${F_PXE2CLR}
+	rm -rf ${PXEDIR}/${CLINAME}/.archive/${F_PXE2CLR}
+	rm -rf ${BKPDIR}/${CLINAME}/.archive/${F_BKP2CLR}
 	ex -s -c ":/${BKPID2CLR}/d" -c ":wq" ${BKPDB}
 
 	LogPrint "Old Backups Removed Succesfully!"
