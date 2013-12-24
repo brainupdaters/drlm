@@ -21,5 +21,5 @@
 	if [ ! -L ${PXEDIR}/pxelinux.cfg/${CLIMACADDR} ] && [ -f ${PXEDIR}/${CLINAME}/rear-${CLINAME}* ]
 	then
 		cd ${PXEDIR}/pxelinux.cfg
-		ln -s ../${CLINAME}/rear-${CLINAME}* ${CLIMACADDR}
+		ln -s ../${CLINAME}/rear-${CLINAME}* 01-${CLIMACADDR}
 	fi
