@@ -17,11 +17,13 @@
 N_BKP=$(grep -w ${CLINAME} ${BKPDB} | wc -l)
 if [ ${N_BKP} -gt ${HISTBKPMAX} ]
 then
-	BKPID2CLR=`grep -w ${IDCLIENT} ${BKPDB} | awk -F":" '{print $1}' | sort -n | head -1`
+	BKPID2CLR=$(grep -w ${IDCLIENT} ${BKPDB} | awk -F":" '{print $1}' | sort -n | head -1)
+	F_BKP2CLR=$(grep -w ${BKPID2CLR} ${BKPDB} | awk -F":" '{print $3}')
+	F_PXE2CLR=$(grep -w ${BKPID2CLR} ${BKPDB} | awk -F":" '{print $4}')
 
-	rm -rf ${PXEDIR}/${CLINAME}/.archive/${CLINAME}.${BKPID2CLR}.pxe.arch
-	rm -rf ${BKPDIR}/${CLINAME}/.archive/${CLINAME}.${BKPID2CLR}.bkp.arch
-	ex -s -c ":/${BKPID2CLEAR}/d" -c ":wq" ${BKPDB}
+	rm -rf ${PXEDIR}/${CLINAME}/.archive/${F_BKP2CLR}
+	rm -rf ${BKPDIR}/${CLINAME}/.archive/${F_PXE2CLR}
+	ex -s -c ":/${BKPID2CLR}/d" -c ":wq" ${BKPDB}
 
 	LogPrint "Old Backups Removed Succesfully!"
 fi
