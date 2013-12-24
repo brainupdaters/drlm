@@ -23,8 +23,7 @@ NNOARCH=$(grep -w ${CLINAME} ${BKPDB} | grep -v true | wc -l)
 
 if [ $NNOARCH -eq 0 ]
 then
-	echo "${BKP_ID}:${IDCLIENT}:${CLINAME}.${BKPDATE}${BKPTIME}.bkp.arch:${CLINAME}.${PXEDATE}${PXETIME}.pxe.arch:fa
-lse:::" | tee -a ${BKPDB}
+	echo "${BKP_ID}:${IDCLIENT}:${CLINAME}.${BKPDATE}${BKPTIME}.bkp.arch:${CLINAME}.${PXEDATE}${PXETIME}.pxe.arch:false:::" | tee -a ${BKPDB}
 	if [ $? -eq 0 ]
 	then
 		LogPrint "All backup operations for $CLINAME finished OK!"
