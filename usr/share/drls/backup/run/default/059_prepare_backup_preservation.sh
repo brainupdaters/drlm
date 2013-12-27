@@ -1,9 +1,12 @@
 #PRE RUN BACKUP
 
+Log "Performing Archiving tasks for client: ${CLINAME} ..."
+
 if [ -d ${PXEDIR}/${CLINAME} ]
 then
         if [ ! -d ${PXEDIR}/${CLINAME}/.archive ]
         then
+		Log "Creating DR image archive folder for client: ${CLINAME} ..."
         	mkdir -v ${PXEDIR}/${CLINAME}/.archive
         fi
 		
@@ -14,9 +17,12 @@ then
                 tar --exclude='.archive' -C ${PXEDIR}/${CLINAME} . -cf ${PXEDIR}/${CLINAME}/.archive/${CLINAME}.${O_PXEDATE}${O_PXETIME}.pxe.arch
 		if [ $? -eq 0 ]
 		then
-                	rm -vf ${PXEDIR}/${CLINAME}/.lockfile ${PXEDIR}/${CLINAME}/*
+			Log "Previous DR image for client: ${CLINAME} archived as: ${PXEDIR}/${CLINAME}/.archive/${CLINAME}.${O_PXEDATE}${O_PXETIME}.pxe.arch"
+                	#rm -vf ${PXEDIR}/${CLINAME}/.lockfile ${PXEDIR}/${CLINAME}/*
 		else
 			rm -vf ${PXEDIR}/${CLINAME}/.archive/${CLINAME}.${O_PXEDATE}.${O_PXETIME}.pxe.arch
+
+			report_error "Problem archiving previous DR image. See log ${LOGFILE} for details"
 			StopIfError "Problem archiving previous DR image. See log ${LOGFILE} for details"
 		fi
 	fi
@@ -26,6 +32,7 @@ if [ -d ${BKPDIR}/${CLINAME} ]
 then
         if [ ! -d ${BKPDIR}/${CLINAME}/.archive ]
         then
+		Log "Creating DR backup archive folder for client: ${CLINAME} ..."
         	mkdir -v ${BKPDIR}/${CLINAME}/.archive
         fi
         
@@ -36,11 +43,15 @@ then
                	tar --exclude='.archive' -C ${BKPDIR}/${CLINAME} . -cf ${BKPDIR}/${CLINAME}/.archive/${CLINAME}.${O_BKPDATE}${O_BKPTIME}.bkp.arch
 		if [ $? -eq 0 ]
 		then
-               		rm -vf ${BKPDIR}/${CLINAME}/*
+			Log "Previous DR backup for client: ${CLINAME} archived as: ${BKPDIR}/${CLINAME}/.archive/${CLINAME}.${O_BKPDATE}${O_BKPTIME}.bkp.arch"
+               		#rm -vf ${BKPDIR}/${CLINAME}/*
 		else
 			rm -vf ${BKPDIR}/${CLINAME}/.archive/${CLINAME}.${O_BKPDATE}${O_BKPTIME}.bkp.arch
+
+			report_error "Problem archiving previous DR backup. See log ${LOGFILE} for details"
 			StopIfError "Problem archiving previous DR backup. See log ${LOGFILE} for details"
 		fi
 	fi
 fi
 
+Log "Finished archiving tasks for client: ${CLINAME} ..."

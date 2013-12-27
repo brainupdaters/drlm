@@ -1,19 +1,5 @@
-#===============================================================================
-#
-#          FILE: 209_clear_older_backups.sh
-# 
-#   DESCRIPTION: Remove Old backups from filesystems and database
-# 
-#       OPTIONS: ---
-#  REQUIREMENTS: ---
-#          BUGS: ---
-#         NOTES: ---
-#        AUTHOR: Didac Oliveira(), didac@brainupdaters.net 
-#  ORGANIZATION: BU Consulting
-#       CREATED: 12/22/2013 16:52
-#      REVISION:  ---
-#===============================================================================
 
+Log "Starting DR archive clean ..."
 N_BKP=$(grep -w ${CLINAME} ${BKPDB} | wc -l)
 if [ ${N_BKP} -gt ${HISTBKPMAX} ]
 then
@@ -21,9 +7,15 @@ then
 	F_BKP2CLR=$(grep -w ${BKPID2CLR} ${BKPDB} | awk -F":" '{print $3}')
 	F_PXE2CLR=$(grep -w ${BKPID2CLR} ${BKPDB} | awk -F":" '{print $4}')
 
-	rm -rf ${PXEDIR}/${CLINAME}/.archive/${F_PXE2CLR}
-	rm -rf ${BKPDIR}/${CLINAME}/.archive/${F_BKP2CLR}
+	Log "DR backup (ID: ${BKPID2CLR}) marked for remove ..."
+
+	rm -vf ${PXEDIR}/${CLINAME}/.archive/${F_PXE2CLR}
+	rm -vf ${BKPDIR}/${CLINAME}/.archive/${F_BKP2CLR}
 	ex -s -c ":/${BKPID2CLR}/d" -c ":wq" ${BKPDB}
 
-	LogPrint "Old Backups Removed Succesfully!"
+	Log "Old DR backups for client ${CLINAME} Removed Succesfully!"
 fi
+
+Log "####################################################"
+Log "# DR backup operations for ${CLINAME} finished!"
+Log "####################################################"
