@@ -2,11 +2,11 @@ Source: drls
 Section: misc
 Priority: optional
 Maintainer: See AUTHORS file
-Homepage: not yet 
+Homepage: "http://www.not_yet.org"
 
 Package: drls
 Architecture: all
 Provides: drls
 Build-Depends: debhelper (>> 5.0.0)
 Depends: 
-Description: 
+Description: Disaster Recovery Linux Server

@@ -98,7 +98,8 @@ DRLS is an Open Source disaster recovery and system ...
 Professional services and support are available.
 
 %prep
-%setup -q -n drls-1.00-git
+#%setup -q -n drls-1.00-git
+%setup -q 
 
 #echo "55 0 * * * root /usr/sbin/drls sched" >drls.cron
 
