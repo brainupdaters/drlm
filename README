@@ -73,7 +73,7 @@ List of commands:
  modbackup       change backup properties (Not yet implemented)
  modclient       modify client (Not yet implemented)
  modnetwork      change network properties (Not yet implemented)
- runbackup       run client backup and register to database (NEW!)
+*runbackup       run client backup and register to database (NEW!)
  
  
  
