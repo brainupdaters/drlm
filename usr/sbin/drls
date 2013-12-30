@@ -166,7 +166,7 @@ fi
 
 # do not run if another instance is running. pidof -x will always report at least $$
 PID=$(pidof -x -o %PPID "$SCRIPT_FILE")
-TIMESTAMP=$(date +"_%Y%m%d_%H%M%S")
+TIMESTAMP=$(date +"%Y%m%d.%H%M%S")
 if IsInArray "$WORKFLOW" "${LOCKLESS_WORKFLOWS[@]}"; then
 	LOGFILE="$LOGFILE.$TIMESTAMP"
 elif [[ "$PID" ]] ; then
