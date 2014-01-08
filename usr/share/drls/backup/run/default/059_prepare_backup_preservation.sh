@@ -23,7 +23,7 @@ then
 			rm -vf ${PXEDIR}/${CLINAME}/.archive/${CLINAME}.${O_PXEDATE}.${O_PXETIME}.pxe.arch
 
 			report_error "Problem archiving previous DR image. See log ${LOGFILE} for details"
-			StopIfError "Problem archiving previous DR image. See log ${LOGFILE} for details"
+			Error "Problem archiving previous DR image. See log ${LOGFILE} for details"
 		fi
 	fi
 fi
@@ -49,7 +49,7 @@ then
 			rm -vf ${BKPDIR}/${CLINAME}/.archive/${CLINAME}.${O_BKPDATE}${O_BKPTIME}.bkp.arch
 
 			report_error "Problem archiving previous DR backup. See log ${LOGFILE} for details"
-			StopIfError "Problem archiving previous DR backup. See log ${LOGFILE} for details"
+			Error "Problem archiving previous DR backup. See log ${LOGFILE} for details"
 		fi
 	fi
 fi

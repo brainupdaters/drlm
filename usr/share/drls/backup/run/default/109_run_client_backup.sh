@@ -34,5 +34,5 @@ else
 		fi	
 	fi
 
-	StopIfError "Backup for client: ${CLINAME} Failed! See log ${LOGFILE} for details"
+	Error "Backup for client: ${CLINAME} Failed! See log ${LOGFILE} for details"
 fi

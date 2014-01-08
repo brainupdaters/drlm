@@ -14,7 +14,7 @@ if test -n "$CLINAME"; then
 		Log "${CLINAME} found in DRLS database!"
 	else
 		report_error "$PROGRAM: Client named: $CLINAME not registered!"
-		StopIfError "$PROGRAM: Client named: $CLINAME not registered!"
+		Error "$PROGRAM: Client named: $CLINAME not registered!"
 	fi
 else
 	Log "Checking ifi client ID: ${IDCLIENT} is registered in DRLS database ..."
@@ -26,7 +26,7 @@ else
 		Log "${IDCLIENT} found in DRLS database!"
         else
         	report_error "$PROGRAM: Client with ID: $IDCLIENT not registered!"
-        	StopIfError "$PROGRAM: Client with ID: $IDCLIENT not registered!"
+        	Error "$PROGRAM: Client with ID: $IDCLIENT not registered!"
         fi
 
 fi
@@ -39,7 +39,7 @@ then
 	Log "Client name: $CLINAME is available over network!"
 else
 	report_error "Client with name: $CLINAME is not available (ICMP) aborting ..." 
-	StopIfError "Client with name: $CLINAME is not available (ICMP) aborting ..." 
+	Error "Client with name: $CLINAME is not available (ICMP) aborting ..." 
 fi
 
 
@@ -49,5 +49,5 @@ then
 	Log "Client name: $CLINAME SSH Server is online!"
 else
 	report_error "Client $CLINAME SSH Server is not available (SSH) aborting ..." 
-	StopIfError "Client $CLINAME SSH Server is not available (SSH) aborting ..." 
+	Error "Client $CLINAME SSH Server is not available (SSH) aborting ..." 
 fi
