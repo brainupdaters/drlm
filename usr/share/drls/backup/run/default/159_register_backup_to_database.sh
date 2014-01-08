@@ -60,7 +60,7 @@ then
 				Log "Problem restoring previous DR image after ReaR backup errors: tar -C ${BKPDIR}/${CLINAME} -xf ${BKPDIR}/${CLINAME}/.archive/${CLINAME}.${O_BKPDATE}${O_BKPTIME}.bkp.arch Failed!"
 			fi	
 		fi
-		report_error "Failed to register DR backup for client: ${CLINAME}! Previous backup was retored ... See log ${LOGFULE} for details."
+		report_error "Failed to register DR backup for client: ${CLINAME}! Previous backup was retored ... See log ${LOGFILE} for details."
 	fi
 fi
 
