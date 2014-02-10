@@ -21,6 +21,55 @@
 WORKFLOW_delnetwork_DESCRIPTION="delete network from DRLS"
 WORKFLOWS=( ${WORKFLOWS[@]} delnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delnetwork )
+
+# Parse options
+OPT="$(getopt -n $WORKFLOW -o "n:i:" -l "netname:,id:" -- "$@")"
+if (( $? != 0 )); then
+        echo "Try \`$PROGRAM --help' for more information."
+        exit 1
+fi
+
+eval set -- "$OPT"
+while true; do
+        case "$1" in
+                (-n|--netname)
+                        # We need to take the option argument
+                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
+			then 
+				NETNAME="$2"
+			else
+				echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+				exit 1
+			fi
+			shift 
+			;;
+                (-i|--id)
+			# We need to take the option argument
+                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
+			then 
+				NETID="$2" 
+			else
+                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+               	        	exit 1
+			fi 
+			shift
+			;;
+                (--) shift; break;;
+                (-*)
+                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+                        echo "Try \`$PROGRAM --help' for more information."
+                        exit 1
+                        ;;
+        esac
+        shift
+done
+
+if [ -n "$NETNAME" ] && [ -n "$NETID" ]; then 
+	echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
+        echo "Try \`$PROGRAM --help' for more information."
+        exit 1
+fi
+
 WORKFLOW_delnetwork () {
     echo delnetwork workflow
     SourceStage "network/del"
