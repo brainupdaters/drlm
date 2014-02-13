@@ -42,9 +42,12 @@ rpmrelease = %nil
 #obsproject = Archiving:Backup:DRLS
 #obspackage = $(name)-$(version)
 ifeq ($(OFFICIAL),)
-    distversion = $(version)-git$(date)
-    debrelease = 0git$(date)
-    rpmrelease = .git$(date)
+    distversion = $(version)-git
+    debrelease = git
+    rpmrelease = git
+#    distversion = $(version)-git$(date)
+#    debrelease = 0git$(date)
+#    rpmrelease = .git$(date)
 #    obsproject = Archiving:Backup:DRLS:Snapshot
 #    obspackage = $(name)
 endif

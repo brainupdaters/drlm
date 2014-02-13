@@ -1,4 +1,4 @@
-%define rpmrelease .git
+%define rpmrelease git
 
 ### Work-around the fact that OpenSUSE/SLES _always_ defined both :-/
 %if 0%{?sles_version} == 0
@@ -129,7 +129,7 @@ Professional services and support are available.
 #%config(noreplace) %{_sysconfdir}/cron.d/drls
 %config(noreplace) %{_sysconfdir}/drls/
 %{_datadir}/drls/
-%{_localstatedir}/lib/drls/
+%config(noreplace) %{_localstatedir}/lib/drls/
 %{_sbindir}/drls
 
 %changelog
