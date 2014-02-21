@@ -119,12 +119,12 @@ function check_client_ssh () {
 
 function add_client (){
   local CLI_ID="" 
-  local CLI_NNAME=$1
+  local CLI_NAME=$1
   local CLI_MAC=$2
   local CLI_IP=$3
   local CLI_NET=$4
   	CLI_ID=$(tail -1 $CLIDB|awk -F":" '{print $1 + 1}')
-	echo $CLI_ID:$CLI_NNAME:$CLI_MAC:$CLI_IP:$CLI_NET >> $CLIDB
+	echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_NET >> $CLIDB
 	if [ $? == 0 ];then eval echo $CLI_ID; else return 1; fi
 } 
 
@@ -141,5 +141,22 @@ function del_client_id(){
 	#Client not exist
  	return 1
   fi
+}
+
+function check_client_mac (){
+  local CLI_NAME=$1
+  local CLI_IP=$2
+  local CLI_MAC=$3
+        ping  -c 1 -t 2 $CLI_IP &>/dev/null
+        if [ $? -eq 0 ];
+        then
+                local REAL_MAC=$(arp -a [ $CLI_NAME|$CLI_IP ] | awk '{print $4}' | tr ":" "-" | tr [a-z] [A-Z])
+                if [ "${REAL_MAC}" == "${CLI_MAC}" ]
+                then
+                        return 0; 
+                else 
+                        return 1;
+                fi
+        fi 
 }
 
