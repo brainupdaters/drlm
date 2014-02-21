@@ -117,3 +117,29 @@ function check_client_ssh () {
   fi
 }
 
+function add_client (){
+  local CLI_ID="" 
+  local CLI_NNAME=$1
+  local CLI_MAC=$2
+  local CLI_IP=$3
+  local CLI_NET=$4
+  	CLI_ID=$(tail -1 $CLIENTDB|awk -F":" '{print $1 + 1}')
+	echo $CLI_ID:$CLI_NNAME:$CLI_MAC:$CLI_IP:$CLI_NET >> $CLIENTDB
+	if [ $? == 0 ];then eval echo $CLI_ID; else return 1; fi
+} 
+
+
+function del_client_id(){
+  local CLI_ID=$1
+  if exist_client_id "$CLI_ID";
+  then
+	num_line=$(grep -nr ^$CLI_ID $CLIENTDB |awk -F":" '{print $1}')
+	num_line=$num_line"d"
+	echo $num_line
+	sed -i "$num_line" $CLIENTDB
+  else
+	#Client not exist
+ 	return 1
+  fi
+}
+
