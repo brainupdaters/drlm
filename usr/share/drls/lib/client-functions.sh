@@ -168,3 +168,11 @@ function exist_client_mac () {
       # Check if parameter $1 is ok and if exists client with this id in database. Return 0 for ok, return 1 not ok.
       }
 
+
+function exist_client_ip () {
+  local CLI_IP=$1
+     grep -w $CLI_IP $CLIDB|awk -F":" '{print $4}'|grep $CLI_IP &> /dev/null
+       if [ $? == 0 ];then return 0; else return 1; fi
+    # Check if parameter $1 is ok and if exists client with this id in database. Return 0 for ok, return 1 not ok.
+    }
+
