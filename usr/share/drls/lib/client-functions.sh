@@ -160,3 +160,11 @@ function check_client_mac (){
         fi 
 }
 
+function exist_client_mac () {
+  local CLI_MAC=$1
+    grep -w $CLI_MAC $CLIDB|awk -F":" '{print $3}'|grep $CLI_MAC &> /dev/null
+      if [ $? == 0 ];then return 0; else return 1; fi
+        
+      # Check if parameter $1 is ok and if exists client with this id in database. Return 0 for ok, return 1 not ok.
+      }
+
