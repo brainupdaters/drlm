@@ -7,5 +7,4 @@ group {
 
 	option pxelinux.configfile = concat("pxelinux.cfg/", binary-to-ascii(16, 8, ":", hardware));
 	filename "pxelinux.0";
-
-}
+	
