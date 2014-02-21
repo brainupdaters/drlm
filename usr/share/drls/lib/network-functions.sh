@@ -156,6 +156,22 @@ function get_bcaddress()
     echo $bcaddress
 }
 
+function exist_network_id () {
+  local NET_ID=$1
+  grep -w $NET_ID $NETDB|awk -F":" '{print $1}'|grep $NET_ID &> /dev/null
+  if [ $? == 0 ];then return 0; else return 1; fi
+  
+# Check if parameter $1 is ok and if exists network with this id in database. Return 0 for ok, return 1 not ok.
+}
+
+function exist_network_name(){
+  local NET_NAME=$1
+  grep -w $NET_NAME $NETDB|awk -F":" '{print $9}'|grep $NET_NAME &> /dev/null
+  if [ $? == 0 ];then return 0; else return 1; fi
+
+# Check if parameter $1 is ok and if exists network with this name in database. Return 0 for ok , return 1 not ok.
+}
+
 # main test
 
 echo $(get_netaddress $1 $2)
