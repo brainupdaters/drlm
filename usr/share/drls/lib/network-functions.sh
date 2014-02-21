@@ -172,10 +172,3 @@ function exist_network_name(){
 # Check if parameter $1 is ok and if exists network with this name in database. Return 0 for ok , return 1 not ok.
 }
 
-# main test
-
-echo $(get_netaddress $1 $2)
-echo $(get_bcaddress $1 $2)
-echo $(netmask_to_cidr $2)
-echo $(split_ip $1)
-echo $(ip_to_binary $1)
