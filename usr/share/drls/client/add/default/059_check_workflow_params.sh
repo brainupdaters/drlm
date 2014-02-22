@@ -26,6 +26,13 @@ then
 	Error "$PROGRAM: Client MAC: $CLI_MAC already registered in DB!"
 fi
 
+Log "Checking if client Network: ${CLI_NET} is registered in DRLS database ..."
+
+if !exist_network_name "$CLI_NET" ;
+then
+	Error "$PROGRAM: Client Network: $CLI_NET not registered in DB! network is required before any client addition"
+fi
+
 Log "Testing IP connectivity and MAC for ${CLI_NAME} ... ( ICMP )"
 
 # Check if client is available over the network and match MAC address
