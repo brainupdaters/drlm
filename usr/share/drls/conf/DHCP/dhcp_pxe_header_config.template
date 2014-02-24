@@ -8,7 +8,7 @@ max-lease-time 604800;
 allow booting;
 allow bootp;
 option space pxelinux;
-option pxelinux.magic      code 208 = string;
+#option pxelinux.magic      code 208 = string;     # Comment out if PXE is not working properly
 option pxelinux.configfile code 209 = text;
 option pxelinux.pathprefix code 210 = text;
 option pxelinux.reboottime code 211 = unsigned integer 32;
