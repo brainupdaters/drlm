@@ -70,6 +70,11 @@ done
 }
 
 function reload_dhcp() {
-  echo " " 
-  #Restart de dhcp server dummy
+  #Reload de dhcp server dummy
+  dhcpd -t -cf $DHCP_FILE
+  if [ $? -eq 0 ]; then
+     # Reload DHCP (Operating System dependency) 
+  else
+     mv $DHCP_DIR/dhcpd.conf.bak $DHCP_FILE
+  fi
 }
