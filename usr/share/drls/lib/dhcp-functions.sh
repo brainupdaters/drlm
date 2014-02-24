@@ -14,7 +14,7 @@ cat /dev/null > $DHCP_FILE
 
 cat $DHCP_FIX_CAP >> $DHCP_FILE
 
-for XARXA in $(cat $NETDB) ; do
+for XARXA in $(cat $NETDB | grep -v "^#") ; do
    XARXA_ID=`echo $XARXA | awk -F":" '{print $1}'`
    XARXA_NET_IP=`echo $XARXA | awk -F":" '{print $2}'`
    XARXA_MASK=`echo $XARXA | awk -F":" '{print $3}'`
@@ -68,7 +68,8 @@ function reload_dhcp() {
   #Reload de dhcp server dummy
   dhcpd -t -cf $DHCP_FILE
   if [ $? -eq 0 ]; then
-     # Reload DHCP (Operating System dependency) 
+     # Reload DHCP (Operating System dependency)
+     service $DCHP_SVC_NAME force-reload
   else
      mv $DHCP_DIR/dhcpd.conf.bak $DHCP_FILE
   fi
