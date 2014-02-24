@@ -69,7 +69,7 @@ function reload_dhcp() {
   dhcpd -t -cf $DHCP_FILE
   if [ $? -eq 0 ]; then
      # Reload DHCP (Operating System dependency)
-     service $DCHP_SVC_NAME force-reload
+     service $DHCP_SVC_NAME force-reload
   else
      mv $DHCP_DIR/dhcpd.conf.bak $DHCP_FILE
   fi
