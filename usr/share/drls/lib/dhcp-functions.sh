@@ -34,16 +34,11 @@ for XARXA in $(cat $NETDB) ; do
    echo	"   option subnet-mask $XARXA_MASK;" >> $DHCP_FILE
    echo "   option broadcast-address $XARXA_BROAD;" >> $DHCP_FILE
   
-   if test -n $XARXA_DOMAIN; then
-      echo "   option domain-name-servers $XARXA_DNS;" >> $DHCP_FILE
-   fi
-   
    if [ -z "\$XARXA_DNS" ]; 
    then
       echo "   option domain-name-servers ${XARXA_DNS};" >> $DHCP_FILE
    fi
 
-   
    echo	"   option routers $XARXA_GW;" >> $DHCP_FILE
    echo "}" >> $DHCP_FILE
 					 
