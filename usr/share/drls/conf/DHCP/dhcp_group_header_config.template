@@ -1,6 +1,7 @@
 group {
 	site-option-space "pxelinux";
-	option pxelinux.magic f1:00:74:7e;
+	# Comment out if PXE is not working properly
+	# option pxelinux.magic f1:00:74:7e;
 	if exists dhcp-parameter-request-list {
 		option dhcp-parameter-request-list = concat(option dhcp-parameter-request-list,d0,d1,d2,d3);
 	}
