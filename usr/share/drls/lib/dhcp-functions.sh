@@ -9,7 +9,7 @@
 
 function generate_dhcp() {
 
-cp $DHCP_FILE $DHCP_DIR/dhcp.conf.bak
+cp $DHCP_FILE $DHCP_DIR/dhcpd.conf.bak
 cat /dev/null > $DHCP_FILE
 
 cat $DHCP_FIX_CAP >> $DHCP_FILE
@@ -25,14 +25,25 @@ for XARXA in $(cat $NETDB) ; do
    XARXA_SER_IP=`echo $XARXA | awk -F":" '{print $8}'`
 
    echo "subnet $XARXA_NET_IP netmask $XARXA_MASK {" >> $DHCP_FILE
-   if test -n $XARXA_DOMAIN; then
-      echo "   option domain-name \"$XARXA_DOMAIN\";" >> $DHCP_FILE
+  
+   if [ -z "\$XARXA_DOMAIN" ]; 
+   then
+      echo "   option domain-name \"${XARXA_DOMAIN}\";" >> $DHCP_FILE
    fi
+
    echo	"   option subnet-mask $XARXA_MASK;" >> $DHCP_FILE
    echo "   option broadcast-address $XARXA_BROAD;" >> $DHCP_FILE
+  
    if test -n $XARXA_DOMAIN; then
       echo "   option domain-name-servers $XARXA_DNS;" >> $DHCP_FILE
    fi
+   
+   if [ -z "\$XARXA_DNS" ]; 
+   then
+      echo "   option domain-name-servers ${XARXA_DNS};" >> $DHCP_FILE
+   fi
+
+   
    echo	"   option routers $XARXA_GW;" >> $DHCP_FILE
    echo "}" >> $DHCP_FILE
 					 
@@ -43,7 +54,8 @@ for XARXA in $(cat $NETDB) ; do
       
    for CLIENT in $(grep -w :$XARXA_ID: $CLIDB) ; do
       CLIENT_HOST=`echo $CLIENT | awk -F":" '{print $2}'`
-      CLIENT_MAC=`echo $CLIENT | awk -F":" '{print $3}' | sed -e 's/[0-9A-F]\{2\}/&:/g' -e 's/:$//'`
+      #CLIENT_MAC=`echo $CLIENT | awk -F":" '{print $3}' | sed -e 's/[0-9A-F]\{2\}/&:/g' -e 's/:$//'`
+      CLIENT_MAC=`echo $CLIENT | awk -F":" '{print $3}' | tr "-" ":"`
       CLIENT_IP=`echo $CLIENT | awk -F":" '{print $4}'`
       echo "   host $CLIENT_HOST {" >> $DHCP_FILE
       echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE
