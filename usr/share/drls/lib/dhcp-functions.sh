@@ -58,6 +58,6 @@ done
 }
 
 function reload_dhcp() {
-  
-  #Restart de dhcp server
+  echo " " 
+  #Restart de dhcp server dummy
 }
