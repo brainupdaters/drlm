@@ -1,0 +1,37 @@
+2014-02-25 10:29:26.252844851 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-25 10:29:26.256368390 Command line options: ./drls -d addclient -c colosas -a 192.168.2.5 -m werew -n 192.168.2.1
+2014-02-25 10:29:26.259736883 Using log file: /home/krbu/DRLS/drls/var/log/drls/drls-BUmov.log.20140225.102926
+2014-02-25 10:29:26.265363135 Combining configuration files
+2014-02-25 10:29:26.269424742 Skipping /home/krbu/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2014-02-25 10:29:26.273439016 Skipping /home/krbu/DRLS/drls/etc/drls/addclient.conf (file not found or empty)
+2014-02-25 10:29:26.340203707 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2014-02-25 10:29:26.343809828 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2014-02-25 10:29:26.347515153 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2014-02-25 10:29:26.351416442 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2014-02-25 10:29:26.355322521 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0.conf (file not found or empty)
+2014-02-25 10:29:26.359227979 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0/i386.conf (file not found or empty)
+2014-02-25 10:29:26.363224058 Skipping /home/krbu/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2014-02-25 10:29:26.367034566 Skipping /home/krbu/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2014-02-25 10:29:26.371140047 Skipping /home/krbu/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2014-02-25 10:29:26.383592087 Running addclient workflow
+2014-02-25 10:29:26.387413865 Running 'client/add' stage
+2014-02-25 10:29:26.405453284 Including client/add/default/059_check_workflow_params.sh
+2014-02-25 10:29:26.408977855 ####################################################
+2014-02-25 10:29:26.412759433 # Registering client: colosas to DRLS...        
+2014-02-25 10:29:26.415471765 ####################################################
+2014-02-25 10:29:26.418908037 Checking if client name: colosas is registered in DRLS database ...
+2014-02-25 10:29:26.426453695 Checking if client IP: 192.168.2.5 is registered in DRLS database ...
+2014-02-25 10:29:26.435177996 Checking if client MAC: werew is registered in DRLS database ...
+2014-02-25 10:29:26.443419673 Checking if client Network: 192.168.2.1 is registered in DRLS database ...
+2014-02-25 10:29:26.451626485 ERROR: drls: Client Network: 192.168.2.1 not registered in DB! network is required before any client addition
+=== Stack trace ===
+Trace 0: ./drls:255 main
+Trace 1: /home/krbu/DRLS/drls/usr/share/drls/lib/addclient-workflow.sh:92 WORKFLOW_addclient
+Trace 2: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
+Trace 3: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
+Trace 4: /home/krbu/DRLS/drls/usr/share/drls/client/add/default/059_check_workflow_params.sh:33 source
+Message: drls: Client Network: 192.168.2.1 not registered in DB! network is required before any client addition
+===================
+2014-02-25 10:29:26.459975084 Running exit tasks.
+2014-02-25 10:29:26.464963737 Exit task 'exec 8>&-'
+2014-02-25 10:29:26.468635056 Exit task 'exec 7>&-'

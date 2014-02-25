@@ -1,0 +1,19 @@
+2014-02-25 10:14:53 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-25 10:14:53 Command line options: ./drls addclient -c colosus -a 192.168.2.7 -m werew -n 255.255.255.0
+2014-02-25 10:14:53 Running addclient workflow
+2014-02-25 10:14:53 Running 'client/add' stage
+2014-02-25 10:14:53 Including client/add/default/059_check_workflow_params.sh
+2014-02-25 10:14:53 ####################################################
+2014-02-25 10:14:53 # Registering client: colosus to DRLS...        
+2014-02-25 10:14:53 ####################################################
+2014-02-25 10:14:54 Checking if client name: colosus is registered in DRLS database ...
+2014-02-25 10:14:54 ERROR: drls: Client named:  already registered in DB!
+=== Stack trace ===
+Trace 0: ./drls:255 main
+Trace 1: /home/krbu/DRLS/drls/usr/share/drls/lib/addclient-workflow.sh:92 WORKFLOW_addclient
+Trace 2: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
+Trace 3: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
+Trace 4: /home/krbu/DRLS/drls/usr/share/drls/client/add/default/059_check_workflow_params.sh:12 source
+Message: drls: Client named:  already registered in DB!
+===================
+2014-02-25 10:14:54 Running exit tasks.

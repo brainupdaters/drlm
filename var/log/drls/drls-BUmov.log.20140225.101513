@@ -1,0 +1,21 @@
+2014-02-25 10:15:13 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-25 10:15:13 Command line options: ./drls addclient -c colosas -a 192.168.2.5 -m werew -n 255.255.255.0
+2014-02-25 10:15:13 Running addclient workflow
+2014-02-25 10:15:13 Running 'client/add' stage
+2014-02-25 10:15:13 Including client/add/default/059_check_workflow_params.sh
+2014-02-25 10:15:13 ####################################################
+2014-02-25 10:15:13 # Registering client: colosas to DRLS...        
+2014-02-25 10:15:13 ####################################################
+2014-02-25 10:15:13 Checking if client name: colosas is registered in DRLS database ...
+2014-02-25 10:15:13 Checking if client IP: 192.168.2.5 is registered in DRLS database ...
+2014-02-25 10:15:13 Checking if client MAC: werew is registered in DRLS database ...
+2014-02-25 10:15:13 Checking if client Network: 255.255.255.0 is registered in DRLS database ...
+/home/krbu/DRLS/drls/usr/share/drls/client/add/default/059_check_workflow_params.sh: line 31: !exist_network_name: command not found
+2014-02-25 10:15:13 Testing IP connectivity and MAC for colosas ... ( ICMP )
+2014-02-25 10:15:16 Client name: colosas is available over network!
+2014-02-25 10:15:16 Including client/add/default/109_check_client_avail_status.sh
+2014-02-25 10:15:16 ####################################################
+2014-02-25 10:15:16 # Starting DR client operations for 
+2014-02-25 10:15:16 ####################################################
+2014-02-25 10:15:16 Checking if client name:  is registered in DRLS database ...
+2014-02-25 10:15:23 Running exit tasks.

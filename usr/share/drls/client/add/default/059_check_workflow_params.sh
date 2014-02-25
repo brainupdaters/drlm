@@ -28,7 +28,7 @@ fi
 
 Log "Checking if client Network: ${CLI_NET} is registered in DRLS database ..."
 
-if !exist_network_name "$CLI_NET" ;
+if ! exist_network_name "$CLI_NET" ;
 then
 	Error "$PROGRAM: Client Network: $CLI_NET not registered in DB! network is required before any client addition"
 fi

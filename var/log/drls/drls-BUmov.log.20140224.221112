@@ -1,0 +1,10 @@
+2014-02-24 22:11:12 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-24 22:11:12 Command line options: ./drls runbackup
+2014-02-24 22:11:12 Running runbackup workflow
+2014-02-24 22:11:12 Running 'backup/run' stage
+2014-02-24 22:11:12 Including backup/run/default/019_check_client_backup_reqs.sh
+2014-02-24 22:11:12 ####################################################
+2014-02-24 22:11:12 # Starting DR backup operations for 
+2014-02-24 22:11:12 ####################################################
+2014-02-24 22:11:12 Checking ifi client ID:  is registered in DRLS database ...
+2014-02-24 22:11:21 Running exit tasks.
