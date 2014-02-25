@@ -1,0 +1,44 @@
+2014-02-25 18:53:45.194178593 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-25 18:53:45.197909061 Command line options: ./drls -v -d addclient -c pepe -a 192.168.4.4 -n 192.255.255.255 -m 43erewr3342r
+2014-02-25 18:53:45.201722490 Using log file: /home/krbu/DRLS/drls/var/log/drls/drls-BUmov.log.20140225.185345
+2014-02-25 18:53:45.208456945 Combining configuration files
+2014-02-25 18:53:45.212408332 Skipping /home/krbu/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2014-02-25 18:53:45.216463464 Skipping /home/krbu/DRLS/drls/etc/drls/addclient.conf (file not found or empty)
+2014-02-25 18:53:45.287570662 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2014-02-25 18:53:45.291383340 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2014-02-25 18:53:45.294797971 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2014-02-25 18:53:45.298883100 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2014-02-25 18:53:45.302871761 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0.conf (file not found or empty)
+2014-02-25 18:53:45.307155456 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0/i386.conf (file not found or empty)
+2014-02-25 18:53:45.311354553 Skipping /home/krbu/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2014-02-25 18:53:45.315474076 Skipping /home/krbu/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2014-02-25 18:53:45.319547143 Skipping /home/krbu/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2014-02-25 18:53:45.332157300 Running addclient workflow
+2014-02-25 18:53:45.336193989 Running 'client/add' stage
+2014-02-25 18:53:45.354738970 Including client/add/default/059_check_workflow_params.sh
+2014-02-25 18:53:45.358411005 ####################################################
+2014-02-25 18:53:45.361965183 # Registering client: pepe to DRLS...        
+2014-02-25 18:53:45.365347933 ####################################################
+2014-02-25 18:53:45.368010263 Checking if client name: pepe is registered in DRLS database ...
+2014-02-25 18:53:45.375296832 Checking if client IP: 192.168.4.4 is registered in DRLS database ...
+2014-02-25 18:53:45.381820290 Checking if client MAC: 43erewr3342r is registered in DRLS database ...
+2014-02-25 18:53:45.389117087 Testing IP connectivity and MAC for pepe ... ( ICMP )
+2014-02-25 18:53:45.408858786 Client name: pepe is available over network!
+2014-02-25 18:53:45.418851314 Including client/add/default/109_check_client_avail_status.sh
+2014-02-25 18:53:45.422907778 ####################################################
+2014-02-25 18:53:45.426628528 # Registering DR client for pepe
+2014-02-25 18:53:45.430276159 ####################################################
+ssh: connect to host 192.168.4.4 port 22: Connection timed out
+/home/krbu/DRLS/drls/usr/share/drls/client/add/default/109_check_client_avail_status.sh: line 7: [: ==: unary operator expected
+2014-02-25 18:54:18.451755624 ERROR: Client: pepe ssh is not available ! aborting ...
+=== Stack trace ===
+Trace 0: ./drls:255 main
+Trace 1: /home/krbu/DRLS/drls/usr/share/drls/lib/addclient-workflow.sh:92 WORKFLOW_addclient
+Trace 2: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
+Trace 3: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
+Trace 4: /home/krbu/DRLS/drls/usr/share/drls/client/add/default/109_check_client_avail_status.sh:11 source
+Message: Client: pepe ssh is not available ! aborting ...
+===================
+2014-02-25 18:54:18.460184081 Running exit tasks.
+2014-02-25 18:54:18.464883281 Exit task 'exec 8>&-'
+2014-02-25 18:54:18.468686543 Exit task 'exec 7>&-'

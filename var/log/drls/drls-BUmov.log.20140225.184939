@@ -1,0 +1,33 @@
+2014-02-25 18:49:39.997803755 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-25 18:49:40.000308615 Command line options: ./drls -v -d addclient -c pepe -a 192.168.4.4 -n 192.255.255.255 -m 43erewr3342r
+2014-02-25 18:49:40.003782538 Using log file: /home/krbu/DRLS/drls/var/log/drls/drls-BUmov.log.20140225.184939
+2014-02-25 18:49:40.010530868 Combining configuration files
+2014-02-25 18:49:40.014473340 Skipping /home/krbu/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2014-02-25 18:49:40.018581808 Skipping /home/krbu/DRLS/drls/etc/drls/addclient.conf (file not found or empty)
+2014-02-25 18:49:40.077212624 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2014-02-25 18:49:40.079639798 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2014-02-25 18:49:40.083417595 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2014-02-25 18:49:40.086184907 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2014-02-25 18:49:40.089933776 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0.conf (file not found or empty)
+2014-02-25 18:49:40.093947013 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0/i386.conf (file not found or empty)
+2014-02-25 18:49:40.098180167 Skipping /home/krbu/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2014-02-25 18:49:40.102234257 Skipping /home/krbu/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2014-02-25 18:49:40.106369194 Skipping /home/krbu/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2014-02-25 18:49:40.118790613 Running addclient workflow
+2014-02-25 18:49:40.122927831 Running 'client/add' stage
+2014-02-25 18:49:40.141858005 Including client/add/default/059_check_workflow_params.sh
+2014-02-25 18:49:40.145634185 ####################################################
+2014-02-25 18:49:40.149017746 # Registering client: pepe to DRLS...        
+2014-02-25 18:49:40.152386366 ####################################################
+2014-02-25 18:49:40.155892546 Checking if client name: pepe is registered in DRLS database ...
+2014-02-25 18:49:40.162861679 Checking if client IP: 192.168.4.4 is registered in DRLS database ...
+2014-02-25 18:49:40.169493173 Checking if client MAC: 43erewr3342r is registered in DRLS database ...
+2014-02-25 18:49:40.176695101 Testing IP connectivity and MAC for pepe ... ( ICMP )
+2014-02-25 18:49:40.196937564 Client name: pepe is available over network!
+2014-02-25 18:49:40.207235007 Including client/add/default/109_check_client_avail_status.sh
+2014-02-25 18:49:40.211195609 ####################################################
+2014-02-25 18:49:40.214867904 # Registering DR client for pepe
+2014-02-25 18:49:40.218511050 ####################################################
+2014-02-25 18:50:13.060228041 Running exit tasks.
+2014-02-25 18:50:13.065256566 Exit task 'exec 8>&-'
+2014-02-25 18:50:13.068983139 Exit task 'exec 7>&-'

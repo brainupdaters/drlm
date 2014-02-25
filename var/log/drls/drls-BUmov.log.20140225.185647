@@ -1,0 +1,41 @@
+2014-02-25 18:56:47.020818396 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-25 18:56:47.024720301 Command line options: ./drls -v -d addclient -c pepe -a 192.168.2.105 -n 192.255.255.255 -m 43erewr3342r
+2014-02-25 18:56:47.028033490 Using log file: /home/krbu/DRLS/drls/var/log/drls/drls-BUmov.log.20140225.185647
+2014-02-25 18:56:47.033788368 Combining configuration files
+2014-02-25 18:56:47.037850499 Skipping /home/krbu/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2014-02-25 18:56:47.041994662 Skipping /home/krbu/DRLS/drls/etc/drls/addclient.conf (file not found or empty)
+2014-02-25 18:56:47.112608016 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2014-02-25 18:56:47.116481897 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2014-02-25 18:56:47.120247619 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2014-02-25 18:56:47.124358737 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2014-02-25 18:56:47.128487992 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0.conf (file not found or empty)
+2014-02-25 18:56:47.132539088 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0/i386.conf (file not found or empty)
+2014-02-25 18:56:47.136685095 Skipping /home/krbu/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2014-02-25 18:56:47.140838464 Skipping /home/krbu/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2014-02-25 18:56:47.144924045 Skipping /home/krbu/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2014-02-25 18:56:47.157852010 Running addclient workflow
+2014-02-25 18:56:47.161812192 Running 'client/add' stage
+2014-02-25 18:56:47.180498032 Including client/add/default/059_check_workflow_params.sh
+2014-02-25 18:56:47.184211675 ####################################################
+2014-02-25 18:56:47.187626408 # Registering client: pepe to DRLS...        
+2014-02-25 18:56:47.190594439 ####################################################
+2014-02-25 18:56:47.194340581 Checking if client name: pepe is registered in DRLS database ...
+2014-02-25 18:56:47.201207906 Checking if client IP: 192.168.2.105 is registered in DRLS database ...
+2014-02-25 18:56:47.206676327 Checking if client MAC: 43erewr3342r is registered in DRLS database ...
+2014-02-25 18:56:47.212132568 Testing IP connectivity and MAC for pepe ... ( ICMP )
+/home/krbu/DRLS/drls/usr/share/drls/lib/client-functions.sh: line 153: 192.168.2.105: command not found
+tr: missing operand
+Try `tr --help' for more information.
+[: Unknown host
+2014-02-25 18:56:47.478811462 ERROR: Client: pepe is not available or IP or MAC are not in a valid format! aborting ...
+=== Stack trace ===
+Trace 0: ./drls:255 main
+Trace 1: /home/krbu/DRLS/drls/usr/share/drls/lib/addclient-workflow.sh:92 WORKFLOW_addclient
+Trace 2: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
+Trace 3: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
+Trace 4: /home/krbu/DRLS/drls/usr/share/drls/client/add/default/059_check_workflow_params.sh:43 source
+Message: Client: pepe is not available or IP or MAC are not in a valid format! aborting ...
+===================
+2014-02-25 18:56:47.487496015 Running exit tasks.
+2014-02-25 18:56:47.492666927 Exit task 'exec 8>&-'
+2014-02-25 18:56:47.496255513 Exit task 'exec 7>&-'
