@@ -174,3 +174,60 @@ function exist_network_name()
 # Check if parameter $1 is ok and if exists network with this name in database. Return 0 for ok , return 1 not ok.
 }
 
+function valid_ip()
+{
+    local  ip=$1
+    local  stat=1
+
+    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        OIFS=$IFS
+        IFS='.'
+        ip=($ip)
+        IFS=$OIFS
+        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
+        stat=$?
+    fi
+    return $stat
+# Return 0 if IP is in correct format
+}
+
+
+function valid_mac()
+{
+	local mac=$1
+	local  stat=1
+
+	LEN=$(echo ${#mac})
+
+	if [ $LEN -eq 12 ]; then
+        stat=0
+	fi
+
+	return $stat
+
+# Return 0 if MAC address length is 12 without delimiters
+}
+
+function compact_mac()
+{
+	local mac=$1
+	mac=$(echo "$mac" | tr -d "-" | tr -d ":" | tr -d ".." | tr -d "." | tr [A-Z] [a-z])
+
+	echo "$mac"
+
+# Converteix la MAC en una cadena de 8 digits seguits i en minuscules
+}
+
+function format_mac()
+{
+	local mac=$1
+	local sep=$2
+	
+	mac=$(echo "$mac" | awk '{for(i=10;i>=2;i-=2)$0=substr($0,1,i)"'$sep'"substr($0,i+1);print}')
+
+	echo "$mac"
+
+# Converteix la MAC a un format standard (rep MAC i separador com a params)
+}
+
+
