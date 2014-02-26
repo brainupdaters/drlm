@@ -14,33 +14,41 @@ fi
 
 Log "Checking if client IP: ${CLI_IP} is registered in DRLS database ..."
 
-if exist_client_ip "$CLI_IP" ;
+if valid_ip "$CLI_IP" ;
 then
-	Error "$PROGRAM: Client IP: $CLI_IP already registered in DB!"
+	Log "$PROGRAM: Client IP: $CLI_IP is in valid format..."
+	if exist_client_ip "$CLI_IP" ;
+	then
+		Error "$PROGRAM: Client IP: $CLI_IP already registered in DB!"
+	else
+		Log "$PROGRAM: Client IP: $CLI_IP is not in use in DRLS DB..."
+	fi
+else
+	Error "$PROGRAM: Client IP: $CLI_IP is in wrong format. Correct this and try again."
 fi
 
 Log "Checking if client MAC: ${CLI_MAC} is registered in DRLS database ..."
 
-if exist_client_mac "$CLI_MAC" ;
+CLI_MAC=$(compact_mac "$CLI_MAC")
+
+if valid_mac "$CLI_MAC" ;
 then
-	Error "$PROGRAM: Client MAC: $CLI_MAC already registered in DB!"
-fi
+        Log "$PROGRAM: Client MAC: $CLI_MAC is in valid format..."
 
-#Log "Checking if client Network: ${CLI_NET} is registered in DRLS database ..."
-
-#if ! exist_network_name "$CLI_NET" ;
-#then
-#	Error "$PROGRAM: Client Network: $CLI_NET not registered in DB! network is required before any client addition"
-#fi
-
-Log "Testing IP connectivity and MAC for ${CLI_NAME} ... ( ICMP )"
-
-# Check if client is available over the network and match MAC address
-if check_client_mac "$CLI_NAME" "$CLI_IP" "$CLI_MAC" ;
-then
-	Log "Client name: $CLI_NAME is available over network!"
+	if exist_client_mac "$CLI_MAC" ;
+	then
+		Error "$PROGRAM: Client MAC: $CLI_MAC already registered in DB!"
+	else
+                Log "$PROGRAM: Client MAC: $CLI_MAC is not in use in DRLS DB..."
+	fi
 else
-	Error "Client: $CLI_NAME is not available or IP or MAC are not in a valid format! aborting ..." 
+        Error "$PROGRAM: Client MAC: $CLI_MAC is in wrong format. Correct this and try again."
 fi
 
 
+Log "Checking if client Network: ${CLI_NET} is registered in DRLS database ..."
+
+if ! exist_network_name "$CLI_NET" ;
+then
+	Error "$PROGRAM: Client Network: $CLI_NET not registered in DB! network is required before any client addition"
+fi
