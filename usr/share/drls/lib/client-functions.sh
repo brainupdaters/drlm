@@ -118,15 +118,17 @@ function check_client_ssh () {
 }
 
 function add_client (){
-  local CLI_ID="" 
+  local CLI_ID=""
   local CLI_NAME=$1
   local CLI_MAC=$2
   local CLI_IP=$3
-  local CLI_NET=$4
-  	CLI_ID=$(tail -1 $CLIDB|awk -F":" '{print $1 + 1}')
-	echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_NET >> $CLIDB
-	if [ $? == 0 ];then eval echo $CLI_ID; else return 1; fi
-} 
+  local CLI_OS=$4
+  local CLI_NET=$5
+        put_id CLI
+        CLI_ID=$(get_id CLI)
+        echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_OS:$CLI_NET >> $CLIDB
+        if [ $? == 0 ];then eval echo $CLI_ID; else return 1; fi
+}
 
 
 function del_client_id(){
@@ -220,11 +222,64 @@ function mod_client_mac (){
  fi
  }
 
+#
+function get_id () {
+ case "$1" in
+		(CLI)   FILE_ID=$VAR_DIR/.ids/.idcount.client
+			if [ -f $FILE_ID ]
+			then 
+				CLI_ID=$(cat $FILE_ID)
+				eval echo $CLI_ID
+			else
+				return 1
+			fi			
+			;;
+		(NET)   FILE_ID=$VAR_DIR/.ids/.idcount.network
+			if [ -f $FILE_ID ]
+			then
+                        	NET_ID=$(cat $FILE_ID)
+				eval echo $NET_ID
+       			else
+				return 1
+			fi
 
+			;;
+                (BAC)   FILE_ID=$VAR_DIR/.ids/.idcount.backups
+                        if [ -f $FILE_ID ]
+                        then
+                                BAC_ID=$(cat $FILE_ID)
+                                eval echo $BAC_ID
+                        else
+                                return 1
+                        fi
+                        ;;
 
+		(*) 	return 1;;
+ esac
+}
 
-
-
-
-
+# Increment counter id, client,network,backup 
+function put_id () {
+ case "$1" in
+		(CLI)	FILE_ID=$VAR_DIR/.ids/.idcount.client
+			CLI_ID=$(get_id CLI)
+			CLI_ID=$(echo $CLI_ID|awk '{print $1 + 1}')
+			echo $CLI_ID > $FILE_ID
+			eval echo $CLI_ID
+			;;
+		(NET)   FILE_ID=$VAR_DIR/.ids/.idcount.network
+                        NET_ID=$(get_id NET)
+			NET_ID=$(echo $NET_ID|awk '{print $1 + 1}')
+                        echo $NET_ID > $FILE_ID
+			eval echo $NET_ID
+			;;
+                (BAC)   FILE_ID=$VAR_DIR/.ids/.idcount.backups
+                        BAC_ID=$(get_id BAC)
+                        BAC_ID=$(echo $BAC_ID|awk '{print $1 + 1}')
+                        echo $BAC_ID > $FILE_ID
+			eval echo $BAC_ID
+                        ;;
+		(*) 	return 1;;
+ esac
+}
 
