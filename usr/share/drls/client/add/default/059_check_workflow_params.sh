@@ -14,7 +14,7 @@ fi
 
 Log "Checking if client IP: ${CLI_IP} is registered in DRLS database ..."
 
-if valid_ip "$CLI_IP" ;
+if valid_ip $CLI_IP ;
 then
 	Log "$PROGRAM: Client IP: $CLI_IP is in valid format..."
 	if exist_client_ip "$CLI_IP" ;
@@ -29,13 +29,13 @@ fi
 
 Log "Checking if client MAC: ${CLI_MAC} is registered in DRLS database ..."
 
-CLI_MAC=$(compact_mac "$CLI_MAC")
+CLI_MAC=$(compact_mac $CLI_MAC)
 
-if valid_mac "$CLI_MAC" ;
+if valid_mac $CLI_MAC ;
 then
         Log "$PROGRAM: Client MAC: $CLI_MAC is in valid format..."
 
-	if exist_client_mac "$CLI_MAC" ;
+	if exist_client_mac $CLI_MAC ;
 	then
 		Error "$PROGRAM: Client MAC: $CLI_MAC already registered in DB!"
 	else
