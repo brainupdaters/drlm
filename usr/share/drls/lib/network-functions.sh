@@ -197,7 +197,7 @@ function valid_mac()
 	local mac=$1
 	local  stat=1
 
-	LEN=$(echo ${#mac})
+	local LEN=$(echo ${#mac})
 
 	if [ $LEN -eq 12 ]; then
         stat=0
@@ -211,7 +211,7 @@ function valid_mac()
 function compact_mac()
 {
 	local mac=$1
-	mac=$(echo $mac | tr -d "-" | tr -d ":" | tr -d ".." | tr -d "." | tr [A-Z] [a-z])
+	mac=$(echo $mac | tr -d "-" | tr -d ":" | tr -d "." | tr [A-Z] [a-z])
 
 	echo $mac
 
