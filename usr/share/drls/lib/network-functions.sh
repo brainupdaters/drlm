@@ -211,9 +211,9 @@ function valid_mac()
 function compact_mac()
 {
 	local mac=$1
-	mac=$(echo "$mac" | tr -d "-" | tr -d ":" | tr -d ".." | tr -d "." | tr [A-Z] [a-z])
+	mac=$(echo $mac | tr -d "-" | tr -d ":" | tr -d ".." | tr -d "." | tr [A-Z] [a-z])
 
-	echo "$mac"
+	echo $mac
 
 # Converteix la MAC en una cadena de 8 digits seguits i en minuscules
 }
@@ -223,9 +223,9 @@ function format_mac()
 	local mac=$1
 	local sep=$2
 	
-	mac=$(echo "$mac" | awk '{for(i=10;i>=2;i-=2)$0=substr($0,1,i)"'$sep'"substr($0,i+1);print}')
+	mac=$(echo $mac | awk '{for(i=10;i>=2;i-=2)$0=substr($0,1,i)"'$sep'"substr($0,i+1);print}')
 
-	echo "$mac"
+	echo $mac
 
 # Converteix la MAC a un format standard (rep MAC i separador com a params)
 }
