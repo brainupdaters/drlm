@@ -230,4 +230,10 @@ function format_mac()
 # Converteix la MAC a un format standard (rep MAC i separador com a params)
 }
 
+function check_ssh_port ()
+{
+        local ip=$1
+	nc -z $ip 22
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
 

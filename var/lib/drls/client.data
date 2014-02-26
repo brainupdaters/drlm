@@ -1,8 +1,0 @@
-#id:name:macaddr:ipaddr:ostype(auto):net_name:op2:op3:
-0001:rear01:00ae4033a5f4:10.0.0.100:rhel5.4:::
-0002:rear02:00ae4033a5f9:192.168.1.1:rhel5.4:::
-0003:cervell:3cd92bb12f:192.168.2.8:oi_151a2:::
-0004:WOPR:080027c3882c:192.168.2.119:Debian7.0:::
-0005:rhREARcli::10.0.0.200::::
-0006:bucli1::10.0.0.1::::
-7:colosus:6c626d0997a1:192.168.2.7:Debian7.0

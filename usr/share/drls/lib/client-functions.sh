@@ -124,10 +124,15 @@ function add_client (){
   local CLI_IP=$3
   local CLI_OS=$4
   local CLI_NET=$5
-        put_id CLI
         CLI_ID=$(get_id CLI)
-        echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_OS:$CLI_NET >> $CLIDB
-        if [ $? == 0 ];then eval echo $CLI_ID; else return 1; fi
+        if [ $CLI_ID != "ERRORCLI" ]
+        then
+                put_id CLI
+                echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_OS:$CLI_NET >> $CLIDB
+                if [ $? == 0 ];then eval echo $CLI_ID; fi
+        else
+                echo "ERRORCLI"
+        fi
 }
 
 
@@ -222,7 +227,6 @@ function mod_client_mac (){
  fi
  }
 
-#
 function get_id () {
  case "$1" in
 		(CLI)   FILE_ID=$VAR_DIR/.ids/.idcount.client
@@ -231,7 +235,7 @@ function get_id () {
 				CLI_ID=$(cat $FILE_ID)
 				eval echo $CLI_ID
 			else
-				return 1
+				echo "ERRORCLI"
 			fi			
 			;;
 		(NET)   FILE_ID=$VAR_DIR/.ids/.idcount.network
@@ -240,7 +244,7 @@ function get_id () {
                         	NET_ID=$(cat $FILE_ID)
 				eval echo $NET_ID
        			else
-				return 1
+				echo "ERRORNET"
 			fi
 
 			;;
@@ -250,15 +254,14 @@ function get_id () {
                                 BAC_ID=$(cat $FILE_ID)
                                 eval echo $BAC_ID
                         else
-                                return 1
+				echo "ERRORBAC"
                         fi
                         ;;
 
-		(*) 	return 1;;
+		(*) 	echo "ERRORFILE";;
  esac
 }
-
-# Increment counter id, client,network,backup 
+#
 function put_id () {
  case "$1" in
 		(CLI)	FILE_ID=$VAR_DIR/.ids/.idcount.client
@@ -279,7 +282,7 @@ function put_id () {
                         echo $BAC_ID > $FILE_ID
 			eval echo $BAC_ID
                         ;;
-		(*) 	return 1;;
+		(*) 	echo "ERRORFILE";;
  esac
 }
 
