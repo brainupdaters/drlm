@@ -1,4 +1,4 @@
-#id:name:macaddr:ipaddr:ostype(auto):op1:op2:op3:
+#id:name:macaddr:ipaddr:ostype(auto):net_name:op2:op3:
 0001:rear01:00ae4033a5f4:10.0.0.100:rhel5.4:::
 0002:rear02:00ae4033a5f9:192.168.1.1:rhel5.4:::
 0003:cervell:3cd92bb12f:192.168.2.8:oi_151a2:::
