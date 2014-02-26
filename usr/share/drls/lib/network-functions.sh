@@ -211,7 +211,7 @@ function valid_mac()
 function compact_mac()
 {
 	local mac=$1
-	mac=$(echo $mac | tr -d "-" | tr -d ":" | tr -d "." | tr [A-Z] [a-z])
+	mac=$(echo $mac | tr -d "-" | tr -d ":" | tr -d "." | tr \[A-Z\] \[a-z\])
 
 	echo $mac
 
@@ -236,4 +236,3 @@ function check_ssh_port ()
 	nc -z $ip 22
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
-
