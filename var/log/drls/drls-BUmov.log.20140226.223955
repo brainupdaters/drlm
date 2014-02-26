@@ -1,0 +1,48 @@
+2014-02-26 22:39:55.430851521 Disaster Recovery Linux Server 1.00 / 2013-12-08
+2014-02-26 22:39:55.432533293 Command line options: /home/krbu/DRLS/drls/usr/sbin/drls -vvv -d addclient -c pepe -a 192.168.2.105 -n xarxa1 -m 08-00-27-C3-88-2C
+2014-02-26 22:39:55.434050389 Using log file: /home/krbu/DRLS/drls/var/log/drls/drls-BUmov.log.20140226.223955
+2014-02-26 22:39:55.436353098 Combining configuration files
+2014-02-26 22:39:55.437744396 Skipping /home/krbu/DRLS/drls/etc/drls/os.conf (file not found or empty)
+2014-02-26 22:39:55.439092698 Skipping /home/krbu/DRLS/drls/etc/drls/addclient.conf (file not found or empty)
+2014-02-26 22:39:55.491214624 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Linux-i386.conf (file not found or empty)
+2014-02-26 22:39:55.492984311 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/GNU/Linux.conf (file not found or empty)
+2014-02-26 22:39:55.494688642 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian.conf (file not found or empty)
+2014-02-26 22:39:55.496408561 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/i386.conf (file not found or empty)
+2014-02-26 22:39:55.498090338 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0.conf (file not found or empty)
+2014-02-26 22:39:55.499805605 Skipping /home/krbu/DRLS/drls/usr/share/drls/conf/Debian/7.0/i386.conf (file not found or empty)
+2014-02-26 22:39:55.501767844 Skipping /home/krbu/DRLS/drls/etc/drls/site.conf (file not found or empty)
+2014-02-26 22:39:55.503300029 Skipping /home/krbu/DRLS/drls/etc/drls/local.conf (file not found or empty)
+2014-02-26 22:39:55.504648749 Skipping /home/krbu/DRLS/drls/etc/drls/rescue.conf (file not found or empty)
+2014-02-26 22:39:55.508835532 Running addclient workflow
+2014-02-26 22:39:55.510338091 Running 'client/add' stage
+2014-02-26 22:39:55.518314467 Including client/add/default/059_check_workflow_params.sh
+2014-02-26 22:39:55.519590306 ####################################################
+2014-02-26 22:39:55.520829210 # Registering client: pepe to DRLS...        
+2014-02-26 22:39:55.522123405 ####################################################
+2014-02-26 22:39:55.523542638 Checking if client name: pepe is registered in DRLS database ...
+2014-02-26 22:39:55.527214939 Checking if client IP: 192.168.2.105 is registered in DRLS database ...
+2014-02-26 22:39:55.529228298 drls: Client IP: 192.168.2.105 is in valid format...
+2014-02-26 22:39:55.532327733 drls: Client IP: 192.168.2.105 is not in use in DRLS DB...
+2014-02-26 22:39:55.533771960 Checking if client MAC: 08-00-27-C3-88-2C is registered in DRLS database ...
+2014-02-26 22:39:55.539112920 drls: Client MAC: 080027c3882c is in valid format...
+2014-02-26 22:39:55.541638464 drls: Client MAC: 080027c3882c is not in use in DRLS DB...
+2014-02-26 22:39:55.543211938 Checking if client Network: xarxa1 is registered in DRLS database ...
+2014-02-26 22:39:55.551995807 Including client/add/default/109_check_client_avail_status.sh
+2014-02-26 22:39:55.553760280 ####################################################
+2014-02-26 22:39:55.555689238 # Registering DR client for pepe
+2014-02-26 22:39:55.557530293 ####################################################
+2014-02-26 22:39:55.559284393 Testing IP connectivity and MAC for pepe ... ( ICMP )
+/home/krbu/DRLS/drls/usr/share/drls/lib/client-functions.sh: line 160: 192.168.2.105: command not found
+[: Unknown host
+2014-02-26 22:39:55.597925776 ERROR: Client: pepe is not available or IP or MAC are not in a valid format! aborting ...
+=== Stack trace ===
+Trace 0: /home/krbu/DRLS/drls/usr/sbin/drls:255 main
+Trace 1: /home/krbu/DRLS/drls/usr/share/drls/lib/addclient-workflow.sh:92 WORKFLOW_addclient
+Trace 2: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:85 SourceStage
+Trace 3: /home/krbu/DRLS/drls/usr/share/drls/lib/framework-functions.sh:40 Source
+Trace 4: /home/krbu/DRLS/drls/usr/share/drls/client/add/default/109_check_client_avail_status.sh:14 source
+Message: Client: pepe is not available or IP or MAC are not in a valid format! aborting ...
+===================
+2014-02-26 22:39:55.601974978 Running exit tasks.
+2014-02-26 22:39:55.604370064 Exit task 'exec 8>&-'
+2014-02-26 22:39:55.606195919 Exit task 'exec 7>&-'
