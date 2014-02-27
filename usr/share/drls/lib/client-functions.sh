@@ -128,7 +128,7 @@ function add_client (){
         if [ $CLI_ID != "ERRORCLI" ]
         then
                 put_id CLI
-                echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_OS:$CLI_NET >> $CLIDB
+                echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_OS:$CLI_NET: >> $CLIDB
                 if [ $? == 0 ];then eval echo $CLI_ID; fi
         else
                 echo "ERRORCLI"
