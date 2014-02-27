@@ -24,10 +24,16 @@ for NFS_STORE in $PXEDIR $BKPDIR ; do
 	   local CLI_OS=$(echo $CLIENT | awk -F":" '{print $5}')
 	   local CLI_NET=$(echo $CLIENT | awk -F":" '{print $6}')
 
-	if [ $SCOUNT -eq 1 ]; then
-		echo "$NFS_STORE $CLI_NAME(rw,sync,no_root_squash) \\" | tee -a $NFS_FILE
-		let SCOUNT=SCOUNT+1
-		let CCOUNT=CCOUNT+1
+	if [ $SCOUNT -eq 1 ]; then		
+		if [ $NCLI -gt 1 ]; then
+			echo "$NFS_STORE $CLI_NAME(rw,sync,no_root_squash) \\" | tee -a $NFS_FILE
+			let SCOUNT=SCOUNT+1
+			let CCOUNT=CCOUNT+1
+		else
+			echo "$NFS_STORE $CLI_NAME(rw,sync,no_root_squash)" | tee -a $NFS_FILE
+			let SCOUNT=SCOUNT+1
+                	let CCOUNT=CCOUNT+1
+		fi
 	else
 		if [ $CCOUNT -lt $NCLI ]; then
 			echo "	$CLI_NAME(rw,sync,no_root_squash) \\" | tee -a $NFS_FILE
