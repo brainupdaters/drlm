@@ -27,6 +27,22 @@ else
 	Error "$PROGRAM: Network IP: $NET_IP is in wrong format. Correct this and try again."
 fi
 
+Log "Checking if Network Mask: ${NET_MASK} is valid..."
+
+if valid_ip $NET_MASK;
+then
+        Log "$PROGRAM: Network Mask: $NET_MASK is in valid format..."
+	CIDR=$(netmask_to_cidr $NET_MASK)
+        if [ "$NET_IP" != $(get_netaddress "$NET_SRV/$CIDR") ];
+        then
+                Error "$PROGRAM: Network Mask: $NET_MASK is not correct for this net $NET_IP"
+        else
+                Log "$PROGRAM: Network Mask: $NET_MASK is valid for net $NET_IP"
+        fi
+else
+        Error "$PROGRAM: Network Mask: $NET_MASK is in wrong format. Correct this and try again."
+fi
+
 Log "Checking if Network GW: ${NET_GW} is registered in DRLS database ..."
 
 if valid_ip $NET_GW;
@@ -55,24 +71,6 @@ then
         fi
 else
         Error "$PROGRAM: Server IP: $NET_SRV is in wrong format. Correct this and try again."
-fi
-
-
-
-Log "Checking if Network Mask: ${NET_MASK} is valid..."
-
-if valid_ip $NET_MASK;
-then
-        Log "$PROGRAM: Network Mask: $NET_MASK is in valid format..."
-	CIDR=$(netmask_to_cidr $NET_MASK)
-        if [ "$NET_IP" != $(get_netaddress "$NET_SRV/$CIDR") ];
-        then
-                Error "$PROGRAM: Network Mask: $NET_MASK is not correct for this net $NET_IP"
-        else
-                Log "$PROGRAM: Network Mask: $NET_MASK is valid for net $NET_IP"
-        fi
-else
-        Error "$PROGRAM: Network Mask: $NET_MASK is in wrong format. Correct this and try again."
 fi
 
 NET_BCAST=$(get_bcaddress $NET_IP $NET_MASK)
