@@ -261,20 +261,33 @@ function get_id () {
 		(*) 	echo "ERRORFILE";;
  esac
 }
+
 #
 function put_id () {
  case "$1" in
 		(CLI)	FILE_ID=$VAR_DIR/.ids/.idcount.client
+			CLI_ID_DB=$(grep -v "#" $CLIDB|grep -v '^$'|tail -1|awk -F":" '{print $1}'|grep -E ^\-?[0-9]?\.?[0-9]+$)
 			CLI_ID=$(get_id CLI)
-			CLI_ID=$(echo $CLI_ID|awk '{print $1 + 1}')
-			echo $CLI_ID > $FILE_ID
-			eval echo $CLI_ID
+			if [ "$CLI_ID" -ge "$CLI_ID_DB" ]
+			then
+				CLI_ID=$(echo $CLI_ID|awk '{print $1 + 1}')
+				echo $CLI_ID > $FILE_ID
+				echo $CLI_ID
+			else
+				echo "ERRORPUID"
+			fi
 			;;
 		(NET)   FILE_ID=$VAR_DIR/.ids/.idcount.network
+			NET_ID_DB=$(grep -v "#" $NETDB|grep -v '^$'|tail -1|awk -F":" '{print $1}'|grep -E ^\-?[0-9]?\.?[0-9]+$)
                         NET_ID=$(get_id NET)
-			NET_ID=$(echo $NET_ID|awk '{print $1 + 1}')
-                        echo $NET_ID > $FILE_ID
-			eval echo $NET_ID
+			if [ "$NET_ID" -ge "$NET_ID_DB" ]
+			then
+				NET_ID=$(echo $NET_ID|awk '{print $1 + 1}')
+                        	echo $NET_ID > $FILE_ID
+				eval echo $NET_ID
+			else
+				echo "ERRORPUID"
+			fi
 			;;
                 (BAC)   FILE_ID=$VAR_DIR/.ids/.idcount.backups
                         BAC_ID=$(get_id BAC)
