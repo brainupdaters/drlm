@@ -36,7 +36,7 @@ while true; do
 						# We need to take the option argument
 						if [ -n "$2" ]
 						then 
-							NETNAME="$2"
+							NET_NAME="$2"
 						else
 							echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 							exit 1
@@ -47,7 +47,7 @@ while true; do
 						# We need to take the option argument
 						if [ -n "$2" ]
 						then 
-							NETIPADDR="$2" 
+							NET_IP="$2" 
 						else
 							echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 							exit 1
@@ -58,7 +58,7 @@ while true; do
 						# We need to take the option argument
 						if [ -n "$2" ]
 						then 
-							NETGW="$2" 
+							NET_GW="$2" 
 						else
 							echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 							exit 1
@@ -69,7 +69,7 @@ while true; do
 						# We need to take the option argument
 						if [ -n "$2" ]
 						then 
-							NETMASK="$2" 
+							NET_MASK="$2" 
 						else
 							echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 							exit 1
@@ -80,7 +80,7 @@ while true; do
 						# We need to take the option argument
 						if [ -n "$2" ]
 						then 
-							NETSERVER="$2" 
+							NET_SRV="$2" 
 						else
 							echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 							exit 1
