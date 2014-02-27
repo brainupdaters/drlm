@@ -177,7 +177,7 @@ function exist_network_name()
 function exist_network_ip()
 {
   local NET_IP=$1
-  grep -w :$NET_IP: $NETDB|awk -F":" '{print $2}'|grep $NET_IP &> /dev/null
+  grep -w $NET_IP $NETDB|awk -F":" '{print $2}'|grep $NET_IP &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 
 # Check if parameter $1 is ok and if exists network with this ip in database. Return 0 for ok , return 1 not ok.
