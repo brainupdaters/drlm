@@ -1,4 +1,1 @@
-id:netip:mask:gw:domain(op):dns(op):broadcast-address:ServerIp:netname
-0001:172.19.123.0:255.255.255.0:172.19.123.254:brainupdaters.com:172.19.193.111,172.19.193.196:172.19.123.255:172.19.123.50:xarxa1
-0002:172.19.234.0:255.255.255.0:192.19.234.254:brainupdaters.com:172.19.193.111,172.19.193.196:172.19.234.255:172.19.234.50:xarxa2
-
+#id:netip:mask:gw:domain(op):dns(op):broadcast-address:ServerIp:netname
