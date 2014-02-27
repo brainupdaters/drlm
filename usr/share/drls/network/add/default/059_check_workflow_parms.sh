@@ -1,4 +1,3 @@
-
 Log "####################################################"
 Log "# Registering Network: ${NET_NAME} to DRLS...        "
 Log "####################################################"
@@ -66,7 +65,7 @@ if valid_ip $NET_MASK;
 then
         Log "$PROGRAM: Network Mask: $NET_MASK is in valid format..."
 	CIDR=$(netmask_to_cidr $NET_MASK)
-        if [ "$NET_IP" != $(get_nataddress "$NET_SRV/$CIDR") ];
+        if [ "$NET_IP" != $(get_netaddress "$NET_SRV/$CIDR") ];
         then
                 Error "$PROGRAM: Network Mask: $NET_MASK is not correct for this net $NET_IP"
         else
