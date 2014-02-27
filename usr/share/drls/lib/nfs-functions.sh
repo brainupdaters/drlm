@@ -47,6 +47,9 @@ function reload_nfs() {
 	if [ $? -ne 0 ]; then
 		mv $NFS_DIR/exports.bkp $NFS_FILE
 		exportfs -va
+		return 1
+	else
+		return 0
 	fi
 }
 

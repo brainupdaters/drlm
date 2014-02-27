@@ -9,7 +9,7 @@
 
 function generate_dhcp() {
 
-cp $DHCP_FILE $DHCP_DIR/dhcpd.conf.bak
+cp $DHCP_FILE $DHCP_DIR/dhcpd.conf.bkp
 cat /dev/null > $DHCP_FILE
 
 cat $DHCP_FIX_CAP >> $DHCP_FILE
@@ -70,7 +70,14 @@ function reload_dhcp() {
   if [ $? -eq 0 ]; then
      # Reload DHCP (Operating System dependency)
      service $DHCP_SVC_NAME force-reload
+     if [ $? -eq 0 ]; then
+	return 0
+     else
+	return 2
+     fi
   else
-     mv $DHCP_DIR/dhcpd.conf.bak $DHCP_FILE
+     mv $DHCP_FILE $DHCP_FILE.error
+     mv $DHCP_DIR/dhcpd.conf.bkp $DHCP_FILE
+     return 1
   fi
 }
