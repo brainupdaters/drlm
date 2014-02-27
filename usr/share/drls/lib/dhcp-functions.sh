@@ -48,11 +48,10 @@ for XARXA in $(cat $NETDB | grep -v "^#") ; do
    echo "   next-server $XARXA_SER_IP;" >> $DHCP_FILE
    echo " " >> $DHCP_FILE
       
-   for CLIENT in $(grep -w :$XARXA_NAME: $CLIDB) ; do
+   for CLIENT in $(grep -w $XARXA_NAME $CLIDB) ; do
       CLIENT_HOST=`echo $CLIENT | awk -F":" '{print $2}'`
-      #CLIENT_MAC=`echo $CLIENT | awk -F":" '{print $3}' | sed -e 's/[0-9A-F]\{2\}/&:/g' -e 's/:$//'`
-      MAC=`echo $CLIENT | awk -F":" '{print $3}'`
-      CLIENT_MAC=$(format_mac $MAC ":")
+      CLIENT_MAC=$(format_mac $(echo $CLIENT | awk -F":" '{print $3}') ":")
+      #CLIENT_MAC=$(format_mac $CLIENT_MAC ":")
       CLIENT_IP=`echo $CLIENT | awk -F":" '{print $4}'`
       echo "   host $CLIENT_HOST {" >> $DHCP_FILE
       echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE
