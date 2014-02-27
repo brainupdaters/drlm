@@ -246,3 +246,24 @@ function check_ssh_port ()
 	nc -z $ip 22
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
+function add_network (){
+  local NET_ID=""
+  local NET_IP=$1
+  local NET_MASK=$2
+  local NET_GW=$3
+  local NET_DOM=$4
+  local NET_DNS=$5
+  local NET_BRO=$6
+  local NET_SERVIP=$7
+  local NET_NAME=$8
+        NET_ID=$(get_id NET)
+        if [ $NET_ID != "ERRORNET" ]
+        then
+                put_id NET
+                echo  $NET_ID:$NET_IP:$NET_MASK:$NET_GW:$NET_DOM:$NET_DNS:$NET_BRO:$NET_SERVIP:$NET_NAME: >> $NETDB
+                if [ $? == 0 ];then eval echo $NET_ID; fi
+        else
+                echo "ERRORNET"
+        fi
+}
+
