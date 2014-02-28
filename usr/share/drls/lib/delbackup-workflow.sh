@@ -21,6 +21,11 @@
 WORKFLOW_delbackup_DESCRIPTION="delete client backup and unregister from database"
 WORKFLOWS=( ${WORKFLOWS[@]} delbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delbackup )
+
+if [ $WORKFLOW == "delbackup" ]; then 
+    echo "" > /dev/null
+fi
+
 WORKFLOW_delbackup () {
     echo delbackup workflow
     SourceStage "backup/del"
