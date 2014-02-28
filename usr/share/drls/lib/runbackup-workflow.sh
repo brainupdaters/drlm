@@ -22,52 +22,54 @@ WORKFLOW_runbackup_DESCRIPTION="run client backup and register to database"
 WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
-# Parse options
-OPT="$(getopt -n $WORKFLOW -o "c:i:" -l "client:,id:" -- "$@")"
-if (( $? != 0 )); then
-        echo "Try \`$PROGRAM --help' for more information."
-        exit 1
-fi
-
-eval set -- "$OPT"
-while true; do
-        case "$1" in
-                (-c|--client)
-                        # We need to take the option argument
-                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
-			then 
-				CLINAME="$2"
-			else
-				echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-				exit 1
-			fi
-			shift 
-			;;
-                (-i|--id)
-			# We need to take the option argument
-                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
-			then 
-				IDCLIENT="$2" 
-			else
-                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-               	        	exit 1
-			fi 
-			shift
-			;;
-                (--) shift; break;;
-                (-*)
-                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                        echo "Try \`$PROGRAM --help' for more information."
-                        exit 1
-                        ;;
-        esac
-        shift
-done
-
-if [ -n "$CLINAME" ] && [ -n "$IDCLIENT" ]; then 
-	echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
-        echo "Try \`$PROGRAM --help' for more information."
-        exit 1
+if [ $WORKFLOW == "runbackup" ]; then 
+	# Parse options
+	OPT="$(getopt -n $WORKFLOW -o "c:i:" -l "client:,id:" -- "$@")"
+	if (( $? != 0 )); then
+	        echo "Try \`$PROGRAM --help' for more information."
+	        exit 1
+	fi
+	
+	eval set -- "$OPT"
+	while true; do
+	        case "$1" in
+	                (-c|--client)
+	                        # We need to take the option argument
+	                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
+				then 
+					CLINAME="$2"
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+					exit 1
+				fi
+				shift 
+				;;
+	                (-i|--id)
+				# We need to take the option argument
+	                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
+				then 
+					IDCLIENT="$2" 
+				else
+	                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+	               	        	exit 1
+				fi 
+				shift
+				;;
+	                (--) shift; break;;
+	                (-*)
+	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+	                        echo "Try \`$PROGRAM --help' for more information."
+	                        exit 1
+	                        ;;
+	        esac
+	        shift
+	done
+	
+	if [ -n "$CLINAME" ] && [ -n "$IDCLIENT" ]; then 
+		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
+	        echo "Try \`$PROGRAM --help' for more information."
+	        exit 1
+	fi
 fi
 
 WORKFLOW_runbackup () {
