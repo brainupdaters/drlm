@@ -22,40 +22,42 @@ WORKFLOW_listnetwork_DESCRIPTION="list networks"
 WORKFLOWS=( ${WORKFLOWS[@]} listnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listnetwork )
 
-# Parse options
-OPT="$(getopt -n $WORKFLOW -o "n:a" -l "netname:,all" -- "$@")"
-if (( $? != 0 )); then
-        echo "Try \`$PROGRAM --help' for more information."
-        exit 1
+if [ $WORKFLOW == "listnetwork" ]; then 
+	# Parse options
+	OPT="$(getopt -n $WORKFLOW -o "n:a" -l "netname:,all" -- "$@")"
+	if (( $? != 0 )); then
+	        echo "Try \`$PROGRAM --help' for more information."
+	        exit 1
+	fi
+	
+	eval set -- "$OPT"
+	while true; do
+	        case "$1" in
+	                (-n|--netname)
+	                        # We need to take the option argument
+	                        if [ -n "$2" ]
+				then 
+					NETNAME="$2"
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+					exit 1
+				fi
+				shift 
+				;;
+	                (-a|--all)
+				NETNAME="all" 
+				shift
+				;;
+	                (--) shift; break;;
+	                (-*)
+	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+	                        echo "Try \`$PROGRAM --help' for more information."
+	                        exit 1
+	                        ;;
+	        esac
+	        shift
+	done
 fi
-
-eval set -- "$OPT"
-while true; do
-        case "$1" in
-                (-n|--netname)
-                        # We need to take the option argument
-                        if [ -n "$2" ]
-			then 
-				NETNAME="$2"
-			else
-				echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-				exit 1
-			fi
-			shift 
-			;;
-                (-a|--all)
-			NETNAME="all" 
-			shift
-			;;
-                (--) shift; break;;
-                (-*)
-                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                        echo "Try \`$PROGRAM --help' for more information."
-                        exit 1
-                        ;;
-        esac
-        shift
-done
 
 WORKFLOW_listnetwork () {
     echo listnetwork workflow
