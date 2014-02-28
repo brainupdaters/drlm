@@ -246,6 +246,7 @@ function check_ssh_port ()
 	nc -z $ip 22
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
+
 function add_network (){
   local NET_ID=""
   local NET_IP=$1
@@ -256,14 +257,15 @@ function add_network (){
   local NET_BRO=$6
   local NET_SERVIP=$7
   local NET_NAME=$8
-        NET_ID=$(get_id NET)
-        if [ $NET_ID != "ERRORNET" ]
-        then
-                put_id NET
-                echo  $NET_ID:$NET_IP:$NET_MASK:$NET_GW:$NET_DOM:$NET_DNS:$NET_BRO:$NET_SERVIP:$NET_NAME: >> $NETDB
-                if [ $? == 0 ];then eval echo $NET_ID; fi
-        else
-                echo "ERRORNET"
-        fi
+  NET_ID_DB=$(grep -v "#" $NETDB|grep -v '^$'|sort -n|tail -1|awk -F":" '{print $1}'|wc -l)
+  if [ $NET_ID_DB -eq 0 ];then NET_ID=1; echo "1" > $VAR_DIR/.ids/.idcount.network ;else NET_ID=$(put_id NET); fi
+  if [ $NET_ID -eq $NET_ID 2> /dev/null ]
+  then
+        echo  $NET_ID:$NET_IP:$NET_MASK:$NET_GW:$NET_DOM:$NET_DNS:$NET_BRO:$NET_SERVIP:$NET_NAME: >> $NETDB
+	if [ $? == 0 ];then echo $NET_ID;else echo "ERRORFILEDB"; fi
+  
+  else
+	echo "ADDNETERROR"
+  fi
 }
 

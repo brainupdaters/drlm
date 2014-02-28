@@ -117,22 +117,22 @@ function check_client_ssh () {
   fi
 }
 
-function add_client (){
-  local CLI_ID=""
-  local CLI_NAME=$1
-  local CLI_MAC=$2
-  local CLI_IP=$3
-  local CLI_OS=$4
-  local CLI_NET=$5
-        CLI_ID=$(get_id CLI)
-        if [ $CLI_ID != "ERRORCLI" ]
-        then
-                put_id CLI
-                echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_OS:$CLI_NET: >> $CLIDB
-                if [ $? == 0 ];then eval echo $CLI_ID; fi
-        else
-                echo "ERRORCLI"
-        fi
+add_client () {
+ local CLI_ID=""
+ local CLI_NAME=$1
+ local CLI_MAC=$2
+ local CLI_IP=$3
+ local CLI_OS=$4
+ local CLI_NET=$5
+ CLI_ID_DB=$(grep -v "#" $CLIDB|grep -v '^$'|sort -n|tail -1|awk -F":" '{print $1}'|wc -l)
+  if [ $CLI_ID_DB -eq 0 ];then CLI_ID=1; echo "1" > $VAR_DIR/.ids/.idcount.client ;else CLI_ID=$(put_id CLI); fi
+  if [ $CLI_ID -eq $CLI_ID 2> /dev/null ]
+  then
+      	echo $CLI_ID:$CLI_NAME:$CLI_MAC:$CLI_IP:$CLI_OS:$CLI_NET: >> $CLIDB
+        if [ $? == 0 ];then echo $CLI_ID;else echo "ERRORFILEDB"; fi
+  else
+	echo "ADDCLIERROR"
+  fi
 }
 
 
