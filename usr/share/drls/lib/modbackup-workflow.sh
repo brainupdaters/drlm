@@ -21,6 +21,11 @@
 WORKFLOW_modbackup_DESCRIPTION="change backup properties"
 WORKFLOWS=( ${WORKFLOWS[@]} modbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modbackup )
+
+if [ $WORKFLOW == "modbackup" ]; then 
+    echo "" > /dev/null
+fi
+
 WORKFLOW_modbackup () {
     echo modbackup workflow
     SourceStage "backup/mod"
