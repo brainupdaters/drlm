@@ -226,25 +226,61 @@ function mod_client_mac (){
 	return 1		
  fi
  }
+function get_id_db () {
+ local CLI_ID_DB=""
+ local NET_ID_DB=""
+ local BAC_ID_DB=""
+ case "$1" in
+		(CLI)   CLI_ID_DB=$(grep -v "#" $CLIDB|grep -v '^$'|sort -n|tail -1|awk -F":" '{print $1}')
+			if [ $CLI_ID_DB -eq $CLI_ID_DB 2> /dev/null ]
+			then 
+				eval echo $CLI_ID_DB
+			else
+				echo "ERRORCLIDB"
+			fi			
+			;;
+		(NET)   NET_ID_DB=$(grep -v "#" $NETDB|grep -v '^$'|sort -n|tail -1|awk -F":" '{print $1}')
+			if [ $NET_ID_DB -eq $NET_ID_DB 2> /dev/null ]
+			then
+				eval echo $NET_ID_DB
+       			else
+				echo "ERRORNETDB"
+			fi
+			;;
+                (BAC)   BAC_ID_DB=$(grep -v "#" $NETDB|grep -v '^$'|sort -n|tail -1|awk -F":" '{print $1}')
+                        if [ $BAC_ID_DB -eq $BAC_ID_DB 2> /dev/null ]
+                        then
+                                eval echo $BAC_ID_DB
+                        else
+                                echo "ERRORBACDB"
+                        fi 
+                        ;;
+		(*) 	echo "ERRORFILEDB";;
+ esac
+}
 
 function get_id () {
+ local CLI_ID=""
+ local NET_ID=""
+ local BAC_ID=""
+ local FILE_ID=""
  case "$1" in
 		(CLI)   FILE_ID=$VAR_DIR/.ids/.idcount.client
 			if [ -f $FILE_ID ]
 			then 
 				CLI_ID=$(cat $FILE_ID)
-				eval echo $CLI_ID
+				if [ $CLI_ID -eq $CLI_ID 2> /dev/null ]; then echo $CLI_ID; else echo "ERRORCLICOUNT"; fi
 			else
-				echo "ERRORCLI"
+				echo "ERRORCLIFILECOUNT"
 			fi			
 			;;
 		(NET)   FILE_ID=$VAR_DIR/.ids/.idcount.network
 			if [ -f $FILE_ID ]
 			then
                         	NET_ID=$(cat $FILE_ID)
-				eval echo $NET_ID
+				if [ $NET_ID -eq $NET_ID 2> /dev/null ]; then echo $NET_ID; else echo "ERRORNETCOUNT"; fi
        			else
-				echo "ERRORNET"
+				echo "ERRORNETFILECOUNT"
 			fi
 
 			;;
@@ -252,9 +288,9 @@ function get_id () {
                         if [ -f $FILE_ID ]
                         then
                                 BAC_ID=$(cat $FILE_ID)
-                                eval echo $BAC_ID
+				if [ $BAC_ID -eq $BAC_ID 2> /dev/null ]; then echo $BAC_ID; else echo "ERRORNETCOUNT"; fi
                         else
-				echo "ERRORBAC"
+				echo "ERRORBACFILECOUNT"
                         fi
                         ;;
 
@@ -264,13 +300,20 @@ function get_id () {
 
 #
 function put_id () {
+ local FILE_ID=""
+ local CLI_ID_DB=""
+ local NET_ID_DB=""
+ local BAC_ID_DB=""
+ local CLI_ID=""
+ local NET_ID=""
+ local BAC_ID=""
  case "$1" in
 		(CLI)	FILE_ID=$VAR_DIR/.ids/.idcount.client
-			CLI_ID_DB=$(grep -v "#" $CLIDB|grep -v '^$'|tail -1|awk -F":" '{print $1}'|grep -E ^\-?[0-9]?\.?[0-9]+$)
+			CLI_ID_DB=$(get_id_db CLI)
 			CLI_ID=$(get_id CLI)
-			if [ "$CLI_ID" -ge "$CLI_ID_DB" ]
+			if [ $CLI_ID -ge $CLI_ID_DB ]
 			then
-				CLI_ID=$(echo $CLI_ID|awk '{print $1 + 1}')
+				let CLI_ID=$CLI_ID+1
 				echo $CLI_ID > $FILE_ID
 				echo $CLI_ID
 			else
@@ -278,11 +321,11 @@ function put_id () {
 			fi
 			;;
 		(NET)   FILE_ID=$VAR_DIR/.ids/.idcount.network
-			NET_ID_DB=$(grep -v "#" $NETDB|grep -v '^$'|tail -1|awk -F":" '{print $1}'|grep -E ^\-?[0-9]?\.?[0-9]+$)
-                        NET_ID=$(get_id NET)
+			NET_ID_DB=$(get_id_db NET)
+			NET_ID=$(get_id NET)
 			if [ "$NET_ID" -ge "$NET_ID_DB" ]
 			then
-				NET_ID=$(echo $NET_ID|awk '{print $1 + 1}')
+				let NET_ID=$NET_ID+1
                         	echo $NET_ID > $FILE_ID
 				eval echo $NET_ID
 			else
@@ -290,10 +333,16 @@ function put_id () {
 			fi
 			;;
                 (BAC)   FILE_ID=$VAR_DIR/.ids/.idcount.backups
+                        BAC_ID_DB=$(get_id_db BAC)
                         BAC_ID=$(get_id BAC)
-                        BAC_ID=$(echo $BAC_ID|awk '{print $1 + 1}')
-                        echo $BAC_ID > $FILE_ID
-			eval echo $BAC_ID
+			if [ "$BAC_ID" -ge "$BAC_ID_DB" ]
+                        then 
+                                let BAC_ID=$NET_ID+1
+                                echo $BAC_ID > $FILE_ID
+                                eval echo $BAC_ID
+                        else    
+                                echo "ERRORPUID"
+                        fi      
                         ;;
 		(*) 	echo "ERRORFILE";;
  esac
