@@ -78,6 +78,22 @@ function get_client_mac(){
   fi
 }
 
+function get_client_net(){
+ local CLI_ID=$1
+  # Check if parameter $1 is ok
+  if exist_client_id "$CLI_ID" ;
+  then
+        # Get client net from database and return it
+        CLI_NET=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $6}'`
+        eval echo $CLI_NET
+        return 0
+  else
+        # Error client not exist "exit X"?
+        return 1
+  fi
+}
+
+
 function check_client_connectivity () {
   local CLI_ID=$1
 # Check if parameter $1 is ok
@@ -191,14 +207,12 @@ function mod_client_name (){
  if exist_client_id "$CLI_ID";
  then 
 	CLI_NAME_OLD=$(get_client_name $CLI_ID)
-	num_line=$(grep -nr ^$CLI_ID $CLIDB |awk -F":" '{print $1}')
-	num_line=$num_line"s"
-	sed -ie "$num_line/$CLI_NAME_OLD/$CLI_NAME/" $CLIDB 
-	if [ $? == 0 ];then return 0; else return 1; fi
+	ex -s -c ":/^${CLI_ID}/s/${CLI_NAME_OLD}/${CLI_NAME}/g" -c ":wq" ${CLIDB}
+	if [ $? -eq 0 ];then return 0; else return 1; fi
  else
 	return 1		
  fi
- }
+}
 
 function mod_client_ip (){
  local CLI_ID=$1
@@ -206,14 +220,12 @@ function mod_client_ip (){
  if exist_client_id "$CLI_ID";
  then 
 	CLI_IP_OLD=$(get_client_ip $CLI_ID)
-	num_line=$(grep -nr ^$CLI_ID $CLIDB |awk -F":" '{print $1}')
-	num_line=$num_line"s"
-	sed -ie "$num_line/$CLI_IP_OLD/$CLI_IP/" $CLIDB
-	if [ $? == 0 ];then return 0; else return 1; fi
+	ex -s -c ":/^${CLI_ID}/s/${CLI_IP_OLD}/${CLI_IP}/g" -c ":wq" ${CLIDB}
+	if [ $? -eq 0 ];then return 0; else return 1; fi
  else
 	return 1		
  fi
- }
+}
 
 function mod_client_mac (){
  local CLI_ID=$1
@@ -221,14 +233,27 @@ function mod_client_mac (){
  if exist_client_id "$CLI_ID";
  then 
 	CLI_MAC_OLD=$(get_client_mac $CLI_ID)
-	num_line=$(grep -nr ^$CLI_ID $CLIDB |awk -F":" '{print $1}')
-	num_line=$num_line"s"
-	sed -ie "$num_line/$CLI_MAC_OLD/$CLI_MAC/" $CLIDB  
-	if [ $? == 0 ];then return 0; else return 1; fi
+	ex -s -c ":/^${CLI_ID}/s/${CLI_MAC_OLD}/${CLI_MAC}/g" -c ":wq" ${CLIDB}
+	if [ $? -eq 0 ];then return 0; else return 1; fi
  else
 	return 1		
  fi
- }
+}
+
+function mod_client_net (){
+ local CLI_ID=$1
+ local CLI_NET=$2
+ if exist_client_id "$CLI_ID";
+ then
+        CLI_NET_OLD=$(get_client_net $CLI_ID)
+        ex -s -c ":/^${CLI_ID}/s/${CLI_NET_OLD}/${CLI_NET}/g" -c ":wq" ${CLIDB}
+        if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+        return 1
+ fi
+}
+
+ 
 function get_id_db () {
  local CLI_ID_DB=""
  local NET_ID_DB=""
