@@ -1,4 +1,3 @@
-
 Log "Starting DR archive clean ..."
 N_BKP=$(grep -w ${CLINAME} ${BKPDB} | wc -l)
 if [ ${N_BKP} -gt ${HISTBKPMAX} ]
@@ -11,8 +10,8 @@ then
 
 	rm -vf ${PXEDIR}/${CLINAME}/.archive/${F_PXE2CLR}
 	rm -vf ${BKPDIR}/${CLINAME}/.archive/${F_BKP2CLR}
-	ex -s -c ":/${BKPID2CLR}/d" -c ":wq" ${BKPDB}
-
+	#ex -s -c ":/${BKPID2CLR}/d" -c ":wq" ${BKPDB}
+	ex -s -c ":g/${BKPID2CLR}/d" -c ":wq" ${BKPDB}
 	Log "Old DR backups for client ${CLINAME} Removed Succesfully!"
 fi
 
