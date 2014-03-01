@@ -8,7 +8,7 @@ if test -n "$CLINAME"; then
 	Log "Checking if client name: ${CLINAME} is registered in DRLS database ..."
 	if exist_client_name "$CLINAME" ;	
 	then
-		IDCLIENT=$(get_cient_id_by_name $CLINAME)
+		IDCLIENT=$(get_client_id_by_name $CLINAME)
 		CLIMACADDR=$(get_client_mac $IDCLIENT)
 	        CLIIPADDR=$(get_client_ip $IDCLIENT)
 		Log "${CLINAME} found in DRLS database!"
@@ -20,7 +20,7 @@ else
 	Log "Checking ifi client ID: ${IDCLIENT} is registered in DRLS database ..."
         if exist_client_id "$IDCLIENT" ;
         then
-		CLINAME=$(get_cient_name $IDCLIENT)
+		CLINAME=$(get_client_name $IDCLIENT)
         	CLIMACADDR=$(get_client_mac $IDCLIENT)
 	        CLIIPADDR=$(get_client_ip $IDCLIENT)
 		Log "${IDCLIENT} found in DRLS database!"
