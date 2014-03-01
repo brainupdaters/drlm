@@ -243,7 +243,7 @@ function format_mac()
 function check_ssh_port ()
 {
         local ip=$1
-	nc -z $ip 22
+	nc -z -w 3 $ip 22
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
