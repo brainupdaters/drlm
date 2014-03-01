@@ -285,4 +285,245 @@ function del_network_id(){
   fi
 }
 
+function get_network_id_by_name(){
+  local NET_NAME=$1
+# Check if parameter $1 is ok
+  grep -w $NET_NAME $NETDB|awk -F":" '{print $9}'|grep $NET_NAME &> /dev/null 
+  if [ $? -eq 0 ]
+  then 
+	# Get network id from database and return it
+	NET_ID=`grep -w $NET_NAME $NETDB|awk -F":" '{print $1}'`
+	eval echo $NET_ID
+	return 0
+  else 
+	# Error network not exist "exit X"?
+	return 1
+  fi
+}
+
+function get_network_ip(){
+  local NET_ID=$1
+# Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+	# Get netwok ip from database and return it
+	NET_IP=`grep -w $NET_ID $NETDB|awk -F":" '{print $2}'`
+	eval echo $NET_IP
+	return 0
+  else
+	# Error NETent not exist "exit X"?
+	return 1
+  fi
+}
+
+function get_network_name(){
+  local NET_ID=$1
+# Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+	# Get network name from database and return it
+	NET_NAME=`grep -w $NET_ID $CLIDB|awk -F":" '{print $9}'`
+	eval echo $NET_NAME
+	return 0
+  else
+	# Error network not exist "exit X"?
+	return 1
+  fi
+}
+
+function get_network_mask(){
+ local NET_ID=$1
+  # Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+	# Get network mac from database and return it
+	NET_MASK=`grep -w $NET_ID $CLIDB|awk -F":" '{print $3}'`
+	eval echo $NET_MAC	
+	return 0
+  else
+	# Error network not exist "exit X"?
+	return 1
+  fi
+}
+
+function get_network_gw(){
+ local NET_ID=$1
+  # Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+        # Get network net from database and return it
+        NET_GW=`grep -w $NET_ID $CLIDB|awk -F":" '{print $4}'`
+        eval echo $NET_GW
+        return 0
+  else
+        # Error network not exist "exit X"?
+        return 1
+  fi
+}
+
+function get_network_domain(){
+ local NET_ID=$1
+  # Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+        # Get network net from database and return it
+        NET_DOM=`grep -w $NET_ID $CLIDB|awk -F":" '{print $5}'`
+        eval echo $NET_DOM
+        return 0
+  else
+        # Error network not exist "exit X"?
+        return 1
+  fi
+}
+
+function get_network_dns(){
+ local NET_ID=$1
+  # Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+        # Get network net from database and return it
+        NET_DNS=`grep -w $NET_ID $CLIDB|awk -F":" '{print $6}'`
+        eval echo $NET_DNS
+        return 0
+  else
+        # Error network not exist "exit X"?
+        return 1
+  fi
+}
+
+function get_network_bcast(){
+ local NET_ID=$1
+  # Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+        # Get network net from database and return it
+        NET_BCAST=`grep -w $NET_ID $CLIDB|awk -F":" '{print $7}'`
+        eval echo $NET_BCAST
+        return 0
+  else
+        # Error network not exist "exit X"?
+        return 1
+  fi
+}
+
+function get_network_srv(){
+ local NET_ID=$1
+  # Check if parameter $1 is ok
+  if exist_network_id "$NET_ID" ;
+  then
+        # Get network net from database and return it
+        NET_SRV=`grep -w $NET_ID $CLIDB|awk -F":" '{print $8}'`
+        eval echo $NET_SRV
+        return 0
+  else
+        # Error network not exist "exit X"?
+        return 1
+  fi
+}
+
+function mod_network_name (){
+ local NET_ID=$1
+ local NET_NAME=$2
+ if exist_network_id "$NET_ID";
+ then 
+	NET_NAME_OLD=$(get_network_name $NET_ID)
+	ex -s -c ":/^${NET_ID}/s/${NET_NAME_OLD}/${NET_NAME}/g" -c ":wq" ${NETDB}
+	if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+	return 1		
+ fi
+}
+
+function mod_network_ip (){
+ local NET_ID=$1
+ local NET_IP=$2
+ if exist_network_id "$NET_ID";
+ then 
+	NET_IP_OLD=$(get_network_ip $NET_ID)
+	ex -s -c ":/^${NET_ID}/s/${NET_IP_OLD}/${NET_IP}/g" -c ":wq" ${NETDB}
+	if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+	return 1		
+ fi
+}
+
+function mod_network_mask (){
+ local NET_ID=$1
+ local NET_MASK=$2
+ if exist_network_id "$NET_ID";
+ then 
+	NET_MASK_OLD=$(get_network_mask $NET_ID)
+	ex -s -c ":/^${NET_ID}/s/${NET_MASK_OLD}/${NET_MASK}/g" -c ":wq" ${NETDB}
+	if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+	return 1		
+ fi
+}
+
+function mod_network_gw (){
+ local NET_ID=$1
+ local NET_GW=$2
+ if exist_network_id "$NET_ID";
+ then
+        NET_GW_OLD=$(get_network_gw $NET_ID)
+        ex -s -c ":/^${NET_ID}/s/${NET_GW_OLD}/${NET_GW}/g" -c ":wq" ${NETDB}
+        if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+        return 1
+ fi
+}
+
+
+function mod_network_domain (){
+ local NET_ID=$1
+ local NET_DOM=$2
+ if exist_network_id "$NET_ID";
+ then
+        NET_DOM_OLD=$(get_network_domain $NET_ID)
+        ex -s -c ":/^${NET_ID}/s/${NET_DOM_OLD}/${NET_DOM}/g" -c ":wq" ${NETDB}
+        if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+        return 1
+ fi
+}
+
+function mod_network_dns (){
+ local NET_ID=$1
+ local NET_DNS=$2
+ if exist_network_id "$NET_ID";
+ then
+        NET_DNS_OLD=$(get_network_dns $NET_ID)
+        ex -s -c ":/^${NET_ID}/s/${NET_DNS_OLD}/${NET_DNS}/g" -c ":wq" ${NETDB}
+        if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+        return 1
+ fi
+}
+
+function mod_network_bcast (){
+ local NET_ID=$1
+ local NET_BCAST=$2
+ if exist_network_id "$NET_ID";
+ then
+        NET_BCAST_OLD=$(get_network_bcast $NET_ID)
+        ex -s -c ":/^${NET_ID}/s/${NET_BCAST_OLD}/${NET_BCAST}/g" -c ":wq" ${NETDB}
+        if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+        return 1
+ fi
+}
+
+function mod_network_srv (){
+ local NET_ID=$1
+ local NET_SRV=$2
+ if exist_network_id "$NET_ID";
+ then
+        NET_SRV_OLD=$(get_network_srv $NET_ID)
+        ex -s -c ":/^${NET_ID}/s/${NET_SRV_OLD}/${NET_SRV}/g" -c ":wq" ${NETDB}
+        if [ $? -eq 0 ];then return 0; else return 1; fi
+ else
+        return 1
+ fi
+}
+
 
