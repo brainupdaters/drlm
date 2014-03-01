@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modnetwork )
 
 if [ $WORKFLOW == "modnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "i:n:a:g:m:s:" -l "id:,netname:,ipaddr:,gateway:,mask:,server:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "i:n:g:m:s:" -l "id:,netname:,gateway:,mask:,server:" -- "$@")"
 	if (( $? != 0 )); then
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
@@ -55,22 +55,11 @@ if [ $WORKFLOW == "modnetwork" ]; then
 							fi
 							shift 
 							;;
-	                (-a|--ipaddr)
-							# We need to take the option argument
-							if [ -n "$2" ]
-							then 
-								NETIPADDR="$2" 
-							else
-								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-								exit 1
-							fi 
-							shift
-							;;
 	                (-g|--gateway)
 							# We need to take the option argument
 							if [ -n "$2" ]
 							then 
-								NETGW="$2" 
+								NET_GW="$2" 
 							else
 								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 								exit 1
@@ -81,7 +70,7 @@ if [ $WORKFLOW == "modnetwork" ]; then
 							# We need to take the option argument
 							if [ -n "$2" ]
 							then 
-								NETMASK="$2" 
+								NET_MASK="$2" 
 							else
 								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 								exit 1
@@ -92,7 +81,7 @@ if [ $WORKFLOW == "modnetwork" ]; then
 							# We need to take the option argument
 							if [ -n "$2" ]
 							then 
-								NETSERVER="$2" 
+								NET_SRV="$2" 
 							else
 								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 								exit 1
@@ -108,6 +97,23 @@ if [ $WORKFLOW == "modnetwork" ]; then
 	        esac
 	        shift
 	done
+
+	if [ -n "$NET_NAME" ] && [ -n "$NET_ID" ]; then
+        	echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
+        	echo "Try \`$PROGRAM --help' for more information."
+        	exit 1
+        fi
+	if [ -n "$NET_GW" ] && [ -z "$NET_MASK" ]; then
+        	echo "$PROGRAM $WORKFLOW: Netmask is required to re-calculate other network attributes"
+        	echo "Try \`$PROGRAM --help' for more information."
+        	exit 1
+        fi
+	if [ -n "$NET_SRV" ] && [ -z "$NET_MASK" ]; then
+        	echo "$PROGRAM $WORKFLOW: Netmask is required to re-calculate other network attributes"
+        	echo "Try \`$PROGRAM --help' for more information."
+        	exit 1
+        fi
+
 fi
 
 
