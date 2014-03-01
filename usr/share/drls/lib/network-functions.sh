@@ -273,7 +273,7 @@ function del_network_id(){
   local NET_ID=$1
   if exist_network_id "$NET_ID";
   then
-	ex -s -c ":/^${NET_ID}/d" -c ":wq" ${NETDB}
+	ex -s -c "g:/^${NET_ID}/d" -c ":wq" ${NETDB}
 	if [ $? -eq 0 ]; then
 		return 0
 	else
