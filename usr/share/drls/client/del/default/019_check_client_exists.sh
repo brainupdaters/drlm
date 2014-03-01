@@ -9,6 +9,7 @@ if test -n "$CLI_NAME"; then
         if exist_client_name "$CLI_NAME" ;
         then
                 CLI_ID=$(get_client_id_by_name $CLI_NAME)
+                CLI_IP=$(get_client_ip $CLI_ID)
                 Log "${CLI_NAME} found in DRLS database!"
         else
                 report_error "$PROGRAM: Client named: $CLI_NAME not registered!"
@@ -19,6 +20,7 @@ else
         if exist_client_id "$CLI_ID" ;
         then
                 CLI_NAME=$(get_client_name $CLI_ID)
+                CLI_IP=$(get_client_ip $CLI_ID)
                 Log "${CLI_ID} found in DRLS database!"
         else
                 report_error "$PROGRAM: Client with ID: $CLI_ID not registered!"
