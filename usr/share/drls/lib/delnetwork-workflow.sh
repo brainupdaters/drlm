@@ -37,7 +37,7 @@ if [ $WORKFLOW == "delnetwork" ]; then
 	                        # We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
 				then 
-					NETNAME="$2"
+					NET_NAME="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 					exit 1
@@ -48,7 +48,7 @@ if [ $WORKFLOW == "delnetwork" ]; then
 				# We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
 				then 
-					NETID="$2" 
+					NET_ID="$2" 
 				else
 	                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 	               	        	exit 1
@@ -65,7 +65,7 @@ if [ $WORKFLOW == "delnetwork" ]; then
 	        shift
 	done
 	
-	if [ -n "$NETNAME" ] && [ -n "$NETID" ]; then 
+	if [ -n "$NET_NAME" ] && [ -n "$NET_ID" ]; then 
 		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1

@@ -37,7 +37,7 @@ if [ $WORKFLOW == "delclient" ]; then
 	                        # We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
 				then 
-					CLINAME="$2"
+					CLI_NAME="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 					exit 1
@@ -48,7 +48,7 @@ if [ $WORKFLOW == "delclient" ]; then
 				# We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
 				then 
-					IDCLIENT="$2" 
+					 CLI_ID="$2" 
 				else
 	                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 	               	        	exit 1
@@ -65,7 +65,7 @@ if [ $WORKFLOW == "delclient" ]; then
 	        shift
 	done
 	
-	if [ -n "$CLINAME" ] && [ -n "$IDCLIENT" ]; then 
+	if [ -n "$CLI_NAME" ] && [ -n "$CLI_ID" ]; then 
 		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
