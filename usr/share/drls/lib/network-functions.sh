@@ -269,3 +269,20 @@ function add_network (){
   fi
 }
 
+function del_network_id(){
+  local NET_ID=$1
+  if exist_network_id "$NET_ID";
+  then
+	ex -s -c ":/^${NET_ID}/d" -c ":wq" ${NETDB}
+	if [ $? -eq 0 ]; then
+		return 0
+	else
+		return 1
+	fi
+  else
+	#Client not exist
+ 	return 1
+  fi
+}
+
+
