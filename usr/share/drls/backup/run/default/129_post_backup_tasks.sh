@@ -22,12 +22,14 @@ fi
 
 Log "Creating MAC Address link to PXE boot file for client: ${CLINAME} ..."
 
-if [ ! -L ${PXEDIR}/pxelinux.cfg/01-${CLIMACADDR} ] && [ -e ${PXEDIR}/${CLINAME}/rear-${CLINAME}* ]
+CLI_MAC=$(format_mac ${CLIMACADDR} "-")
+
+if [ ! -L ${PXEDIR}/pxelinux.cfg/01-${CLI_MAC} ] && [ -e ${PXEDIR}/${CLINAME}/rear-${CLINAME}* ]
 then
-	cd ${PXEDIR}/pxelinux.cfg
-	ln -s ../${CLINAME}/rear-${CLINAME}* 01-${CLIMACADDR}
-	if [ $? -ne 0 ]
-	then
-		Error "ln -s ../${CLINAME}/rear-${CLINAME}* 01-${CLIMACADDR} failed!"
-	fi
+        cd ${PXEDIR}/pxelinux.cfg
+        ln -s ../${CLINAME}/rear-${CLINAME}* 01-${CLI_MAC}
+        if [ $? -ne 0 ]
+        then
+                Error "ln -s ../${CLINAME}/rear-${CLINAME}* 01-${CLI_MAC} failed!"
+        fi
 fi
