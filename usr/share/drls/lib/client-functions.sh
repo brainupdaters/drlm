@@ -156,7 +156,7 @@ function del_client_id(){
   local CLI_ID=$1
   if exist_client_id "$CLI_ID";
   then
-	ex -s -c ":/^${CLI_ID}/d" -c ":wq" ${CLIDB}
+	ex -s -c ":g/^${CLI_ID}/d" -c ":wq" ${CLIDB}
 	if [ $? -eq 0 ]; then
 		return 0
 	else
