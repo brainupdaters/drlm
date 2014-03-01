@@ -17,7 +17,7 @@ function exist_client_name(){
 # Check if parameter $1 is ok and if exists client with this name in database. Return 0 for ok , return 1 not ok.
 }
 
-function get_cient_id_by_name(){
+function get_client_id_by_name(){
   local CLI_NAME=$1
 # Check if parameter $1 is ok
   grep -w $CLI_NAME $CLIDB|awk -F":" '{print $2}'|grep $CLI_NAME &> /dev/null 
@@ -140,15 +140,18 @@ function del_client_id(){
   local CLI_ID=$1
   if exist_client_id "$CLI_ID";
   then
-	num_line=$(grep -nr ^$CLI_ID $CLIDB |awk -F":" '{print $1}')
-	num_line=$num_line"d"
-	echo $num_line
-	sed -i "$num_line" $CLIDB
+	ex -s -c ":/^${CLI_ID}/d" -c ":wq" ${CLIDB}
+	if [ $? -eq 0 ]; then
+		return 0
+	else
+		return 1
+	fi
   else
 	#Client not exist
  	return 1
   fi
 }
+
 
 function check_client_mac (){
   local CLI_NAME=$1
