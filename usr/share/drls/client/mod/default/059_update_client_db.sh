@@ -90,7 +90,7 @@ if test -n "$CLI_MAC"; then
 		        if mod_pxe_link "$OLD_CLI_MAC" "$CLI_MAC" ; then
 		                Log "${CLI_NAME} MAC modified in the pxelinux.cfg folder!"
 		        else
-		                Error "$PROGRAM: $CLI_NAME MAC not modified in the pxelinux.cfg folder!"
+		                log "WARNING: $PROGRAM: $CLI_NAME MAC not modified in the pxelinux.cfg folder!"
 		        fi
 		fi
 	else
