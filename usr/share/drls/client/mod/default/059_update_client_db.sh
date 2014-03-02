@@ -12,13 +12,13 @@ if test -n "$CLI_IP"; then
 			Log "Testing IP connectivity and MAC for ${CLI_NAME} ... ( ICMP )"
 			
 			if ! test -n "$CLI_MAC"; then
-				CLI_MAC=$(get_client_mac $CLI_ID)
+				CLI_MAC_L=$(get_client_mac $CLI_ID)
 			fi
 			
 			OLD_CLI_IP=$(get_client_ip $CLI_ID)
 
 			# Check if client is available over the network and match MAC address
-			if check_client_mac "$CLI_NAME" "$CLI_IP" "$CLI_MAC" ; then
+			if check_client_mac "$CLI_NAME" "$CLI_IP" "$CLI_MAC_L" ; then
 			        Log "$PROGRAM: Client: $CLI_NAME is available over network!"
 			else
 				Log "WARNING: $PROGRAM : Client: $CLI_NAME is not available over network..." 
