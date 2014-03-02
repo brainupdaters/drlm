@@ -11,7 +11,7 @@ if test -n "$CLI_IP"; then
 			Log "$PROGRAM: Client IP: $CLI_IP is not in use in DRLS DB..."
 			Log "Testing IP connectivity and MAC for ${CLI_NAME} ... ( ICMP )"
 			
-			if test -n "$CLI_MAC"; then
+			if ! test -n "$CLI_MAC"; then
 				CLI_MAC=$(get_client_mac $CLI_ID)
 			fi
 			
@@ -65,7 +65,7 @@ if test -n "$CLI_MAC"; then
 	                Log "$PROGRAM: Client MAC: $CLI_MAC is not in use in DRLS DB..."
 	                Log "Testing IP connectivity and MAC for ${CLI_NAME} ... ( ICMP )"
 	                
-	                if test -n "$CLI_IP"; then
+	                if ! test -n "$CLI_IP"; then
 				CLI_IP=$(get_client_ip $CLI_ID)
 			fi
 			
