@@ -33,3 +33,15 @@ function run_mkrescue_ssh_remote () {
         return 0
    fi
 }
+
+function mod_pxe_link (){
+   local OLD_CLI_MAC=$1
+   local CLI_MAC=$2
+
+   CLI_MAC=$(format_mac ${CLI_MAC} "-")
+   OLD_CLI_MAC=$(format_mac ${CLI_MAC} "-")
+
+   cd ${PXEDIR}/pxelinux.cfg
+   mv 01-${OLD_CLI_MAC} 01-${CLI_MAC}
+   if [ $? -eq 0 ];then return 0; else return 1;fi
+}
