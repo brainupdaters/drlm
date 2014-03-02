@@ -35,7 +35,6 @@ if test -n "$CLI_IP"; then
 			if mod_client_ip "$CLI_ID" "$CLI_IP" ; then
 		                Log "${CLI_NAME} ip modified in the database!"
 		        else
-		                report_error "$PROGRAM: $CLI_NAME ip not modified!"
 		                Error "$PROGRAM: $CLI_NAME ip not modified!"
 		        fi
 		        
@@ -50,8 +49,6 @@ if test -n "$CLI_IP"; then
 		Error "$PROGRAM: Client IP: $CLI_IP is in wrong format. Correct this and try again."
 	fi
 fi
-
-
 
 if test -n "$CLI_MAC"; then
 
@@ -84,18 +81,20 @@ if test -n "$CLI_MAC"; then
 	                if mod_client_mac "$CLI_ID" "$CLI_MAC" ; then
 		                Log "${CLI_NAME} MAC modified in the database!"
 		        else
-		                report_error "$PROGRAM: $CLI_NAME MAC not modified!"
 		                Error "$PROGRAM: $CLI_NAME MAC not modified!"
 		        fi
 		        
-		        # ----HERE WE HAVE TO MAKE THE MODIFICATION OF PXE----
+		        # Modifying the MAC in the pxelinux.cfg folder
+		        if mod_pxe_link "$OLD_CLI_MAC" "$CLI_MAC" ; then
+		                Log "${CLI_NAME} MAC modified in the pxelinux.cfg folder!"
+		        else
+		                Error "$PROGRAM: $CLI_NAME MAC not modified in the pxelinux.cfg folder!"
+		        fi
 		fi
 	else
 	        Error "$PROGRAM: Client MAC: $CLI_MAC is in wrong format. Correct this and try again."
 	fi	     
 fi
-
-
 
 if test -n "$CLI_NET"; then
 
@@ -111,7 +110,6 @@ if test -n "$CLI_NET"; then
 		if mod_client_net "$CLI_ID" "$CLI_NET" ; then
 	                Log "${CLI_NAME} network modified in the database!"
 	        else
-	                report_error "$PROGRAM: $CLI_NAME network not modified!"
 	                Error "$PROGRAM: $CLI_NAME network not modified!"
 	        fi
 	fi
