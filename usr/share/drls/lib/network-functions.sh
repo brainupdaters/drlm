@@ -306,7 +306,7 @@ function get_network_ip(){
   if exist_network_id "$NET_ID" ;
   then
 	# Get netwok ip from database and return it
-	NET_IP=`grep -w $NET_ID $NETDB|awk -F":" '{print $2}'`
+	NET_IP=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $2}'`
 	echo $NET_IP
   else
 	# Error NETent not exist "exit X"?
@@ -320,7 +320,7 @@ function get_network_name(){
   if exist_network_id "$NET_ID" ;
   then
 	# Get network name from database and return it
-	NET_NAME=`grep -w $NET_ID $NETDB|awk -F":" '{print $9}'`
+	NET_NAME=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $9}'`
 	echo $NET_NAME
   else
 	# Error network not exist "exit X"?
@@ -334,7 +334,7 @@ function get_network_mask(){
   if exist_network_id "$NET_ID" ;
   then
 	# Get network mac from database and return it
-	NET_MASK=`grep -w $NET_ID $NETDB|awk -F":" '{print $3}'`
+	NET_MASK=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $3}'`
 	echo $NET_MAC	
   else
 	# Error network not exist "exit X"?
@@ -348,7 +348,7 @@ function get_network_gw(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_GW=`grep -w $NET_ID $NETDB|awk -F":" '{print $4}'`
+        NET_GW=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $4}'`
         echo $NET_GW
   else
         # Error network not exist "exit X"?
@@ -362,7 +362,7 @@ function get_network_domain(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_DOM=`grep -w $NET_ID $NETDB|awk -F":" '{print $5}'`
+        NET_DOM=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $5}'`
         echo $NET_DOM
   else
         # Error network not exist "exit X"?
@@ -376,7 +376,7 @@ function get_network_dns(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_DNS=`grep -w $NET_ID $NETDB|awk -F":" '{print $6}'`
+        NET_DNS=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $6}'`
         echo $NET_DNS
   else
         # Error network not exist "exit X"?
@@ -390,7 +390,7 @@ function get_network_bcast(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_BCAST=`grep -w $NET_ID $NETDB|awk -F":" '{print $7}'`
+        NET_BCAST=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $7}'`
         echo $NET_BCAST
   else
         # Error network not exist "exit X"?
@@ -404,7 +404,7 @@ function get_network_srv(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_SRV=`grep -w $NET_ID $NETDB|awk -F":" '{print $8}'`
+        NET_SRV=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $8}'`
         echo $NET_SRV
   else
         # Error network not exist "exit X"?
