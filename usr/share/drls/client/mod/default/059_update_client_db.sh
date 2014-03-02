@@ -57,6 +57,8 @@ if test -n "$CLI_MAC"; then
 
 	Log "Modifying client MAC address of client: ${CLI_NAME} to ${CLI_MAC}"
 	
+	CLI_MAC=$(compact_mac $CLI_MAC)
+	
 	if valid_mac $CLI_MAC ; then
 	        Log "$PROGRAM: Client MAC: $CLI_MAC is in valid format..."
 		if exist_client_mac $CLI_MAC ; then
