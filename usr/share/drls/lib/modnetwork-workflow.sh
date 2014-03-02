@@ -37,7 +37,7 @@ if [ $WORKFLOW == "modnetwork" ]; then
 							# We need to take the option argument
 							if [ -n "$2" ]
 							then 
-								NETID="$2"
+								NET_ID="$2"
 							else
 								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 								exit 1
@@ -48,7 +48,7 @@ if [ $WORKFLOW == "modnetwork" ]; then
 							# We need to take the option argument
 							if [ -n "$2" ]
 							then 
-								NETNAME="$2"
+								NET_NAME="$2"
 							else
 								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 								exit 1

@@ -322,7 +322,7 @@ function get_network_name(){
   if exist_network_id "$NET_ID" ;
   then
 	# Get network name from database and return it
-	NET_NAME=`grep -w $NET_ID $CLIDB|awk -F":" '{print $9}'`
+	NET_NAME=`grep -w $NET_ID $NETDB|awk -F":" '{print $9}'`
 	eval echo $NET_NAME
 	return 0
   else
@@ -337,7 +337,7 @@ function get_network_mask(){
   if exist_network_id "$NET_ID" ;
   then
 	# Get network mac from database and return it
-	NET_MASK=`grep -w $NET_ID $CLIDB|awk -F":" '{print $3}'`
+	NET_MASK=`grep -w $NET_ID $NETDB|awk -F":" '{print $3}'`
 	eval echo $NET_MAC	
 	return 0
   else
@@ -352,7 +352,7 @@ function get_network_gw(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_GW=`grep -w $NET_ID $CLIDB|awk -F":" '{print $4}'`
+        NET_GW=`grep -w $NET_ID $NETDB|awk -F":" '{print $4}'`
         eval echo $NET_GW
         return 0
   else
@@ -367,7 +367,7 @@ function get_network_domain(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_DOM=`grep -w $NET_ID $CLIDB|awk -F":" '{print $5}'`
+        NET_DOM=`grep -w $NET_ID $NETDB|awk -F":" '{print $5}'`
         eval echo $NET_DOM
         return 0
   else
@@ -382,7 +382,7 @@ function get_network_dns(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_DNS=`grep -w $NET_ID $CLIDB|awk -F":" '{print $6}'`
+        NET_DNS=`grep -w $NET_ID $NETDB|awk -F":" '{print $6}'`
         eval echo $NET_DNS
         return 0
   else
@@ -397,7 +397,7 @@ function get_network_bcast(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_BCAST=`grep -w $NET_ID $CLIDB|awk -F":" '{print $7}'`
+        NET_BCAST=`grep -w $NET_ID $NETDB|awk -F":" '{print $7}'`
         eval echo $NET_BCAST
         return 0
   else
@@ -412,7 +412,7 @@ function get_network_srv(){
   if exist_network_id "$NET_ID" ;
   then
         # Get network net from database and return it
-        NET_SRV=`grep -w $NET_ID $CLIDB|awk -F":" '{print $8}'`
+        NET_SRV=`grep -w $NET_ID $NETDB|awk -F":" '{print $8}'`
         eval echo $NET_SRV
         return 0
   else
