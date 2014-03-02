@@ -37,7 +37,7 @@ if [ $WORKFLOW == "modclient" ]; then
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
-                                	IDCLIENT="$2"
+                                	CLI_ID="$2"
                                 else
                                 	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
                                 	exit 1
@@ -48,7 +48,7 @@ if [ $WORKFLOW == "modclient" ]; then
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
-                                	CLINAME="$2"
+                                	CLI_NAME="$2"
                                 else
                                 	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
                                 	exit 1
@@ -59,7 +59,7 @@ if [ $WORKFLOW == "modclient" ]; then
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
-                                	CLIIPADDR="$2" 
+                                	CLI_IP="$2" 
                                 else
                                 	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
                                 	exit 1
@@ -70,7 +70,7 @@ if [ $WORKFLOW == "modclient" ]; then
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
-                                	CLIMACADDR="$2" 
+                                	CLI_MAC="$2" 
                                 else
                                 	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
                                 	exit 1
@@ -81,7 +81,7 @@ if [ $WORKFLOW == "modclient" ]; then
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
-                                	NETNAME="$2" 
+                                	CLI_NET="$2" 
                                 else
                                 	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
                                 	exit 1
