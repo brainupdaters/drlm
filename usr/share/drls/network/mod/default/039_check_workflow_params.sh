@@ -14,7 +14,7 @@ if [ -n "$NET_GW" ]; then
 	if valid_ip $NET_GW;
 	then
         	Log "$PROGRAM: Network GW: $NET_GW is in valid format..."
-        	NET_IP_GW= $(get_netaddress "$NET_GW" "$NET_MASK")
+        	NET_IP_GW=$(get_netaddress "$NET_GW" "$NET_MASK")
 	else
         	Error "$PROGRAM: Network GW: $NET_GW is in wrong format. Correct this and try again."
 	fi
@@ -39,12 +39,12 @@ if [ -n "$NET_IP_GW" ] && [ -n "$NET_IP_SRV" ]; then
 		Error "$PROGRAM: Server IP: $NET_SRV and Gateway: $NET_GATEWAY need to be in same subnet!"
 	fi
 else
-	if [ -z "$NET_IP_GW" ]; then
-		NET_IP=$NET_IP_SRV
+	if [ -n "$NET_IP_GW" ]; then
+		NET_IP=$NET_IP_GW
 	fi
-	if [ -z "$NET_IP_SRV" ]; then
-                NET_IP=$NET_IP_GW
+	if [ -n "$NET_IP_SRV" ]; then
+                NET_IP=$NET_IP_SRV
         fi
 fi
-NET_BCAST=$(get_bcaddress $NET_IP $NET_MASK)
+NET_BCAST=$(get_bcaddress "$NET_IP" "$NET_MASK")
 
