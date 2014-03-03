@@ -39,7 +39,7 @@ function get_client_ip(){
   if exist_client_id "$CLI_ID" ;
   then
 	# Get client ip from database and return it
-	CLI_IP=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $4}'`
+	CLI_IP=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $4}'`
 	eval echo $CLI_IP
 	return 0
   else
@@ -69,7 +69,7 @@ function get_client_mac(){
   if exist_client_id "$CLI_ID" ;
   then
 	# Get client mac from database and return it
-	CLI_MAC=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $3}'`
+	CLI_MAC=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $3}'`
 	eval echo $CLI_MAC	
 	return 0
   else
@@ -84,7 +84,7 @@ function get_client_net(){
   if exist_client_id "$CLI_ID" ;
   then
         # Get client net from database and return it
-        CLI_NET=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $6}'`
+        CLI_NET=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $6}'`
         eval echo $CLI_NET
         return 0
   else
