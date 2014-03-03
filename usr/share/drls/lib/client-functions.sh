@@ -390,8 +390,7 @@ function client_list_tittle () {
 		(*)	echo "ERRORTITLE";;
 esac
 }
-
-function list_all () {	
+function list_clients () {	
  case "$1" in
 	(CLI)	clear
 		local contador=0
@@ -408,6 +407,7 @@ function list_all () {
        			let contador=$contador+1
         		if [ $contador -ge 25 ];then read;clear;client_list_tittle CLI; contador=0; fi
 		done
+		return 0
 		;;
         (NET)	clear
                 local contador=0
@@ -426,6 +426,7 @@ function list_all () {
                         let contador=$contador+1
                         if [ $contador -ge 25 ];then read;clear;client_list_tittle NET; contador=0; fi
                 done
+		return 0
 		;;
 	(BAC)   clear
                 local contador=0
@@ -444,9 +445,11 @@ function list_all () {
                         let contador=$contador+1
                         if [ $contador -ge 25 ];then read; clear;  client_list_tittle NET; contador=0; fi
                 done
+		return 0
 		;;
-	(*) 	echo  "ERRORLIST" ;;
+	(*) 	echo  "ERRORLIST" 
+		return 1
+		;;
  esac
 }
-
 
