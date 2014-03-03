@@ -46,7 +46,6 @@ if [ $WORKFLOW == "listclient" ]; then
 				;;
 	                (-a|--all)
 				CLI_NAME="all" 
-				shift
 				;;
 	                (--) shift; break;;
 	                (-*)

@@ -37,7 +37,7 @@ if [ $WORKFLOW == "listnetwork" ]; then
 	                        # We need to take the option argument
 	                        if [ -n "$2" ]
 				then 
-					NETNAME="$2"
+					NET_NAME="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 					exit 1
@@ -45,8 +45,7 @@ if [ $WORKFLOW == "listnetwork" ]; then
 				shift 
 				;;
 	                (-a|--all)
-				NETNAME="all" 
-				shift
+				NET_NAME="all" 
 				;;
 	                (--) shift; break;;
 	                (-*)

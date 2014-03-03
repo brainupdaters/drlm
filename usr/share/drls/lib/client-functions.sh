@@ -54,7 +54,7 @@ function get_client_name(){
   if exist_client_id "$CLI_ID" ;
   then
 	# Get client name from database and return it
-	CLI_NAME=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $2}'`
+	CLI_NAME=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $2}'`
 	eval echo $CLI_NAME
 	return 0
   else
@@ -382,7 +382,7 @@ function client_list_tittle () {
         		printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "Client ID" "Client Name" "MacAddres" "IP" "Client OS" "Network$(tput sgr0)"
 			;;
 		(NET)	printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$(tput bold)"
-                        printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "" "NET ID" "Net Ip" "Gw" "Domain" "DNS" "Broadcast" "Server IP" "Net Name$(tput sgr0)"
+                        printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "" "NET ID" "Net Ip" "Mask" "Gw" "Domain" "DNS" "Broadcast" "Server IP" "Net Name$(tput sgr0)"
                         ;;
 		(BAC)   printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "$(tput bold)"
                         printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "Client ID" "Client Name" "MacAddres" "IP" "Client OS" "Network$(tput sgr0)"
@@ -416,13 +416,14 @@ function list_clients () {
                 do
                         local NET_ID=`echo $line|awk -F":" '{print $1}'`
                         local NET_IP=`echo $line|awk -F":" '{print $2}'`
-                        local NET_GW=`echo $line|awk -F":" '{print $3}'`
-                        local NET_DO=`echo $line|awk -F":" '{print $4}'`
-                        local NET_DS=`echo $line|awk -F":" '{print $5}'`
-                        local NET_BRO=`echo $line|awk -F":" '{print $6}'`
-                        local NET_SRV=`echo $line|awk -F":" '{print $7}'`
-                        local NET_NAME=`echo $line|awk -F":" '{print $8}'`
-                        printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "" "$NET_ID" "$NET_IP" "$NET_GW" "$NET_DO" "$NET_DS" "$NET_BRO" "$NET_SRV" "$NET_NAME"
+                        local NET_MASK=`echo $line|awk -F":" '{print $3}'`
+                        local NET_GW=`echo $line|awk -F":" '{print $4}'`
+                        local NET_DO=`echo $line|awk -F":" '{print $5}'`
+                        local NET_DS=`echo $line|awk -F":" '{print $6}'`
+                        local NET_BRO=`echo $line|awk -F":" '{print $7}'`
+                        local NET_SRV=`echo $line|awk -F":" '{print $8}'`
+                        local NET_NAME=`echo $line|awk -F":" '{print $9}'`
+                        printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "" "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_DO" "$NET_DS" "$NET_BRO" "$NET_SRV" "$NET_NAME"
                         let contador=$contador+1
                         if [ $contador -ge 25 ];then read;clear;client_list_tittle NET; contador=0; fi
                 done
