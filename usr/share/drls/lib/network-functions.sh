@@ -98,63 +98,100 @@ function netmask_to_cidr()
 }
 
 # Calculate Network Address
+#function get_netaddress()
+#{
+#    local ip_address="$1"
+#    local cidr=$(echo $ip_address | awk -F/ i'{print $2}')
+#    if [ -z "$cidr" ]
+#    then
+#        local netmask=${2:-255.255.255.255}
+#    else
+#        local netmask=$(cidr_to_netmask $cidr)
+#    fi
+#    local octetip=$(split_ip $ip_address)
+#    local octetsn=$(split_ip $netmask)
+#
+#    local octetip1=$(echo $octetip | awk '{print $1}')
+#    local octetip2=$(echo $octetip | awk '{print $2}')
+#    local octetip3=$(echo $octetip | awk '{print $3}')
+#    local octetip4=$(echo $octetip | awk '{print $4}')
+#
+#    local octetsn1=$(echo $octetsn | awk '{print $1}')
+#    local octetsn2=$(echo $octetsn | awk '{print $2}')
+#    local octetsn3=$(echo $octetsn | awk '{print $3}')
+#    local octetsn4=$(echo $octetsn | awk '{print $4}')
+#
+#    local netaddress="$(($octetip1 & $octetsn1)).$(($octetip2 & $octetsn2)).$(($octetip3 & $octetsn3)).$(($octetip4 & $octetsn4))"#
+#
+#    echo $netaddress
+#}
+
+# Calculate Broadcast Address
+#function get_bcaddress()
+#{
+#    local ip_address="$1"
+#    local cidr=$(echo $ip_address | awk -F/ '{print $2}')
+#    if [ -z "$cidr" ]
+#    then
+#        local netmask=${2:-255.255.255.255}
+#    else
+#        local netmask=$(cidr_to_netmask $cidr)
+#    fi
+#   
+#    local octetip=$(split_ip $ip_address)
+#    local octetsn=$(split_ip $netmask)
+#
+#    local octetip1=$(echo $octetip | awk '{print $1}')
+#    local octetip2=$(echo $octetip | awk '{print $2}')
+#    local octetip3=$(echo $octetip | awk '{print $3}')
+#    local octetip4=$(echo $octetip | awk '{print $4}')
+#
+#    local octetsn1=$(echo $octetsn | awk '{print $1}')
+#    local octetsn2=$(echo $octetsn | awk '{print $2}')
+#    local octetsn3=$(echo $octetsn | awk '{print $3}')
+#    local octetsn4=$(echo $octetsn | awk '{print $4}')
+#
+#    local bcaddress="$(( 255 - $octetsn1 + ($octetip1 & $octetsn1))).$(( 255 - $octetsn2 + ($octetip2 & $octetsn2))).$(( 255 - $octetsn3 + ($octetip3 & $octetsn3))).$(( 255 - $octetsn4 + ($octetip4 & $octetsn4)))"
+#
+#    echo $bcaddress
+#}
+
+# Calculate Network Address
 function get_netaddress()
 {
-    local ip_address="$1"
-    local cidr=$(echo $ip_address | awk -F/ i'{print $2}')
-    if [ -z "$cidr" ]
-    then
-        local netmask=${2:-255.255.255.255}
-    else
-        local netmask=$(cidr_to_netmask $cidr)
-    fi
-    local octetip=$(split_ip $ip_address)
-    local octetsn=$(split_ip $netmask)
+    local IP="$1"
+    local MASK=${2:-255.255.255.255}
 
-    local octetip1=$(echo $octetip | awk '{print $1}')
-    local octetip2=$(echo $octetip | awk '{print $2}')
-    local octetip3=$(echo $octetip | awk '{print $3}')
-    local octetip4=$(echo $octetip | awk '{print $4}')
+    IFS=. read -r ip1 ip2 ip3 ip4 <<< "$IP"
+    IFS=. read -r nm1 nm2 nm3 nm4 <<< "$MASK"
 
-    local octetsn1=$(echo $octetsn | awk '{print $1}')
-    local octetsn2=$(echo $octetsn | awk '{print $2}')
-    local octetsn3=$(echo $octetsn | awk '{print $3}')
-    local octetsn4=$(echo $octetsn | awk '{print $4}')
+    let ni1="$ip1&$nm1"
+    let ni2="$ip2&$nm2"
+    let ni3="$ip3&$nm3"
+    let ni4="$ip4&$nm4"
 
-    local netaddress="$(($octetip1 & $octetsn1)).$(($octetip2 & $octetsn2)).$(($octetip3 & $octetsn3)).$(($octetip4 & $octetsn4))"
-
-    echo $netaddress
+    local NET_IP="$ni1.$ni2.$ni3.$ni4"
+    echo $NET_IP
 }
 
 # Calculate Broadcast Address
 function get_bcaddress()
 {
-    local ip_address="$1"
-    local cidr=$(echo $ip_address | awk -F/ '{print $2}')
-    if [ -z "$cidr" ]
-    then
-        local netmask=${2:-255.255.255.255}
-    else
-        local netmask=$(cidr_to_netmask $cidr)
-    fi
-   
-    local octetip=$(split_ip $ip_address)
-    local octetsn=$(split_ip $netmask)
+    local IP="$1"
+    local MASK=${2:-255.255.255.255}
 
-    local octetip1=$(echo $octetip | awk '{print $1}')
-    local octetip2=$(echo $octetip | awk '{print $2}')
-    local octetip3=$(echo $octetip | awk '{print $3}')
-    local octetip4=$(echo $octetip | awk '{print $4}')
+    IFS=. read -r ip1 ip2 ip3 ip4 <<< "$IP"
+    IFS=. read -r nm1 nm2 nm3 nm4 <<< "$MASK"
 
-    local octetsn1=$(echo $octetsn | awk '{print $1}')
-    local octetsn2=$(echo $octetsn | awk '{print $2}')
-    local octetsn3=$(echo $octetsn | awk '{print $3}')
-    local octetsn4=$(echo $octetsn | awk '{print $4}')
+    let bc1="$ip1|(255-$nm1)"
+    let bc2="$ip2|(255-$nm2)"
+    let bc3="$ip3|(255-$nm3)"
+    let bc4="$ip4|(255-$nm4)"
 
-    local bcaddress="$(( 255 - $octetsn1 + ($octetip1 & $octetsn1))).$(( 255 - $octetsn2 + ($octetip2 & $octetsn2))).$(( 255 - $octetsn3 + ($octetip3 & $octetsn3))).$(( 255 - $octetsn4 + ($octetip4 & $octetsn4)))"
-
-    echo $bcaddress
+    local NET_BCAST="$bc1.$bc2.$bc3.$bc4"
+    echo $NET_BCAST
 }
+
 
 function exist_network_id()
 {
