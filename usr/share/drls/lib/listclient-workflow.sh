@@ -37,7 +37,7 @@ if [ $WORKFLOW == "listclient" ]; then
 	                        # We need to take the option argument
 	                        if [ -n "$2" ]
 				then 
-					CLINAME="$2"
+					CLI_NAME="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 					exit 1
@@ -45,7 +45,7 @@ if [ $WORKFLOW == "listclient" ]; then
 				shift 
 				;;
 	                (-a|--all)
-				CLINAME="all" 
+				CLI_NAME="all" 
 				shift
 				;;
 	                (--) shift; break;;
