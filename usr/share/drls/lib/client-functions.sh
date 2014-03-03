@@ -54,7 +54,7 @@ function get_client_name(){
   if exist_client_id "$CLI_ID" ;
   then
 	# Get client name from database and return it
-	CLI_NAME=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $2}'`
+	CLI_NAME=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $2}'`
 	eval echo $CLI_NAME
 	return 0
   else
