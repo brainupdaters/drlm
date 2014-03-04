@@ -26,20 +26,20 @@ for NFS_STORE in $PXEDIR $BKPDIR ; do
 
 	if [ $SCOUNT -eq 1 ]; then		
 		if [ $NCLI -gt 1 ]; then
-			echo "$NFS_STORE $CLI_NAME(rw,sync,no_root_squash) \\" | tee -a $NFS_FILE
+			echo "$NFS_STORE $CLI_NAME(rw,sync,no_root_squash,no_subtree_check) \\" | tee -a $NFS_FILE > /dev/null
 			let SCOUNT=SCOUNT+1
 			let CCOUNT=CCOUNT+1
 		else
-			echo "$NFS_STORE $CLI_NAME(rw,sync,no_root_squash)" | tee -a $NFS_FILE
+			echo "$NFS_STORE $CLI_NAME(rw,sync,no_root_squash,no_subtree_check)" | tee -a $NFS_FILE > /dev/null
 			let SCOUNT=SCOUNT+1
                 	let CCOUNT=CCOUNT+1
 		fi
 	else
 		if [ $CCOUNT -lt $NCLI ]; then
-			echo "	$CLI_NAME(rw,sync,no_root_squash) \\" | tee -a $NFS_FILE
+			echo "	$CLI_NAME(rw,sync,no_root_squash,no_subtree_check) \\" | tee -a $NFS_FILE > /dev/null
 			let CCOUNT=CCOUNT+1
 		else
-			echo "	$CLI_NAME(rw,sync,no_root_squash)" | tee -a $NFS_FILE
+			echo "	$CLI_NAME(rw,sync,no_root_squash,no_subtree_check)" | tee -a $NFS_FILE > /dev/null
 		fi
 	fi
   
@@ -49,10 +49,10 @@ done
 }
 
 function reload_nfs() {
-	exportfs -va
+	exportfs -a
 	if [ $? -ne 0 ]; then
 		mv $NFS_DIR/exports.bkp $NFS_FILE
-		exportfs -va
+		exportfs -a
 		return 1
 	else
 		return 0
