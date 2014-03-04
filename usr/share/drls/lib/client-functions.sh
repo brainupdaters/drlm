@@ -280,7 +280,7 @@ function get_id_db () {
                         then
                                 eval echo $BAC_ID_DB
                         else
-                                echo "ERRORBACDB"
+                                echo "ERRORBKPDB"
                         fi 
                         ;;
 		(*) 	echo "ERRORFILEDB";;
@@ -384,8 +384,8 @@ function client_list_tittle () {
 		(NET)	printf '%-15s\n' "$(tput bold)"
                         printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
                         ;;
-		(BAC)   printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "$(tput bold)"
-                        printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "Client ID" "Client Name" "MacAddres" "IP" "Client OS" "Network$(tput sgr0)"
+		(BAC)   printf '%-15s\n' "$(tput bold)"
+			printf '%-15s %-15s %-20s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status$(tput sgr0)"
                         ;;
 		(*)	echo "ERRORTITLE";;
 esac
@@ -419,22 +419,19 @@ function list_clients () {
                 done
 		return 0
 		;;
-	(BAC)   clear
-                local contador=0
-                client_list_tittle BAC
-                for line in $(cat $BACDB|grep -v "^#")
+	(BAC)   client_list_tittle BAC
+                for line in $(cat $BKPDB|grep -v "^#")
                 do
-                        local NET_ID=`echo $line|awk -F":" '{print $1}'`
-                        local NET_IP=`echo $line|awk -F":" '{print $2}'`
-                        local NET_GW=`echo $line|awk -F":" '{print $3}'`
-                        local NET_DO=`echo $line|awk -F":" '{print $4}'`
-                        local NET_DS=`echo $line|awk -F":" '{print $5}'`
-                        local NET_BRO=`echo $line|awk -F":" '{print $6}'`
-                        local NET_SRV=`echo $line|awk -F":" '{print $7}'`
-                        local NET_NAME=`echo $line|awk -F":" '{print $8}'`
-                        printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "$NET_ID" "$NET_IP" "$NET_GW" "$NET_DO" "$NET_DS" "$NET_BRO" "$NET_SRV" "$NET_NAME"
-                        let contador=$contador+1
-                        if [ $contador -ge 25 ];then read; clear;  client_list_tittle NET; contador=0; fi
+                        local BAC_ID=`echo $line|awk -F":" '{print $1}'`
+                        local CLI_ID=`echo $line|awk -F":" '{print $2}'`
+                        local CLI_NAME=$(get_client_name $CLI_ID)
+			local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $2}'`
+			local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
+			local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
+                        local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
+			local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
+			local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
+                        printf '%-15s %-15s %-20s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT"
                 done
 		return 0
 		;;
