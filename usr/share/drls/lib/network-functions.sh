@@ -227,37 +227,57 @@ function exist_network_ip()
 
 function valid_ip()
 {
-    local  ip=$1
-    local  stat=1
+    local  IP=$1
+    local  ERR=1
 
-    if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    if [[ $IP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
         OIFS=$IFS
         IFS='.'
-        ip=($ip)
+        IP=($IP)
         IFS=$OIFS
-        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
-        stat=$?
+        [[ ${IP[0]} -le 255 && ${IP[1]} -le 255 && ${IP[2]} -le 255 && ${IP[3]} -le 255 ]]
+        ERR=$?
     fi
-    return $stat
+    
+    return $ERR
 # Return 0 if IP is in correct format
 }
 
 
 function valid_mac()
 {
-	local mac=$1
-	local  stat=1
+local MAC=$1
+local LEN=$(echo ${#MAC})
+local SEG
+local ERR=0
 
-	local LEN=$(echo ${#mac})
+if [ $LEN -eq 12 ]; then
+COUNT=1
+	while IFS= read -rn2 SEG; do
+		case $SEG in
+			""|*[!0-9a-fA-F]*)
+				if [ $COUNT -le 6 ]; then ERR=1;fi
+				break
+				;; # Segment empty or non-hexadecimal
+			??)
+				;; # Segment with 2 caracters are ok
+			*)
+				ERR=1
+				break
+				;;
+		esac
+	let COUNT=COUNT+1
+	done <<< "$MAC"
 
-	if [ $LEN -eq 12 ]; then
-        stat=0
-	fi
+else
+	ERR=2 ## Not 12 chars / 6 segments
+fi
 
-	return $stat
+return $ERR
 
-# Return 0 if MAC address length is 12 without delimiters
+# Return 0 if MAC address is in correct format
 }
+
 
 function compact_mac()
 {
