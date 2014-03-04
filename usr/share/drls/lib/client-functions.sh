@@ -378,11 +378,11 @@ function put_id () {
 
 function client_list_tittle () {
 	case $1 in 
-		(CLI)	printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "$(tput bold)"
-        		printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "Client ID" "Client Name" "MacAddres" "IP" "Client OS" "Network$(tput sgr0)"
+		(CLI)	printf '%-15s\n' "$(tput bold)"
+        		printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network$(tput sgr0)"
 			;;
-		(NET)	printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$(tput bold)"
-                        printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "" "NET ID" "Net Ip" "Mask" "Gw" "Domain" "DNS" "Broadcast" "Server IP" "Net Name$(tput sgr0)"
+		(NET)	printf '%-15s\n' "$(tput bold)"
+                        printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
                         ;;
 		(BAC)   printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "$(tput bold)"
                         printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "Client ID" "Client Name" "MacAddres" "IP" "Client OS" "Network$(tput sgr0)"
@@ -392,9 +392,7 @@ esac
 }
 function list_clients () {	
  case "$1" in
-	(CLI)	clear
-		local contador=0
-		client_list_tittle CLI
+	(CLI)	client_list_tittle CLI
 		for line in $(cat $CLIDB|grep -v "^#")
 		do
        			local CLI_ID=`echo $line|awk -F":" '{print $1}'`
@@ -403,29 +401,21 @@ function list_clients () {
        		 	local CLI_IP=`echo $line|awk -F":" '{print $4}'`
        		 	local CLI_OS=`echo $line|awk -F":" '{print $5}'`
        		 	local CLI_NET=`echo $line|awk -F":" '{print $6}'`
-       		 	printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
-       			let contador=$contador+1
-        		if [ $contador -ge 25 ];then read;clear;client_list_tittle CLI; contador=0; fi
+       		 	printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
 		done
 		return 0
 		;;
-        (NET)	clear
-                local contador=0
-                client_list_tittle NET
+        (NET)	client_list_tittle NET
                 for line in $(cat $NETDB|grep -v "^#")
                 do
                         local NET_ID=`echo $line|awk -F":" '{print $1}'`
                         local NET_IP=`echo $line|awk -F":" '{print $2}'`
                         local NET_MASK=`echo $line|awk -F":" '{print $3}'`
                         local NET_GW=`echo $line|awk -F":" '{print $4}'`
-                        local NET_DO=`echo $line|awk -F":" '{print $5}'`
-                        local NET_DS=`echo $line|awk -F":" '{print $6}'`
                         local NET_BRO=`echo $line|awk -F":" '{print $7}'`
                         local NET_SRV=`echo $line|awk -F":" '{print $8}'`
                         local NET_NAME=`echo $line|awk -F":" '{print $9}'`
-                        printf '%15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "" "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_DO" "$NET_DS" "$NET_BRO" "$NET_SRV" "$NET_NAME"
-                        let contador=$contador+1
-                        if [ $contador -ge 25 ];then read;clear;client_list_tittle NET; contador=0; fi
+                        printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_BRO" "$NET_SRV" "$NET_NAME"
                 done
 		return 0
 		;;

@@ -15,7 +15,6 @@ else
 	CLI_IP=$(get_client_ip $CLI_ID)
 	CLI_OS=""
 	CLI_NET=$(get_client_net $CLI_ID)
-	clear
 	client_list_tittle CLI
-	printf '%25s %-25s %-25s %-25s %-25s %-25s %-25s\n' "" "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
+	printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
 fi
