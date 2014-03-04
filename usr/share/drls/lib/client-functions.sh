@@ -3,7 +3,7 @@
 
 function exist_client_id () {
   local CLI_ID=$1
-  grep -w $CLI_ID $CLIDB|awk -F":" '{print $1}'|grep $CLI_ID &> /dev/null
+  grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $1}'|grep $CLI_ID &> /dev/null
   if [ $? == 0 ];then return 0; else return 1; fi
   
 # Check if parameter $1 is ok and if exists client with this id in database. Return 0 for ok, return 1 not ok.
@@ -54,7 +54,7 @@ function get_client_name(){
   if exist_client_id "$CLI_ID" ;
   then
 	# Get client name from database and return it
-	CLI_NAME=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $2}'`
+	CLI_NAME=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $2}'`
 	eval echo $CLI_NAME
 	return 0
   else
@@ -100,7 +100,7 @@ function check_client_connectivity () {
   if exist_client_id "$CLI_ID" ;
   then
 	# Chek if client is available. Return 0 for ok, return 1 not ok.
-  	CLI_IP=`grep -w $CLI_ID $CLIDB|awk -F":" '{print $4}'`
+  	CLI_IP=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $4}'`
 	ping  -c 1 -t 2 $CLI_IP &>/dev/null
 	if [ $? -eq 0 ];then return 0; else return 1;fi
   else
