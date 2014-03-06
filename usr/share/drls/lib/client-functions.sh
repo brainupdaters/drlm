@@ -376,68 +376,31 @@ function put_id () {
  esac
 }
 
-function client_list_tittle () {
-	case $1 in 
-		(CLI)	printf '%-15s\n' "$(tput bold)"
-        		printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network$(tput sgr0)"
-			;;
-		(NET)	printf '%-15s\n' "$(tput bold)"
-                        printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
-                        ;;
-		(BAC)   printf '%-15s\n' "$(tput bold)"
-			printf '%-15s %-15s %-20s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status$(tput sgr0)"
-                        ;;
-		(*)	echo "ERRORTITLE";;
-esac
+function list_client_all () {
+  printf '%-15s\n' "$(tput bold)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network$(tput sgr0)"
+  for line in $(cat $CLIDB|grep -v "^#")
+  do
+        local CLI_ID=`echo $line|awk -F":" '{print $1}'`
+        local CLI_NAME=`echo $line|awk -F":" '{print $2}'`
+        local CLI_MAC=`echo $line|awk -F":" '{print $3}'`
+        local CLI_IP=`echo $line|awk -F":" '{print $4}'`
+        local CLI_OS=`echo $line|awk -F":" '{print $5}'`
+        local CLI_NET=`echo $line|awk -F":" '{print $6}'`
+        printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
+  done
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
-function list_clients () {	
- case "$1" in
-	(CLI)	client_list_tittle CLI
-		for line in $(cat $CLIDB|grep -v "^#")
-		do
-       			local CLI_ID=`echo $line|awk -F":" '{print $1}'`
-       		        local CLI_NAME=`echo $line|awk -F":" '{print $2}'`
-       		 	local CLI_MAC=`echo $line|awk -F":" '{print $3}'`
-       		 	local CLI_IP=`echo $line|awk -F":" '{print $4}'`
-       		 	local CLI_OS=`echo $line|awk -F":" '{print $5}'`
-       		 	local CLI_NET=`echo $line|awk -F":" '{print $6}'`
-       		 	printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
-		done
-		return 0
-		;;
-        (NET)	client_list_tittle NET
-                for line in $(cat $NETDB|grep -v "^#")
-                do
-                        local NET_ID=`echo $line|awk -F":" '{print $1}'`
-                        local NET_IP=`echo $line|awk -F":" '{print $2}'`
-                        local NET_MASK=`echo $line|awk -F":" '{print $3}'`
-                        local NET_GW=`echo $line|awk -F":" '{print $4}'`
-                        local NET_BRO=`echo $line|awk -F":" '{print $7}'`
-                        local NET_SRV=`echo $line|awk -F":" '{print $8}'`
-                        local NET_NAME=`echo $line|awk -F":" '{print $9}'`
-                        printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_BRO" "$NET_SRV" "$NET_NAME"
-                done
-		return 0
-		;;
-	(BAC)   client_list_tittle BAC
-                for line in $(cat $BKPDB|grep -v "^#")
-                do
-                        local BAC_ID=`echo $line|awk -F":" '{print $1}'`
-                        local CLI_ID=`echo $line|awk -F":" '{print $2}'`
-                        local CLI_NAME=$(get_client_name $CLI_ID)
-			local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $2}'`
-			local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
-			local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
-                        local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
-			local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
-			local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
-                        printf '%-15s %-15s %-20s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT"
-                done
-		return 0
-		;;
-	(*) 	echo  "ERRORLIST" 
-		return 1
-		;;
- esac
+
+function list_client () {
+  local CLI_NAME=$1
+  local CLI_ID=$(get_client_id_by_name $CLI_NAME)
+  local CLI_MAC=$(get_client_mac $CLI_ID)
+  local CLI_IP=$(get_client_ip $CLI_ID)
+  local CLI_OS=""
+  local CLI_NET=$(get_client_net $CLI_ID)
+  printf '%-15s\n' "$(tput bold)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network$(tput sgr0)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
 }
 

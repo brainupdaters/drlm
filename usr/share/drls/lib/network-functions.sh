@@ -360,49 +360,49 @@ function get_network_id_by_name(){
 
 function get_network_ip(){
   	local NET_ID=$1
-	local NET_IP=`grep -w $NET_ID $NETDB|awk -F":" '{print $2}'`
+	local NET_IP=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $2}'`
 	echo $NET_IP
 # Get netwok ip from database and return it
 }
 
 function get_network_name(){
 	local NET_ID=$1
-	local NET_NAME=`grep -w $NET_ID $NETDB|awk -F":" '{print $9}'`
+	local NET_NAME=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $9}'`
 	echo $NET_NAME
 # Get network name from database and return it
 }
 
 function get_network_mask(){
 	local NET_ID=$1
-	local NET_MASK=`grep -w $NET_ID $NETDB|awk -F":" '{print $3}'`
+	local NET_MASK=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $3}'`
 	echo $NET_MASK
 # Get network mac from database and return it
 }
 
 function get_network_gw(){
 	local NET_ID=$1
-	local NET_GW=`grep -w $NET_ID $NETDB|awk -F":" '{print $4}'`
+	local NET_GW=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $4}'`
 	echo $NET_GW
 # Get network gw from database and return it
 }
 
 function get_network_domain(){
 	local NET_ID=$1
-	local NET_DOM=`grep -w $NET_ID $NETDB|awk -F":" '{print $5}'`
+	local NET_DOM=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $5}'`
 	echo $NET_DOM
 # Get network dom from database and return it
 }
 
 function get_network_dns(){
 	local NET_ID=$1
-	local NET_DNS=`grep -w $NET_ID $NETDB|awk -F":" '{print $6}'`
+	local NET_DNS=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $6}'`
 	echo $NET_DNS
 # Get network dns from database and return it
 }
 
 function get_network_bcast(){
 	local NET_ID=$1
-	local NET_BCAST=`grep -w $NET_ID $NETDB|awk -F":" '{print $7}'`
+	local NET_BCAST=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $7}'`
 	echo $NET_BCAST
 # Get network bcast from database and return it
 }
@@ -479,4 +479,33 @@ function mod_network_srv (){
 	if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
+function list_network_all () {
+  printf '%-15s\n' "$(tput bold)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
+  for line in $(cat $NETDB|grep -v "^#")
+  do
+        local NET_ID=`echo $line|awk -F":" '{print $1}'`
+        local NET_IP=`echo $line|awk -F":" '{print $2}'`
+        local NET_MASK=`echo $line|awk -F":" '{print $3}'`
+        local NET_GW=`echo $line|awk -F":" '{print $4}'`
+        local NET_BRO=`echo $line|awk -F":" '{print $7}'`
+        local NET_SRV=`echo $line|awk -F":" '{print $8}'`
+        local NET_NAME=`echo $line|awk -F":" '{print $9}'`
+        printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_BRO" "$NET_SRV" "$NET_NAME"
+  done
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function list_network () {
+  local NET_NAME=$1
+  local NET_ID=$(get_network_id_by_name $NET_NAME)
+  local NET_IP=$(get_network_ip $NET_ID)
+  local NET_MASK=$(get_network_mask $NET_ID)
+  local NET_GW=$(get_network_gw $NET_ID)
+  local NET_BRO=$(get_network_bcast $NET_ID)
+  local NET_SRV=$(get_network_srv $NET_ID)
+  printf '%-15s\n' "$(tput bold)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_BRO" "$NET_SRV" "$NET_NAME"
+}
 

@@ -6,11 +6,10 @@ if ! exist_client_name "$CLI_NAME"
 then
 	if [ "$CLI_NAME" == "all" ]
 	then
-        	list_clients BAC
+        	list_backup_all
 	else
 		printf '%25s\n' "$(tput bold)$CLI_NAME$(tput sgr0) not found in database!!"	
 	fi
 else
-	client_list_tittle BAC
-	list_backups_by_client $CLI_ID
+	list_backup $CLI_NAME
 fi
