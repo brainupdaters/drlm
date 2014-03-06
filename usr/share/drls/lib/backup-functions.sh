@@ -46,22 +46,6 @@ function mod_pxe_link (){
    if [ $? -eq 0 ];then return 0; else return 1;fi
 }
 
-function list_backups_by_client () {
- local CLI_ID=$1
- for line in $(cat $BKPDB|grep -v "^#")
- do
-    local BAC_ID=`echo $line|awk -F":" '{print $1}'`
-    local CLI_ID_BAC=`echo $line|awk -F":" '{print $2}'`
-    local CLI_NAME=$(get_client_name $CLI_ID_BAC)
-    local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $2}'`
-    local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
-    local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
-    local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
-    local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
-    if [ $CLI_ID -eq $CLI_ID_BAC ]; then printf '%-15s %-15s %-20s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT"; fi
- done
-}
-
 function list_backup_all() {
   printf '%-15s\n' "$(tput bold)"
   printf '%-15s %-15s %-20s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status$(tput sgr0)"
