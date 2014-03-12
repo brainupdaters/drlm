@@ -66,7 +66,7 @@ if [ $WORKFLOW == "delnetwork" ]; then
 	done
 	
 	if [ -n "$NET_NAME" ] && [ -n "$NET_ID" ]; then 
-		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
+		echo "$PROGRAM $WORKFLOW: Only one option can be used: --netname or --id "
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
 	fi
