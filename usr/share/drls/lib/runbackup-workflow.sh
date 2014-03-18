@@ -37,7 +37,7 @@ if [ $WORKFLOW == "runbackup" ]; then
 	                        # We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
 				then 
-					CLINAME="$2"
+					CLI_NAME="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
 					exit 1
@@ -48,7 +48,7 @@ if [ $WORKFLOW == "runbackup" ]; then
 				# We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
 				then 
-					IDCLIENT="$2" 
+					CLI_ID="$2" 
 				else
 	                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
 	               	        	exit 1
@@ -65,7 +65,7 @@ if [ $WORKFLOW == "runbackup" ]; then
 	        shift
 	done
 	
-	if [ -n "$CLINAME" ] && [ -n "$IDCLIENT" ]; then 
+	if [ -n "$CLI_NAME" ] && [ -n "$CLI_ID" ]; then 
 		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
@@ -77,15 +77,3 @@ WORKFLOW_runbackup () {
     SourceStage "backup/run"
 }
 
-#1	Check if client reqs. to backup (if is registered and conectivity)
-#2	Check Limit Number of client backups in server and prepare backup 
-#3	Run backup and report success or errors 
-#4	Register Backup to drls backups database
-#5      ...
-#6	...
-#7	...
-
-# TODO -----------------
-# RUBEN: Repassar drls/usr/share/drls/backup/run/default/019_check_client_backup_reqs.sh
-# DIDI:  Fer prover i codi per  drls/usr/share/drls/backup/run/default/109_run_client_backup.sh
-# PAU: Crear pseudocodi i distribuir tasques
