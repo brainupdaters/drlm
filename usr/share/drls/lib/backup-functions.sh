@@ -154,7 +154,7 @@ function do_umount_force() {
 function enable_backup_db() {
 	local BKP_ID=$1
 	
-	ex -s -c ":/^${A_BKP_ID}/s/false/true/g" -c ":wq" ${BKPDB}
+	ex -s -c ":/^${BKP_ID}/s/false/true/g" -c ":wq" ${BKPDB}
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
