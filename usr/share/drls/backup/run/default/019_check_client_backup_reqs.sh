@@ -44,7 +44,8 @@ fi
 
 
 # Check if client  SSH Server is available over the network
-if check_client_ssh "$IDCLIENT" ; 
+#if check_client_ssh "$IDCLIENT" ; 
+if check_ssh_port "$CLIIPADDR" ;
 then
 	Log "Client name: $CLINAME SSH Server is online!"
 else

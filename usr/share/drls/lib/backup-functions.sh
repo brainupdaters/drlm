@@ -6,7 +6,7 @@ function run_mkbackup_ssh_remote () {
    local CLIENT=$(get_client_name $CLI_ID)
    local REARCMD
    local BKPOUT
-   BKPOUT=$(ssh -tt drls@${CLIENT} 'sudo /usr/sbin/rear mkbackup' 2>&1)
+   BKPOUT=$(ssh -tt ${DRLS_USER}@${CLIENT} 'sudo /usr/sbin/rear mkbackup' 2>&1)
    if [ $? -ne 0 ]
    then    
 	BKPOUT=$( echo $BKPOUT | tr -d "\r" )
@@ -23,7 +23,7 @@ function run_mkrescue_ssh_remote () {
    local CLIENT=$(get_client_name $CLI_ID)
    local REARCMD
    local BKPOUT
-   BKPOUT=$(ssh -tt drls@${CLIENT} 'sudo /usr/sbin/rear mkrescue' 2>&1)
+   BKPOUT=$(ssh -tt ${DRLS_USER}@${CLIENT} 'sudo /usr/sbin/rear mkrescue' 2>&1)
    if [ $? -ne 0 ]
    then    
 	BKPOUT=$( echo $BKPOUT | tr -d "\r" )
