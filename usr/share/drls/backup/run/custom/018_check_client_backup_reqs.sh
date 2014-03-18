@@ -34,16 +34,17 @@ fi
 Log "Testing connectivity for ${CLI_NAME} ... ( ICMP - SSH )"
 
 # Check if client is available over the network
-if check_client_connectivity "$CLI_ID" ; 
-then
-	Log "Client name: $CLI_NAME is available over network!"
-else
-	report_error "Client with name: $CLI_NAME is not available (ICMP) aborting ..." 
-	Error "Client with name: $CLI_NAME is not available (ICMP) aborting ..." 
-fi
+#if check_client_connectivity "$CLI_ID" ; 
+#if check_icmp "$CLI_IP" ;
+#then
+#	Log "Client name: $CLI_NAME is available over network!"
+#else
+#	report_error "Client with name: $CLI_NAME is not available (ICMP) aborting ..." 
+#	Error "Client with name: $CLI_NAME is not available (ICMP) aborting ..." 
+#fi
 
 
-# Check if client  SSH Server is available over the network
+# Check if client SSH Server is available over the network
 
 #if check_client_ssh "$CLI_ID" ; 
 if check_ssh_port "$CLI_IP" ;

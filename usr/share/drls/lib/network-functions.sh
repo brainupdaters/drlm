@@ -308,6 +308,13 @@ function check_ssh_port ()
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function check_icmp()
+{
+        local ip=$1
+	ping  -c 1 -t 2 $ip &>/dev/null
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function add_network (){
   local NET_ID=""
   local NET_IP=$1
