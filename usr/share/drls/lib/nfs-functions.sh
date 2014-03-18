@@ -5,7 +5,7 @@
 # $NFS_FILE is the default.conf variable of dhcp configuration file
 
 
-function generate_nfs_exports() {
+function generate_nfs_exports_old() {
 
 cp $NFS_FILE $NFS_DIR/exports.bkp
 cat /dev/null > $NFS_FILE
@@ -47,6 +47,28 @@ for NFS_STORE in $PXEDIR $BKPDIR ; do
 done
 #Generates the nfs configuration file from CLIDB
 }
+
+function generate_nfs_exports() {
+
+	cp $NFS_FILE $NFS_DIR/exports.bkp
+	cat /dev/null > $NFS_FILE
+
+
+	for CLIENT in $(cat $CLIDB | grep -v "^#") ; do
+		local CLI_ID=$(echo $CLIENT | awk -F":" '{print $1}')
+		local CLI_NAME=$(echo $CLIENT | awk -F":" '{print $2}')
+		local CLI_MAC=$(echo $CLIENT | awk -F":" '{print $3}')
+		local CLI_IP=$(echo $CLIENT | awk -F":" '{print $4}')
+		local CLI_OS=$(echo $CLIENT | awk -F":" '{print $5}')
+		local CLI_NET=$(echo $CLIENT | awk -F":" '{print $6}')
+
+		echo "$STORDIR/$CLI_NAME $CLI_NAME(rw,sync,no_root_squash,no_subtree_check)" | tee -a $NFS_FILE > /dev/null
+
+	done
+
+#Generates the nfs configuration file from CLIDB
+}
+
 
 function reload_nfs() {
 	exportfs -a
