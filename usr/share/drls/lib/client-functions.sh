@@ -404,3 +404,25 @@ function list_client () {
   printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
 }
 
+function get_distro () {
+ local CLI_NAME=$1
+ local DISTRO=""
+ ssh -t root@$CLI_NAME cat /etc/issue &> /dev/null
+ if [ $? -eq 0 ]
+ then 
+        DISTRO=$(ssh root@$CLI_NAME head -1 /etc/issue | awk '{print $1}')
+ fi  
+ if [ "$DISTRO" == "" ]; then return 1; else echo $DISTRO; return 0; fi
+}
+
+function get_release () {
+ local CLI_NAME=$1
+ local RELEASE=""
+ ssh -t root@$CLI_NAME cat /etc/issue &> /dev/null
+ if [ $? -eq 0 ]
+ then
+        RELEASE=$(ssh root@$CLI_NAME head -1 /etc/issue | awk '{print $3}')
+ fi
+ if [ "$RELEASE" == "" ]; then return 1; else echo $RELEASE; return 0; fi
+}
+

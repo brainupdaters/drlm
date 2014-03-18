@@ -44,7 +44,7 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift 
                                 ;;
-                        (-1|--idcli)
+                        (-i|--idcli)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
@@ -65,11 +65,6 @@ if [ $WORKFLOW == "instclient" ]; then
                 shift
         done
 fi
-	if [ -n "$CLI_NAME" ] && [ -n "$CLI_ID" ]; then 
-		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
-	        echo "Try \`$PROGRAM --help' for more information."
-	        exit 1
-	fi
 
 WORKFLOW_instclient () {
     echo instclient workflow
