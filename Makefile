@@ -8,6 +8,7 @@ OFFICIAL =
 
 ### Get version from DRLS itself
 drlsbin = usr/sbin/drls
+drls_store_svc = etc/init.d/drls-stord
 name = drls
 version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlsbin))
 
@@ -144,6 +145,8 @@ install-bin:
 		-e 's,^SHARE_DIR=.*,SHARE_DIR="$(datadir)/drls",' \
 		-e 's,^VAR_DIR=.*,VAR_DIR="$(localstatedir)/lib/drls",' \
 		$(DESTDIR)$(sbindir)/drls
+	@echo -e "\033[1m== Installing store service ==\033[0;0m"
+	install -Dp -m0755 $(drls_store_svc) $(DESTDIR)$(sysconfdir)/init.d/drls-stord
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
