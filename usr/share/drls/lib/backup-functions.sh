@@ -87,7 +87,7 @@ function list_backup () {
 function enable_loop_ro() {
 	local LO_DEV="/dev/loop${1}"
 	local DR_FILE=$2
-	
+
 	/sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null &2>1  
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
@@ -97,7 +97,7 @@ function enable_loop_ro() {
 function enable_loop_rw() {
 	local LO_DEV="/dev/loop${1}"
 	local DR_FILE=$2
-	
+
 	/sbin/losetup ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null &2>1  
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
@@ -106,7 +106,7 @@ function enable_loop_rw() {
 
 function disable_loop() {
 	local LO_DEV=$1
-	
+
 	/sbin/losetup -d ${LO_DEV} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
@@ -116,8 +116,13 @@ function disable_loop() {
 function do_mount_ro() {
 	local LO_DEV="/dev/loop${1}"
 	local CLI_NAME=$2
-	
-	/bin/mount -t ext2 -o ro ${LO_DEV} ${STORDIR}/${CLI_NAME} >> /dev/null &2>1
+	local MNTDIR=$3
+
+	if [-z "$MNTDIR" ]; then
+		MNTDIR=${STORDIR}/${CLI_NAME}
+	fi
+
+	/bin/mount -t ext2 -o ro ${LO_DEV} ${MNTDIR} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
@@ -126,16 +131,21 @@ function do_mount_ro() {
 function do_mount_rw() {
 	local LO_DEV="/dev/loop${1}"
 	local CLI_NAME=$2
-	
-	/bin/mount -t ext2 -o rw ${LO_DEV} ${STORDIR}/${CLI_NAME} >> /dev/null &2>1
+	local MNTDIR=$3
+
+	if [-z "$MNTDIR" ]; then
+		MNTDIR=${STORDIR}/${CLI_NAME}
+	fi
+
+	/bin/mount -t ext2 -o rw ${LO_DEV} ${MNTDIR} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
 
 function do_umount() {
-	local LO_DEV=$1
-	
+	local LO_DEV="/dev/loop${1}"
+
 	/bin/umount ${LO_DEV} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
@@ -143,8 +153,8 @@ function do_umount() {
 }
 
 function do_umount_force() {
-	local LO_DEV=$1
-	
+	local LO_DEV="/dev/loop${1}"
+
 	/bin/umount -f ${LO_DEV} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
@@ -153,7 +163,7 @@ function do_umount_force() {
 
 function enable_backup_db() {
 	local BKP_ID=$1
-	
+
 	ex -s -c ":/^${BKP_ID}/s/false/true/g" -c ":wq" ${BKPDB}
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
@@ -162,7 +172,7 @@ function enable_backup_db() {
 
 function disable_backup_db() {
 	local BKP_ID=$1
-	
+
 	ex -s -c ":/^${BKP_ID}/s/true/false/g" -c ":wq" ${BKPDB}
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 
@@ -175,4 +185,71 @@ function get_active_cli_bkp_from_db() {
 	echo $BKP_ID
 
 # Return Active Backup ID or Null string
+}
+
+function enable_nfs_fs_ro() {
+	local CLI_NAME=$1
+
+	exportfs -vo ro,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function enable_nfs_fs_rw() {
+	local CLI_NAME=$1
+
+	exportfs -vo rw,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function disable_nfs_fs() {
+	local CLI_NAME=$1
+
+	exportfs -vu ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function get_dr_file_name() {
+	local CLI_NAME=$1
+	local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
+	local DR_NAME="$CLI_NAME.$BKP_ID.dr"
+
+	echo $DR_NAME
+
+}
+
+function make_img_raw() {
+	local DR_NAME=$1
+	local DATA_SIZE=$(du -sm ${STORDIR}/${CLI_NAME}|awk '{print $1}')
+	local INC_SIZE=$((${DATA_SIZE}*5/100))
+	local DR_SIZE=$((${DATA_SIZE}+${INC_SIZE}))
+
+	dd if=/dev/zero of=${ARCHDIR}/${DR_NAME} bs=1024k seek=${DR_SIZE} count=0
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function do_format_ext2() {
+	local LO_DEV="/dev/loop${1}"
+
+	mkfs.ext2 -m1 ${LO_DEV}
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function move_files_to_img() {
+	local CLI_NAME=$1
+	local MNTDIR=$2
+
+	tar -C ${STORDIR}/${CLI_NAME} -cf - . | (cd ${MNTDIR}; tar xf -)
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
 }
