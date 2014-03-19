@@ -105,7 +105,7 @@ function enable_loop_rw() {
 }
 
 function disable_loop() {
-	local LO_DEV=$1
+	local LO_DEV="/dev/loop${1}"
 
 	/sbin/losetup -d ${LO_DEV} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
