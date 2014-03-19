@@ -8,9 +8,9 @@ else
 	chmod 755 ${STORDIR}/${CLI_NAME}
 fi
 
-DR_PREV=$(losetup /dev/loop${CLI_ID} | grep -w "${CLI_NAME}" | awk '{print $3}' | tr -d "(" | tr -d ")")
+A_DR_FILE=$(losetup /dev/loop${CLI_ID} | grep -w "${CLI_NAME}" | awk '{print $3}' | tr -d "(" | tr -d ")")
 
-if [ -n "$DR_PREV" ]; then
+if [ -n "$A_DR_FILE" ]; then
 	
 	LO_MNT=$(mount -lt ext2 | grep -w "loop${CLI_ID}" | awk '{ print $3 }'| grep -w "${STORDIR}/${CLI_NAME}")
 	if [ -n "$LO_MNT" ]
@@ -22,16 +22,16 @@ if [ -n "$DR_PREV" ]; then
 
 	if [ "$MODE" == "perm" ]; then
 		A_BKP_ID_DB=$(grep -w ${CLI_NAME} ${BKPDB} | awk -F":" '{print $1,$5}'| grep -w "true" | awk '{print $1}')
-		A_BKP_ID=$(echo ${DR_PREV} | awk -F"." '{print $2}')
-		if [ "$A_BKP_ID" == "$A_BKP_ID_DB" ]; then
-			disable_backup_db ${A_BKP_ID}
+		A_BKP_ID=$(echo ${A_DR_FILE} | awk -F"." '{print $2}')
+		if [ "$A_BKP_ID" == "$A_BKP_ID_DB" ] || [ "$ACTION" == "enable" ]; then
+			disable_backup_db ${A_BKP_ID_DB}
 			if [ $? -eq 0 ]; then
 				Log "Previous ${CLI_NAME} DR backup (ID: ${A_BKP_ID}) tagged as inactive in database ..."
 			else
 				Error "Previous ${CLI_NAME} DR backup (ID: ${A_BKP_ID}) can not be tagged as inactive! Failed!"
 			fi
 		else
-			Log "Previous ${CLI_NAME} active DR backup (ID: ${A_BKP_ID}) not set in DB. Nothing to do ..."
+			Log "Previous ${CLI_NAME} active DR backup (ID: ${A_BKP_ID}) not set default active in DB. No DB update needed ..."
 		fi
 	fi
 	
