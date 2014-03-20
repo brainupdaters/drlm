@@ -421,7 +421,7 @@ function get_release () {
  ssh -t root@$CLI_NAME cat /etc/issue &> /dev/null
  if [ $? -eq 0 ]
  then
-        RELEASE=$(ssh root@$CLI_NAME head -1 /etc/issue | awk '{print $3}')
+        RELEASE=$(ssh root@$CLI_NAME head -1 /etc/issue | awk '{print $3}'|cut -c 1)
  fi
  if [ "$RELEASE" == "" ]; then return 1; else echo $RELEASE; return 0; fi
 }
