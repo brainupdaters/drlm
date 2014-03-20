@@ -4,11 +4,11 @@ DR_FILE=$(grep -w ${CLI_NAME} ${BKPDB} | awk -F":" '{print $1,$3,$5}'| grep -w $
 if [ -n "$DR_FILE" ]; then
 
 	enable_loop_ro ${CLI_ID} ${DR_FILE}
-
+	# Error handling
 	do_mount_ro ${CLI_ID} ${CLI_NAME}
-
+	# Error handling
 	enable_nfs_fs_ro ${CLI_NAME}
-
+	# Error handling
         if [ "$MODE" == "perm" ]; then
                 enable_backup_db ${BKP_ID}
         	if [ $? -eq 0 ]; then

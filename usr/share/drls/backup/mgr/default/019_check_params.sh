@@ -14,3 +14,14 @@ if test -n "$CLI_NAME"; then
 		Error "$PROGRAM: Client named: $CLI_NAME not registered!"
 	fi
 fi
+
+#if test -n "$BKP_ID"; then
+#        Log "Checking if Backup ID: ${BKP_ID} is registered in DRLS database ..."
+#        if exist_backup_id "$BKP_ID" ;
+#        then
+#                Log "${BKP_ID} found in DRLS database!"
+#        else
+#                Error "$PROGRAM: Backup ID: $BKP_ID not registered!"
+#        fi
+#fi
+

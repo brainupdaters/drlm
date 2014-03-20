@@ -89,7 +89,7 @@ function enable_loop_ro() {
 	local DR_FILE=$2
 
 	/sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null &2>1  
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -99,7 +99,7 @@ function enable_loop_rw() {
 	local DR_FILE=$2
 
 	/sbin/losetup ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null &2>1  
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -108,7 +108,7 @@ function disable_loop() {
 	local LO_DEV="/dev/loop${1}"
 
 	/sbin/losetup -d ${LO_DEV} >> /dev/null &2>1
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -118,12 +118,12 @@ function do_mount_ro() {
 	local CLI_NAME=$2
 	local MNTDIR=$3
 
-	if [-z "$MNTDIR" ]; then
+	if [ -z "$MNTDIR" ]; then
 		MNTDIR=${STORDIR}/${CLI_NAME}
 	fi
 
 	/bin/mount -t ext2 -o ro ${LO_DEV} ${MNTDIR} >> /dev/null &2>1
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -133,12 +133,12 @@ function do_mount_rw() {
 	local CLI_NAME=$2
 	local MNTDIR=$3
 
-	if [-z "$MNTDIR" ]; then
+	if [ -z "$MNTDIR" ]; then
 		MNTDIR=${STORDIR}/${CLI_NAME}
 	fi
 
 	/bin/mount -t ext2 -o rw ${LO_DEV} ${MNTDIR} >> /dev/null &2>1
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -147,7 +147,7 @@ function do_umount() {
 	local LO_DEV="/dev/loop${1}"
 
 	/bin/umount ${LO_DEV} >> /dev/null &2>1
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -156,7 +156,7 @@ function do_umount_force() {
 	local LO_DEV="/dev/loop${1}"
 
 	/bin/umount -f ${LO_DEV} >> /dev/null &2>1
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -191,7 +191,7 @@ function enable_nfs_fs_ro() {
 	local CLI_NAME=$1
 
 	exportfs -vo ro,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -200,7 +200,7 @@ function enable_nfs_fs_rw() {
 	local CLI_NAME=$1
 
 	exportfs -vo rw,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }
@@ -209,7 +209,7 @@ function disable_nfs_fs() {
 	local CLI_NAME=$1
 
 	exportfs -vu ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }

@@ -22,64 +22,43 @@ WORKFLOW_bkpmgr_DESCRIPTION="Set DR backups enabled or disabled for recovery"
 WORKFLOWS=( ${WORKFLOWS[@]} bkpmgr )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
 
-if [ $WORKFLOW == "bkpmgr" ]; then 
+if [ "$WORKFLOW" == "bkpmgr" ]; then
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "edc:i:P" -l "enable,disable,client:,id:,perm" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:i:edP" -l "client:,id:,enable,disable" -- "$@")"
+
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM --help' for more information."
                 exit 1
         fi
-        
+
         eval set -- "$OPT"
         while true; do
                 case "$1" in
-                        (-e|--enable)
-                                if [ -z "$ACTION" ]
-                                then 
-                                	ACTION="enable"
-                                else
-                                	echo "$PROGRAM $WORKFLOW - $1 could not be set with (-d|--disable)"	
-                                	exit 1
-                                fi
-                                shift 
-                                ;;
-                        (-d|--disable)
-                                if [ -z "$ACTION" ]
-                                then 
-                                	ACTION="disable"
-                                else
-                                	echo "$PROGRAM $WORKFLOW - $1 could not be set with (-e|--enable)"	
-                                	exit 1
-                                fi
-                                shift 
-                                ;;
-                                
+                        (-e|--enable) ENABLE="yes";;
+                        (-d|--disable) DISABLE="yes";;
                         (-c|--client)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
-                                then 
-                                	CLI_NAME="$2"
+                                then
+                                        CLI_NAME="$2"
                                 else
-                                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-                                	exit 1
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
                                 fi
-                                shift 
+                                shift
                                 ;;
                         (-i|--id)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
-                                then 
-                                	BKP_IP="$2" 
+                                then
+                                        BKP_ID="$2"
                                 else
-                                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-                                	exit 1
-                                fi 
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
                                 shift
                                 ;;
-                        (-P|--perm)
-                                MODE="perm"
-                                shift
-                                ;;
+                        (-P) MODE="perm";;
                         (--) shift; break;;
                         (-*)
                                 echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
@@ -89,26 +68,35 @@ if [ $WORKFLOW == "bkpmgr" ]; then
                 esac
                 shift
         done
-        if [ -n "$ACTION" ]; then 
-        	if [ "$ACTION" == "enable"]; then 
-        		if [ -z "$CLI_NAME" ] || [ -z "$BKP_ID" ]; then 
-        			echo "$PROGRAM $WORKFLOW: ACTION: $ACTION. --client and --id options are required"
-        			echo "Try \`$PROGRAM --help' for more information."
-        			exit 1
-        		fi
-        	fi
-        	if [ "$ACTION" == "disable"]; then 
-        		if [ -z "$CLI_NAME" ]; then 
-        			echo "$PROGRAM $WORKFLOW: ACTION: $ACTION. --client option required"
-        			echo "Try \`$PROGRAM --help' for more information."
-        			exit 1
-        		fi
-        	fi
+        if [ -n "$ENABLE" ] && [ -n "$DISABLE" ]; then
+
+                echo "$PROGRAM $WORKFLOW: Only one option (-d or -e) required!!"
+                echo "Try \`$PROGRAM --help' for more information."
+                exit 1
+        else
+                if [ "$ENABLE" == "yes" ]; then
+                        if  [ -z "$CLI_NAME" ] || [ -z "$BKP_ID" ]; then
+                                echo "$PROGRAM $WORKFLOW: ENABLE: --client and --id options are required"
+                                echo "Try \`$PROGRAM --help' for more information."
+                                exit 1
+                        else
+                                echo "EN OK!"
+                        fi
+                fi
+                if [ "$DISABLE" == "yes" ]; then
+                        if [ -z "$CLI_NAME" ]; then
+                                echo "$PROGRAM $WORKFLOW: DISABLE: --client option required"
+                                echo "Try \`$PROGRAM --help' for more information."
+                                exit 1
+                        else
+                                echo "DIS OK!"
+                        fi
+                fi
         fi
 fi
 
-WORKFLOW_addclient () {
-    echo addclient workflow
+WORKFLOW_bkpmgr () {
+    echo bkpmgr workflow
     SourceStage "backup/mgr"
 }
 
