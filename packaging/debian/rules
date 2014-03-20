@@ -40,6 +40,7 @@ binary-indep: build
 
 	# copy drls components into directories
 	cp -av etc/drls debian/drls/etc/
+	cp -av etc/init.d debian/drls/etc/
 	cp -av usr/sbin/drls debian/drls/usr/sbin/
 	cp -av usr/share/drls debian/drls/usr/share/
 	cp -av var/lib/drls debian/drls/var/lib/

@@ -117,6 +117,7 @@ Professional services and support are available.
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR="%{buildroot}"
 #%{__install} -Dp -m0644 drls.cron %{buildroot}%{_sysconfdir}/cron.d/drls
+%{__install} -Dp -m0755 etc/init.d/drls-stord %{buildroot}%{_sysconfdir}/init.d/drls-stord
 
 %clean
 %{__rm} -rf %{buildroot}
