@@ -365,6 +365,13 @@ function get_network_id_by_name(){
   fi
 }
 
+function get_server_ip (){
+        local NET_ID=$1
+        local NET_SERVIP=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $8}'`
+        echo $NET_SERVIP 
+# Get server ip from database and return it
+}
+
 function get_network_ip(){
   	local NET_ID=$1
 	local NET_IP=`grep -w ^$NET_ID $NETDB|awk -F":" '{print $2}'`

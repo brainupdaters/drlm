@@ -16,7 +16,9 @@ fi
 ssh -t root@$CLI_NAME id $DRLS_USER
 if [ $? -ne 0 ]
 then
-	ssh -t root@$CLI_NAME "useradd -d /home/$DRLS_USER -c 'DRLS User Agent' -m -s /bin/bash $DRLS_USER"
+	PASS=$(echo -n change | openssl passwd -1 -stdin)
+	echo ${PASS}
+	ssh -t root@$CLI_NAME "useradd -d /home/${DRLS_USER} -c 'DRLS User Agent' -m -s /bin/bash -p '${PASS}' ${DRLS_USER}"
 	if [ $? -ne 0  ]; then  Error "$PROGRAM: User $DRLS_USER creation Failed!!!"; else Log "User $DRLS_USER created on $CLI_NAME";fi
 fi
 

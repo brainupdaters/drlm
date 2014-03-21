@@ -37,4 +37,33 @@ else
 fi
 }
 
+function send_config_rear () {
+local CLI_NAME=$1
+local CLI_ID=$(get_client_id_by_name $CLI_NAME)
+local CLI_NET=$(get_client_net $CLI_ID)
+local NET_ID=$(get_network_id_by_name $CLI_NET)
+local NET_SERVIP=$(get_server_ip $NET_ID)
+
+cat > /tmp/etc_rear_local.conf << EOF
+DRLS_NAME=${CLI_NAME}
+GRUB_RESCUE=
+OUTPUT=PXE
+OUTPUT_URL=nfs://${NET_SERVIP}${STORDIR}/${CLI_NAME}
+BACKUP=NETFS
+BACKUP_URL=nfs://${NET_SERVIP}${STORDIR}/${CLI_NAME}
+SSH_ROOT_PASSWORD=rear
+NETFS_PREFIX=BKP
+OUTPUT_PREFIX=PXE
+SSH_ROOT_PASSWORD=rear
+
+EOF
+
+if [ -f /tmp/etc_rear_local.conf ]
+then
+	scp /tmp/etc_rear_local.conf root@${CLI_NAME}:/etc/rear/local.conf
+	return 1
+else
+	return 0
+fi
+}
 
