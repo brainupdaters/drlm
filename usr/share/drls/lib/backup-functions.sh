@@ -217,10 +217,14 @@ function get_active_cli_bkp_from_db() {
 function gen_dr_file_name() {
 	local CLI_NAME=$1
 	local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
-	local DR_NAME="$CLI_NAME.$BKP_ID.dr"
+	if [ $? -eq 0 ]; then 
+		local DR_NAME="$CLI_NAME.$BKP_ID.dr"
+		echo $DR_NAME
+	else
+		echo ""
+	fi
 
-	echo $DR_NAME
-
+# Return DR File Name or Null string
 }
 
 function make_img_raw() {
