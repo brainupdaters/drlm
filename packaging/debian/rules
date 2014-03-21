@@ -30,6 +30,7 @@ binary-indep: build
 	
 	# The DESTDIR Has To Be Exactly debian/drls
 	mkdir -vp \
+		debian/drls/DEBIAN/ \
 		debian/drls/etc/ \
 		debian/drls/usr/sbin/ \
 		debian/drls/usr/share/ \
@@ -45,6 +46,17 @@ binary-indep: build
 	cp -av usr/share/drls debian/drls/usr/share/
 	cp -av var/lib/drls debian/drls/var/lib/
 	
+	#Install pre/post inst/rm scripts 
+	install -Dp -m0755 packaging/debian/preinst debian/drls/DEBIAN/preinst
+	install -Dp -m0755 packaging/debian/prerm debian/drls/DEBIAN/prerm
+	install -Dp -m0755 packaging/debian/postinst debian/drls/DEBIAN/postinst
+	install -Dp -m0755 packaging/debian/postrm debian/drls/DEBIAN/postrm
+
+	install -Dp -m0644 packaging/debian/conffiles debian/drls/DEBIAN/conffiles
+	install -Dp -m0644 packaging/debian/control debian/drls/DEBIAN/control
+#	install -Dp -m0644 packaging/debian/md5sums debian/drls/DEBIAN/md5sums
+
+
 	# patch drls main script with correct locations for drls components
 	sed -i  \
 		-e 's#^CONFIG_DIR=.*#CONFIG_DIR="/etc/drls"#' \
@@ -72,6 +84,7 @@ binary-indep: build
 	dh_link
 	dh_strip
 	dh_fixperms
+#	dh_installdeb  # Install prerm preinst portrm postinst conffiles
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums

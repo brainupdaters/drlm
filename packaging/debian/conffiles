@@ -1,8 +1,2 @@
 /etc/drls/local.conf
 /etc/drls/site.conf
-/var/lib/drls/backup.data
-/var/lib/drls/client.data
-/var/lib/drls/network.data
-/var/lib/drls/.ids/.idcount.network
-/var/lib/drls/.ids/.idcount.client
-/var/lib/drls/.ids/.idcount.backups
