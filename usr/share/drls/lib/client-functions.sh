@@ -35,62 +35,30 @@ function get_client_id_by_name(){
 
 function get_client_ip(){
   local CLI_ID=$1
-# Check if parameter $1 is ok
-  if exist_client_id "$CLI_ID" ;
-  then
-	# Get client ip from database and return it
-	CLI_IP=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $4}'`
-	eval echo $CLI_IP
-	return 0
-  else
-	# Error client not exist "exit X"?
-	return 1
-  fi
+  # Get client ip from database and return it
+  CLI_IP=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $4}'`
+  echo $CLI_IP
 }
 
 function get_client_name(){
   local CLI_ID=$1
-# Check if parameter $1 is ok
-  if exist_client_id "$CLI_ID" ;
-  then
-	# Get client name from database and return it
-	CLI_NAME=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $2}'`
-	eval echo $CLI_NAME
-	return 0
-  else
-	# Error client not exist "exit X"?
-	return 1
-  fi
+  # Get client name from database and return it
+  CLI_NAME=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $2}'`
+  echo $CLI_NAME
 }
 
 function get_client_mac(){
  local CLI_ID=$1
-  # Check if parameter $1 is ok
-  if exist_client_id "$CLI_ID" ;
-  then
-	# Get client mac from database and return it
-	CLI_MAC=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $3}'`
-	eval echo $CLI_MAC	
-	return 0
-  else
-	# Error client not exist "exit X"?
-	return 1
-  fi
+  # Get client mac from database and return it
+  CLI_MAC=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $3}'`
+  echo $CLI_MAC	
 }
 
 function get_client_net(){
  local CLI_ID=$1
-  # Check if parameter $1 is ok
-  if exist_client_id "$CLI_ID" ;
-  then
-        # Get client net from database and return it
-        CLI_NET=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $6}'`
-        eval echo $CLI_NET
-        return 0
-  else
-        # Error client not exist "exit X"?
-        return 1
-  fi
+  # Get client net from database and return it
+  CLI_NET=`grep -w ^$CLI_ID $CLIDB|awk -F":" '{print $6}'`
+  echo $CLI_NET
 }
 
 
@@ -190,7 +158,7 @@ function exist_client_mac () {
  local CLI_MAC=$1
  grep -w $CLI_MAC $CLIDB|awk -F":" '{print $3}'|grep $CLI_MAC &> /dev/null
  if [ $? == 0 ];then return 0; else return 1; fi
-      # Check if parameter $1 is ok and if exists client with this id in database. Return 0 for ok, return 1 not ok.
+ # Check if parameter $1 is ok and if exists client with this id in database. Return 0 for ok, return 1 not ok.
  }
 
 
@@ -204,53 +172,33 @@ function exist_client_ip () {
 function mod_client_name (){
  local CLI_ID=$1
  local CLI_NAME=$2
- if exist_client_id "$CLI_ID";
- then 
-	CLI_NAME_OLD=$(get_client_name $CLI_ID)
-	ex -s -c ":/^${CLI_ID}/s/${CLI_NAME_OLD}/${CLI_NAME}/g" -c ":wq" ${CLIDB}
-	if [ $? -eq 0 ];then return 0; else return 1; fi
- else
-	return 1		
- fi
+ CLI_NAME_OLD=$(get_client_name $CLI_ID)
+ ex -s -c ":/^${CLI_ID}/s/${CLI_NAME_OLD}/${CLI_NAME}/g" -c ":wq" ${CLIDB}
+ if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function mod_client_ip (){
  local CLI_ID=$1
  local CLI_IP=$2
- if exist_client_id "$CLI_ID";
- then 
-	CLI_IP_OLD=$(get_client_ip $CLI_ID)
-	ex -s -c ":/^${CLI_ID}/s/${CLI_IP_OLD}/${CLI_IP}/g" -c ":wq" ${CLIDB}
-	if [ $? -eq 0 ];then return 0; else return 1; fi
- else
-	return 1		
- fi
+ CLI_IP_OLD=$(get_client_ip $CLI_ID)
+ ex -s -c ":/^${CLI_ID}/s/${CLI_IP_OLD}/${CLI_IP}/g" -c ":wq" ${CLIDB}
+ if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function mod_client_mac (){
  local CLI_ID=$1
  local CLI_MAC=$2
- if exist_client_id "$CLI_ID";
- then 
-	CLI_MAC_OLD=$(get_client_mac $CLI_ID)
-	ex -s -c ":/^${CLI_ID}/s/${CLI_MAC_OLD}/${CLI_MAC}/g" -c ":wq" ${CLIDB}
-	if [ $? -eq 0 ];then return 0; else return 1; fi
- else
-	return 1		
- fi
+ CLI_MAC_OLD=$(get_client_mac $CLI_ID)
+ ex -s -c ":/^${CLI_ID}/s/${CLI_MAC_OLD}/${CLI_MAC}/g" -c ":wq" ${CLIDB}
+ if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function mod_client_net (){
  local CLI_ID=$1
  local CLI_NET=$2
- if exist_client_id "$CLI_ID";
- then
-        CLI_NET_OLD=$(get_client_net $CLI_ID)
-        ex -s -c ":/^${CLI_ID}/s/${CLI_NET_OLD}/${CLI_NET}/g" -c ":wq" ${CLIDB}
-        if [ $? -eq 0 ];then return 0; else return 1; fi
- else
-        return 1
- fi
+ CLI_NET_OLD=$(get_client_net $CLI_ID)
+ ex -s -c ":/^${CLI_ID}/s/${CLI_NET_OLD}/${CLI_NET}/g" -c ":wq" ${CLIDB}
+ if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
  
