@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    upgrade)
+	mv /var/lib/drls/.ids.save /var/lib/drls/.ids
+	mv /var/lib/drls/client.data.save /var/lib/drls/client.data
+	mv /var/lib/drls/network.data.save /var/lib/drls/network.data
+	mv /var/lib/drls/backup.data.save /var/lib/drls/backup.data
+	mv /var/lib/drls/calendar.data.save /var/lib/drls/calendar.data	
+	;;
+
+    *)
+        echo "postrm called with unknown argument \`$1'" >&2
+        exit 0
+        ;;
+esac
+
+exit 0

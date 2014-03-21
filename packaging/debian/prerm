@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove)
+	service drls-stord stop
+	mv /var/lib/drls/.ids /var/lib/drls/.ids.save
+	mv /var/lib/drls/client.data /var/lib/drls/client.data.save
+	mv /var/lib/drls/network.data /var/lib/drls/network.data.save
+	mv /var/lib/drls/backup.data /var/lib/drls/backup.data.save
+	mv /var/lib/drls/calendar.data /var/lib/drls/calendar.data.save
+        ;;
+
+    upgrade)
+	service drls-stord stop
+	mv /var/lib/drls/.ids /var/lib/drls/.ids.save
+	mv /var/lib/drls/client.data /var/lib/drls/client.data.save
+	mv /var/lib/drls/network.data /var/lib/drls/network.data.save
+	mv /var/lib/drls/backup.data /var/lib/drls/backup.data.save
+	mv /var/lib/drls/calendar.data /var/lib/drls/calendar.data.save
+	;;
+
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 0
+        ;;
+esac
+
+exit 0

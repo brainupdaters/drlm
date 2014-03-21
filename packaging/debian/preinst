@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    install)
+        # do some magic
+        ;;
+
+    upgrade)
+	#service drls-stord stop
+	;;
+
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 0
+        ;;
+esac
+
+exit 0
