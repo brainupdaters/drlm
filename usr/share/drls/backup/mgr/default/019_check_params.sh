@@ -15,13 +15,14 @@ if test -n "$CLI_NAME"; then
 	fi
 fi
 
-#if test -n "$BKP_ID"; then
-#        Log "Checking if Backup ID: ${BKP_ID} is registered in DRLS database ..."
-#        if exist_backup_id "$BKP_ID" ;
-#        then
-#                Log "${BKP_ID} found in DRLS database!"
-#        else
-#                Error "$PROGRAM: Backup ID: $BKP_ID not registered!"
-#        fi
-#fi
+# Check if the target backup ID is in DRLS database
+if test -n "$BKP_ID"; then
+        Log "Checking if Backup ID: ${BKP_ID} is registered in DRLS database ..."
+        if exist_backup_id "$BKP_ID" ;
+        then
+                Log "${BKP_ID} found in DRLS database!"
+        else
+                Error "$PROGRAM: Backup ID: $BKP_ID not registered!"
+        fi
+fi
 

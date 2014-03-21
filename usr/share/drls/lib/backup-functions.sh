@@ -187,34 +187,34 @@ function get_active_cli_bkp_from_db() {
 # Return Active Backup ID or Null string
 }
 
-function enable_nfs_fs_ro() {
-	local CLI_NAME=$1
+#function enable_nfs_fs_ro() {
+#	local CLI_NAME=$1
+#
+#	exportfs -vo ro,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+#	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+#
+## Return 0 if OK or 1 if NOK
+#}
 
-	exportfs -vo ro,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+#function enable_nfs_fs_rw() {
+#	local CLI_NAME=$1
+#
+#	exportfs -vo rw,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+#	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+#
+## Return 0 if OK or 1 if NOK
+#}
 
-# Return 0 if OK or 1 if NOK
-}
+#function disable_nfs_fs() {
+#	local CLI_NAME=$1
+#
+#	exportfs -vu ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+#	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+#
+## Return 0 if OK or 1 if NOK
+#}
 
-function enable_nfs_fs_rw() {
-	local CLI_NAME=$1
-
-	exportfs -vo rw,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
-
-# Return 0 if OK or 1 if NOK
-}
-
-function disable_nfs_fs() {
-	local CLI_NAME=$1
-
-	exportfs -vu ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
-
-# Return 0 if OK or 1 if NOK
-}
-
-function get_dr_file_name() {
+function gen_dr_file_name() {
 	local CLI_NAME=$1
 	local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
 	local DR_NAME="$CLI_NAME.$BKP_ID.dr"
@@ -250,6 +250,29 @@ function move_files_to_img() {
 
 	tar -C ${STORDIR}/${CLI_NAME} -cf - . | (cd ${MNTDIR}; tar xf -)
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function exist_backup_id () {
+  local BKP_ID=$1
+  grep -w ^$BKP_ID $BKPDB|awk -F":" '{print $1}'|grep $BKP_ID &> /dev/null
+  if [ $? == 0 ];then return 0; else return 1; fi
+  
+# Return 0 if OK or 1 if NOK
+}
+
+function exist_dr_file_db() {
+  local DR_NAME=$1
+  grep -w $DR_NAME $BKPDB|awk -F":" '{print $3}'|grep $DR_NAME &> /dev/null
+  if [ $? == 0 ];then return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function exist_dr_file_fs() {
+  local DR_NAME=$1
+   if [ -f $ARCHDIR/$DR_NAME ];then return 0; else return 1; fi
 
 # Return 0 if OK or 1 if NOK
 }

@@ -69,6 +69,32 @@ function generate_nfs_exports() {
 #Generates the nfs configuration file from CLIDB
 }
 
+function enable_nfs_fs_ro() {
+        local CLI_NAME=$1
+
+        exportfs -vo ro,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+        if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function enable_nfs_fs_rw() {
+        local CLI_NAME=$1
+
+        exportfs -vo rw,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+        if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
+
+function disable_nfs_fs() {
+        local CLI_NAME=$1
+
+        exportfs -vu ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+        if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+
+# Return 0 if OK or 1 if NOK
+}
 
 function reload_nfs() {
 	exportfs -a
