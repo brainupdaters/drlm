@@ -280,3 +280,57 @@ function exist_dr_file_fs() {
 
 # Return 0 if OK or 1 if NOK
 }
+
+function register_backup() {
+	local BKP_ID=$1
+	local CLI_ID=$2
+	local CLI_NAME=$3
+	local DR_FILE=$4
+	local BKP_MODE=$5
+	local BKP_IS_ACTIVE=true
+
+# MARK LAST ACTIVE BACKUP AS INACTIVE
+	local A_BKP_ID=$(grep -w ${CLI_NAME} ${BKPDB} | awk -F":" '{print $1,$5}'| grep -w "true" | awk '{print $1}')
+	if [ -n "$A_BKP_ID" ]; then
+		ex -s -c ":/^${A_BKP_ID}/s/true/false/g" -c ":wq" ${BKPDB}
+		if [ $? -eq 0 ]; then return 0; else return 1; fi
+	else
+		return 1
+	fi
+
+# REGISTER BACKUP TO DATABASE
+	local A_BKP=$(grep -w ${CLI_NAME} ${BKPDB} | grep -v "false" | wc -l)
+
+	if [ $A_BKP -eq 0 ]; then
+		echo "${BKP_ID}:${CLI_ID}:${DR_NAME}:${BKP_MODE}:${BKP_IS_ACTIVE}:::" | tee -a ${BKPDB}
+		if [ $? -eq 0 ]; then return 0; else return 1; fi
+	else
+		return 1
+	fi
+}
+
+function del_backup() {
+	local BKP_ID=$1
+	local DR_FILE=$2
+
+	rm -vf ${ARCHDIR}/${DR_FILE}
+	ex -s -c ":g/^${BKP_ID}/d" -c ":wq" ${BKPDB}
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function clean_backups() {
+
+	local N_BKP=$(grep -w ${CLI_NAME} ${BKPDB} | wc -l)
+
+	if [ ${N_BKP} -gt ${HISTBKPMAX} ]
+	then
+		BKPID2CLR=$(grep -w ${CLI_NAME} ${BKPDB} | grep -v true | awk -F":" '{print $1}' | sort -n | head -1)
+		DRFILE2CLR=$(grep -w ^${BKPID2CLR} ${BKPDB} | awk -F":" '{print $3}')
+		
+		del_backup ${BKPID2CLR} ${DRFILE2CLR}
+		if [ $? -eq 0 ]; then return 0; else return 1; fi
+	else
+		return 0
+	fi
+}
+
