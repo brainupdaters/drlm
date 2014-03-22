@@ -14,10 +14,11 @@ read the Disaster Recovery Linux Server User Guide.
 REQUIREMENTS
 ------------
 isc-dhcpd
-nfs
-tftp
+nfs-server
+tftpd
 bash
-gcal
+syslinux
+
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
 we don't list them as requirements. In case your specific workflow requires
@@ -61,19 +62,19 @@ Available options:
 
 List of commands:
 
- addbackup       register backup to database (Not yet implemented)
- addclient       add client to database (Not yet implemented)
- addnetwork      add network to DRLS (Not yet implemented)
- delbackup       delete client backup and unregister from database (Not yet implemented)
- delclient       delete client (Not yet implemented)
- delnetwork      delete network from DRLS (Not yet implemented)
- listbackup      list client backups (Not yet implemented)
- listclient      list clients (Not yet implemented)
- listnetwork     list networks (Not yet implemented)
- modbackup       change backup properties (Not yet implemented)
- modclient       modify client (Not yet implemented)
- modnetwork      change network properties (Not yet implemented)
-*runbackup       run client backup and register to database (NEW!)
+ addbackup       register backup to DB. (Not yet implemented)
+ addclient       register new client to DB. (NEW!)
+ addnetwork      register new network to DB. (NEW!)
+ bkpmgr          manage DRLS backup states. (NEW!)
+ delbackup       delete backup and unregister from DB. (Not yet implemented)
+ delclient       delete client from DB. (NEW!)
+ delnetwork      delete network from DB. (NEW!)
+ listbackup      list client backups.  (NEW!)
+ listclient      list existent clients. (NEW!)
+ listnetwork     list existent networks. (NEW!)
+ modclient       modify client properties. (NEW!)
+ modnetwork      modify network properties. (NEW!)
+ runbackup       run backup and register to DB. (NEW!)
  
  
  
