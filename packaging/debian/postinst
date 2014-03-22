@@ -7,7 +7,8 @@ case "$1" in
 	[ -f /var/lib/drls/backup.data.save ] && mv /var/lib/drls/backup.data.save /var/lib/drls/backup.data
 	[ -f /var/lib/drls/network.data.save ] && mv /var/lib/drls/network.data.save /var/lib/drls/network.data
 	[ -f /var/lib/drls/calendar.data.save ] && mv /var/lib/drls/calendar.data.save /var/lib/drls/calendar.data
-	[ -e var/lib/drls/.ids.save ] && mv /var/lib/drls/.ids.save /var/lib/drls/.ids
+	[ -e /var/lib/drls/.ids/.idcount.client.save ] && mv /var/lib/drls/.ids/.idcount.client.save /var/lib/drls/.ids/.idcount.client
+	[ -e /var/lib/drls/.ids/.idcount.network.save ] && mv /var/lib/drls/.ids/.idcount.network.save /var/lib/drls/.ids/.idcount.network
 	service drls-stord start
 	;;
 
