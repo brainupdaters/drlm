@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -22,9 +22,9 @@ WORKFLOW_listnetwork_DESCRIPTION="list networks"
 WORKFLOWS=( ${WORKFLOWS[@]} listnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listnetwork )
 
-if [ $WORKFLOW == "listnetwork" ]; then 
+if [ "$WORKFLOW" == "listnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "n:a" -l "netname:,all" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "n:A" -l "netname:,all" -- "$@")"
 	if (( $? != 0 )); then
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
@@ -44,7 +44,7 @@ if [ $WORKFLOW == "listnetwork" ]; then
 				fi
 				shift 
 				;;
-	                (-a|--all)
+	                (-A|--all)
 				NET_NAME="all" 
 				;;
 	                (--) shift; break;;

@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -22,9 +22,9 @@ WORKFLOW_modnetwork_DESCRIPTION="change network properties"
 WORKFLOWS=( ${WORKFLOWS[@]} modnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modnetwork )
 
-if [ $WORKFLOW == "modnetwork" ]; then 
+if [ "$WORKFLOW" == "modnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "i:n:g:m:s:" -l "id:,netname:,gateway:,mask:,server:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "I:n:g:m:s:" -l "id:,netname:,gateway:,mask:,server:" -- "$@")"
 	if (( $? != 0 )); then
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
@@ -33,7 +33,7 @@ if [ $WORKFLOW == "modnetwork" ]; then
 	eval set -- "$OPT"
 	while true; do
 	        case "$1" in
-	                (-i|--id)
+	                (-I|--id)
 							# We need to take the option argument
 							if [ -n "$2" ]
 							then 

@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -22,9 +22,9 @@ WORKFLOW_delnetwork_DESCRIPTION="delete network from DRLS"
 WORKFLOWS=( ${WORKFLOWS[@]} delnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delnetwork )
 
-if [ $WORKFLOW == "delnetwork" ]; then 
+if [ "$WORKFLOW" == "delnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "n:i:" -l "netname:,id:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "n:I:" -l "netname:,id:" -- "$@")"
 	if (( $? != 0 )); then
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
@@ -44,7 +44,7 @@ if [ $WORKFLOW == "delnetwork" ]; then
 				fi
 				shift 
 				;;
-	                (-i|--id)
+	                (-I|--id)
 				# We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
 				then 

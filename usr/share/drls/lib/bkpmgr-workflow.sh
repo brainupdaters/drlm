@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
 
 if [ "$WORKFLOW" == "bkpmgr" ]; then
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:i:edP" -l "client:,id:,enable,disable" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:edP" -l "client:,id:,enable,disable" -- "$@")"
 
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM --help' for more information."
@@ -47,7 +47,7 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
                                 fi
                                 shift
                                 ;;
-                        (-i|--id)
+                        (-I|--id)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then

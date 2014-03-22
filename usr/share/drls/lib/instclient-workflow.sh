@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
 if [ $WORKFLOW == "instclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:i:d:r:" -l "client:,idcli:,distro,release" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:D:R:" -l "client:,id:,distro:,release:" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM --help' for more information."
                 exit 1
@@ -44,7 +44,7 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift 
                                 ;;
-                        (-i|--idcli)
+                        (-I|--id)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
@@ -55,7 +55,7 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi 
                                 shift
                                 ;;
-			(-d|--distro)
+			(-D|--distro)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then
@@ -66,7 +66,7 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift
                                 ;;
-			(-r|--release)
+			(-R|--release)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then

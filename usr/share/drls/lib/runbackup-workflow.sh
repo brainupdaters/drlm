@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -22,9 +22,9 @@ WORKFLOW_runbackup_DESCRIPTION="run client backup and register to database"
 WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
-if [ $WORKFLOW == "runbackup" ]; then 
+if [ "$WORKFLOW" == "runbackup" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:i:" -l "client:,id:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:I:" -l "client:,id:" -- "$@")"
 	if (( $? != 0 )); then
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
@@ -44,7 +44,7 @@ if [ $WORKFLOW == "runbackup" ]; then
 				fi
 				shift 
 				;;
-	                (-i|--id)
+	                (-I|--id)
 				# We need to take the option argument
 	                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
 				then 

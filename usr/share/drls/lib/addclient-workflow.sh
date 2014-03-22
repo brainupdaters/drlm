@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -22,9 +22,9 @@ WORKFLOW_addclient_DESCRIPTION="add client to database"
 WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
 
-if [ $WORKFLOW == "addclient" ]; then 
+if [ "$WORKFLOW" == "addclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:a:m:n:" -l "client:,ipaddr:,macaddr:,netname:" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:" -l "client:,ipaddr:,macaddr:,netname:" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM --help' for more information."
                 exit 1
@@ -44,7 +44,7 @@ if [ $WORKFLOW == "addclient" ]; then
                                 fi
                                 shift 
                                 ;;
-                        (-a|--ipaddr)
+                        (-i|--ipaddr)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 
@@ -55,7 +55,7 @@ if [ $WORKFLOW == "addclient" ]; then
                                 fi 
                                 shift
                                 ;;
-                        (-m|--macaddr)
+                        (-M|--macaddr)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then 

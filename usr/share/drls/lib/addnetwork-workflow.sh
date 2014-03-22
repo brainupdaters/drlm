@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -22,9 +22,9 @@ WORKFLOW_addnetwork_DESCRIPTION="add network to DRLS"
 WORKFLOWS=( ${WORKFLOWS[@]} addnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addnetwork )
 
-if [ $WORKFLOW == "addnetwork" ]; then 
+if [ "$WORKFLOW" == "addnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "n:a:g:m:s:" -l "netname:,ipaddr:,gateway:,mask:,server:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "n:i:g:m:s:" -l "netname:,ipaddr:,gateway:,mask:,server:" -- "$@")"
 	if (( $? != 0 )); then
 	        echo "Try \`$PROGRAM --help' for more information."
 	        exit 1
@@ -44,7 +44,7 @@ if [ $WORKFLOW == "addnetwork" ]; then
 							fi
 							shift 
 							;;
-	                (-a|--ipaddr)
+	                (-i|--ipaddr)
 							# We need to take the option argument
 							if [ -n "$2" ]
 							then 

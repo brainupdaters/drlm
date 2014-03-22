@@ -13,7 +13,7 @@
 #    GNU General Public License for more details.
 
 #    You should have received a copy of the GNU General Public License
-#    along with Relax-and-Recover; if not, write to the Free Software
+#    along with Disaster Recovery Linux Server; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 #
@@ -22,7 +22,7 @@ WORKFLOW_delbackup_DESCRIPTION="delete client backup and unregister from databas
 WORKFLOWS=( ${WORKFLOWS[@]} delbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delbackup )
 
-if [ $WORKFLOW == "delbackup" ]; then 
+if [ "$WORKFLOW" == "delbackup" ]; then 
     echo "" > /dev/null
 fi
 
