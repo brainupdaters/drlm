@@ -132,6 +132,7 @@ Professional services and support are available.
 %{_datadir}/drls/
 %config(noreplace) %{_localstatedir}/lib/drls/
 %{_sbindir}/drls
+%{_sysconfdir}/init.d/drls-stord
 
 %changelog
 * Sun Dec 08 2013 Didac Oliveira
