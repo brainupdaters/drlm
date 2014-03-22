@@ -63,18 +63,18 @@ Available options:
 List of commands:
 
  addbackup       register backup to DB. (Not yet implemented)
- addclient       register new client to DB. (NEW!)
- addnetwork      register new network to DB. (NEW!)
- bkpmgr          manage DRLS backup states. (NEW!)
+ *addclient       register new client to DB. (NEW!)
+ *addnetwork      register new network to DB. (NEW!)
+ *bkpmgr          manage DRLS backup states. (NEW!)
  delbackup       delete backup and unregister from DB. (Not yet implemented)
- delclient       delete client from DB. (NEW!)
- delnetwork      delete network from DB. (NEW!)
- listbackup      list client backups.  (NEW!)
- listclient      list existent clients. (NEW!)
- listnetwork     list existent networks. (NEW!)
- modclient       modify client properties. (NEW!)
- modnetwork      modify network properties. (NEW!)
- runbackup       run backup and register to DB. (NEW!)
+ *delclient       delete client from DB. (NEW!)
+ *delnetwork      delete network from DB. (NEW!)
+ *listbackup      list client backups.  (NEW!)
+ *listclient      list existent clients. (NEW!)
+ *listnetwork     list existent networks. (NEW!)
+ *modclient       modify client properties. (NEW!)
+ *modnetwork      modify network properties. (NEW!)
+ runbackup       run backup and register to DB.
  
  
  
