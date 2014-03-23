@@ -123,7 +123,7 @@ if [ ! -L ${STORDIR}/pxelinux.cfg/01-${F_CLI_MAC} ] && [ -e ${STORDIR}/${CLI_NAM
 then
 	Log "Creating MAC Address link to PXE boot file for client: ${CLI_NAME} ..."
         cd ${STORDIR}/pxelinux.cfg
-        ln -s ../${CLI_NAME}/rear-${CLI_NAME}* 01-${F_CLI_MAC}
+        ln -s ../${CLI_NAME}/PXE/rear-${CLI_NAME}* 01-${F_CLI_MAC}
         if [ $? -ne 0 ]
         then
                 Error "ln -s ../${CLI_NAME}/rear-${CLI_NAME}* 01-${CLI_MAC} failed!"
