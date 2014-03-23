@@ -51,7 +51,7 @@ uid=`id | cut -d\( -f1 | cut -d= -f2`
 [ -f /etc/debian_version  ] && OSTYPE="Debian"
 
 # Be sure loop module is loaded
-$(/sbin/modprobe -q loop) || exit 0
+#$(/sbin/modprobe -q loop) || exit 0
 
 
 enable_loop_ro() {
@@ -59,13 +59,13 @@ enable_loop_ro() {
 	local DR_IMG=$2
 	
 	/sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_IMG} >> /dev/null &2>1  
-	return $?
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
 disable_loop() {
 	local LO_DEV=$1
 	
 	/sbin/losetup -d ${LO_DEV} >> /dev/null &2>1
-	return $?
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
 
 do_mount() {
@@ -73,13 +73,13 @@ do_mount() {
 	local CLI=$2
 	
 	/bin/mount -t ext2 -o ro ${FS_DEV} ${STORDIR}/${CLI} >> /dev/null &2>1
-	return $?
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
 do_umount() {
 	local FS_DEV=$1
 	
 	/bin/umount ${FS_DEV} >> /dev/null &2>1
-	return $?
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
 
 
@@ -108,7 +108,7 @@ case "$OSTYPE" in
 		;;
 	  stop)
 		echo -n $"Shutting down $DESC: "
-		for lo_dev in $(mount -l |grep loop| grep "(ro," | awk '{print $1}')
+		for lo_dev in $(mount -l |grep loop| grep "(ro)" | awk '{print $1}')
 		do
 			echo -n $"Umounting DR Images: "
 			do_umount ${lo_dev}
@@ -125,7 +125,7 @@ case "$OSTYPE" in
 		echo -n $"Getting Status from $DESC: "
 		printf '%-15s\n' "$(tput bold)"
 		printf '%-15s %-10s %-25s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
-		mount -l|grep loop|grep "(ro,"|while read line;
+		mount -l|grep loop|grep "(ro)"|while read line;
 		do
 			LO_DEV=$(echo -e $line | awk '{print $1}')
 			MNTDIR=$(echo -e $line | awk '{print $3}')
