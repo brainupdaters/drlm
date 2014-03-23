@@ -1,11 +1,7 @@
-#echo $RELEASE
-#echo ${DEPDIR}
-#echo ${DISTRO}
-echo $RELEASE
-echo $VERSION
-
-case ${DISTRO} in
- Debian)
+if [ -z $USER ] || [ $USER == "root" ]
+then
+ case ${DISTRO} in
+  Debian)
 	case $RELEASE in
 		[6*-7*])
 			if check_apt $CLI_NAME root
@@ -27,7 +23,7 @@ case ${DISTRO} in
 			ssh root@${CLI_NAME} sed -i "/$(cat /root/.ssh/id_rsa.pub|awk '{print $3}')/d" /root/.ssh/authorized_keys
 			;;
 		*)
-			echo "Release OS not identified!"
+ 			echo "Release OS not identified!"
 			;;
 	esac
 	;;
@@ -36,7 +32,7 @@ case ${DISTRO} in
 		[5*-6*])
 			if check_yum $CLI_NAME root
 			then
-				ssh root@$CLI_NAME 'yum install -y mingetty syslinux genisoimage mkisofs redhat-lsb-core parted netcat wget'
+				ssh root@$CLI_NAME 'yum install -y mingetty syslinux genisoimage mkisofs redhat-lsb-core parted'
 				case $RELEASE in
 					5*)
 						wget -O /tmp/rear-1.15-9.el5.noarch.rpm http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/RedHat_RHEL-5/noarch/rear-1.15-9.el5.noarch.rpm
@@ -69,5 +65,7 @@ case ${DISTRO} in
  *)
 	echo "Distribution not identified"
 	;;
-esac
-
+ esac
+else
+	echo "Install process with user $USER"
+fi
