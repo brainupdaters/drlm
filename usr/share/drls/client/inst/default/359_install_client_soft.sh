@@ -10,7 +10,7 @@ case ${DISTRO} in
 		[6*-7*])
 			if check_apt $CLI_NAME root
 			then 
-				ssh root@$CLI_NAME 'apt-get install -y apt-get install -y mingetty syslinux genisoimage lsb-release parted nfs-common'
+				ssh root@$CLI_NAME 'apt-get install -y mingetty syslinux genisoimage lsb-release parted nfs-common'
 				ssh root@$CLI_NAME 'wget -O /tmp/rear_1.15_all.deb http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/Debian_7.0/all/rear_1.15_all.deb'
 				ssh root@$CLI_NAME 'dpkg -i /tmp/rear_1.15_all.deb'
 			else
