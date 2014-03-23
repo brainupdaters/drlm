@@ -23,7 +23,7 @@ then
 fi
 if [ ! -f /root/.ssh/id_rsa.pub ] 
 then
-	ssh-keygen -t rsa -b 2048 -f /root/.ssh/id_rsa -N ""
+	ssh-keygen -t rsa -b 2048 -f /root/.ssh/id_rsa 
 	if [ $? -ne 0  ]; then  Error "$PROGRAM: ssh-keygen failed!" ;fi
 fi 
 
