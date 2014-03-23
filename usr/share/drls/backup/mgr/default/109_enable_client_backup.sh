@@ -10,12 +10,17 @@ if [ -n "$DR_FILE" ]; then
 	enable_nfs_fs_ro ${CLI_NAME}
 	# Error handling
         if [ "$MODE" == "perm" ]; then
-                enable_backup_db ${BKP_ID}
-        	if [ $? -eq 0 ]; then
-        		Log "${CLI_NAME} DR backup (ID: ${BKP_ID}) tagged as active in database ..."
-        	else
-        		Error "${CLI_NAME} DR backup (ID: ${BKP_ID}) can not be tagged as active! Failed!"
-        	fi
+		A_BKP_ID_DB=$(get_active_cli_bkp_from_db ${CLI_NAME})
+                if [ "$A_BKP_ID_DB" != "$BKP_ID" ]; then
+                	enable_backup_db ${BKP_ID}
+        		if [ $? -eq 0 ]; then
+        			Log "${CLI_NAME} DR backup (ID: ${BKP_ID}) tagged as active in database ..."
+        		else
+        			Error "${CLI_NAME} DR backup (ID: ${BKP_ID}) can not be tagged as active! Failed!"
+        		fi
+		else
+			Log "${CLI_NAME} DR backup (ID: ${BKP_ID}) is default active in DB. No DB update needed ..."
+		fi
         fi
 
 fi

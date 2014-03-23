@@ -24,7 +24,8 @@ if [ -n "$A_DR_FILE" ]; then
         disable_loop ${CLI_ID}
 
         if [ "$MODE" == "perm" ]; then
-                A_BKP_ID_DB=$(grep -w ${CLI_NAME} ${BKPDB} | awk -F":" '{print $1,$5}'| grep -w "true" | awk '{print $1}')
+                #A_BKP_ID_DB=$(grep -w ${CLI_NAME} ${BKPDB} | awk -F":" '{print $1,$5}'| grep -w "true" | awk '{print $1}')
+		A_BKP_ID_DB=$(get_active_cli_bkp_from_db ${CLI_NAME})
                 A_BKP_ID=$(echo ${A_DR_FILE} | awk -F"." '{print $2}')
                 if [ "$A_BKP_ID" == "$A_BKP_ID_DB" ] || [ "$ENABLE" == "yes" ]; then
                         disable_backup_db ${A_BKP_ID_DB}
