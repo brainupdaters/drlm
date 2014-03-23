@@ -26,106 +26,144 @@ fi
 Log "Packing DRLS DR Image ..."
 
 
-# Check espai del DR i BKPID:
-
-DATA_SIZE=$(du -sm ${STORDIR}/${CLI_NAME}|awk '{print $1}')
-INC_SIZE=$((${DATA_SIZE}*5/100))
-
-DR_SIZE=$((${DATA_SIZE}+${INC_SIZE}))
-
-# Crear IMG del tamany DR_SIZE:
-
-BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
-DR_NAME="$CLI_NAME.$BKP_ID.dr"
-
-dd if=/dev/zero of=${ARCHDIR}/${DR_NAME} bs=1024k seek=${DR_SIZE} count=0
-if [ $? -ne 0 ]; then
-	Error " failed!"
+DR_FILE=$(gen_dr_file_name ${CLI_NAME})
+if [ -z "${DR_FILE}" ]; then
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Problem getting DR file name! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Problem getting DR file name! aborting ..."
+fi
+if make_img_raw ${DR_FILE} ;
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:MAKE(raw):DR:${DR_FILE}: .... Success!"
+else
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:MAKE(raw):DR:${DR_FILE}: Problem creating DR image file (raw)! aborting ..."
+        Error "$PROGRAM:$WORKFLOW:postbackup:MAKE(raw):DR:${DR_FILE}: Problem creating DR image file (raw)! aborting ..."
 fi
 
 # crear loop:
 
-losetup /dev/loop${CLI_ID} ${ARCHDIR}/${DR_NAME}
-if [ $? -ne 0 ]; then
-	Error " failed!"
+if enable_loop_rw ${CLI_ID} ${DR_FILE} ;
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(rw):DR:${DR_FILE}: .... Success!"
+else
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(rw):DR:${DR_FILE}: Problem enabling Loop Device (rw)! aborting ..."
+        Error "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(rw):DR:${DR_FILE}: Problem enabling Loop Device (rw)! aborting ..."
 fi
-
 # Fromat loop:
 
-mkfs.ext2 -m1 /dev/loop${CLI_ID}
-if [ $? -ne 0 ]; then
-	Error " failed!"
-fi
+if do_format_ext2 ${CLI_ID} ;
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:MKFS:ext2:LOOPDEV(${CLI_ID}): .... Success!"
+else
+        report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:MKFS:ext2:LOOPDEV(${CLI_ID}): Problem Formating device (ext2)! aborting ..."
+        Error "$PROGRAM:$WORKFLOW:postbackup:MKFS:ext2:LOOPDEV(${CLI_ID}): Problem Formating device (ext2)! aborting ..."
+fi 
 
 # MUNTAR img:
 
 TMPMNTDIR=$(mktemp -d -t drls-${CLI_NAME}.XXXXXXXXXXXX)
 if [ $? -ne 0 ]; then
-	Error " failed!"
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:MKTEMP:${CLI_NAME}: Problem creating Temporary transfer Directory ! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:postbackup:MKTEMP:${CLI_NAME}: Problem creating Temporary transfer Directory! aborting ..."
 fi
 
-mount -v /dev/loop${CLI_ID} ${TMPMNTDIR}
-if [ $? -ne 0 ]; then
-	Error " failed!"
+if do_mount_rw ${CLI_ID} ${CLI_NAME} ${TMPMNTDIR};
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
+else
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem (rw)! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem (rw)! aborting ..."
 fi
+
+
+
 
 # Move data:
 
-tar -C ${STORDIR}/${CLI_NAME} -cf - . | (cd ${TMPMNTDIR}; tar xf -)
-if [ $? -eq 0 ]; then
-	# Eliminar orig files:
+if move_files_to_img ${CLI_NAME} ${TMPMNTDIR} ;
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:TRANSFER:${CLI_NAME}: .... Success!"
 	rm -rf ${STORDIR}/${CLI_NAME}/*
-	if [ $? -ne 0 ]; then
-		Error " failed!"
-	fi
+        if [ $? -eq 0 ]; then
+                Log "$PROGRAM:$WORKFLOW:postbackup:CLEAN:${STORDIR}/${CLI_NAME}: .... Success!"
+        else
+                Log "WARNING:$PROGRAM:$WORKFLOW:postbackup:CLEAN:${STORDIR}/${CLI_NAME}: Problem cleaning transfered backup files!"
+        fi
+
 else
-	Error "Problem transfering DR image after backup: tar -C ${STORDIR}/${CLI_NAME} -cf - . | (cd ${TMPMNTDIR}; tar xf -)"
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:TRANSFER:${CLI_NAME}: Problem transfering files to DR image! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:postbackup:TRANSFER:${CLI_NAME}: Problem transfering files to DR image! aborting ..."
 fi
 
 # Desmuntar IMG:
+Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Disabling temporary mount for backup transfer ...."
 
-umount /dev/loop${CLI_ID}
-if [ $? -ne 0 ]; then
-	Error " failed!"
+if do_umount ${CLI_ID} ;
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:FS:UMOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
+else
+	report_error "$PROGRAM:$WORKFLOW:postbackup:FS:UMOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): Problem unmounting Filesystem! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:postbackup:FS:UMOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): Problem unmounting Filesystem! aborting ..."
 fi
 
 rm -Rf ${TMPMNTDIR}
-if [ $? -ne 0 ]; then
-	Error " failed!"
+if [ $? -eq 0 ]; then
+	Log "$PROGRAM:$WORKFLOW:postbackup:CLEAN:${TMPMNTDIR}: .... Success!"
+else
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:CLEAN:${TMPMNTDIR}: Problem cleaning Temp Dir! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:postbackup:CLEAN:${TMPMNTDIR}: Problem cleaning Temp Dir! aborting ..."
 fi
 
-losetup -d /dev/loop${CLI_ID}
-if [ $? -ne 0 ]; then
-	Error " failed!"
+
+if disable_loop ${CLI_ID} ;
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):DISABLE:$CLI_NAME: .... Success!"
+else
+	report_error "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):DISABLE:$CLI_NAME: Problem disabling Loop Device! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):DISABLE:$CLI_NAME: Problem disabling Loop Device! aborting ..."
 fi
 
 
-Log "Activating DR image for client: ${CLI_NAME} ..."
+Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Disabling temporary mount for backup transfer .... Success!"
 
-losetup -r /dev/loop${CLI_ID} ${ARCHDIR}/${DR_NAME}
-if [ $? -ne 0 ]; then
-	Error " failed!"
+
+Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLS Store ...."
+
+if enable_loop_ro ${CLI_ID} ${DR_FILE} ;
+then
+	Log "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: .... Success!"
+	if do_mount_ro ${CLI_ID} ${CLI_NAME} ;
+	then
+		Log "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
+		if enable_nfs_fs_ro ${CLI_NAME} ;
+		then
+			Log "$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE(ro):$CLI_NAME: .... Success!"
+		else
+			report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
+			Error "$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
+		fi
+	else
+		report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem!"
+		Error "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem!"
+	fi
+else
+	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: Problem enabling Loop Device (ro)!"
+	Error "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: Problem enabling Loop Device (ro)!"
 fi
 
-mount /dev/loop${CLI_ID} ${STORDIR}/${CLI_NAME}
-if [ $? -ne 0 ]; then
-	Error " failed!"
-fi
-
-exportfs -vo rw,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-if [ $? -ne 0 ]; then
-	Error " failed!"
-fi
-
+Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLS Store .... Success!"
 
 F_CLI_MAC=$(format_mac ${CLI_MAC} "-")
 if [ ! -L ${STORDIR}/pxelinux.cfg/01-${F_CLI_MAC} ] && [ -e ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}* ]
 then
-	Log "Creating MAC Address link to PXE boot file for client: ${CLI_NAME} ..."
+	Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Creating MAC Address link to PXE boot file ...."
         cd ${STORDIR}/pxelinux.cfg
         ln -s ../${CLI_NAME}/PXE/rear-${CLI_NAME}* 01-${F_CLI_MAC}
-        if [ $? -ne 0 ]
-        then
-                Error "ln -s ../${CLI_NAME}/rear-${CLI_NAME}* 01-${CLI_MAC} failed!"
+        if [ $? -eq 0 ]; then
+		Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}:Creating MAC Address link to PXE boot file .... Success!"
+	else
+                report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Problem Creating MAC Address link to PXE boot file! aborting ..."
+                Error "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Problem Creating MAC Address link to PXE boot file! aborting ..."
         fi
 fi
+
+
