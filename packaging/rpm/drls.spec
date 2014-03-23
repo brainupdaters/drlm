@@ -20,38 +20,22 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
 ### Dependencies on all distributions
-#Requires: binutils
-#Requires: ethtool
-#Requires: gzip
-#Requires: iputils
-#Requires: mingetty
-#Requires: parted
-#Requires: tar
-#Requires: util-linux
-#Requires: openssl
-
-### If you require NFS, you may need the below packages
-#Requires: nfsclient portmap rpcbind
-
-### We drop LSB requirements because it pulls in too many dependencies
-### The OS is hardcoded in /etc/drls/os.conf instead
-#Requires: redhat-lsb
-
-### Required for Bacula/MySQL support
-#Requires: bacula-mysql
-
-### Required for OBDR
-#Requires: lsscsi sg3_utils
+Requires: openssh-clients openssl nc
+Requires: wget gzip tar
+Requires: gawk sed grep
+Requires: coreutils util-linux
+Requires: nfs-utils portmap rpcbind 
+Requires: dhcp tftp-server
 
 ### Optional requirement
 #Requires: cfg2html
 
 %ifarch %ix86 x86_64
-#Requires: syslinux
+Requires: syslinux
 %endif
-%ifarch ppc ppc64
+#%ifarch ppc ppc64
 #Requires: yaboot
-%endif
+#%endif
 
 %if %{?suse_version:1}0
 #Requires: iproute2
@@ -68,24 +52,9 @@ BuildArch: noarch
 %endif
 %endif
 
-%if %{?mandriva_version:1}0
-#Requires: iproute2
-### Mandriva switched from 2008 away from mkisofs,
-### and as a specialty call the package cdrkit-genisoimage!
-%if 0%{?mandriva_version} >= 2008
-#Requires: cdrkit-genisoimage
-%else
-#Requires: mkisofs
-%endif
-#Requires: lsb
-%endif
-
 ### On RHEL/Fedora the genisoimage packages provides mkisofs
 %if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
 Requires: crontabs
-#Requires: iproute
-#Requires: mkisofs
-#Requires: redhat-lsb
 %endif
 
 #Obsoletes: 
@@ -109,7 +78,7 @@ Professional services and support are available.
 %{?rhel:echo -e "OS_VENDOR=RedHatEnterpriseServer\nOS_VERSION=%{?rhel}" >etc/drls/os.conf}
 %{?sles_version:echo -e "OS_VENDOR=SUSE_LINUX\nOS_VERSION=%{?sles_version}" >etc/drls/os.conf}
 ### Doesn't work as, suse_version for OpenSUSE 11.3 is 1130
-#%{?suse_version:echo -e "OS_VENDOR=SUSE_LINUX\nOS_VERSION=%{?suse_version}" >etc/drls/os.conf}
+%{?suse_version:echo -e "OS_VENDOR=SUSE_LINUX\nOS_VERSION=%{?suse_version}" >etc/drls/os.conf}
 
 %build
 
@@ -134,6 +103,6 @@ Professional services and support are available.
 %{_sbindir}/drls
 %{_sysconfdir}/init.d/drls-stord
 
-%changelog
-* Sun Dec 08 2013 Didac Oliveira
-- Initial package. 
+#%changelog
+#* Sun Mar 08 2013 Didac Oliveira
+#- Initial package. 

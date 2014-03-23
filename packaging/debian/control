@@ -8,5 +8,5 @@ Package: drls
 Architecture: all
 Provides: drls
 Build-Depends: debhelper (>> 5.0.0)
-Depends: 
+Depends: openssh-client, openssl, netcat-traditional, wget, gzip, tar, gawk, sed, grep, coreutils, util-linux, nfs-kernel-server, rpcbind, isc-dhcp-server, tftpd-hpa, syslinux
 Description: Disaster Recovery Linux Server
