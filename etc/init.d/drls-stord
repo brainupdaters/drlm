@@ -53,7 +53,13 @@ uid=`id | cut -d\( -f1 | cut -d= -f2`
 # Be sure loop module is loaded
 #$(/sbin/modprobe -q loop) || exit 0
 
-
+get_err() {
+        if [ $1 -eq 0 ]; then
+                return 0
+        else
+                return 1
+        fi
+}
 enable_loop_ro() {
 	local LO_DEV="/dev/loop${1}"
 	local DR_IMG=$2
@@ -89,50 +95,53 @@ case "$OSTYPE" in
 	. /etc/rc.d/init.d/functions
 	case "$1" in
 	  start)
-		echo -n $"Starting $DESC: "
+		echo $"Starting $DESC: "
 		for line in $(grep -w "true" ${BKPDB})
 		do
 			cli_id=$(echo ${line} | awk -F":" '{ print $2 }')
 			dr_file=$(echo ${line} | awk -F":" '{ print $3 }')
 			cli_name=$(echo ${dr_file}| cut -d"." -f1)
-			echo -n $"Enabling Loop device: /dev/loop${cli_id}"
-			enable_loop_ro ${cli_id} ${dr_file}
+			action $"Enabling Loop device: /dev/loop${cli_id}: " enable_loop_ro ${cli_id} ${dr_file}
 			rval=$?
 			[ $rval -ne 0 ] && RETVAL=$rval
-			echo -n $"Mounting DR Image: ${dr_file}"
-			do_mount ${cli_id} ${cli_name}
+			action $"Mounting DR Image: ${dr_file}: " do_mount ${cli_id} ${cli_name}
 			rval=$?
 			[ $rval -ne 0 ] && RETVAL=$rval
 		done
 		[ $RETVAL -ne 0 ] && exit $RETVAL
 		;;
 	  stop)
-		echo -n $"Shutting down $DESC: "
+		echo $"Shutting down $DESC: "
 		for lo_dev in $(mount -l |grep loop| grep "(ro)" | awk '{print $1}')
 		do
-			echo -n $"Umounting DR Images: "
-			do_umount ${lo_dev}
+			action $"Umounting DR Images: " do_umount ${lo_dev}
 			rval=$?
 			[ $rval -ne 0 ] && RETVAL=$rval
-			echo -n $"Disabling Loop devices: "
-			disable_loop ${lo_dev}
+			action $"Disabling Loop devices: " disable_loop ${lo_dev}
 			rval=$?
 			[ $rval -ne 0 ] && RETVAL=$rval
 		done
 		[ $RETVAL -ne 0 ] && exit $RETVAL
 		;;
 	  status)
-		echo -n $"Getting Status from $DESC: "
-		printf '%-15s\n' "$(tput bold)"
-		printf '%-15s %-10s %-25s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
-		mount -l|grep loop|grep "(ro)"|while read line;
-		do
-			LO_DEV=$(echo -e $line | awk '{print $1}')
-			MNTDIR=$(echo -e $line | awk '{print $3}')
-			FSTYPE=$(echo -e $line | awk '{print $5}')
-			DRFILE=$(losetup $LO_DEV --show|awk '{print $3}')
-			printf '%-15s %-10s %-25s %-50s\n' $LO_DEV $FSTYPE $MNTDIR $DRFILE
-		done
+		UP=$(/bin/mount -l|grep loop|grep "(ro)"|wc -l)
+                if [ $UP -gt 0 ]; then
+                        RETVAL=0
+                        action $"Getting Status from $DESC: " get_err $RETVAL
+                        printf '%-15s\n' "$(tput bold)"
+                        printf '%-15s %-10s %-25s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
+                        mount -l|grep loop|grep "(ro)"|while read line;
+                        do
+                                LO_DEV=$(echo -e $line | awk '{print $1}')
+                                MNTDIR=$(echo -e $line | awk '{print $3}')
+                                FSTYPE=$(echo -e $line | awk '{print $5}')
+                                DRFILE=$(losetup $LO_DEV --show|awk '{print $3}')
+                                printf '%-15s %-10s %-25s %-50s\n' $LO_DEV $FSTYPE $MNTDIR $DRFILE
+                        done
+                else
+                        RETVAL=1
+                        action $"Getting Status from $DESC: " get_err $RETVAL
+                fi
 		[ $RETVAL -ne 0 ] && exit $RETVAL
 		;;
 	  restart | reload | force-reload)
