@@ -22,9 +22,8 @@ then
 	Error "$PROGRAM: Client named: $CLI_NAME SSH not available!"
 fi
 if [ ! -f /root/.ssh/id_rsa.pub ] 
-
 then
-	sudo su -l root -c ssh-keygen -t rsa -b 2048
+	ssh-keygen -t rsa -b 2048 -f /root/.ssh/id_rsa -N ""
 	if [ $? -ne 0  ]; then  Error "$PROGRAM: ssh-keygen failed!" ;fi
 fi 
 

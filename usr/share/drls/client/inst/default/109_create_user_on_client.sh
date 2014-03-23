@@ -1,6 +1,11 @@
+Log "####################################################"
+Log "#         $CLI_NAME Install process                #"
+Log "####################################################"
+
 ssh-copy-id root@$CLI_NAME
 if [ $? -ne 0  ]; then  Error "$PROGRAM: ssh-copy-id failed!" ;else Log "$PROGRAM: Key succesfully copied to $CLI_NAME"; fi
-RELEASE=$(echo $RELEASE|cut -c 1)
+VERSION=$(echo $RELEASE|cut -c 1)
+RELEASE=$(echo $RELEASE|cut -c 3)
 #Get DISTRO and RELEASE 
 if [ -z "$DISTRO" ] || [ -z "$RELEASE" ]
 then
@@ -8,6 +13,8 @@ then
 	then
         	DISTRO=$(get_distro $CLI_NAME)
 		RELEASE=$(get_release $CLI_NAME)
+		VERSION=$(echo $RELEASE|cut -c 1)
+		RELEASE=$(echo $RELEASE|cut -c 3)
 	else
        		Error "$PROGRAM: Distribution can not be read!"
 	fi

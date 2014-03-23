@@ -355,22 +355,41 @@ function list_client () {
 function get_distro () {
  local CLI_NAME=$1
  local DISTRO=""
- ssh -t root@$CLI_NAME cat /etc/issue &> /dev/null
- if [ $? -eq 0 ]
- then 
-        DISTRO=$(ssh root@$CLI_NAME head -1 /etc/issue | awk '{print $1}')
- fi  
- if [ "$DISTRO" == "" ]; then return 1; else echo $DISTRO; return 0; fi
+ DISTRO=$(ssh root@$CLI_NAME 'if [ -f /etc/debian_version ]; then echo "Debian";fi')
+ if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
+ DISTRO=$(ssh root@$CLI_NAME 'if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo "RedHat";fi')
+ if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
+ DISTRO=$(ssh root@$CLI_NAME 'if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then echo "CentOS";fi')
+ if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
+ if [ "$DISTRO" == "" ]; then return 1; fi
 }
 
 function get_release () {
  local CLI_NAME=$1
  local RELEASE=""
- ssh -t root@$CLI_NAME cat /etc/issue &> /dev/null
- if [ $? -eq 0 ]
- then
-        RELEASE=$(ssh root@$CLI_NAME head -1 /etc/issue | awk '{print $3}'|cut -c 1)
- fi
- if [ "$RELEASE" == "" ]; then return 1; else echo $RELEASE; return 0; fi
+ RELEASE=$(ssh root@$CLI_NAME 'if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi')
+ if [ "$RELEASE" != "" ]; then echo $RELEASE; return 0; fi
+ RELEASE=$(ssh root@$CLI_NAME "if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release|awk '{print $7}';fi")
+ if [ "$RELEASE" != "" ]; then echo $RELEASE|awk '{print $7}'; return 0; fi
+ RELEASE=$(ssh root@$CLI_NAME "if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release|awk '{print $3}';fi")
+ if [ "$RELEASE" != "" ]; then echo $RELEASE|awk '{print $3}'; return 0; fi
+ if [ "$RELEASE" == "" ]; then return 1; fi
 }
+
+function check_apt () {
+ local CLI_NAME=$1
+ local USER=$2
+ if [ $USER == "" ]; then USER=root;fi
+ ssh $USER@$CLI_NAME 'apt-cache search netcat|grep -w netcat'
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function check_yum () {
+ local CLI_NAME=$1
+ local USER=$2
+ if [ $USER == "" ]; then USER=root;fi
+ ssh $USER@$CLI_NAME 'yum search netcat| grep -w netcat'
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 
