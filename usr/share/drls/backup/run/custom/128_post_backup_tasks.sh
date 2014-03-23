@@ -25,8 +25,8 @@ fi
 
 Log "Packing DRLS DR Image ..."
 
-
-DR_FILE=$(gen_dr_file_name ${CLI_NAME})
+BKP_ID=$(gen_backup_id ${CLI_NAME})
+DR_FILE=$(gen_dr_file_name ${CLI_NAME} ${BKP_ID})
 if [ -z "${DR_FILE}" ]; then
 	report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Problem getting DR file name! aborting ..."
 	Error "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Problem getting DR file name! aborting ..."

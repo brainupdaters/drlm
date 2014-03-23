@@ -213,10 +213,16 @@ function get_active_cli_bkp_from_db() {
 #
 ## Return 0 if OK or 1 if NOK
 #}
+function gen_backup_id() {
+	local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
+        if [ $? -eq 0 ]; then echo $BKP_ID; else echo ""; fi
+
+# Return DR Backup ID or Null string
+}
 
 function gen_dr_file_name() {
 	local CLI_NAME=$1
-	local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
+	local BKP_ID=$2
 	if [ $? -eq 0 ]; then 
 		local DR_NAME="$CLI_NAME.$BKP_ID.dr"
 		echo $DR_NAME
