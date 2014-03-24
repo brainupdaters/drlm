@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
 if [ $WORKFLOW == "instclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:I:D:R:" -l "client:,id:,distro:,release:" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:D:R:u:" -l "client:,id:,distro:,release:,user:" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM --help' for more information."
                 exit 1
@@ -77,6 +77,18 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift
                                 ;;
+			(-u|--user)
+                                # We need to take the option argument
+                                if [ -n "$2" ]
+                                then
+                                        USER="$2"
+                                else
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
+                                shift
+                                ;;
+
                         (--) shift; break;;
                         (-*)
                                 echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
