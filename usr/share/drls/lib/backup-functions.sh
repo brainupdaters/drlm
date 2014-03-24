@@ -214,6 +214,7 @@ function get_active_cli_bkp_from_db() {
 ## Return 0 if OK or 1 if NOK
 #}
 function gen_backup_id() {
+	local CLI_NAME=$1
 	local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
         if [ $? -eq 0 ]; then echo $BKP_ID; else echo ""; fi
 
@@ -299,16 +300,14 @@ function register_backup() {
 	local A_BKP_ID=$(grep -w ${CLI_NAME} ${BKPDB} | awk -F":" '{print $1,$5}'| grep -w "true" | awk '{print $1}')
 	if [ -n "$A_BKP_ID" ]; then
 		ex -s -c ":/^${A_BKP_ID}/s/true/false/g" -c ":wq" ${BKPDB}
-		if [ $? -eq 0 ]; then return 0; else return 1; fi
-	else
-		return 1
+		if [ $? -ne 0 ]; then return 1; fi
 	fi
 
 # REGISTER BACKUP TO DATABASE
 	local A_BKP=$(grep -w ${CLI_NAME} ${BKPDB} | grep -v "false" | wc -l)
 
 	if [ $A_BKP -eq 0 ]; then
-		echo "${BKP_ID}:${CLI_ID}:${DR_NAME}:${BKP_MODE}:${BKP_IS_ACTIVE}:::" | tee -a ${BKPDB}
+		echo "${BKP_ID}:${CLI_ID}:${DR_FILE}:${BKP_MODE}:${BKP_IS_ACTIVE}:::" | tee -a ${BKPDB}
 		if [ $? -eq 0 ]; then return 0; else return 1; fi
 	else
 		return 1
