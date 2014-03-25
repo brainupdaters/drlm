@@ -77,6 +77,9 @@ if [ "$WORKFLOW" == "addclient" ]; then
                                 fi 
                                 shift
                                 ;;
+                        (-h|--help)
+                                addclienthelp
+                                ;;
                         (--) shift; break;;
                         (-*)
                                 echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
