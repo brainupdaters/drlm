@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
 
 if [ "$WORKFLOW" == "addclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:" -l "client:,ipaddr:,macaddr:,netname:" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:h" -l "client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM --help' for more information."
                 exit 1
