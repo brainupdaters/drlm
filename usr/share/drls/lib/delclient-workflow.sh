@@ -35,7 +35,7 @@ if [ "$WORKFLOW" == "delclient" ]; then
 	        case "$1" in
 	                (-c|--client)
 	                        # We need to take the option argument
-	                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
+	                        if [ -n "$2" ] && [ "$2" != "-I" ] && [ "$2" != "--id" ]
 				then 
 					CLI_NAME="$2"
 				else

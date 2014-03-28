@@ -35,7 +35,7 @@ if [ "$WORKFLOW" == "delnetwork" ]; then
 	        case "$1" in
 	                (-n|--netname)
 	                        # We need to take the option argument
-	                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
+	                        if [ -n "$2" ] && [ "$2" != "-I" ] && [ "$2" != "--id" ]
 				then 
 					NET_NAME="$2"
 				else

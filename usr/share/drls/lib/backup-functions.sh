@@ -339,3 +339,21 @@ function clean_backups() {
 	fi
 }
 
+function get_backup_id_lst_by_client() {
+
+	local CLI_NAME=$1
+	local ID_LIST=$(grep -w $CLI_NAME $BKPDB | awk -F":" '{print $1}')
+	
+	echo $ID_LIST
+
+# Return List of ID's or NULL string
+}
+
+function check_backup_state() {
+
+	local BKP_ID=$1
+	losetup -a | grep -w $BKP_ID
+	if [ $? -ne 0 ]; then return 0; else return 1; fi
+
+# Return 0 if backup is not in use else return 1.
+}
