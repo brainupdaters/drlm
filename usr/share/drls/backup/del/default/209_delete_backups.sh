@@ -15,6 +15,8 @@ for ID in $ID_LIST; do
 		else
 			LogPrint "WARNING: $PROGRAM:$WORKFLOW:ID($ID):$CLI_NAME: Problem removing DR Backup! see Log for details."
 		fi
+	else
+		LogPrint "WARNING: $PROGRAM:$WORKFLOW:ID($ID):$CLI_NAME: Backup is Enabled! Disable backup first .... " 
 	fi
 done
 
