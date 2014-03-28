@@ -26,7 +26,7 @@ if [ "$WORKFLOW" == "delbackup" ]; then
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "I:c:Ah" -l "id:,client:,all,help" -- "$@")"
 	if (( $? != 0 )); then
-			echo "Try \`$PROGRAM --help' for more information."
+			echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 			exit 1
 	fi
 	
@@ -58,6 +58,7 @@ if [ "$WORKFLOW" == "delbackup" ]; then
 				;;
 		(-h|--help)
 				delbackuphelp 
+				exit 0
 				;;
 		(--) shift; break;;
 		(-*)
@@ -85,6 +86,6 @@ fi
         fi
 
 WORKFLOW_delbackup () {
-    echo delbackup workflow
+    #echo delbackup workflow
     SourceStage "backup/del"
 }

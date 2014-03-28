@@ -26,7 +26,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
         # Parse options
         OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:h" -l "client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
         if (( $? != 0 )); then
-                echo "Try \`$PROGRAM --help' for more information."
+                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
         fi
         
@@ -79,11 +79,12 @@ if [ "$WORKFLOW" == "addclient" ]; then
                                 ;;
                         (-h|--help)
                                 addclienthelp
+				exit 0
                                 ;;
                         (--) shift; break;;
                         (-*)
                                 echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                                echo "Try \`$PROGRAM --help' for more information."
+                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
                                 ;;
                 esac
@@ -92,6 +93,6 @@ if [ "$WORKFLOW" == "addclient" ]; then
 fi
 
 WORKFLOW_addclient () {
-    echo addclient workflow
+    #echo addclient workflow
     SourceStage "client/add"
 }

@@ -154,10 +154,12 @@ export LC_CTYPE=C LC_ALL=C LANG=C
 source $SHARE_DIR/conf/default.conf
 
 # include functions
-for script in $SHARE_DIR/lib/*.sh ; do
+for script in $SHARE_DIR/lib/*-functions.sh ; do
 #	echo $script >> /tmp/sourcetest.log
 	source $script
 done
+# load WORKFLOW
+source $SHARE_DIR/lib/$WORKFLOW-workflow.sh
 
 if ! has_binary pidof; then
 	echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2
@@ -168,7 +170,7 @@ fi
 PID=$(pidof -x -o %PPID "$SCRIPT_FILE")
 TIMESTAMP=$(date +"%Y%m%d.%H%M%S")
 if IsInArray "$WORKFLOW" "${LOCKLESS_WORKFLOWS[@]}"; then
-	LOGFILE="$LOGFILE.$TIMESTAMP"
+	LOGFILE="$LOGFILE.$WORKFLOW.$TIMESTAMP"
 elif [[ "$PID" ]] ; then
 	echo "ERROR: $PROGRAM is already running, not starting again" >&2
 	exit 1
