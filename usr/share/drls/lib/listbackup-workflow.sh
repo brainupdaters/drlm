@@ -22,11 +22,11 @@ WORKFLOW_listbackup_DESCRIPTION="list client backups"
 WORKFLOWS=( ${WORKFLOWS[@]} listbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listbackup )
 
-if [ "$WORKFLOW" == "listbackup" ]; then 
+#if [ "$WORKFLOW" == "listbackup" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:A" -l "client:,all" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:Ah" -l "client:,all,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
 	
@@ -47,23 +47,23 @@ if [ "$WORKFLOW" == "listbackup" ]; then
 	                (-A|--all)
 				CLI_NAME="all" 
 				;;
+                        (-h|--help)
+                                listbackuphelp
+				exit 0
+                                ;;
 	                (--) shift; break;;
 	                (-*)
 	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM --help' for more information."
+	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	                        exit 1
 	                        ;;
 	        esac
 	        shift
 	done
-fi
+#fi
 
 WORKFLOW_listbackup () {
-    echo listbackup workflow
+    #echo listbackup workflow
     SourceStage "backup/list"
 }
 
-#1	Get database backups information
-#2	Format backup data
-#3	Print Backup info.
-#4	...

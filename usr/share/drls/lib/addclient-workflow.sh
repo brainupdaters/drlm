@@ -22,7 +22,7 @@ WORKFLOW_addclient_DESCRIPTION="add client to database"
 WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
 
-if [ "$WORKFLOW" == "addclient" ]; then 
+#if [ "$WORKFLOW" == "addclient" ]; then 
         # Parse options
         OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:h" -l "client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
         if (( $? != 0 )); then
@@ -90,7 +90,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
                 esac
                 shift
         done
-fi
+#fi
 
 WORKFLOW_addclient () {
     #echo addclient workflow

@@ -22,11 +22,11 @@ WORKFLOW_addnetwork_DESCRIPTION="add network to DRLS"
 WORKFLOWS=( ${WORKFLOWS[@]} addnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addnetwork )
 
-if [ "$WORKFLOW" == "addnetwork" ]; then 
+#if [ "$WORKFLOW" == "addnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "n:i:g:m:s:" -l "netname:,ipaddr:,gateway:,mask:,server:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "n:i:g:m:s:h" -l "netname:,ipaddr:,gateway:,mask:,server:,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
 	
@@ -34,72 +34,77 @@ if [ "$WORKFLOW" == "addnetwork" ]; then
 	while true; do
 	        case "$1" in
 	                (-n|--netname)
-							# We need to take the option argument
-							if [ -n "$2" ]
-							then 
-								NET_NAME="$2"
-							else
-								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-								exit 1
-							fi
-							shift 
-							;;
+				# We need to take the option argument
+				if [ -n "$2" ]
+				then 
+					NET_NAME="$2"
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+					exit 1
+				fi
+				shift 
+				;;
 	                (-i|--ipaddr)
-							# We need to take the option argument
-							if [ -n "$2" ]
-							then 
-								NET_IP="$2" 
-							else
-								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-								exit 1
-							fi 
-							shift
-							;;
+				# We need to take the option argument
+				if [ -n "$2" ]
+				then 
+					NET_IP="$2" 
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+					exit 1
+				fi 
+				shift
+				;;
 	                (-g|--gateway)
-							# We need to take the option argument
-							if [ -n "$2" ]
-							then 
-								NET_GW="$2" 
-							else
-								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-								exit 1
-							fi 
-							shift
-							;;
+				# We need to take the option argument
+				if [ -n "$2" ]
+				then 
+					NET_GW="$2" 
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+					exit 1
+				fi 
+				shift
+				;;
 	                (-m|--mask)
-							# We need to take the option argument
-							if [ -n "$2" ]
-							then 
-								NET_MASK="$2" 
-							else
-								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-								exit 1
-							fi 
-							shift
-							;;
+				# We need to take the option argument
+				if [ -n "$2" ]
+				then 
+					NET_MASK="$2" 
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+					exit 1
+				fi 
+				shift
+				;;
 	                (-s|--server)
-							# We need to take the option argument
-							if [ -n "$2" ]
-							then 
-								NET_SRV="$2" 
-							else
-								echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-								exit 1
-							fi 
-							shift
-							;;
+				# We need to take the option argument
+				if [ -n "$2" ]
+				then 
+					NET_SRV="$2" 
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+					exit 1
+				fi 
+				shift
+				;;
+                        (-h|--help)
+                                addnetworkhelp
+				exit 0
+                                ;;
+
 	                (--) shift; break;;
 	                (-*)
 	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM --help' for more information."
+	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	                        exit 1
 	                        ;;
 	        esac
 	        shift
 	done
-fi
+#fi
 
 WORKFLOW_addnetwork () {
-    echo addnetwork workflow
+#    echo addnetwork workflow
     SourceStage "network/add"
 }

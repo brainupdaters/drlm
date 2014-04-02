@@ -22,11 +22,11 @@ WORKFLOW_delclient_DESCRIPTION="delete client"
 WORKFLOWS=( ${WORKFLOWS[@]} delclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delclient )
 
-if [ "$WORKFLOW" == "delclient" ]; then 
+#if [ "$WORKFLOW" == "delclient" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:I:" -l "client:,id:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:I:h" -l "client:,id:,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
 	
@@ -55,10 +55,15 @@ if [ "$WORKFLOW" == "delclient" ]; then
 				fi 
 				shift
 				;;
+                        (-h|--help)
+                                delclienthelp
+				exit 0
+                                ;;
+
 	                (--) shift; break;;
 	                (-*)
 	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM --help' for more information."
+	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	                        exit 1
 	                        ;;
 	        esac
@@ -67,12 +72,12 @@ if [ "$WORKFLOW" == "delclient" ]; then
 	
 	if [ -n "$CLI_NAME" ] && [ -n "$CLI_ID" ]; then 
 		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
-fi
+#fi
 
 WORKFLOW_delclient () {
-    echo delclient workflow
+    #echo delclient workflow
     SourceStage "client/del"
 }

@@ -22,11 +22,11 @@ WORKFLOW_delnetwork_DESCRIPTION="delete network from DRLS"
 WORKFLOWS=( ${WORKFLOWS[@]} delnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delnetwork )
 
-if [ "$WORKFLOW" == "delnetwork" ]; then 
+#if [ "$WORKFLOW" == "delnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "n:I:" -l "netname:,id:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "n:I:h" -l "netname:,id:,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
 	
@@ -55,10 +55,14 @@ if [ "$WORKFLOW" == "delnetwork" ]; then
 				fi 
 				shift
 				;;
+                        (-h|--help)
+                                delnetworkhelp
+				exit 0
+                                ;;
 	                (--) shift; break;;
 	                (-*)
 	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM --help' for more information."
+	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	                        exit 1
 	                        ;;
 	        esac
@@ -67,12 +71,12 @@ if [ "$WORKFLOW" == "delnetwork" ]; then
 	
 	if [ -n "$NET_NAME" ] && [ -n "$NET_ID" ]; then 
 		echo "$PROGRAM $WORKFLOW: Only one option can be used: --netname or --id "
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
-fi
+#fi
 
 WORKFLOW_delnetwork () {
-    echo delnetwork workflow
+    #echo delnetwork workflow
     SourceStage "network/del"
 }

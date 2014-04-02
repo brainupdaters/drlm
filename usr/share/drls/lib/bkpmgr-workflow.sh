@@ -22,12 +22,12 @@ WORKFLOW_bkpmgr_DESCRIPTION="Set DR backups enabled or disabled for recovery"
 WORKFLOWS=( ${WORKFLOWS[@]} bkpmgr )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
 
-if [ "$WORKFLOW" == "bkpmgr" ]; then
+#if [ "$WORKFLOW" == "bkpmgr" ]; then
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:I:edP" -l "client:,id:,enable,disable" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:edPh" -l "client:,id:,enable,disable,help" -- "$@")"
 
         if (( $? != 0 )); then
-                echo "Try \`$PROGRAM --help' for more information."
+                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
         fi
 
@@ -59,25 +59,30 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
                                 shift
                                 ;;
                         (-P) MODE="perm";;
+                        (-h|--help)
+                                bkpmgrhelp
+				exit 0
+                                ;;
                         (--) shift; break;;
                         (-*)
                                 echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                                echo "Try \`$PROGRAM --help' for more information."
+                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
                                 ;;
                 esac
                 shift
         done
+
         if [ -n "$ENABLE" ] && [ -n "$DISABLE" ]; then
 
                 echo "$PROGRAM $WORKFLOW: Only one option (-d or -e) required!!"
-                echo "Try \`$PROGRAM --help' for more information."
+                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
         else
                 if [ "$ENABLE" == "yes" ]; then
                         if  [ -z "$CLI_NAME" ] || [ -z "$BKP_ID" ]; then
                                 echo "$PROGRAM $WORKFLOW: ENABLE: --client and --id options are required"
-                                echo "Try \`$PROGRAM --help' for more information."
+                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
                         else
                                 echo "EN OK!"
@@ -86,17 +91,17 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
                 if [ "$DISABLE" == "yes" ]; then
                         if [ -z "$CLI_NAME" ]; then
                                 echo "$PROGRAM $WORKFLOW: DISABLE: --client option required"
-                                echo "Try \`$PROGRAM --help' for more information."
+                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
                         else
                                 echo "DIS OK!"
                         fi
                 fi
         fi
-fi
+#fi
 
 WORKFLOW_bkpmgr () {
-    echo bkpmgr workflow
+    #echo bkpmgr workflow
     SourceStage "backup/mgr"
 }
 

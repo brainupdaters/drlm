@@ -16,7 +16,7 @@ function modclienthelp() {
 	printf '%-25s %-45s\n' "-n|--netname <NET>" "Assign new NETWORK to client"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls modclient -c|--client <cli_name> [ options ]\n"
 	printf "	or\n"
 	printf "drls modclient -I|--id <cli_id> [ options ]\n"
@@ -39,7 +39,7 @@ function addclienthelp() {
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Example:\n$(tput sgr0)"
-	printf "drls addclient -c|--client <cli_name> -i|--ipaddr <cli_IP> -M|--macaddr <cli_MAC> -n|--netname <net_name>\n"
+	printf "drls addclient -c|--client <cli_name> -i|--ipaddr <cli_ip> -M|--macaddr <cli_mac> -n|--netname <net_name>\n"
 	printf "\n"
 }
 
@@ -60,7 +60,7 @@ function addnetworkhelp() {
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Example:\n$(tput sgr0)"
-	printf "drls addnetwork -n|--netname <net_name> -i|--ipaddr <net_IP> -g|--gateway <net_Gateway> -m|--mask <net_mask> -s|--server <net_server_ip>\n"
+	printf "drls addnetwork -n|--netname <net_name> -i|--ipaddr <net_ip> -g|--gateway <net_gateway> -m|--mask <net_mask> -s|--server <net_server_ip>\n"
 	printf "\n"
 }
 
@@ -72,18 +72,18 @@ function bkpmgrhelp() {
 	printf "\n"
 	printf "$(tput bold)Required Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client name to modify backup"
-	printf '%-25s %-45s\n' "-I|--if <BKP_ID>" "Select Backup IP to modify"
-	printf '%-25s %-45s\n' "-e|--ennable" "Enable Backup"
+	printf '%-25s %-45s\n' "-I|--id <BKP_ID>" "Select Backup ID to modify"
+	printf '%-25s %-45s\n' "-e|--enable" "Enable Backup"
 	printf '%-25s %-45s\n' "-d|--disable" "Disable Backup"
 	printf "\n"
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-P" "Set backup to persistent mode"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls bkmgr -d -c|--client <cli_name> [ options ]\n"
 	printf "	or\n"
-	printf "drls bkmgr -e -c|--client <cli_name> -I|--id <bkp_ID> [ options ]\n"
+	printf "drls bkmgr -e -c|--client <cli_name> -I|--id <bkp_id> [ options ]\n"
 	printf "\n"
 }
 
@@ -100,10 +100,10 @@ function delclienhelp() {
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls delclient -c|--client <cli_name>\n"
 	printf "	or\n"
-	printf "drls delclient -I|--ID <cli_ID>\n"
+	printf "drls delclient -I|--id <cli_ID>\n"
 	printf "\n"
 }
 
@@ -120,10 +120,10 @@ function delnetworkhelp() {
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls delnetwork -n|--netname <net_name>\n"
 	printf "	or\n"
-	printf "drls delnetwork -I|--ID <net_ID>\n"
+	printf "drls delnetwork -I|--id <net_id>\n"
 	printf "\n"
 }
 
@@ -142,10 +142,10 @@ function instclienthelp() {
 	printf '%-25s %-45s\n' "-R|--release <RELEASE>" "Force to release name"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls insclient -c|--client <cli_name>\n"
 	printf "	or\n"
-	printf "drls instlient -I|--id <cli_ID> [ options ]\n"
+	printf "drls instlient -I|--id <cli_id> [ options ]\n"
 	printf "\n"
 }
 
@@ -160,10 +160,10 @@ function listbackuphelp() {
 	printf '%-25s %-45s\n' "-A|--all" "List all backups"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls listbackup -c|--client <cli_name>\n"
 	printf "	or\n"
-	printf "drls listbackup -A\n"
+	printf "drls listbackup -A|--all\n"
 	printf "\n"
 }
 
@@ -178,10 +178,10 @@ function listclienthelp() {
 	printf '%-25s %-45s\n' "-A|--all" "List all clients"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls listclient -c|--client <cli_name>\n"
 	printf "	or\n"
-	printf "drls listclient -A\n"
+	printf "drls listclient -A|--all\n"
 	printf "\n"
 }
 
@@ -196,10 +196,10 @@ function listnetworkhelp() {
 	printf '%-25s %-45s\n' "-A|--all" "List all networks"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
-	printf "$(tput bold)Example:\n$(tput sgr0)"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drls listnetwork -n|--netname <net_name>\n"
 	printf "	or\n"
-	printf "drls listnetwork -A\n"
+	printf "drls listnetwork -A|--all\n"
 	printf "\n"
 }
 
@@ -210,14 +210,14 @@ function modnetworkhelp() {
 	printf '%-25s %-45s\n' "drls modnetwork [OPTARGS]" "Change Network properties"
 	printf "\n"
 	printf "$(tput bold)Required Options:\n$(tput sgr0)"
-	printf '%-25s %-45s\n' "-n|--netname <CLI_NAME>" "Select Network to change by NAME"
-	printf '%-25s %-45s\n' "-I|--id <CLI_ID>" "Select Network to change by ID"
+	printf '%-25s %-45s\n' "-n|--netname <NET_NAME>" "Select Network to change by NAME"
+	printf '%-25s %-45s\n' "-I|--id <NET_ID>" "Select Network to change by ID"
 	printf "\n"
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-i|--ipaddr <IP>" "Set new IP address to network"
 	printf '%-25s %-45s\n' "-g|--gateway <GATEWAY>" "Set new GATEWAY address to network"
 	printf '%-25s %-45s\n' "-m|--mask <MASK>" "Assign new MASK to network"
-	printf '%-25s %-45s\n' "-m|--server <SERVER>" "Assign new SERVER to network"
+	printf '%-25s %-45s\n' "-s|--server <SERVER>" "Assign new SERVER to network"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Example:\n$(tput sgr0)"
@@ -227,6 +227,46 @@ function modnetworkhelp() {
 	printf "\n"
 }
 
+function delbackuphelp() {
+	printf "\n"
+	printf "\n"
+	printf "$(tput bold)Usage:\n$(tput sgr0)"
+	printf '%-25s %-45s\n' "drls delbackup [OPTARGS]" "Delete Backup(s) form DRLS"
+	printf "\n"
+	printf "$(tput bold)Required Options:\n$(tput sgr0)"
+	printf '%-25s %-45s\n' "-I|--id <BKP_ID>" "Select Backup to delete by ID"
+	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client for backup deletion [*]"
+	printf "\n"
+	printf '%-2s %-45s\n' "[$(tput bold)*$(tput sgr0)]" "Only required with -A|--all"
+	printf "\n"
+	printf "$(tput bold)Options:\n$(tput sgr0)"
+	printf '%-25s %-45s\n' "-h|--help" "Show this help"
+	printf '%-25s %-45s\n' "-A|--all" "Select all Backups for Client (Requires -c|--client)"
+	printf "\n"
+	printf "$(tput bold)Examples:\n$(tput sgr0)"
+	printf "drls delbackup -c|--client <CLI_NAME> -A|--all\n"
+	printf "	or\n"
+	printf "drls delbackup -I|--id <BKP_ID>\n"
+	printf "\n"
+}
 
-
+function runbackuphelp() {
+        printf "\n"
+        printf "\n"
+        printf "$(tput bold)Usage:\n$(tput sgr0)"
+        printf '%-25s %-45s\n' "drls runbackup [OPTARGS]" "Run remote client backup from DRLS"
+        printf "\n"
+        printf "$(tput bold)Required Options:\n$(tput sgr0)"
+        printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client to run backup by name"
+        printf '%-25s %-45s\n' "-I|--id <CLI_ID>" "Select Client to run backup by ID"
+        printf "\n"
+        printf "$(tput bold)Options:\n$(tput sgr0)"
+        printf '%-25s %-45s\n' "-h|--help" "Show this help"
+        printf "\n"
+        printf "$(tput bold)Examples:\n$(tput sgr0)"
+        printf "drls runbackup -c|--client <cli_name>\n"
+        printf "        or\n"
+        printf "drls runbackup -I|--id <cli_id>\n"
+        printf "\n"
+}
 

@@ -22,11 +22,11 @@ WORKFLOW_runbackup_DESCRIPTION="run client backup and register to database"
 WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
-if [ "$WORKFLOW" == "runbackup" ]; then 
+#if [ "$WORKFLOW" == "runbackup" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:I:" -l "client:,id:" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:I:h" -l "client:,id:,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
 	
@@ -55,10 +55,14 @@ if [ "$WORKFLOW" == "runbackup" ]; then
 				fi 
 				shift
 				;;
+                        (-h|--help)
+                                runbackuphelp
+				exit 0
+                                ;;
 	                (--) shift; break;;
 	                (-*)
 	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM --help' for more information."
+	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	                        exit 1
 	                        ;;
 	        esac
@@ -67,13 +71,13 @@ if [ "$WORKFLOW" == "runbackup" ]; then
 	
 	if [ -n "$CLI_NAME" ] && [ -n "$CLI_ID" ]; then 
 		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
-fi
+#fi
 
 WORKFLOW_runbackup () {
-    echo runbackup workflow
+    #echo runbackup workflow
     SourceStage "backup/run"
 }
 

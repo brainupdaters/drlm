@@ -22,11 +22,11 @@ WORKFLOW_listclient_DESCRIPTION="list clients"
 WORKFLOWS=( ${WORKFLOWS[@]} listclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listclient )
 
-if [ "$WORKFLOW" == "listclient" ]; then 
+#if [ "$WORKFLOW" == "listclient" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:A" -l "client:,all" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:Ah" -l "client:,all,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
 	
@@ -47,22 +47,23 @@ if [ "$WORKFLOW" == "listclient" ]; then
 	                (-A|--all)
 				CLI_NAME="all" 
 				;;
+                        (-h|--help)
+                                listclienthelp
+				exit 0
+                                ;;
 	                (--) shift; break;;
 	                (-*)
 	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM --help' for more information."
+	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	                        exit 1
 	                        ;;
 	        esac
 	        shift
 	done
-fi
+#fi
 
 
 WORKFLOW_listclient () {
-    echo listclient workflow
+    #echo listclient workflow
     SourceStage "client/list"
 }
-
-#1	
-#2	

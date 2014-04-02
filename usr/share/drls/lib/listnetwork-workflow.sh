@@ -22,11 +22,11 @@ WORKFLOW_listnetwork_DESCRIPTION="list networks"
 WORKFLOWS=( ${WORKFLOWS[@]} listnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listnetwork )
 
-if [ "$WORKFLOW" == "listnetwork" ]; then 
+#if [ "$WORKFLOW" == "listnetwork" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "n:A" -l "netname:,all" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "n:Ah" -l "netname:,all,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM --help' for more information."
+	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
 	
@@ -47,18 +47,22 @@ if [ "$WORKFLOW" == "listnetwork" ]; then
 	                (-A|--all)
 				NET_NAME="all" 
 				;;
+                        (-h|--help)
+                                listnetworkhelp
+				exit 0
+                                ;;
 	                (--) shift; break;;
 	                (-*)
 	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM --help' for more information."
+	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	                        exit 1
 	                        ;;
 	        esac
 	        shift
 	done
-fi
+#fi
 
 WORKFLOW_listnetwork () {
-    echo listnetwork workflow
+    #echo listnetwork workflow
     SourceStage "network/list"
 }

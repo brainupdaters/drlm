@@ -22,11 +22,11 @@ WORKFLOW_modclient_DESCRIPTION="modify client"
 WORKFLOWS=( ${WORKFLOWS[@]} modclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modclient )
 
-if [ "$WORKFLOW" == "modclient" ]; then 
+#if [ "$WORKFLOW" == "modclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "I:c:i:M:n:" -l "id:,client:,ipaddr:,macaddr:,netname:" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "I:c:i:M:n:h" -l "id:,client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
         if (( $? != 0 )); then
-                echo "Try \`$PROGRAM --help' for more information."
+                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
         fi
         
@@ -88,20 +88,24 @@ if [ "$WORKFLOW" == "modclient" ]; then
                                 fi 
                                 shift
                                 ;;
+                        (-h|--help)
+                                modclienthelp
+				exit 0
+                                ;;
                         (--) shift; break;;
                         (-*)
                                 echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                                echo "Try \`$PROGRAM --help' for more information."
+                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
                                 ;;
                 esac
                 shift
         done
-fi
+#fi
 
 
 WORKFLOW_modclient () {
-    echo modclient workflow
+    #echo modclient workflow
     SourceStage "client/mod"
 }
 

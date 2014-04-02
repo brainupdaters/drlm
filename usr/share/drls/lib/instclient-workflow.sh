@@ -22,11 +22,11 @@ WORKFLOW_instclient_DESCRIPTION="install client from DRLS"
 WORKFLOWS=( ${WORKFLOWS[@]} instclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
-if [ $WORKFLOW == "instclient" ]; then 
+#if [ $WORKFLOW == "instclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:I:D:R:u:" -l "client:,id:,distro:,release:,user:" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:D:R:u:h" -l "client:,id:,distro:,release:,user:,help" -- "$@")"
         if (( $? != 0 )); then
-                echo "Try \`$PROGRAM --help' for more information."
+                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
         fi
         
@@ -88,19 +88,23 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift
                                 ;;
+                        (-h|--help)
+                                instclienthelp
+				exit 0
+                                ;;
 
                         (--) shift; break;;
                         (-*)
                                 echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                                echo "Try \`$PROGRAM --help' for more information."
+                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
                                 ;;
                 esac
                 shift
         done
-fi
+#fi
 
 WORKFLOW_instclient () {
-    echo instclient workflow
+    #echo instclient workflow
     SourceStage "client/inst"
 }

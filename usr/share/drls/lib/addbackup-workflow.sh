@@ -22,12 +22,12 @@ WORKFLOW_addbackup_DESCRIPTION="register backup to database"
 WORKFLOWS=( ${WORKFLOWS[@]} addbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addbackup )
 
-if [ "$WORKFLOW" == "addbackup" ]; then 
+#if [ "$WORKFLOW" == "addbackup" ]; then 
     echo "" > /dev/null
-fi
+#fi
 
 WORKFLOW_addbackup () {
-    echo addbackup workflow
+#    echo addbackup workflow
     SourceStage "backup/add"
 }
 

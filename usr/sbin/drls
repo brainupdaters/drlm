@@ -150,6 +150,10 @@ hash -r
 # make sure that we use only english
 export LC_CTYPE=C LC_ALL=C LANG=C
 
+# Logfile name
+TIMESTAMP=$(date +"%Y%m%d.%H%M%S")
+LOGFILE="$LOG_DIR/drls-$HOSTNAME-$WORKFLOW.$TIMESTAMP.log"
+
 # include default config
 source $SHARE_DIR/conf/default.conf
 
@@ -168,9 +172,8 @@ fi
 
 # do not run if another instance is running. pidof -x will always report at least $$
 PID=$(pidof -x -o %PPID "$SCRIPT_FILE")
-TIMESTAMP=$(date +"%Y%m%d.%H%M%S")
 if IsInArray "$WORKFLOW" "${LOCKLESS_WORKFLOWS[@]}"; then
-	LOGFILE="$LOGFILE.$WORKFLOW.$TIMESTAMP"
+	echo "lockless!!"
 elif [[ "$PID" ]] ; then
 	echo "ERROR: $PROGRAM is already running, not starting again" >&2
 	exit 1
