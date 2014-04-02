@@ -1,10 +1,10 @@
 Maintainer:
-pkgname=drls
+pkgname=drlm
 pkgver=VERSION
 pkgrel=1
-pkgdesc="Disaster Recovery Linux Server"
+pkgdesc="Disaster Recovery Linux Manager"
 arch=(any)
-url="http://future_drls_web/"
+url="http://future_drlm_web/"
 license=('GPL')
 #depends=(lsb-release iproute2 parted mingetty cpio openssl)
 depends=()
@@ -12,13 +12,13 @@ depends=()
 #             'cdrkit: to create ISO images'
 #             'syslinux: to create bootable media')
 makedepends=('git' 'asciidoc' 'xmlto')
-provides=('drls')
-backup=('etc/drls/local.conf')
+provides=('drlm')
+backup=('etc/drlm/local.conf')
 source=(SOURCE)
 md5sums=(MD5SUM)
 
 package() {
-  cd $srcdir/drls-*/
+  cd $srcdir/drlm-*/
   make DESTDIR="${pkgdir}/" install
 }
 

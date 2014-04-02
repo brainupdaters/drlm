@@ -1,16 +1,16 @@
 # In some dists (e.g. Ubuntu) bash is not the default shell. Statements like 
-#   cp -a etc/drls/{mappings,templates} ...
+#   cp -a etc/drlm/{mappings,templates} ...
 # assumes bash. So its better to set SHELL
 SHELL=/bin/bash
 
 DESTDIR =
 OFFICIAL =
 
-### Get version from DRLS itself
-drlsbin = usr/sbin/drls
-drls_store_svc = etc/init.d/drls-stord
-name = drls
-version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlsbin))
+### Get version from DRLM itself
+drlmbin = usr/sbin/drlm
+drlm_store_svc = etc/init.d/drlm-stord
+name = drlm
+version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
 
 ### Get the branch information from git
 ifeq ($(OFFICIAL),)
@@ -20,7 +20,7 @@ git_ref := $(shell git symbolic-ref -q HEAD)
 git_branch = $(lastword $(subst /, ,$(git_ref)))
 endif
 else
-git_branch = drls-$(version)
+git_branch = drlm-$(version)
 endif
 git_branch ?= master
 
@@ -40,7 +40,7 @@ dscfile = packaging/debian/$(name).dsc
 distversion = $(version)
 debrelease = 0
 rpmrelease = %nil
-#obsproject = Archiving:Backup:DRLS
+#obsproject = Archiving:Backup:DRLM
 #obspackage = $(name)-$(version)
 ifeq ($(OFFICIAL),)
     distversion = $(version)-git
@@ -49,7 +49,7 @@ ifeq ($(OFFICIAL),)
 #    distversion = $(version)-git$(date)
 #    debrelease = 0git$(date)
 #    rpmrelease = .git$(date)
-#    obsproject = Archiving:Backup:DRLS:Snapshot
+#    obsproject = Archiving:Backup:DRLM:Snapshot
 #    obspackage = $(name)
 endif
 
@@ -59,18 +59,18 @@ all:
 	@echo "Nothing to build. Use \`make help' for more information."
 
 help:
-	@echo -e "DRLS make targets:\n\
+	@echo -e "DRLM make targets:\n\
 \n\
   validate        - Check source code\n\
-  install         - Install DRLS (may replace files)\n\
-  uninstall       - Uninstall DRLS (may remove files)\n\
+  install         - Install DRLM (may replace files)\n\
+  uninstall       - Uninstall DRLM (may remove files)\n\
   dist            - Create tar file\n\
   deb             - Create DEB package\n\
   rpm             - Create RPM package\n\
 #  pacman          - Create Pacman package\n\
 #  obs             - Initiate OBS builds\n\
 \n\
-DRLS make variables (optional):\n\
+DRLM make variables (optional):\n\
 \n\
   DESTDIR=        - Location to install/uninstall\n\
   OFFICIAL=       - Build an official release\n\
@@ -85,8 +85,8 @@ clean:
 ### You can call 'make validate' directly from your .git/hooks/pre-commit script
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
-	find etc/ usr/share/drls/conf/ -name '*.conf' | xargs bash -n
-	bash -n $(drlsbin)
+	find etc/ usr/share/drlm/conf/ -name '*.conf' | xargs bash -n
+	bash -n $(drlmbin)
 	find . -name '*.sh' | xargs bash -n
 ### Fails to work on RHEL4
 #	find -L . -type l
@@ -101,9 +101,9 @@ doc:
 
 ifneq ($(git_date),)
 rewrite:
-	@echo -e "\033[1m== Rewriting $(specfile), $(dscfile) and $(drlsbin) ==\033[0;0m"
+	@echo -e "\033[1m== Rewriting $(specfile), $(dscfile) and $(drlmbin) ==\033[0;0m"
 	sed -i.orig \
-		-e 's#^Source:.*#Source: https://future_drls_website/drls/${version}/$(name)-${distversion}.tar.gz#' \
+		-e 's#^Source:.*#Source: https://future_drlm_website/drlm/${version}/$(name)-${distversion}.tar.gz#' \
 		-e 's#^Version:.*#Version: $(version)#' \
 		-e 's#^%define rpmrelease.*#%define rpmrelease $(rpmrelease)#' \
 		-e 's#^%setup.*#%setup -q -n $(name)-$(distversion)#' \
@@ -114,13 +114,13 @@ rewrite:
 	sed -i.orig \
 		-e 's#^VERSION=.*#VERSION=$(distversion)#' \
 		-e 's#^RELEASE_DATE=.*#RELEASE_DATE="$(release_date)"#' \
-		$(drlsbin)
+		$(drlmbin)
 
 restore:
-	@echo -e "\033[1m== Restoring $(specfile) and $(drlsbin) ==\033[0;0m"
+	@echo -e "\033[1m== Restoring $(specfile) and $(drlmbin) ==\033[0;0m"
 	mv -f $(specfile).orig $(specfile)
 	mv -f $(dscfile).orig $(dscfile)
-	mv -f $(drlsbin).orig $(drlsbin)
+	mv -f $(drlmbin).orig $(drlmbin)
 else
 rewrite:
 	@echo "Nothing to do."
@@ -131,35 +131,35 @@ endif
 
 install-config:
 	@echo -e "\033[1m== Installing configuration ==\033[0;0m"
-	install -d -m0700 $(DESTDIR)$(sysconfdir)/drls/
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drls/local.conf ]] && \
-		install -Dp -m0600 etc/drls/local.conf $(DESTDIR)$(sysconfdir)/drls/local.conf
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drls/os.conf && -e etc/drls/os.conf ]] && \
-		install -Dp -m0600 etc/drls/os.conf $(DESTDIR)$(sysconfdir)/drls/os.conf
-	-find $(DESTDIR)$(sysconfdir)/drls/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
+	install -d -m0700 $(DESTDIR)$(sysconfdir)/drlm/
+	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
+		install -Dp -m0600 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
+	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
+		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
+	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 
 install-bin:
 	@echo -e "\033[1m== Installing binary ==\033[0;0m"
-	install -Dp -m0755 $(drlsbin) $(DESTDIR)$(sbindir)/drls
-	sed -i -e 's,^CONFIG_DIR=.*,CONFIG_DIR="$(sysconfdir)/drls",' \
-		-e 's,^SHARE_DIR=.*,SHARE_DIR="$(datadir)/drls",' \
-		-e 's,^VAR_DIR=.*,VAR_DIR="$(localstatedir)/lib/drls",' \
-		$(DESTDIR)$(sbindir)/drls
+	install -Dp -m0755 $(drlmbin) $(DESTDIR)$(sbindir)/drlm
+	sed -i -e 's,^CONFIG_DIR=.*,CONFIG_DIR="$(sysconfdir)/drlm",' \
+		-e 's,^SHARE_DIR=.*,SHARE_DIR="$(datadir)/drlm",' \
+		-e 's,^VAR_DIR=.*,VAR_DIR="$(localstatedir)/lib/drlm",' \
+		$(DESTDIR)$(sbindir)/drlm
 	@echo -e "\033[1m== Installing store service ==\033[0;0m"
-	install -Dp -m0755 $(drls_store_svc) $(DESTDIR)$(sysconfdir)/init.d/drls-stord
+	install -Dp -m0755 $(drlm_store_svc) $(DESTDIR)$(sysconfdir)/init.d/drlm-stord
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
-	install -d -m0755 $(DESTDIR)$(datadir)/drls/
-	cp -a usr/share/drls/. $(DESTDIR)$(datadir)/drls/
-	-find $(DESTDIR)$(datadir)/drls/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
+	install -d -m0755 $(DESTDIR)$(datadir)/drlm/
+	cp -a usr/share/drlm/. $(DESTDIR)$(datadir)/drlm/
+	-find $(DESTDIR)$(datadir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 
 install-var:
 	@echo -e "\033[1m== Installing working directory ==\033[0;0m"
-	install -d -m0755 $(DESTDIR)$(localstatedir)/lib/drls/
-	install -d -m0755 $(DESTDIR)$(localstatedir)/log/drls/
-	cp -a var/lib/drls/. $(DESTDIR)$(localstatedir)/lib/drls/
-	-find $(DESTDIR)$(localstatedir)/lib/drls/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
+	install -d -m0755 $(DESTDIR)$(localstatedir)/lib/drlm/
+	install -d -m0755 $(DESTDIR)$(localstatedir)/log/drlm/
+	cp -a var/lib/drlm/. $(DESTDIR)$(localstatedir)/lib/drlm/
+	-find $(DESTDIR)$(localstatedir)/lib/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 
 install-doc:
 #	@echo -e "\033[1m== Installing documentation ==\033[0;0m"
@@ -168,18 +168,18 @@ install-doc:
 #		-e 's,/usr/sbin,$(sbindir),' \
 #		-e 's,/usr/share,$(datadir),' \
 #		-e 's,/usr/share/doc/packages,$(datadir)/doc,' \
-#		$(DESTDIR)$(mandir)/man8/drls.8
+#		$(DESTDIR)$(mandir)/man8/drlm.8
 
 #install: validate man install-config rewrite install-bin restore install-data install-var install-doc
 install: validate install-config rewrite install-bin restore install-data install-var 
 
 uninstall:
-	@echo -e "\033[1m== Uninstalling DRLS ==\033[0;0m"
-	-rm -v $(DESTDIR)$(sbindir)/drls
-	-rm -v $(DESTDIR)$(mandir)/man8/drls.8
-	-rm -rv $(DESTDIR)$(datadir)/drls/
-#	rm -rv $(DESTDIR)$(sysconfdir)/drls/
-#	rm -rv $(DESTDIR)$(localstatedir)/lib/drls/
+	@echo -e "\033[1m== Uninstalling DRLM ==\033[0;0m"
+	-rm -v $(DESTDIR)$(sbindir)/drlm
+	-rm -v $(DESTDIR)$(mandir)/man8/drlm.8
+	-rm -rv $(DESTDIR)$(datadir)/drlm/
+#	rm -rv $(DESTDIR)$(sysconfdir)/drlm/
+#	rm -rv $(DESTDIR)$(localstatedir)/lib/drlm/
 
 #dist: clean validate man rewrite $(name)-$(distversion).tar.gz restore
 dist: clean validate rewrite $(name)-$(distversion).tar.gz restore
@@ -206,7 +206,7 @@ deb: dist
 	fakeroot debian/rules binary
 	-rm -rf debian/
 
-pacman: BUILD_DIR = /tmp/drls-$(distversion)
+pacman: BUILD_DIR = /tmp/drlm-$(distversion)
 pacman: dist
 	@echo -e "\033[1m== Building Pacman package $(name)-$(distversion) ==\033[0;0m"
 	rm -rf $(BUILD_DIR)
@@ -220,7 +220,7 @@ pacman: dist
 	cp $(BUILD_DIR)/*.pkg.* .
 	rm -rf $(BUILD_DIR)
 
-obs: BUILD_DIR = /tmp/drls-$(distversion)
+obs: BUILD_DIR = /tmp/drlm-$(distversion)
 obs: obsname = $(shell osc ls $(obsproject) $(obspackage) | awk '/.tar.gz$$/ { gsub(".tar.gz$$","",$$1); print }')
 obs: dist
 	@echo -e "\033[1m== Updating OBS from $(obsname) to $(name)-$(distversion)== \033[0;0m"
@@ -229,7 +229,7 @@ ifneq ($(obsname),$(name)-$(distversion))
 	mkdir -p $(BUILD_DIR)
 ifneq ($(OFFICIAL),)
 #	osc rdelete -m 'Recreating branch $(obspackage)' $(obsproject) $(obspackage)
-#	-osc branch Archiving:Backup:Rear:Snapshot drls $(obsproject) $(obspackage)
+#	-osc branch Archiving:Backup:Rear:Snapshot drlm $(obsproject) $(obspackage)
 #	-osc detachbranch $(obsproject) $(obspackage)
 endif
 #	(cd $(BUILD_DIR) ; osc co -c $(obsproject) $(obspackage) )
@@ -239,12 +239,12 @@ endif
 #	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/$(dscfile) >$(BUILD_DIR)/$(obspackage)/$(name).dsc
 #	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/packaging/debian/control >$(BUILD_DIR)/$(obspackage)/debian.control
 #	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/packaging/debian/rules >$(BUILD_DIR)/$(obspackage)/debian.rules
-#	echo -e "drls ($(version)-$(debrelease)) stable; urgency=low\n\n  * new snapshot build\n\n -- OpenSUSE Build System <obs@relax-and-recover.org> $$(date -R)" >$(BUILD_DIR)/$(obspackage)/debian.changelog
+#	echo -e "drlm ($(version)-$(debrelease)) stable; urgency=low\n\n  * new snapshot build\n\n -- OpenSUSE Build System <obs@relax-and-recover.org> $$(date -R)" >$(BUILD_DIR)/$(obspackage)/debian.changelog
 #	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/packaging/debian/changelog >>$(BUILD_DIR)/$(obspackage)/debian.changelog
 #	cd $(BUILD_DIR)/$(obspackage); osc addremove
 #	cd $(BUILD_DIR)/$(obspackage); osc ci -m "Update to $(name)-$(distversion)" $(BUILD_DIR)/$(obspackage)
 #	rm -rf $(BUILD_DIR)
-#	@echo -e "\033[1mNow visit https://build.opensuse.org/package/show?package=drls&project=$(obsproject)"
+#	@echo -e "\033[1mNow visit https://build.opensuse.org/package/show?package=drlm&project=$(obsproject)"
 #	@echo -e "or inspect the queue at: https://build.opensuse.org/monitor\033[0;0m"
 else
 #	@echo -e "OBS already updated to this release."

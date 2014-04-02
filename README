@@ -1,14 +1,14 @@
-Disaster Recovery Linux Server
+Disaster Recovery Linux Manager
 ==============================
 
-Disaster Recovery Linux Server is an Open Source bare metal disaster
+Disaster Recovery Linux Manager is an Open Source bare metal disaster
 recovery and system migration management server-side solution. 
-DRLS uses ReaR on the client-side.
+DRLM uses ReaR on the client-side.
 
 Professional services and support are available.
 
-For more detailed information about Disaster Recovery Linux Server, please
-read the Disaster Recovery Linux Server User Guide.
+For more detailed information about Disaster Recovery Linux Manager, please
+read the Disaster Recovery Linux Manager User Guide.
 
 
 REQUIREMENTS
@@ -38,24 +38,24 @@ This quick start guide will show you how to run Desaster Recovery Linux Server
 
 CONFIGURATION
 -------------
-To configure Disaster Recovery Linux Server you have...
+To configure Disaster Recovery Linux Manager you have...
 
 USAGE
 -----
-To use Disaster Recovery Linux Server you always call the main script 
-'/usr/sbin/drls':
+To use Disaster Recovery Linux Manager you always call the main script 
+'/usr/sbin/drlm':
 
 ----
-# drls help
-Usage: drls [-d] [-D] [-s] [-S] [-v] [-V] COMMAND [ARGS...]
+# drlm help
+Usage: drlm [-d] [-D] [-s] [-S] [-v] [-V] COMMAND [ARGS...]
 
-Disaster Recovery Linux Server comes with ABSOLUTELY NO WARRANTY; for details see
+Disaster Recovery Linux Manager comes with ABSOLUTELY NO WARRANTY; for details see
 the GNU General Public License at: http://www.gnu.org/licenses/gpl.html
 
 Available options:
  -d           debug mode; log debug messages
  -D           debugscript mode; log every function call
- -s           simulation mode; show what scripts rear would include
+ -s           simulation mode; show what scripts drlm would include
  -S           step-by-step mode; acknowledge each script individually
  -v           verbose mode; show more output
  -V           version information
@@ -65,7 +65,7 @@ List of commands:
  addbackup       register backup to DB. (Not yet implemented)
  *addclient       register new client to DB. (NEW!)
  *addnetwork      register new network to DB. (NEW!)
- *bkpmgr          manage DRLS backup states. (NEW!)
+ *bkpmgr          manage DRLM backup states. (NEW!)
  delbackup       delete backup and unregister from DB. (Not yet implemented)
  *delclient       delete client from DB. (NEW!)
  *delnetwork      delete network from DB. (NEW!)
@@ -79,6 +79,6 @@ List of commands:
  
  
 
-Use 'drls -v help' for more advanced commands.
+Use 'drlm -v help' for more advanced commands.
 ----
 

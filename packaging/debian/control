@@ -1,12 +1,12 @@
-Source: drls
+Source: drlm
 Section: misc
 Priority: optional
 Maintainer: See AUTHORS file
 Homepage: "http://www.not_yet.org"
 
-Package: drls
+Package: drlm
 Architecture: all
-Provides: drls
+Provides: drlm
 Build-Depends: debhelper (>> 5.0.0)
 Depends: openssh-client, openssl, netcat-traditional, wget, gzip, tar, gawk, sed, grep, coreutils, util-linux, nfs-kernel-server, rpcbind, isc-dhcp-server, tftpd-hpa, syslinux
-Description: Disaster Recovery Linux Server
+Description: Disaster Recovery Linux Manager

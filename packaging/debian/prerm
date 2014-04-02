@@ -3,23 +3,23 @@ set -e
 
 case "$1" in
     remove)
-	service drls-stord stop
-	mv /var/lib/drls/.ids/.idcount.client /var/lib/drls/.ids/.idcount.client.save
-	mv /var/lib/drls/.ids/.idcount.network /var/lib/drls/.ids/.idcount.network.save
-	mv /var/lib/drls/client.data /var/lib/drls/client.data.save
-	mv /var/lib/drls/network.data /var/lib/drls/network.data.save
-	mv /var/lib/drls/backup.data /var/lib/drls/backup.data.save
-	mv /var/lib/drls/calendar.data /var/lib/drls/calendar.data.save
+	service drlm-stord stop
+	mv /var/lib/drlm/.ids/.idcount.client /var/lib/drlm/.ids/.idcount.client.save
+	mv /var/lib/drlm/.ids/.idcount.network /var/lib/drlm/.ids/.idcount.network.save
+	mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
+	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
+	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
+	mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
         ;;
 
     upgrade)
-	service drls-stord stop
-	mv /var/lib/drls/.ids/.idcount.client /var/lib/drls/.ids/.idcount.client.save
-	mv /var/lib/drls/.ids/.idcount.network /var/lib/drls/.ids/.idcount.network.save
-	mv /var/lib/drls/client.data /var/lib/drls/client.data.save
-	mv /var/lib/drls/network.data /var/lib/drls/network.data.save
-	mv /var/lib/drls/backup.data /var/lib/drls/backup.data.save
-	mv /var/lib/drls/calendar.data /var/lib/drls/calendar.data.save
+	service drlm-stord stop
+	mv /var/lib/drlm/.ids/.idcount.client /var/lib/drlm/.ids/.idcount.client.save
+	mv /var/lib/drlm/.ids/.idcount.network /var/lib/drlm/.ids/.idcount.network.save
+	mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
+	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
+	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
+	mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
 	;;
 
     *)

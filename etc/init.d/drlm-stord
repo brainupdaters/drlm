@@ -1,0 +1,257 @@
+#!/bin/bash
+#
+# drlm-stord    This shell script takes care of starting and stopping
+#               the DRLM Store Service.
+#
+# DEBIAN
+# update-rc.d drlm-stord defaults 10 06
+#
+# RHEL
+# chkconfig: - 29 61
+#
+# Description:       DRLM is a central Disaster Recovery Manager
+#                    for Linux OS. This service provides DR Images
+#                    Store Service available for Recover configured 
+#                    servers in your network.
+
+### BEGIN INIT INFO
+# Provides:          drlm-stord
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: DRLM Store Service 
+# Description:       DRLM is a central Disaster Recovery Manager
+#                    for Linux OS. This service provides DR Images
+#                    Store Service available for Recover configured 
+#                    servers in your network.
+### END INIT INFO
+
+# What is this?
+DESC="DRLM Store Service"
+BKPDB=/var/lib/drlm/backup.data
+ARCHDIR=$(grep ARCHDIR /usr/share/drlm/conf/default.conf|cut -d"=" -f2)
+STORDIR=$(grep STORDIR /usr/share/drlm/conf/default.conf|cut -d"=" -f2)
+RETVAL=0
+
+# Only root can start the service
+uid=`id | cut -d\( -f1 | cut -d= -f2`
+[ $uid -ne 0 ] && exit 4
+
+# Exit if required binaries are missing.
+[ -x /usr/sbin/drlm       ] || exit 0
+[ -x /sbin/losetup        ] || exit 0
+[ -x /bin/mount           ] || exit 0
+
+# Exit if required files are missing.
+[ -f /var/lib/drlm/backup.data     ] || exit 0
+
+# Get OS type
+[ -f /etc/redhat-release  ] && OSTYPE="RedHat"
+[ -f /etc/debian_version  ] && OSTYPE="Debian"
+
+# Be sure loop module is loaded
+#$(/sbin/modprobe -q loop) || exit 0
+
+get_err() {
+        if [ $1 -eq 0 ]; then
+                return 0
+        else
+                return 1
+        fi
+}
+enable_loop_ro() {
+	local LO_DEV="/dev/loop${1}"
+	local DR_IMG=$2
+	
+	/sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_IMG} >> /dev/null &2>1  
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+}
+disable_loop() {
+	local LO_DEV=$1
+	
+	/sbin/losetup -d ${LO_DEV} >> /dev/null &2>1
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+}
+
+do_mount() {
+	local FS_DEV="/dev/loop${1}"
+	local CLI=$2
+	
+	/bin/mount -t ext2 -o ro ${FS_DEV} ${STORDIR}/${CLI} >> /dev/null &2>1
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+}
+do_umount() {
+	local FS_DEV=$1
+	
+	/bin/umount ${FS_DEV} >> /dev/null &2>1
+	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+}
+
+
+case "$OSTYPE" in
+  RedHat)
+	# Source function library.
+	. /etc/rc.d/init.d/functions
+	case "$1" in
+	  start)
+		echo $"Starting $DESC: "
+		for line in $(grep -w "true" ${BKPDB})
+		do
+			cli_id=$(echo ${line} | awk -F":" '{ print $2 }')
+			dr_file=$(echo ${line} | awk -F":" '{ print $3 }')
+			cli_name=$(echo ${dr_file}| cut -d"." -f1)
+			action $"Enabling Loop device: /dev/loop${cli_id}: " enable_loop_ro ${cli_id} ${dr_file}
+			rval=$?
+			[ $rval -ne 0 ] && RETVAL=$rval
+			action $"Mounting DR Image: ${dr_file}: " do_mount ${cli_id} ${cli_name}
+			rval=$?
+			[ $rval -ne 0 ] && RETVAL=$rval
+		done
+		[ $RETVAL -ne 0 ] && exit $RETVAL
+		;;
+	  stop)
+		echo $"Shutting down $DESC: "
+		for lo_dev in $(mount -l |grep loop| grep "(ro)" | awk '{print $1}')
+		do
+			action $"Umounting DR Images: " do_umount ${lo_dev}
+			rval=$?
+			[ $rval -ne 0 ] && RETVAL=$rval
+			action $"Disabling Loop devices: " disable_loop ${lo_dev}
+			rval=$?
+			[ $rval -ne 0 ] && RETVAL=$rval
+		done
+		[ $RETVAL -ne 0 ] && exit $RETVAL
+		;;
+	  status)
+		UP=$(/bin/mount -l|grep loop|grep "(ro)"|wc -l)
+                if [ $UP -gt 0 ]; then
+                        RETVAL=0
+                        action $"Getting Status from $DESC: " get_err $RETVAL
+                        printf '%-15s\n' "$(tput bold)"
+                        printf '%-15s %-10s %-25s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
+                        mount -l|grep loop|grep "(ro)"|while read line;
+                        do
+                                LO_DEV=$(echo -e $line | awk '{print $1}')
+                                MNTDIR=$(echo -e $line | awk '{print $3}')
+                                FSTYPE=$(echo -e $line | awk '{print $5}')
+                                DRFILE=$(losetup $LO_DEV --show|awk '{print $3}')
+                                printf '%-15s %-10s %-25s %-50s\n' $LO_DEV $FSTYPE $MNTDIR $DRFILE
+                        done
+                else
+                        RETVAL=1
+                        action $"Getting Status from $DESC: " get_err $RETVAL
+                fi
+		[ $RETVAL -ne 0 ] && exit $RETVAL
+		;;
+	  restart | reload | force-reload)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+	  *)
+		echo $"Usage: drlm-stord {start|stop|status|restart|reload|force-reload}"
+		RETVAL=2
+		;;
+	esac
+	;;
+  Debian)
+	# Source function library.
+	. /lib/lsb/init-functions
+	case "$1" in
+	  start)
+		echo "[....] Starting $DESC:."
+		for line in $(grep -w "true" ${BKPDB})
+		do
+			cli_id=$(echo ${line} | awk -F":" '{ print $2 }')
+			dr_file=$(echo ${line} | awk -F":" '{ print $3 }')
+			cli_name=$(echo ${dr_file}| cut -d"." -f1)
+			log_begin_msg "Enabling Loop device: /dev/loop${cli_id} for $DESC..."
+			enable_loop_ro ${cli_id} ${dr_file}
+			rval=$?
+			[ $rval -ne 0 ] && RETVAL=$rval
+			log_end_msg $rval
+			log_begin_msg "Mounting DR Image: ${dr_file} for $DESC..."
+			do_mount ${cli_id} ${cli_name}
+			rval=$?
+			[ $rval -ne 0 ] && RETVAL=$rval
+			log_end_msg $rval
+		done
+#		log_progress_msg "drlm-stord"
+#		log_warning_msg "Not starting $DESC: no support in current kernel."
+		log_daemon_msg "Starting $DESC"
+		[ $RETVAL -ne 0 ] && {
+			log_end_msg $RETVAL
+			exit $RETVAL
+		}
+		log_end_msg 0
+#		log_warning_msg "Not starting $DESC: no exports."
+		;;
+	  stop)
+		echo "[....] Stopping $DESC:."
+		for lo_dev in $(mount -l |grep loop| grep "(ro," | awk '{print $1}')
+		do
+			log_begin_msg "Umounting DR Images for $DESC..."
+			do_umount ${lo_dev}
+			rval=$?
+			log_end_msg $rval
+			[ $rval -ne 0 ] && RETVAL=$rval
+			log_begin_msg "Disabling Loop devices for $DESC..."
+			disable_loop ${lo_dev}
+			rval=$?
+			log_end_msg $rval
+			[ $rval -ne 0 ] && RETVAL=$rval
+		done
+#		log_progress_msg "mountd"
+#		log_warning_msg "Not starting $DESC: no support in current kernel."
+		log_daemon_msg "Stopping $DESC"
+		[ $RETVAL -ne 0 ] && {
+			log_end_msg $RETVAL
+			exit $RETVAL
+		}
+		log_end_msg 0
+#		log_warning_msg "Not starting $DESC: no exports."
+		;;
+	  status)
+		log_daemon_msg "Getting Status from $DESC"
+		UP=$(/bin/mount -l|grep loop|grep "(ro,"|wc -l)
+		if [ $UP -gt 0 ]; then
+			RETVAL=0
+			log_end_msg $RETVAL
+			printf '%-15s\n' "$(tput bold)"
+			printf '%-15s %-10s %-25s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
+			/bin/mount -l|grep loop|grep "(ro,"|while read line;
+			do
+				LO_DEV=$(echo -e $line | awk '{print $1}')
+				MNTDIR=$(echo -e $line | awk '{print $3}')
+				FSTYPE=$(echo -e $line | awk '{print $5}')
+				DRFILE=$(losetup $LO_DEV --show|awk '{print $3}')
+				printf '%-15s %-10s %-25s %-50s\n' $LO_DEV $FSTYPE $MNTDIR $DRFILE
+			done
+		else
+			RETVAL=1
+			log_end_msg $RETVAL
+		fi
+                [ $RETVAL -ne 0 ] && {
+                        exit $RETVAL
+                }
+		;;
+	  restart | reload | force-reload)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+	  *)
+		log_success_msg "Usage: drlm-stord {start|stop|status|reload|force-reload|restart}"
+		RETVAL=2
+		;;
+	esac
+	;;
+  *)
+	log_warning_msg "$DESC not yet suported on this Linux Distribution!"
+	RETVAL=2
+	;;
+esac
+
+exit $RETVAL
+
