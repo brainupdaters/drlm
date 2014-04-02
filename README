@@ -1,9 +1,17 @@
-Disaster Recovery Linux Manager
-==============================
+DRLM - Disaster Recovery Linux Manager
+======================================
 
-Disaster Recovery Linux Manager is an Open Source bare metal disaster
-recovery and system migration management server-side solution. 
-DRLM uses ReaR on the client-side.
+Disaster Recovery Linux Manager is a Central Management Open Source Software
+for Linux Disaster Recovery and System Migrations.   
+
+DRLM provides Central Management and Deployment from small to large 
+Linux Disaster Recovery Implementations, based on Relax-and-Recover.
+
+Disaster Recovery Linux Manager brings a great Centralized Management Tool
+for Disaster Recovery to Linux SysAdmins. 
+
+From DRLM SysAdmins can run backups, add new systems to manage (clients), 
+enable or disable DR images for recovery of systems through network, ...
 
 Professional services and support are available.
 
@@ -22,7 +30,7 @@ syslinux
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
 we don't list them as requirements. In case your specific workflow requires
-additional tools, Desaster Recovery Linux Server will tell you.
+additional tools, Disaster Recovery Linux Manager will tell you.
 
 
 INSTALLATION
@@ -34,7 +42,7 @@ On DEB based systems you should....
 
 QUICK START GUIDE
 -----------------
-This quick start guide will show you how to run Desaster Recovery Linux Server
+This quick start guide will show you how to run Disaster Recovery Linux Manager
 
 CONFIGURATION
 -------------
@@ -63,17 +71,17 @@ Available options:
 List of commands:
 
  addbackup       register backup to DB. (Not yet implemented)
- *addclient       register new client to DB. (NEW!)
- *addnetwork      register new network to DB. (NEW!)
- *bkpmgr          manage DRLM backup states. (NEW!)
- delbackup       delete backup and unregister from DB. (Not yet implemented)
- *delclient       delete client from DB. (NEW!)
- *delnetwork      delete network from DB. (NEW!)
- *listbackup      list client backups.  (NEW!)
- *listclient      list existent clients. (NEW!)
- *listnetwork     list existent networks. (NEW!)
- *modclient       modify client properties. (NEW!)
- *modnetwork      modify network properties. (NEW!)
+ addclient       register new client to DB.
+ addnetwork      register new network to DB.
+ bkpmgr          manage DRLM backup states.
+ delbackup       delete backup and unregister from DB. 
+ delclient       delete client from DB.
+ delnetwork      delete network from DB.
+ listbackup      list client backups. 
+ listclient      list existent clients.
+ listnetwork     list existent networks.
+ modclient       modify client properties.
+ modnetwork      modify network properties.
  runbackup       run backup and register to DB.
  
  
