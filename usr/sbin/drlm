@@ -3,7 +3,7 @@
 #
 # Disaster Recovery Linux Manager
 #
-#    Disaster Recovery is free software; you can redistribute it and/or modify
+#    Disaster Recovery Linux Manager is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation; either version 2 of the License, or
 #    (at your option) any later version.
@@ -26,8 +26,8 @@
 # Versioning
 PRODUCT="Disaster Recovery Linux Manager"
 PROGRAM=${0##*/}
-VERSION=1.01
-RELEASE_DATE="2013-12-08"
+VERSION=1.00
+RELEASE_DATE="2014-04-08"
 
 STARTTIME=$SECONDS
 
@@ -87,7 +87,7 @@ done
 set -- ${PARAMETRES1[@]}
 
 # Parse options
-OPTS="$(getopt -n $PROGRAM -o "dDhsSvVr:" -l "help,version" -- "$@")"
+OPTS="$(getopt -n $PROGRAM -o "dDhsSvV" -l "help,version" -- "$@")"
 if (( $? != 0 )); then
 	echo "Try \`$PROGRAM --help' for more information."
 	exit 1
@@ -230,7 +230,7 @@ for config in "$ARCH" "$OS" \
 	fi
 done
 # user configuration files, last thing is to overwrite variables if we are in the rescue system
-for config in site local rescue; do
+for config in site local; do
 	Source "$CONFIG_DIR/$config.conf"
 done
 
