@@ -1,0 +1,371 @@
+'\" t
+.\"     Title: drlm
+.\"    Author: [see the "AUTHORS" section]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 04/01/2014
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
+.\"
+.TH "DRLM" "8" "04/01/2014" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+drlm \- bare metal disaster recovery linux manager 
+.SH "SYNOPSIS"
+.sp
+\fBdrlm\fR [\fB\-dDsSvV\fR] \fICOMMAND\fR [\-\- \fIARGS\fR\&...]
+.SH "DESCRIPTION"
+.sp
+DRLM is the first manager for ReaR, the leading Open Source disaster recovery solution\&. 
+.sp
+DRLM comes with ABSOLUTELY NO WARRANTY; for details see the GNU General Public License at: \m[blue]\fBhttp://www\&.gnu\&.org/licenses/gpl\&.html\fR\m[]
+.SH "OPTIONS"
+.SS "GLOBAL OPTIONS"
+.PP
+\-d
+.RS 4
+
+\fBdebug mode\fR
+(log debug messages to log file)
+.RE
+.PP
+\-D
+.RS 4
+
+\fBdebugscript mode\fR
+(log every function call)
+.RE
+.PP
+\-s
+.RS 4
+
+\fBsimulation mode\fR
+(show what scripts drlm would include)
+.RE
+.PP
+\-S
+.RS 4
+
+\fBstep\-by\-step mode\fR
+(acknowledge each script individually)
+.RE
+.PP
+\-v
+.RS 4
+
+\fBverbose mode\fR
+(show progress output)
+.RE
+.PP
+\-V
+.RS 4
+version information
+.RE
+.SS "COMMANDS"
+.PP
+\fBaddbackup\fR
+.RS 4
+register backup to database 
+.RE
+.PP
+\fBaddclient\fR
+.RS 4
+add client to client database
+.RE
+.PP
+\fBaddnetwork\fR
+.RS 4
+add network to netwok database
+.RE
+.PP
+\fBbkpmgr\fR
+.RS 4
+Set DR backups enabled or disabled for recovery
+.RE
+.PP
+\fBdelbackup\fR
+.RS 4
+delete client backup and unregister from database
+.RE
+.PP
+\fBdelclient\fR
+.RS 4
+delete client
+.RE
+.PP
+\fBdelnetwork\fR
+.RS 4
+delete network from DRLM
+.RE
+.PP
+\fBinstclient\fR
+.RS 4
+install client from DRLM
+.RE
+.PP
+\fBlistbackup\fR
+.RS 4
+list client backups
+.RE
+.PP
+\fBlistclient\fR
+.RS 4
+list clients
+.RE
+.PP
+\fBlistnetwork\fR
+.RS 4
+list network
+.RE
+.PP
+\fBmodbackup\fR
+.RS 4
+change backup properties
+.RE
+.PP
+\fBmodclient\fR
+.RS 4
+modify client
+.RE
+.PP
+\fBmodnetwork\fR
+.RS 4
+change network properties
+.RE
+.PP
+\fBrunbackup\fR
+.RS 4
+run client backup and register to database
+.sp
+.SS "ARGUMENTS"
+.PP
+\-c \-\-client
+.RS 4
+
+\fBclient name\fR
+(client_name, used in addclient,addnetwork,addbkpmgri,delclient arguments)
+.RE
+.PP
+\-i \-\-ipaddr
+.RS 4
+
+\fBip address\fR
+(ip address, used in addclient,addnetwork,addbkpmgr arguments)
+.RE
+.PP
+\-M \-\-macaddr
+.RS 4
+
+\fBmac address\fR
+(client mac address)
+.RE
+.PP
+\-n \-\-netname
+.RS 4
+
+\fBnetwork name\fR
+(this parameter must exists on the network database, used in addnetwork,addclient,delnetwork)
+.RE
+.PP
+\-g \-\-gateway
+.RS 4
+
+\fBgateway\fR
+(network argument)
+.RE
+.PP
+\-m \-\-mask
+.RS 4
+
+\fBmask\fR
+(network argument)
+.RE
+.PP
+\-s \-\-server
+.RS 4
+
+\fBserver name\fR
+(network argument)
+.RE
+.PP
+\-I \-\-id
+.RS 4
+
+\fBBackup id\fR
+(bkpmgr,delclient,delbackup,delnetwork argument)
+.RE
+.PP
+\-e \-\-enable
+.RS 4
+
+\fBenable backup\fR
+(bkpmgr argument)
+.RE
+.PP
+\-d \-\-disable
+.RS 4
+
+\fBdisable backup\fR
+(bkpmgr argument)
+.RE
+.PP
+\-P 
+.RS 4
+
+\fBPermanent backup\fR
+(bkpmgr argument)
+.RE
+.PP
+\-A \-\-all
+.RS 4
+
+\fBAll\fR
+(delbackup, list client, list network, listbackup argument)
+.RE 
+.PP
+\-h \-\-help
+.RS 4
+
+\fBhelp\fR
+(show help)
+.RE
+
+
+
+version information
+.sp
+Use \fIdrlm \-v help\fR for more advanced commands\&.
+.SH "BACKGROUND INFORMATION"
+.sp
+The process of bare metal disaster recovery consists of two parts:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+.RE
+.SH "EXAMPLES"
+.sp
+The next examples shows how to use drlm from command line\&. 
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# drlm -dV listclient --all
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+To list all clients on the clent database\&. Options debug and Verbose are applied. 
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# drlm -vD addnetwork -a 192\&.168\&.2\&.0 -g 192\&.168\&.2\&.1 -s 192\&.168\&.2\&.10 -n Net1 -m 255\&.255\&.255\&.0
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+To create a new network \&. Options debug and Verbose are applied.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# drlm -vD addclient -n Net1 -a 192\&.168\&.2\&.113 -m 08\&:00\&:27\&:02\&:01\&:A7 -c WOPR
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+To create a new client (WOPR) in this example\&. Options debug and Verbose are appliedi\&. Net1 must exist\&.
+.sp
+.SH "FILES"
+.PP
+/usr/sbin/drlm
+.RS 4
+The program itself\&.
+.RE
+.PP
+/usr/share/drlm/conf/default.com
+.RS 4
+Default configuration file\&.
+.RE
+.PP
+/etc/drlm/local\&.conf
+.RS 4
+System specific configuration can be set here\&.
+.RE
+.PP
+/etc/drlm/site\&.conf
+.RS 4
+Site specific configuration can be set here\&.
+.RE
+.PP
+/var/log/drlm/
+.RS 4
+Directory holding the log files\&.
+.RE
+.PP
+/tmp/drlm\&.####
+.RS 4
+Relax\-and\-Recover script components\&.
+.RE
+.PP
+/usr/share/drlm/conf/default\&.conf
+.RS 4
+Relax\-and\-Recover\(cqs included defaults\&. Contains a complete set of parameters and its explanation\&. Please do not edit or modify\&. Copy values to
+\fIlocal\&.conf\fR
+or
+\fIsite\&.conf\fR
+instead\&.
+.RE
+.SH "BUGS"
+.sp
+Feedback is welcome, please report any issues or improvements to our issue\-tracker at: \m[blue]\fBhttp://github\&.com/drlm/issues/\fR\m[]
+.SH "AUTHORS"
+.sp
+Pau Roura, Didac Oliveira, Ruben Carbonell\&.
+.sp
+Logan & Krbu (this man page)\&.
+.sp
+DRLM is a collaborative process using Github at: \m[blue]\fBhttp://github\&.com/drlm/\fR\m[]
+.sp
+The DRLM website is located at: \m[blue]\fBhttp://DRLM\&.org/\fR\m[]
+.SH "COPYRIGHT"
+.sp
+(c) 2013\-2014
+.sp
+Pau Roura
+.sp
+Didac Oliveira
+.sp
+Ruben Carbonell
+.sp
+Disaster Recovery Linux Manager comes with ABSOLUTELY NO WARRANTY; for details see the GNU General Public License at \m[blue]\fBhttp://www\&.gnu\&.org/licenses/gpl\&.html\fR\m[]
