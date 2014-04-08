@@ -79,6 +79,12 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
         else
+		if [ -z "$CLI_NAME" ] || [ -z "$ENABLE" ] || [ -z "$DISABLE" ]; then
+			echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+			echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+			exit 1
+		fi
+        
                 if [ "$ENABLE" == "yes" ]; then
                         if  [ -z "$CLI_NAME" ] || [ -z "$BKP_ID" ]; then
                                 echo "$PROGRAM $WORKFLOW: ENABLE: --client and --id options are required"
