@@ -9,7 +9,7 @@ case "$1" in
 	mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
 	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
 	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
-	mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
+	#mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
         ;;
 
     upgrade)
@@ -19,7 +19,7 @@ case "$1" in
 	mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
 	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
 	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
-	mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
+	#mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
 	;;
 
     *)
