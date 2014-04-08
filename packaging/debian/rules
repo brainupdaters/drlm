@@ -77,7 +77,6 @@ binary-indep: build
 	dh_installdocs README
 	dh_installchangelogs
 #	dh_installman usr/share/drlm/doc/drlm.8
-	dh_installman usr/share/drlm/man/man8/drlm.8
 	find debian/drlm -name ".git*" -exec rm {} \;
 #	rm debian/drlm/usr/share/doc/drlm/Makefile
 #	rm debian/drlm/usr/share/doc/drlm/drlm.8.txt
