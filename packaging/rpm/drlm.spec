@@ -95,7 +95,7 @@ Professional services and support are available.
 %defattr(-, root, root, 0755)
 #%doc AUTHORS COPYING README doc/*.txt
 %doc AUTHORS COPYING README 
-#%doc %{_mandir}/man8/drlm.8*
+%doc %{_mandir}/man8/drlm.8*
 #%config(noreplace) %{_sysconfdir}/cron.d/drlm
 %config(noreplace) %{_sysconfdir}/drlm/
 %{_datadir}/drlm/
@@ -104,5 +104,5 @@ Professional services and support are available.
 %{_sysconfdir}/init.d/drlm-stord
 
 #%changelog
-#* Sun Mar 08 2013 Didac Oliveira
+#* Sun Apr 08 2013 Didac Oliveira
 #- Initial package. 

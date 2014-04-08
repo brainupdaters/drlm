@@ -35,9 +35,9 @@ binary-indep: build
 		debian/drlm/usr/sbin/ \
 		debian/drlm/usr/share/ \
 		debian/drlm/var/lib/drlm/ \
+		debian/drlm/usr/share/man/man8/ \
 		debian/drlm/var/log/drlm/
 	
-#		debian/drlm/usr/share/man/man8/ \
 
 	# copy drlm components into directories
 	cp -av etc/drlm debian/drlm/etc/
@@ -45,6 +45,7 @@ binary-indep: build
 	cp -av usr/sbin/drlm debian/drlm/usr/sbin/
 	cp -av usr/share/drlm debian/drlm/usr/share/
 	cp -av var/lib/drlm debian/drlm/var/lib/
+	cp -av doc/drlm.8 debian/drlm/usr/share/man/man8/
 	
 	#Install pre/post inst/rm scripts 
 	install -Dp -m0755 packaging/debian/preinst debian/drlm/DEBIAN/preinst
@@ -65,17 +66,17 @@ binary-indep: build
 		debian/drlm/usr/sbin/drlm
 	
 	# update man page with correct locations
-#	install -Dp -m0644 doc/drlm.8 debian/drlm/usr/share/man/man8/drlm.8
-#	sed -i \
-#		-e 's#/usr/share/doc/packages#/usr/share/doc#' \
-#		debian/drlm/usr/share/man/man8/drlm.8
-#	
+	install -Dp -m0644 doc/drlm.8 debian/drlm/usr/share/man/man8/drlm.8
+	sed -i \
+		-e 's#/usr/share/doc/packages#/usr/share/doc#' \
+		debian/drlm/usr/share/man/man8/drlm.8
+	
 	# --- end custom part for installing
 	
 #	dh_installdocs README doc/*
 	dh_installdocs README
 	dh_installchangelogs
-	# dh_installman usr/share/drlm/doc/drlm.8
+	dh_installman usr/share/drlm/doc/drlm.8
 	find debian/drlm -name ".git*" -exec rm {} \;
 #	rm debian/drlm/usr/share/doc/drlm/Makefile
 #	rm debian/drlm/usr/share/doc/drlm/drlm.8.txt

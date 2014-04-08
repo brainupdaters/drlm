@@ -53,7 +53,7 @@ ifeq ($(OFFICIAL),)
 #    obspackage = $(name)
 endif
 
-#.PHONY: doc
+# .PHONY: doc
 
 all:
 	@echo "Nothing to build. Use \`make help' for more information."
@@ -80,7 +80,6 @@ clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
 	#make -C doc clean
-	#make -C clean
 
 ### You can call 'make validate' directly from your .git/hooks/pre-commit script
 validate:
@@ -92,12 +91,13 @@ validate:
 #	find -L . -type l
 
 man:
-#	@echo -e "\033[1m== Prepare manual ==\033[0;0m"
-#	make -C doc man
+	@echo -e "\033[1m== Prepare manual ==\033[0;0m"
+	#make -C doc man
+	install -Dp -m0644 doc/drlm.8 $(DESTDIR)$(mandir)/man8/drlm.8
 
 doc:
-#	@echo -e "\033[1m== Prepare documentation ==\033[0;0m"
-#	make -C doc docs
+	@echo -e "\033[1m== Prepare documentation ==\033[0;0m"
+	#make -C doc docs
 
 ifneq ($(git_date),)
 rewrite:
@@ -162,27 +162,28 @@ install-var:
 	-find $(DESTDIR)$(localstatedir)/lib/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 
 install-doc:
-#	@echo -e "\033[1m== Installing documentation ==\033[0;0m"
-#	make -C doc install
-#	sed -i -e 's,/etc,$(sysconfdir),' \
-#		-e 's,/usr/sbin,$(sbindir),' \
-#		-e 's,/usr/share,$(datadir),' \
-#		-e 's,/usr/share/doc/packages,$(datadir)/doc,' \
-#		$(DESTDIR)$(mandir)/man8/drlm.8
+	@echo -e "\033[1m== Installing documentation ==\033[0;0m"
+	make -C doc install
+	sed -i -e 's,/etc,$(sysconfdir),' \
+		-e 's,/usr/sbin,$(sbindir),' \
+		-e 's,/usr/share,$(datadir),' \
+		-e 's,/usr/share/doc/packages,$(datadir)/doc,' \
+		$(DESTDIR)$(mandir)/man8/drlm.8
 
+install: validate man install-config rewrite install-bin restore install-data install-var 
 #install: validate man install-config rewrite install-bin restore install-data install-var install-doc
-install: validate install-config rewrite install-bin restore install-data install-var 
+#install: validate install-config rewrite install-bin restore install-data install-var 
 
 uninstall:
 	@echo -e "\033[1m== Uninstalling DRLM ==\033[0;0m"
 	-rm -v $(DESTDIR)$(sbindir)/drlm
 	-rm -v $(DESTDIR)$(mandir)/man8/drlm.8
 	-rm -rv $(DESTDIR)$(datadir)/drlm/
-#	rm -rv $(DESTDIR)$(sysconfdir)/drlm/
-#	rm -rv $(DESTDIR)$(localstatedir)/lib/drlm/
+	rm -rv $(DESTDIR)$(sysconfdir)/drlm/
+	rm -rv $(DESTDIR)$(localstatedir)/lib/drlm/
 
-#dist: clean validate man rewrite $(name)-$(distversion).tar.gz restore
-dist: clean validate rewrite $(name)-$(distversion).tar.gz restore
+dist: clean validate man rewrite $(name)-$(distversion).tar.gz restore
+#dist: clean validate rewrite $(name)-$(distversion).tar.gz restore
 
 $(name)-$(distversion).tar.gz:
 	@echo -e "\033[1m== Building archive $(name)-$(distversion) ==\033[0;0m"
