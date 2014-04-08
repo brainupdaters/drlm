@@ -76,7 +76,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delnetwork )
 	fi
 #fi
 
-if [ -z "$NET_NAME" ] || [ -z "NET_ID" ]; then
+if [ -z "$NET_NAME" ] || [ -z "$NET_ID" ]; then
 	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
 	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	exit 1
