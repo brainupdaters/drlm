@@ -104,7 +104,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addnetwork )
 	done
 #fi
 
-if [ -z "$NET_NAME" ] || [ -z "$NET_IP" ] || [ -z "$NET_GW" ] || [ -z "$NET_MASK" ] || [ -z "$NET_SRV" ]; then
+if [ -z "$NET_NAME" ] && [ -z "$NET_IP" ] && [ -z "$NET_GW" ] && [ -z "$NET_MASK" ] && [ -z "$NET_SRV" ]; then
 	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
 	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	exit 1
