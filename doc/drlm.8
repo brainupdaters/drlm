@@ -286,7 +286,7 @@ To list all clients on the clent database\&. Options debug and Verbose are appli
 .RS 4
 .\}
 .nf
-# drlm -vD addnetwork -a 192\&.168\&.2\&.0 -g 192\&.168\&.2\&.1 -s 192\&.168\&.2\&.10 -n Net1 -m 255\&.255\&.255\&.0
+# drlm -vD addnetwork -i 192\&.168\&.2\&.0 -g 192\&.168\&.2\&.1 -s 192\&.168\&.2\&.10 -n Net1 -m 255\&.255\&.255\&.0
 .fi
 .if n \{\
 .RE
@@ -298,7 +298,7 @@ To create a new network \&. Options debug and Verbose are applied.
 .RS 4
 .\}
 .nf
-# drlm -vD addclient -n Net1 -a 192\&.168\&.2\&.113 -m 08\&:00\&:27\&:02\&:01\&:A7 -c WOPR
+# drlm -vD addclient -n Net1 -i 192\&.168\&.2\&.113 -M 08\&:00\&:27\&:02\&:01\&:A7 -c WOPR
 .fi
 .if n \{\
 .RE
