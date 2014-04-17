@@ -18,20 +18,16 @@
 #
 #
 
-WORKFLOW_addbackup_DESCRIPTION="register backup to database"
-WORKFLOWS=( ${WORKFLOWS[@]} addbackup )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addbackup )
+#WORKFLOW_addbackup_DESCRIPTION="register backup to database"
+#WORKFLOWS=( ${WORKFLOWS[@]} addbackup )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addbackup )
 
-#if [ "$WORKFLOW" == "addbackup" ]; then 
+if [ "$WORKFLOW" == "addbackup" ]; then 
     echo "" > /dev/null
-#fi
 
 WORKFLOW_addbackup () {
 #    echo addbackup workflow
-    SourceStage "backup/add"
+#    SourceStage "backup/add"
 }
 
-#1	Register manual backup to database
-#2	...
-#3	...
-#4	...
+fi

@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_delnetwork_DESCRIPTION="delete network from DRLM"
+WORKFLOW_delnetwork_DESCRIPTION="delete network from DB."
 WORKFLOWS=( ${WORKFLOWS[@]} delnetwork )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delnetwork )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delnetwork )
 
-#if [ "$WORKFLOW" == "delnetwork" ]; then 
+if [ "$WORKFLOW" == "delnetwork" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "n:I:h" -l "netname:,id:,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -74,15 +74,16 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delnetwork )
 	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
-#fi
 
-if [ -z "$NET_NAME" ] && [ -z "$NET_ID" ]; then
-	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	exit 1
+	if [ -z "$NET_NAME" ] && [ -z "$NET_ID" ]; then
+		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+	fi
+
+	WORKFLOW_delnetwork () {
+    		#echo delnetwork workflow
+    		SourceStage "network/del"
+	}
+
 fi
-
-WORKFLOW_delnetwork () {
-    #echo delnetwork workflow
-    SourceStage "network/del"
-}

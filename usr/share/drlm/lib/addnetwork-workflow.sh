@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_addnetwork_DESCRIPTION="add network to DRLM"
+WORKFLOW_addnetwork_DESCRIPTION="register new network to DB."
 WORKFLOWS=( ${WORKFLOWS[@]} addnetwork )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addnetwork )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addnetwork )
 
-#if [ "$WORKFLOW" == "addnetwork" ]; then 
+if [ "$WORKFLOW" == "addnetwork" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "n:i:g:m:s:h" -l "netname:,ipaddr:,gateway:,mask:,server:,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -102,15 +102,15 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addnetwork )
 	        esac
 	        shift
 	done
-#fi
 
-if [ -z "$NET_NAME" ] || [ -z "$NET_IP" ] || [ -z "$NET_GW" ] || [ -z "$NET_MASK" ] || [ -z "$NET_SRV" ]; then
-	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	exit 1
+	if [ -z "$NET_NAME" ] || [ -z "$NET_IP" ] || [ -z "$NET_GW" ] || [ -z "$NET_MASK" ] || [ -z "$NET_SRV" ]; then
+		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+	fi
+
+	WORKFLOW_addnetwork () {
+		#echo addnetwork workflow
+    		SourceStage "network/add"
+	}
 fi
-
-WORKFLOW_addnetwork () {
-#    echo addnetwork workflow
-    SourceStage "network/add"
-}

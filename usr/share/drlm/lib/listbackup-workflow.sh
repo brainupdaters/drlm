@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_listbackup_DESCRIPTION="list client backups"
+WORKFLOW_listbackup_DESCRIPTION="list client backups."
 WORKFLOWS=( ${WORKFLOWS[@]} listbackup )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listbackup )
 
-#if [ "$WORKFLOW" == "listbackup" ]; then 
+if [ "$WORKFLOW" == "listbackup" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "c:Ah" -l "client:,all,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -60,10 +60,10 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listbackup )
 	        esac
 	        shift
 	done
-#fi
 
-WORKFLOW_listbackup () {
-    #echo listbackup workflow
-    SourceStage "backup/list"
-}
+	WORKFLOW_listbackup () {
+    		#echo listbackup workflow
+    		SourceStage "backup/list"
+	}
 
+fi

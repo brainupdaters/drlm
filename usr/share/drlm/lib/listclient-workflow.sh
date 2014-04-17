@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_listclient_DESCRIPTION="list clients"
+WORKFLOW_listclient_DESCRIPTION="list registered clients."
 WORKFLOWS=( ${WORKFLOWS[@]} listclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listclient )
 
-#if [ "$WORKFLOW" == "listclient" ]; then 
+if [ "$WORKFLOW" == "listclient" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "c:Ah" -l "client:,all,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -60,10 +60,10 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listclient )
 	        esac
 	        shift
 	done
-#fi
 
+	WORKFLOW_listclient () {
+    		#echo listclient workflow
+    		SourceStage "client/list"
+	}
 
-WORKFLOW_listclient () {
-    #echo listclient workflow
-    SourceStage "client/list"
-}
+fi

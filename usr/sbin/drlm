@@ -162,8 +162,11 @@ for script in $SHARE_DIR/lib/*-functions.sh ; do
 #	echo $script >> /tmp/sourcetest.log
 	source $script
 done
-# load WORKFLOW
-source $SHARE_DIR/lib/$WORKFLOW-workflow.sh
+# load workflows
+for script in $SHARE_DIR/lib/*-workflow.sh ; do
+	source $script
+done
+#source $SHARE_DIR/lib/$WORKFLOW-workflow.sh
 
 if ! has_binary pidof; then
 	echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2

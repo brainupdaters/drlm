@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_delbackup_DESCRIPTION="delete client backup and unregister from database"
+WORKFLOW_delbackup_DESCRIPTION="delete backup and unregister from DB."
 WORKFLOWS=( ${WORKFLOWS[@]} delbackup )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delbackup )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delbackup )
 
-#if [ "$WORKFLOW" == "delbackup" ]; then 
+if [ "$WORKFLOW" == "delbackup" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "I:c:Ah" -l "id:,client:,all,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -69,7 +69,6 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delbackup )
 		esac
 		shift
 	done
-#fi
 
         if [ -n "$BKP_ID" ] && [ -n "$CLEAN_ALL" ]; then
                 echo "$PROGRAM $WORKFLOW: Only one option can be used: [ -A|--all ] or [ -I|--id ]"
@@ -85,7 +84,9 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} delbackup )
             fi
         fi
 
-WORKFLOW_delbackup () {
-    #echo delbackup workflow
-    SourceStage "backup/del"
-}
+	WORKFLOW_delbackup () {
+    		#echo delbackup workflow
+    		SourceStage "backup/del"
+	}
+
+fi

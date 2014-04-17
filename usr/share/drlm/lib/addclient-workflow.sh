@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_addclient_DESCRIPTION="add client to database"
+WORKFLOW_addclient_DESCRIPTION="register new client to DB."
 WORKFLOWS=( ${WORKFLOWS[@]} addclient )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
 
-#if [ "$WORKFLOW" == "addclient" ]; then 
+if [ "$WORKFLOW" == "addclient" ]; then 
         # Parse options
         OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:h" -l "client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
         if (( $? != 0 )); then
@@ -90,15 +90,15 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
                 esac
                 shift
         done
-#fi
 
-if [ -z "$CLI_NAME" ] || [ -z "$CLI_IP" ] || [ -z "$CLI_MAC" ] || [ -z "$CLI_NET" ]; then
-	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	exit 1
+	if [ -z "$CLI_NAME" ] || [ -z "$CLI_IP" ] || [ -z "$CLI_MAC" ] || [ -z "$CLI_NET" ]; then
+		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+	fi
+
+	WORKFLOW_addclient () {
+    		#echo addclient workflow
+    		SourceStage "client/add"
+	}
 fi
-
-WORKFLOW_addclient () {
-    #echo addclient workflow
-    SourceStage "client/add"
-}

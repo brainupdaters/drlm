@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_listnetwork_DESCRIPTION="list networks"
+WORKFLOW_listnetwork_DESCRIPTION="list registered networks."
 WORKFLOWS=( ${WORKFLOWS[@]} listnetwork )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listnetwork )
 
-#if [ "$WORKFLOW" == "listnetwork" ]; then 
+if [ "$WORKFLOW" == "listnetwork" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "n:Ah" -l "netname:,all,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -60,9 +60,10 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listnetwork )
 	        esac
 	        shift
 	done
-#fi
 
-WORKFLOW_listnetwork () {
-    #echo listnetwork workflow
-    SourceStage "network/list"
-}
+	WORKFLOW_listnetwork () {
+    		#echo listnetwork workflow
+    		SourceStage "network/list"
+	}
+
+fi

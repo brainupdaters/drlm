@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_bkpmgr_DESCRIPTION="Set DR backups enabled or disabled for recovery"
+WORKFLOW_bkpmgr_DESCRIPTION="manage DRLM backup states."
 WORKFLOWS=( ${WORKFLOWS[@]} bkpmgr )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
 
-#if [ "$WORKFLOW" == "bkpmgr" ]; then
+if [ "$WORKFLOW" == "bkpmgr" ]; then
         # Parse options
         OPT="$(getopt -n $WORKFLOW -o "c:I:edPh" -l "client:,id:,enable,disable,help" -- "$@")"
 
@@ -94,10 +94,10 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
                         fi
                 fi
         fi
-#fi
 
-WORKFLOW_bkpmgr () {
-    #echo bkpmgr workflow
-    SourceStage "backup/mgr"
-}
+	WORKFLOW_bkpmgr () {
+    		#echo bkpmgr workflow
+    		SourceStage "backup/mgr"
+	}
 
+fi

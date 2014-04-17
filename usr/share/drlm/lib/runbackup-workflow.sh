@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_runbackup_DESCRIPTION="run client backup and register to database"
+WORKFLOW_runbackup_DESCRIPTION="run backup and register to DB."
 WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
-#if [ "$WORKFLOW" == "runbackup" ]; then 
+if [ "$WORKFLOW" == "runbackup" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "c:I:h" -l "client:,id:,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -74,16 +74,16 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	        exit 1
 	fi
-#fi
 
-if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
-	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	exit 1
+	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
+		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+	fi
+
+	WORKFLOW_runbackup () {
+	    #echo runbackup workflow
+	    SourceStage "backup/run"
+	}
+
 fi
-
-WORKFLOW_runbackup () {
-    #echo runbackup workflow
-    SourceStage "backup/run"
-}
-

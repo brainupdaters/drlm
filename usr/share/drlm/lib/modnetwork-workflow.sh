@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_modnetwork_DESCRIPTION="change network properties"
+WORKFLOW_modnetwork_DESCRIPTION="modify network properties."
 WORKFLOWS=( ${WORKFLOWS[@]} modnetwork )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modnetwork )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modnetwork )
 
-#if [ "$WORKFLOW" == "modnetwork" ]; then 
+if [ "$WORKFLOW" == "modnetwork" ]; then 
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "I:n:g:m:s:h" -l "id:,netname:,gateway:,mask:,server:,help" -- "$@")"
 	if (( $? != 0 )); then
@@ -118,15 +118,15 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modnetwork )
         	exit 1
         fi
 
-#fi
+	if [ -z "$NET_NAME" ] && [ -z "$NET_ID" ]; then
+		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+	fi
 
-if [ -z "$NET_NAME" ] && [ -z "$NET_ID" ]; then
-	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	exit 1
+	WORKFLOW_modnetwork () {
+    		#echo modnetwork workflow
+    		SourceStage "network/mod"
+	}
+
 fi
-
-WORKFLOW_modnetwork () {
-    #echo modnetwork workflow
-    SourceStage "network/mod"
-}

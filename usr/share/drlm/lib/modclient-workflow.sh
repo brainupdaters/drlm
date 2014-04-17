@@ -18,11 +18,11 @@
 #
 #
 
-WORKFLOW_modclient_DESCRIPTION="modify client"
+WORKFLOW_modclient_DESCRIPTION="modify client properties."
 WORKFLOWS=( ${WORKFLOWS[@]} modclient )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modclient )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modclient )
 
-#if [ "$WORKFLOW" == "modclient" ]; then 
+if [ "$WORKFLOW" == "modclient" ]; then 
         # Parse options
         OPT="$(getopt -n $WORKFLOW -o "I:c:i:M:n:h" -l "id:,client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
         if (( $? != 0 )); then
@@ -101,16 +101,16 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modclient )
                 esac
                 shift
         done
-#fi
 
-if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
-	echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	exit 1
+	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
+		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+	fi
+
+	WORKFLOW_modclient () {
+    		#echo modclient workflow
+    		SourceStage "client/mod"
+	}
+
 fi
-
-WORKFLOW_modclient () {
-    #echo modclient workflow
-    SourceStage "client/mod"
-}
-

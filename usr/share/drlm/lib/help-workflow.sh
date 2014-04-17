@@ -51,7 +51,7 @@ $(
 EOF
 
 if [[ -z "$VERBOSE" ]]; then
-	echo "Use 'drlm -v help' for more advanced commands."
+	echo "Use 'drlm COMMAND --help' for more advanced commands."
 fi
 
 	EXIT_CODE=1
