@@ -84,8 +84,6 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
                                 echo "$PROGRAM $WORKFLOW: ENABLE: --client and --id options are required"
                                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
-                        else
-                                echo "EN OK!"
                         fi
                 fi
                 if [ "$DISABLE" == "yes" ]; then
@@ -93,8 +91,6 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} bkpmgr )
                                 echo "$PROGRAM $WORKFLOW: DISABLE: --client option required"
                                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                                 exit 1
-                        else
-                                echo "DIS OK!"
                         fi
                 fi
         fi
