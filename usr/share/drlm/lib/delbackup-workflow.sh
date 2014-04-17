@@ -69,6 +69,12 @@ if [ "$WORKFLOW" == "delbackup" ]; then
 		esac
 		shift
 	done
+	
+        if [ -z "$CLI_NAME" ];then
+	        echo "$PROGRAM $WORKFLOW: Client name is required."
+	       	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+	        exit 1
+        fi
 
         if [ -n "$BKP_ID" ] && [ -n "$CLEAN_ALL" ]; then
                 echo "$PROGRAM $WORKFLOW: Only one option can be used: [ -A|--all ] or [ -I|--id ]"
@@ -76,14 +82,6 @@ if [ "$WORKFLOW" == "delbackup" ]; then
                 exit 1
         fi
         
-        if [ -n "$CLEAN_ALL" ]; then
-        	if [ -z "$CLI_NAME" ];then
-        		echo "$PROGRAM $WORKFLOW: Client name is required: [ -A|--all ] and [ -c|--client ]"
-                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-                exit 1
-            fi
-        fi
-
 	WORKFLOW_delbackup () {
     		#echo delbackup workflow
     		SourceStage "backup/del"
