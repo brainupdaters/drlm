@@ -34,7 +34,7 @@ drlm \- bare metal disaster recovery linux manager
 \fBdrlm\fR [\fB\-dDsSvV\fR] \fICOMMAND\fR [\-\- \fIARGS\fR\&...]
 .SH "DESCRIPTION"
 .sp
-DRLM is the first manager for ReaR, the leading Open Source disaster recovery solution\&. 
+DRLM is the first central manager for ReaR, the leading Open Source disaster recovery solution\&. 
 .sp
 DRLM comes with ABSOLUTELY NO WARRANTY; for details see the GNU General Public License at: \m[blue]\fBhttp://www\&.gnu\&.org/licenses/gpl\&.html\fR\m[]
 .SH "OPTIONS"
@@ -83,37 +83,37 @@ version information
 .PP
 \fBaddbackup\fR
 .RS 4
-register backup to database 
+register backup to DB. (Not yet implemented) 
 .RE
 .PP
 \fBaddclient\fR
 .RS 4
-add client to client database
+register new client to DB.
 .RE
 .PP
 \fBaddnetwork\fR
 .RS 4
-add network to netwok database
+register new network to DB.
 .RE
 .PP
 \fBbkpmgr\fR
 .RS 4
-Set DR backups enabled or disabled for recovery
+manage DRLM backup states.
 .RE
 .PP
 \fBdelbackup\fR
 .RS 4
-delete client backup and unregister from database
+delete backup and unregister from DB.
 .RE
 .PP
 \fBdelclient\fR
 .RS 4
-delete client
+delete client from DB.
 .RE
 .PP
 \fBdelnetwork\fR
 .RS 4
-delete network from DRLM
+delete network from DB.
 .RE
 .PP
 \fBinstclient\fR
@@ -123,37 +123,37 @@ install client from DRLM
 .PP
 \fBlistbackup\fR
 .RS 4
-list client backups
+list client backups.
 .RE
 .PP
 \fBlistclient\fR
 .RS 4
-list clients
+list existent clients.
 .RE
 .PP
 \fBlistnetwork\fR
 .RS 4
-list network
+list existent networks.
 .RE
 .PP
 \fBmodbackup\fR
 .RS 4
-change backup properties
+modify backup properties. (Not yet implemented)
 .RE
 .PP
 \fBmodclient\fR
 .RS 4
-modify client
+ modify client properties.
 .RE
 .PP
 \fBmodnetwork\fR
 .RS 4
-change network properties
+modify network properties.
 .RE
 .PP
 \fBrunbackup\fR
 .RS 4
-run client backup and register to database
+modify network properties.
 .sp
 .SS "ARGUMENTS"
 .PP
@@ -161,14 +161,14 @@ run client backup and register to database
 .RS 4
 
 \fBclient name\fR
-(client_name, used in addclient,addnetwork,addbkpmgri,delclient arguments)
+(client_name, used in addclient, addnetwork, bkpmgr and delclient arguments)
 .RE
 .PP
 \-i \-\-ipaddr
 .RS 4
 
 \fBip address\fR
-(ip address, used in addclient,addnetwork,addbkpmgr arguments)
+(ip address, used in addclient, addnetwork and bkpmgr arguments)
 .RE
 .PP
 \-M \-\-macaddr
@@ -210,7 +210,7 @@ run client backup and register to database
 .RS 4
 
 \fBBackup id\fR
-(bkpmgr,delclient,delbackup,delnetwork argument)
+(bkpmgr, delclient, delbackup and delnetwork argument)
 .RE
 .PP
 \-e \-\-enable
@@ -238,7 +238,7 @@ run client backup and register to database
 .RS 4
 
 \fBAll\fR
-(delbackup, list client, list network, listbackup argument)
+(delbackup, listclient, listnetwork and listbackup argument)
 .RE 
 .PP
 \-h \-\-help
@@ -313,7 +313,7 @@ To create a new client (WOPR) in this example\&. Options debug and Verbose are a
 The program itself\&.
 .RE
 .PP
-/usr/share/drlm/conf/default.com
+/usr/share/drlm/conf/default.conf
 .RS 4
 Default configuration file\&.
 .RE
@@ -340,7 +340,7 @@ Relax\-and\-Recover script components\&.
 .PP
 /usr/share/drlm/conf/default\&.conf
 .RS 4
-Relax\-and\-Recover\(cqs included defaults\&. Contains a complete set of parameters and its explanation\&. Please do not edit or modify\&. Copy values to
+DRLM\(cqs included defaults\&. Contains a complete set of parameters and its explanation\&. Please do not edit or modify\&. Copy values to
 \fIlocal\&.conf\fR
 or
 \fIsite\&.conf\fR
@@ -348,14 +348,14 @@ instead\&.
 .RE
 .SH "BUGS"
 .sp
-Feedback is welcome, please report any issues or improvements to our issue\-tracker at: \m[blue]\fBhttp://github\&.com/drlm/issues/\fR\m[]
+Feedback is welcome, please report any issues or improvements to our issue\-tracker at: \m[blue]\fBhttp://github\&.com/brainupdaters/drlm/issues/\fR\m[]
 .SH "AUTHORS"
 .sp
 Pau Roura, Didac Oliveira, Ruben Carbonell\&.
 .sp
 Logan & Krbu (this man page)\&.
 .sp
-DRLM is a collaborative process using Github at: \m[blue]\fBhttp://github\&.com/drlm/\fR\m[]
+DRLM is a collaborative process using Github at: \m[blue]\fBhttp://github\&.com/brainupdaters/drlm/\fR\m[]
 .sp
 The DRLM website is located at: \m[blue]\fBhttp://DRLM\&.org/\fR\m[]
 .SH "COPYRIGHT"
