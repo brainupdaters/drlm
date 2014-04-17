@@ -176,7 +176,7 @@ fi
 # do not run if another instance is running. pidof -x will always report at least $$
 PID=$(pidof -x -o %PPID "$SCRIPT_FILE")
 if IsInArray "$WORKFLOW" "${LOCKLESS_WORKFLOWS[@]}"; then
-	echo "lockless!!"
+	echo "lockless!" >> /dev/null
 elif [[ "$PID" ]] ; then
 	echo "ERROR: $PROGRAM is already running, not starting again" >&2
 	exit 1
