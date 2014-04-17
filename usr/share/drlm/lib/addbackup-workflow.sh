@@ -26,7 +26,7 @@ if [ "$WORKFLOW" == "addbackup" ]; then
     echo "" > /dev/null
 
 WORKFLOW_addbackup () {
-#    echo addbackup workflow
+    echo addbackup workflow
 #    SourceStage "backup/add"
 }
 

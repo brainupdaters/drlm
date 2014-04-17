@@ -26,7 +26,7 @@ if [ "$WORKFLOW" == "modbackup" ]; then
     echo "" > /dev/null
 
 	WORKFLOW_modbackup () {
-	#    echo modbackup workflow
+	    echo modbackup workflow
 	#    SourceStage "backup/mod"
 	}
 
