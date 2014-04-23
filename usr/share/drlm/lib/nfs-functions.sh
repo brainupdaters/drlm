@@ -107,3 +107,33 @@ function reload_nfs() {
 	fi
 }
 
+function add_nfs_export(){
+
+	local CLI_NAME=$1
+	local EXIST=$(grep -w ${CLI_NAME} ${NFS_FILE} | grep -w ${CLI_NAME})
+	if [ -z "${EXIST}" ]; then
+		echo "$STORDIR/$CLI_NAME $CLI_NAME(rw,sync,no_root_squash,no_subtree_check)" | tee -a $NFS_FILE > /dev/null
+		if [ $? -eq 0 ]; then
+			return 0
+		else
+			return 1
+		fi
+	fi
+# Return 0 if OK or 1 if NOK
+}
+
+
+function del_nfs_export(){
+
+	local CLI_NAME=$1
+	local EXIST=$(grep -w ${CLI_NAME} ${NFS_FILE} | grep -w ${CLI_NAME})
+	if [ -n "${EXIST}" ]; then
+		ex -s -c ":/${STORDIR}\/${CLI_NAME} ${CLI_NAME}/d" -c ":wq" ${NFS_FILE}
+		if [ $? -eq 0 ]; then
+			return 0
+		else
+			return 1
+		fi
+	fi
+# Return 0 if OK or 1 if NOK
+}
