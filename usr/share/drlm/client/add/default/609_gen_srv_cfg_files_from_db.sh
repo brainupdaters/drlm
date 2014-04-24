@@ -29,6 +29,7 @@ Log "$PROGRAM:$WORKFLOW: Populating NFS configuration from DRLM DB...."
 #fi
 
 mkdir -p $STORDIR/$CLI_NAME
+chmod 755 $STORDIR/$CLI_NAME
 
 if add_nfs_export $CLI_NAME ; then
 	if enable_nfs_fs_rw $CLI_NAME ; then
