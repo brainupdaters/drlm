@@ -1,31 +1,42 @@
-Log "$PROGRAM: Updating $HOSTS_FILE configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW: Updating $HOSTS_FILE configuration from DRLM DB...."
 
 if $(hosts_del $CLI_NAME $CLI_IP) ; then
-	Log "$PROGRAM: $CLI_NAME deleted from $HOSTS_FILE..." 
+	Log "$PROGRAM:$WORKFLOW: $CLI_NAME deleted from $HOSTS_FILE..." 
 else
-	Log "WARNING: $PROGRAM: Problem deleting $CLI_NAME from $HOSTS_FILE..."
+	Log "WARNING: $PROGRAM:$WORKFLOW: Problem deleting $CLI_NAME from $HOSTS_FILE..."
 fi
 
 
-Log "$PROGRAM: Populating DHCP configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW: Populating DHCP configuration from DRLM DB...."
 
 generate_dhcp
 
 if reload_dhcp ; then
-	Log "$PROGRAM: DHCP service reconfiguration complete!"
+	Log "$PROGRAM:$WORKFLOW: DHCP service reconfiguration complete!"
 else
-	Error "$PROGRAM: DHCP service reconfiguration failed! See $LOGFILE for details."
+	Error "$PROGRAM:$WORKFLOW: DHCP service reconfiguration failed! See $LOGFILE for details."
 fi
 
-Log "$PROGRAM: Updating NFS configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW: Updating NFS configuration from DRLM DB...."
 
-generate_nfs_exports
+#generate_nfs_exports
 
-if reload_nfs ; then
-	Log "$PROGRAM: NFS service reconfiguration complete!"
+#if reload_nfs ; then
+#	Log "$PROGRAM: NFS service reconfiguration complete!"
+#else
+#	Error "$PROGRAM: NFS service reconfiguration failed! See $LOGFILE for details."
+#fi
+
+if $(disable_nfs_fs $CLI_NAME) ; then
+	if $(del_nfs_export $CLI_NAME) ; then
+		Log "$PROGRAM:$WORKFLOW: NFS service reconfiguration complete!"
+	else
+		Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."
+	fi
 else
-	Error "$PROGRAM: NFS service reconfiguration failed! See $LOGFILE for details."
+	Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."
 fi
+
 
 
 Log "################################################"

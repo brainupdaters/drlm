@@ -1,19 +1,19 @@
-Log "$PROGRAM: Populating DHCP configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW Populating DHCP configuration from DRLM DB...."
 
 generate_dhcp
 
 if reload_dhcp ; then
-	Log "$PROGRAM: DHCP service reconfiguration complete!"
+	Log "$PROGRAM:$WORKFLOW DHCP service reconfiguration complete!"
 else
-	Error "$PROGRAM: DHCP service reconfiguration failed! See $LOGFILE for details."
+	Error "$PROGRAM:$WORKFLOW DHCP service reconfiguration failed! See $LOGFILE for details."
 fi
 
-Log "$PROGRAM: Populating NFS configuration from DRLM DB...."
+#Log "$PROGRAM: Populating NFS configuration from DRLM DB...."
 
-generate_nfs_exports
+#generate_nfs_exports
 
-if reload_nfs ; then
-	Log "$PROGRAM: NFS service reconfiguration complete!"
-else
-	Error "$PROGRAM: NFS service reconfiguration failed! See $LOGFILE for details."
-fi
+#if reload_nfs ; then
+#	Log "$PROGRAM: NFS service reconfiguration complete!"
+#else
+#	Error "$PROGRAM: NFS service reconfiguration failed! See $LOGFILE for details."
+#fi
