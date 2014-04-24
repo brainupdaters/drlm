@@ -87,7 +87,7 @@ function bkpmgrhelp() {
 	printf "\n"
 }
 
-function delclienhelp() {
+function delclienthelp() {
 	printf "\n"
 	printf "\n"
 	printf "$(tput bold)Usage:\n$(tput sgr0)"

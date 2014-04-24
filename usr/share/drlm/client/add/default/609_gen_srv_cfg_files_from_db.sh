@@ -28,8 +28,10 @@ Log "$PROGRAM:$WORKFLOW: Populating NFS configuration from DRLM DB...."
 #	Error "$PROGRAM: NFS service reconfiguration failed! See $LOGFILE for details."
 #fi
 
-if $(add_nfs_export $CLI_NAME) ; then
-	if $(enable_nfs_fs_rw $CLI_NAME) ; then
+mkdir -p $STORDIR/$CLI_NAME
+
+if add_nfs_export $CLI_NAME ; then
+	if enable_nfs_fs_rw $CLI_NAME ; then
 		Log "$PROGRAM:$WORKFLOW: NFS service reconfiguration complete!"
 	else
 		Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."

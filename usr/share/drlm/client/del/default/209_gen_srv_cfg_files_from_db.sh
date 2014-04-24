@@ -27,8 +27,8 @@ Log "$PROGRAM:$WORKFLOW: Updating NFS configuration from DRLM DB...."
 #	Error "$PROGRAM: NFS service reconfiguration failed! See $LOGFILE for details."
 #fi
 
-if $(disable_nfs_fs $CLI_NAME) ; then
-	if $(del_nfs_export $CLI_NAME) ; then
+if disable_nfs_fs $CLI_NAME ; then
+	if del_nfs_export $CLI_NAME ; then
 		Log "$PROGRAM:$WORKFLOW: NFS service reconfiguration complete!"
 	else
 		Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."
@@ -37,7 +37,7 @@ else
 	Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."
 fi
 
-
+rmdir $STORDIR/$CLI_NAME
 
 Log "################################################"
 Log "# Client: $CLI_NAME deleted from DRLM!          "
