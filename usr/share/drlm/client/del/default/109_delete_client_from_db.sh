@@ -1,13 +1,10 @@
-Log "####################################################"
-Log "# Deleting client DR ${CLI_ID}${CLI_NAME}"
-Log "####################################################"
 
-Log	"Deleting client ${CLI_NAME} from database $CLIDB"
+Log "$PROGRAM:$WORKFLOW: Deleting Client $CLI_NAME from database ($CLIDB) ..."
 
 if del_client_id $CLI_ID ;
 then
-	Log "Client name: $CLI_NAME has been deleted from the database!"
+	Log "$PROGRAM:$WORKFLOW: Client $CLI_NAME has been deleted! Success!"
 else
-	Error "Client: ERROR deleting client $CLI_NAME from the database!"
+	Error "$PROGRAM:$WORKFLOW: Problem deleting client $CLI_NAME from the database! See $LOGFILE for details ..."
 fi
 
