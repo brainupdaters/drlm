@@ -1,14 +1,14 @@
 
-Log "$PROGRAM:$WORKFLOW: Populating $HOSTS_FILE configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW: Populating $HOSTS_FILE configuration ..."
 
 if $(hosts_add $CLI_NAME $CLI_IP) ; then
-	Log "$PROGRAM:$WORKFLOW: $CLI_NAME added to $HOSTS_FILE..." 
+	Log "$PROGRAM:$WORKFLOW: $CLI_NAME added to $HOSTS_FILE ..." 
 else
-	Log "WARNING: $PROGRAM:$WORKFLOW: $CLI_NAME already exists in $HOSTS_FILE..."
+	Log "WARNING: $PROGRAM:$WORKFLOW: $CLI_NAME already exists in $HOSTS_FILE !"
 fi
 
 
-Log "$PROGRAM:$WORKFLOW: Populating DHCP configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW: Populating DHCP configuration ..."
 
 generate_dhcp
 
@@ -18,7 +18,7 @@ else
 	Error "$PROGRAM:$WORKFLOW: DHCP service reconfiguration failed! See $LOGFILE for details."
 fi
 
-Log "$PROGRAM:$WORKFLOW: Populating NFS configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW: Populating NFS configuration ..."
 
 #generate_nfs_exports
 
