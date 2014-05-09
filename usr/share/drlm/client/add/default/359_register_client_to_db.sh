@@ -1,14 +1,11 @@
-Log "####################################################"
-Log "#  Registering DR client for ${CLI_NAME}"
-Log "####################################################"
 
-Log	"Adding client to database $CLIDB"
+Log "$PROGRAM:$WORKFLOW: Registering client $CLI_NAME to DB ($CLIDB)"
 
 if add_client "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" ;
 then
-	Log "Client name: $CLI_NAME has been registered on the database!"
+	Log "$PROGRAM:$WORKFLOW: Client name: $CLI_NAME registration Success!"
 else
-	Error "Client: ERROR registering client $CLI_NAME on the database!"
+	Error "$PROGRAM:$WORKFLOW: Client: Problem registering client $CLI_NAME to DB!"
 fi
 
 
