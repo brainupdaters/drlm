@@ -1,6 +1,4 @@
-Log "####################################################"
-Log "# List of networks : 	                         "
-Log "####################################################"
+
 if ! exist_network_name "$NET_NAME" 
 then
 	if [ "$NET_NAME" == "all" ]
