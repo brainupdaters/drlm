@@ -45,7 +45,7 @@ fi
 Log "------------------------------------------------------------------"
 Log "$PROGRAM $WORWFLOW:                                               "
 Log "                                                                  "
-Log " - Registering Client $CLINAME to DR DRLM                         "
+Log " - Registering Client $CLINAME to DRLM                            "
 Log "                                                                  "
 Log " - End Date & Time: $DATE                                         "
 Log "------------------------------------------------------------------"
