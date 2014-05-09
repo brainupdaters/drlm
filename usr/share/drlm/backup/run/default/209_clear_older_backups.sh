@@ -10,6 +10,10 @@ fi
 
 Log "$PROGRAM:$WORKFLOW:ARCHIVE:CLEAN:${CLI_NAME}: DR Archive Clean in progress .... Success!"
 
-Log "####################################################"
-Log "# DR backup operations for ${CLI_NAME} finished!"
-Log "####################################################"
+Log "------------------------------------------------------------------"
+Log "$PROGRAM $WORWFLOW:                                               "
+Log "                                                                  "
+Log " - Finished DR backup operations for Client: ${CLI_NAME}          "
+Log "                                                                  "
+Log " - End Date & Time: $DATE                                         "
+Log "------------------------------------------------------------------"
