@@ -42,7 +42,10 @@ else
 fi
 	
 
-
-Log "################################################"
-Log "# Client: $CLI_NAME registered in DRLM!         "
-Log "################################################"
+Log "------------------------------------------------------------------"
+Log "$PROGRAM $WORWFLOW:                                               "
+Log "                                                                  "
+Log " - Registering Client $CLINAME to DR DRLM                         "
+Log "                                                                  "
+Log " - End Date & Time: $DATE                                         "
+Log "------------------------------------------------------------------"
