@@ -1,4 +1,4 @@
-Log "$PROGRAM:$WORKFLOW Populating DHCP configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW Populating DHCP configuration ..."
 
 generate_dhcp
 
@@ -17,3 +17,11 @@ fi
 #else
 #	Error "$PROGRAM: NFS service reconfiguration failed! See $LOGFILE for details."
 #fi
+
+Log "------------------------------------------------------------------"
+Log "$PROGRAM $WORWFLOW:                                               "
+Log "                                                                  "
+Log " - Modifying properties for Client $CLINAME ... Success!          "
+Log "                                                                  "
+Log " - End Date & Time: $DATE                                         "
+Log "------------------------------------------------------------------"
