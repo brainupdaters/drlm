@@ -1,7 +1,7 @@
 Log "------------------------------------------------------------------"
 Log "$PROGRAM $WORWFLOW:                                               "
 Log "                                                                  "
-Log " - Registering Client $CLINAME to DR DRLM                         "
+Log " - Registering Client $CLINAME to DRLM                            "
 Log "                                                                  "
 Log " - Start Date & Time: $DATE                                       "
 Log "------------------------------------------------------------------"
