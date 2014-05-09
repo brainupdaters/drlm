@@ -1,11 +1,18 @@
 
-Log "$PROGRAM: Populating DHCP configuration from DRLM DB...."
+Log "$PROGRAM:$WORKFLOW: Populating DHCP configuration ..."
 
 generate_dhcp
 
 if reload_dhcp ; then
-	Log "$PROGRAM: DHCP service reconfiguration complete!"
+	Log "$PROGRAM:$WORKFLOW: DHCP service reconfiguration complete!"
 else
-	Error "$PROGRAM: DHCP service reconfiguration failed! See $LOGFILE for details."
+	Error "$PROGRAM:$WORKFLOW: DHCP service reconfiguration failed! See $LOGFILE for details."
 fi
 
+Log "------------------------------------------------------------------"
+Log "$PROGRAM $WORKFLOW:                                               "
+Log "                                                                  "
+Log " - Modifying DR Network $NET_NAME from DRLM ... Success!          "
+Log "                                                                  "
+Log " - End Date & Time: $DATE                                         "
+Log "------------------------------------------------------------------"
