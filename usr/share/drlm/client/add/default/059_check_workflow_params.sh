@@ -1,54 +1,57 @@
-Log "####################################################"
-Log "# Registering client: ${CLI_NAME} to DRLM...        "
-Log "####################################################"
-
+Log "------------------------------------------------------------------"
+Log "$PROGRAM $WORWFLOW:                                               "
+Log "                                                                  "
+Log " - Registering Client $CLINAME to DR DRLM                         "
+Log "                                                                  "
+Log " - Start Date & Time: $DATE                                       "
+Log "------------------------------------------------------------------"
 
 # Check if the client is in DRLM client database
 
-Log "Checking if client name: ${CLI_NAME} is registered in DRLM database ..."
+Log "$PROGRAM:$WORKFLOW: Checking if client name: $CLI_NAME is registered in DRLM database ..."
 
 if exist_client_name "$CLI_NAME" ;	
 then
-	Error "$PROGRAM: Client named: $CLINAME already registered in DB!"
+	Error "$PROGRAM:$WORKFLOW: Client $CLINAME already registered!"
 fi
 
 Log "Checking if client IP: ${CLI_IP} is registered in DRLM database ..."
 
 if valid_ip $CLI_IP ;
 then
-	Log "$PROGRAM: Client IP: $CLI_IP is in valid format..."
+	Log "$PROGRAM:$WORKFLOW: Client IP: $CLI_IP has valid format ..."
 	if exist_client_ip "$CLI_IP" ;
 	then
-		Error "$PROGRAM: Client IP: $CLI_IP already registered in DB!"
+		Error "$PROGRAM:$WORKFLOW: Client IP: $CLI_IP already registered!"
 	else
-		Log "$PROGRAM: Client IP: $CLI_IP is not in use in DRLM DB..."
+		Log "$PROGRAM:$WORKFLOW: Client IP: $CLI_IP not in use ..."
 	fi
 else
-	Error "$PROGRAM: Client IP: $CLI_IP is in wrong format. Correct this and try again."
+	Error "$PROGRAM:$WORKFLOW: Client IP: $CLI_IP has wrong format. [ Correct this and try again ]"
 fi
 
-Log "Checking if client MAC: ${CLI_MAC} is registered in DRLM database ..."
+Log "$PROGRAM:$WORKFLOW: Checking if client MAC $CLI_MAC is registered in DRLM database ..."
 
 CLI_MAC=$(compact_mac $CLI_MAC)
 
 if valid_mac $CLI_MAC ;
 then
-        Log "$PROGRAM: Client MAC: $CLI_MAC is in valid format..."
+        Log "$PROGRAM:$WORKFLOW: Client MAC: $CLI_MAC has valid format..."
 
 	if exist_client_mac $CLI_MAC ;
 	then
-		Error "$PROGRAM: Client MAC: $CLI_MAC already registered in DB!"
+		Error "$PROGRAM:$WORKFLOW: Client MAC: $CLI_MAC already registered!"
 	else
-                Log "$PROGRAM: Client MAC: $CLI_MAC is not in use in DRLM DB..."
+                Log "$PROGRAM:$WORKFLOW: Client MAC: $CLI_MAC not in use ..."
 	fi
 else
-        Error "$PROGRAM: Client MAC: $CLI_MAC is in wrong format. Correct this and try again."
+        Error "$PROGRAM:$WORKFLOW: Client MAC: $CLI_MAC has wrong format. [ Correct this and try again ]"
 fi
 
 
-Log "Checking if client Network: ${CLI_NET} is registered in DRLM database ..."
+Log "$PROGRAM:$WORKFLOW: Checking if Network: $CLI_NET is registered in DRLM database ..."
 
 if ! exist_network_name "$CLI_NET" ;
 then
-	Error "$PROGRAM: Client Network: $CLI_NET not registered in DB! network is required before any client addition"
+	Error "$PROGRAM:$WORKFLOW: Network: $CLI_NET not registered! [ Network required before any client addition ]"
 fi
