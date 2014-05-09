@@ -1,7 +1,10 @@
-Log "####################################################"
-Log "# Registering Network: ${NET_NAME} to DRLM...        "
-Log "####################################################"
-
+Log "------------------------------------------------------------------"
+Log "$PROGRAM $WORWFLOW:                                               "
+Log "                                                                  "
+Log " - Registering DR Network $NET_NAME to DRLM ...                   "
+Log "                                                                  "
+Log " - Start Date & Time: $DATE                                       "
+Log "------------------------------------------------------------------"
 
 # Check if the network is in DRLM database
 
