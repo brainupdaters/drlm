@@ -28,7 +28,7 @@ else
 	fi
 
 	if [ -n "$A_DR_FILE" ]; then
-		if enable_loop_ro ${CLI_ID} ${A_DR_FILE} ;
+		if enable_loop_ro ${CLI_ID} $(basename ${A_DR_FILE}) ;
 		then
 			Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${A_DR_FILE}: .... Success!"
 			if do_mount_ro ${CLI_ID} ${CLI_NAME} ;
