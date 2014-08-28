@@ -23,6 +23,21 @@ if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.kernel) != "755" ]; the
 	fi
 fi
 
+if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz) != "755" ]; then
+        chmod 755 ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz
+        if [ $? -ne 0 ]; then
+                Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz failed!"
+        fi
+fi
+
+if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}*) != "755" ]; then
+        chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}*
+        if [ $? -ne 0 ]; then
+                Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}* failed!"
+        fi
+fi
+
+
 Log "Packing DRLM DR Image ..."
 
 BKP_ID=$(gen_backup_id ${CLI_NAME})
