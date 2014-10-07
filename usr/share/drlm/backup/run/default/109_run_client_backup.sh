@@ -4,12 +4,11 @@ if OUT=$(run_mkbackup_ssh_remote $CLI_ID) ;
 then
 	Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: .... remote mkbackup Success!"
 else
-	report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Problem running remote mkbackup! aborting ..."
-	report_error "$OUT"
+	report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Problem running remote mkbackup! aborting ...  Error Message: [ $OUT ]"
 	
         ROLL_ERR=0
 	Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Starting rollback to previous DR ...."
-	report_error "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Starting rollback to previous DR ...."
+	#report_error "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Starting rollback to previous DR ...."
 
 	if disable_nfs_fs ${CLI_NAME} ;
         then
@@ -62,7 +61,7 @@ else
 	
 	if [ $ROLL_ERR -eq 0 ]; then
 		Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: .... Success!"
-		report_error "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: .... Success!"
+		#report_error "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: .... Success!"
 	else
 		Log "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: Problem rolling back to previous DR!"
 		report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: Problem rolling back to previous DR!"

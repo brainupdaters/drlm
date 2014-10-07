@@ -26,8 +26,8 @@
 # Versioning
 PRODUCT="Disaster Recovery Linux Manager"
 PROGRAM=${0##*/}
-VERSION=1.00
-RELEASE_DATE="2014-04-08"
+VERSION=1.0.0
+RELEASE_DATE="Git"
 
 STARTTIME=$SECONDS
 

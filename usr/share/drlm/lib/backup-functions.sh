@@ -41,7 +41,7 @@ function mod_pxe_link (){
    CLI_MAC=$(format_mac ${CLI_MAC} "-")
    OLD_CLI_MAC=$(format_mac ${OLD_CLI_MAC} "-")
 
-   cd ${PXEDIR}/pxelinux.cfg
+   cd ${STORDIR}/pxelinux.cfg
    mv 01-${OLD_CLI_MAC} 01-${CLI_MAC}
    if [ $? -eq 0 ];then return 0; else return 1;fi
 }
