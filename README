@@ -1,17 +1,17 @@
 DRLM - Disaster Recovery Linux Manager
 ======================================
 
-Disaster Recovery Linux Manager is a Central Management Open Source Software
-for Linux Disaster Recovery and System Migrations.   
+Disaster Recovery Linux Manager (DRLM) is a Central Management Open Source
+Software for Linux Disaster Recovery and System Migrations, based on
+Relax-and-Recover (ReaR).
 
 DRLM provides Central Management and Deployment from small to large 
-Linux Disaster Recovery Implementations, based on Relax-and-Recover.
+Linux Disaster Recovery Implementations bringing a great Centralized Management
+Tool to Linux SysAdmins. 
 
-Disaster Recovery Linux Manager brings a great Centralized Management Tool
-for Disaster Recovery to Linux SysAdmins. 
-
-From DRLM SysAdmins can run backups, add new systems to manage (clients), 
-enable or disable DR images for recovery of systems through network, ...
+With DRLM SysAdmins can add/delete/modify networks and ReaR clients to manage, 
+run backups and enable/disable Disaster Recovery system images to recovery 
+through network.
 
 Professional services and support are available.
 
@@ -21,32 +21,55 @@ read the Disaster Recovery Linux Manager User Guide.
 
 REQUIREMENTS
 ------------
-isc-dhcpd
-nfs-server
-tftpd
-bash
-syslinux
 
+DRLM is written entirely in Bash and requieres some system services in order to
+work properly:
+
+  isc-dhcpd
+  nfs-server
+  tftpd
+
+Also is required for PXE Boot:
+
+  syslinux
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
 we don't list them as requirements. In case your specific workflow requires
 additional tools, Disaster Recovery Linux Manager will tell you.
 
+DRLM is a tool to manage REAR systems, so all clients need REAR package and
+its dependencies to work properly. 
+
 
 INSTALLATION
 ------------
-On RPM based systems you should....
 
-On DEB based systems you should....
+On RPM based systems you should use the drlm RPM package. Either obtain it 
+from the DRLM homepage or build it yourself from the source 
+tree with: 
 
+  make rpm 
 
-QUICK START GUIDE
------------------
-This quick start guide will show you how to run Disaster Recovery Linux Manager
+This will create an RPM for your distribution. The RPM is not platform- 
+dependant and should work also on other RPM based distributions. 
+
+On DEB based systems you can execute the command: 
+
+  make deb
+
 
 CONFIGURATION
 -------------
-To configure Disaster Recovery Linux Manager you have...
+To configure Disaster Recovery Linux Manager you have to edit the configuration
+files in '/etc/drlm/'. All '*.conf' files there are part of the configuration, 
+but only 'local.conf' are intended for the user configuration.
+
+TFTP is the only service to be manually configured. The other sevices are 
+automatically configured through DRLM commands. 
+
+To configure the TFTP is nedeed deefine the DRLM Store Dir as root and enable
+the TFTP service on system startup.
+
 
 USAGE
 -----
@@ -84,9 +107,6 @@ List of commands:
  modnetwork      modify network properties.
  runbackup       run backup and register to DB.
  
- 
- 
 
-Use 'drlm -v help' for more advanced commands.
+Use 'drlm COMMAND help' for more advanced commands.
 ----
-
