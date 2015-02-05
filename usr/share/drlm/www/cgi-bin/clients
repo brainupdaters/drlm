@@ -1,0 +1,44 @@
+#!/bin/bash
+
+echo "Content-type: text/html"
+echo ''
+
+CLIENT=$(echo $PATH_INFO | tr -d "/" )
+#SCR=$(echo $SCRIPT_NAME| tr -d "/" )
+#CLIENT=$(echo $URI | sed  's/'"$SCR"'//g')
+
+parse_query() #@ Parse parameters passed to a web page
+{             #@ USAGE: parse_query VAR ...
+    local var val
+    local IFS='&'
+    unset $*
+    vars="&$*&"
+    [ "$REQUEST_METHOD" = "PUT" ] && read QUERY_STRING
+    set -f
+    for item in $QUERY_STRING
+    do
+      var=${item%%=*}
+      val=${item#*=}
+      val=${val//+/ }
+      case $vars in
+             *"&$var&"* )
+           case $val in
+             *%[0-9a-fA-F][0-9a-fA-F]*)
+               printf -v val "%b" "${val//\%/\\x}"
+               val=${val%.}
+               ;;
+           esac
+           printf -v "$var" "$val"
+           ;;
+      esac
+    done
+    set +f
+}
+#parse_query CLI LINE SEQ
+#echo $CLI $LINE $SEQ
+echo $CLIENT:
+echo "------------------------------------"
+#cat /tmp/$CLIENT.cfg
+env
+echo "------------------------------------"
+
