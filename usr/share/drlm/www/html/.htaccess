@@ -1,0 +1,4 @@
+<IfModule mod_rewrite.c>
+        RewriteEngine On
+        RedirectMatch ^/clients/(.*) /cgi-bin/clients/$1
+</IfModule>
