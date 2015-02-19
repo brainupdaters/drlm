@@ -8,13 +8,13 @@ source /etc/drlm/local.conf
 source /usr/share/drlm/lib/http-functions.sh
 source /usr/share/drlm/lib/client-functions.sh
 
-CLIENT=$(echo $PATH_INFO | awk -F"/" '{print $2}')
-ID=$(get_client_id_by_name $CLIENT)
+CLI_NAME=$(echo $PATH_INFO | awk -F"/" '{print $2}')
+ID=$(get_client_id_by_name $CLI_NAME)
 IP=$(get_client_ip $ID)
 
-if [ -f $CLI_CONF_DIR/$CLIENT.cfg ]; then
+if [ -f $CLI_CONF_DIR/$CLI_NAME.cfg ]; then
     if [ "$IP" == "$REMOTE_ADDR" ]; then
-        grep -E -v "^#|=$" $CLI_CONF_DIR/$CLIENT.cfg
+        grep -E -v "^#|=$" $CLI_CONF_DIR/$CLI_NAME.cfg
     else
         echo "HTTP response ?????"
     fi
