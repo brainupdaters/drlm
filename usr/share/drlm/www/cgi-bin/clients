@@ -9,11 +9,11 @@ source /usr/share/drlm/lib/http-functions.sh
 source /usr/share/drlm/lib/client-functions.sh
 
 CLI_NAME=$(echo $PATH_INFO | awk -F"/" '{print $2}')
-ID=$(get_client_id_by_name $CLI_NAME)
-IP=$(get_client_ip $ID)
+CLI_ID=$(get_client_id_by_name $CLI_NAME)
+CLI_IP=$(get_client_ip $CLI_ID)
 
 if [ -f $CLI_CONF_DIR/$CLI_NAME.cfg ]; then
-    if [ "$IP" == "$REMOTE_ADDR" ]; then
+    if [ "$CLI_IP" == "$REMOTE_ADDR" ]; then
         grep -E -v "^#|=$" $CLI_CONF_DIR/$CLI_NAME.cfg
     else
         echo "HTTP response ?????"
