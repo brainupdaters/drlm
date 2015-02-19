@@ -2,11 +2,11 @@ Source: drlm
 Section: misc
 Priority: optional
 Maintainer: See AUTHORS file
-Homepage: "http://www.not_yet.org"
+Homepage: "http://drlm.org"
 
 Package: drlm
 Architecture: all
 Provides: drlm
 Build-Depends: debhelper (>> 5.0.0)
-Depends: openssh-client, openssl, netcat-traditional, wget, gzip, tar, gawk, sed, grep, coreutils, util-linux, nfs-kernel-server, rpcbind, isc-dhcp-server, tftpd-hpa, syslinux
+Depends: openssh-client, openssl, netcat-traditional, wget, gzip, tar, gawk, sed, grep, coreutils, util-linux, nfs-kernel-server, rpcbind, isc-dhcp-server, tftpd-hpa, syslinux, apache2
 Description: Disaster Recovery Linux Manager
