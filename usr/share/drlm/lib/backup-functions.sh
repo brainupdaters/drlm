@@ -7,7 +7,7 @@ function run_mkbackup_ssh_remote () {
    local SRV_IP=$(get_server_ip $(get_network_id_by_name $(get_client_net $CLI_ID)))
    local REARCMD
    local BKPOUT
-   BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} 'sudo /usr/sbin/rear mkbackup SERVER=${SRV_IP} REST_OPTS=${REST_OPTS} ID=${CLIENT}' 2>&1)
+   BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear mkbackup SERVER=${SRV_IP} REST_OPTS=${REST_OPTS} ID=${CLIENT} 2>&1)
    if [ $? -ne 0 ]
    then    
 	BKPOUT=$( echo $BKPOUT | tr -d "\r" )
