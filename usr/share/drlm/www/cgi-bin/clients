@@ -3,6 +3,7 @@
 echo "Content-type: text/html"
 echo ''
 
+VAR_DIR="/var/lib/drlm"
 source /usr/share/drlm/conf/default.conf
 source /etc/drlm/local.conf
 source /usr/share/drlm/lib/http-functions.sh
