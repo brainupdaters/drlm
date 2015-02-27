@@ -132,6 +132,11 @@ endif
 install-config:
 	@echo -e "\033[1m== Installing configuration ==\033[0;0m"
 	install -d -m0700 $(DESTDIR)$(sysconfdir)/drlm/
+	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
+	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
+	install -Dp -m0600 etc/drlm/cert/drlm.crt
+	install -Dp -m0600 etc/drlm/cert/drlm.key
+	install -Dp -m0600 etc/drlm/clients/client_template.cfg
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
 		install -Dp -m0600 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \

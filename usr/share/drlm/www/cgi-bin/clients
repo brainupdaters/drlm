@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo "Content-type: text/html"
+echo ''
+
+VAR_DIR="/var/lib/drlm"
+source /usr/share/drlm/conf/default.conf
+source /etc/drlm/local.conf
+source /usr/share/drlm/lib/http-functions.sh
+source /usr/share/drlm/lib/client-functions.sh
+
+CLI_NAME=$(echo $PATH_INFO | awk -F"/" '{print $2}')
+CLI_ID=$(get_client_id_by_name $CLI_NAME)
+CLI_IP=$(get_client_ip $CLI_ID)
+
+if [ -f $CLI_CONF_DIR/$CLI_NAME.cfg ]; then
+    if [ "$CLI_IP" == "$REMOTE_ADDR" ]; then
+        grep -E -v "^#|=$" $CLI_CONF_DIR/$CLI_NAME.cfg
+    else
+        echo "HTTP response ?????"
+    fi
+else
+    echo "HTTP response NOT FOUND"
+fi

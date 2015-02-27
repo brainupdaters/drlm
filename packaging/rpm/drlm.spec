@@ -13,7 +13,7 @@ License: GPLv3
 Group: Applications/File
 #URL: 
 
-Source: https://future_drlm_website/drlm/drlm-1.00.tar.gz
+Source: http://drlm.org/download/
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -25,7 +25,7 @@ Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: nfs-utils portmap rpcbind 
-Requires: dhcp tftp-server
+Requires: dhcp tftp-server httpd
 
 ### Optional requirement
 #Requires: cfg2html
