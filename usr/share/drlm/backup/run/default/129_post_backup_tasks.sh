@@ -16,27 +16,26 @@ if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE) != "755" ]; then
 	fi
 fi
 
-if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.kernel) != "755" ]; then
-	chmod 755 ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.kernel
+if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/*.kernel) != "755" ]; then
+	chmod 755 ${STORDIR}/${CLI_NAME}/PXE/*.kernel
 	if [ $? -ne 0 ]; then
-		Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.kernel failed!"
+		Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/*.kernel failed!"
 	fi
 fi
 
-if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz) != "755" ]; then
-        chmod 755 ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz
+if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/*.initrd.cgz) != "755" ]; then
+        chmod 755 ${STORDIR}/${CLI_NAME}/PXE/*.initrd.cgz
         if [ $? -ne 0 ]; then
-                Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz failed!"
+                Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/*.initrd.cgz failed!"
         fi
 fi
 
-if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}*) != "755" ]; then
-        chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}*
+if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/rear-*) != "755" ]; then
+        chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-*
         if [ $? -ne 0 ]; then
-                Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}* failed!"
+                Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-* failed!"
         fi
 fi
-
 
 Log "Packing DRLM DR Image ..."
 
