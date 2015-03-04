@@ -94,7 +94,7 @@ Professional services and support are available.
 %files
 %defattr(-, root, root, 0755)
 #%doc AUTHORS COPYING README doc/*.txt
-%doc AUTHORS COPYING README 
+%doc AUTHORS COPYING README.rst 
 %doc %{_mandir}/man8/drlm.8*
 #%config(noreplace) %{_sysconfdir}/cron.d/drlm
 %config(noreplace) %{_sysconfdir}/drlm/
