@@ -156,6 +156,9 @@ LOGFILE="$LOG_DIR/drlm-$HOSTNAME-$WORKFLOW.$TIMESTAMP.log"
 # include default config
 source $SHARE_DIR/conf/default.conf
 
+# include DDBB driver
+source $SHARE_DIR/lib/ddbb/$DB_BACKEND-driver.sh
+
 # include functions
 for script in $SHARE_DIR/lib/*-functions.sh ; do
 #	echo $script >> /tmp/sourcetest.log
