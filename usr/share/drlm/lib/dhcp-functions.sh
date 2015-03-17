@@ -1,6 +1,4 @@
 # file with default dhcp functions to implement.
-# $NETDB is the defaul.conf variable of Network file
-# $CLIDB is the defaul.conf variable of Client file
 # $DHCP_DIR is the defaul.conf variable of dhcp dir file
 # $DHCP_FILE is the defaul.conf variable of dhcp configuration file
 # $DHCP_FIX_CAP is the defaul.conf variable of the fixed part of the header dhcp configuration file
@@ -14,7 +12,7 @@ cat /dev/null > $DHCP_FILE
 
 cat $DHCP_FIX_CAP >> $DHCP_FILE
 
-for XARXA in $(cat $NETDB | grep -v "^#") ; do
+for XARXA in $(get_all_networks) ; do
    XARXA_ID=`echo $XARXA | awk -F":" '{print $1}'`
    XARXA_NET_IP=`echo $XARXA | awk -F":" '{print $2}'`
    XARXA_MASK=`echo $XARXA | awk -F":" '{print $3}'`
@@ -48,10 +46,9 @@ for XARXA in $(cat $NETDB | grep -v "^#") ; do
    echo "   next-server $XARXA_SER_IP;" >> $DHCP_FILE
    echo " " >> $DHCP_FILE
       
-   for CLIENT in $(grep -w $XARXA_NAME $CLIDB) ; do
+   for CLIENT in $(get_clients_by_network "$XARXA_NAME") ; do
       CLIENT_HOST=`echo $CLIENT | awk -F":" '{print $2}'`
       CLIENT_MAC=$(format_mac $(echo $CLIENT | awk -F":" '{print $3}') ":")
-      #CLIENT_MAC=$(format_mac $CLIENT_MAC ":")
       CLIENT_IP=`echo $CLIENT | awk -F":" '{print $4}'`
       echo "   host $CLIENT_HOST {" >> $DHCP_FILE
       echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE

@@ -42,7 +42,7 @@ local CLI_NAME=$1
 local CLI_ID=$(get_client_id_by_name $CLI_NAME)
 local CLI_NET=$(get_client_net $CLI_ID)
 local NET_ID=$(get_network_id_by_name $CLI_NET)
-local NET_SERVIP=$(get_server_ip $NET_ID)
+local NET_SERVIP=$(get_network_srv $NET_ID)
 
 cat > /tmp/etc_rear_local.conf << EOF
 DRLM_NAME=${CLI_NAME}

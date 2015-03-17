@@ -1,5 +1,5 @@
 
-Log "$PROGRAM:$WORKFLOW: Deleting network $NET_NAME from database ($NETDB) ..."
+Log "$PROGRAM:$WORKFLOW: Deleting network $NET_NAME from DB"
 
 if del_network_id $NET_ID ;
 then
