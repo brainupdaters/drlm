@@ -464,3 +464,8 @@ function get_older_backup_by_client_dbdrv ()
   local OLD_BKP=$(grep -w ${CLI_NAME} ${BKPDB} | grep -v true | awk -F":" '{print $1}' | sort -n | head -1)
   echo "$OLD_BKP"
 }
+
+function get_active_backups_dbdvr ()
+{
+  echo "$(grep -w "true" $BKPDB)"
+}

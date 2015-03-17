@@ -438,3 +438,8 @@ function get_older_backup_by_client_dbdrv ()
   local OLD_BKP=$(sqlite3 $DB_PATH "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=0 order by idbackup asc limit 1")
   echo "$OLD_BKP"
 }
+
+function get_active_backups_dbdvr ()
+{
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups where active=1;' | sqlite3 drlm.sqlite)"
+}

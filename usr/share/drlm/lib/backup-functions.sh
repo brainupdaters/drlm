@@ -322,3 +322,8 @@ function get_backup_drfile ()
   local DR_FILE=$(get_backup_drfile_dbdrv "ID_BKP")
   echo $DR_FILE
 }
+
+function get_active_backups ()
+{
+  get_active_backups_dbdvr
+}
