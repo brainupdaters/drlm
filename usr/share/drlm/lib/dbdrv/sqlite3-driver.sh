@@ -75,7 +75,7 @@ function get_client_net_dbdrv ()
 
 function get_all_clients_dbdrv () 
 {
-  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients;' | sqlite3 drlm.sqlite)"
+  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients;' | sqlite3 $DB_PATH)"
 }
 
 function add_client_dbdrv () 
@@ -142,7 +142,7 @@ function get_count_clients_dbdvr ()
 function get_clients_by_network_dbdrv ()
 {
   local NET_NAME=$1
-  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients where networks_netname="'${NET_NAME}'";' | sqlite3 drlm.sqlite)"
+  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients where networks_netname="'${NET_NAME}'";' | sqlite3 $DB_PATH)"
 }
 
 ##############################
@@ -259,7 +259,7 @@ function get_network_srv_dbdrv ()
 
 function get_all_networks_dbdrv () 
 {
-  echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks;' | sqlite3 drlm.sqlite)"
+  echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks;' | sqlite3 $DB_PATH)"
 }
 
 function mod_network_name_dbdrv ()
@@ -346,7 +346,7 @@ function get_active_cli_bkp_from_db_dbdrv ()
 
 function get_all_backups_dbdrv () 
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups;' | sqlite3 drlm.sqlite)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups;' | sqlite3 $DB_PATH)"
 }
 
 function enable_backup_db_dbdrv ()
@@ -441,5 +441,5 @@ function get_older_backup_by_client_dbdrv ()
 
 function get_active_backups_dbdvr ()
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups where active=1;' | sqlite3 drlm.sqlite)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups where active=1;' | sqlite3 $DB_PATH)"
 }
