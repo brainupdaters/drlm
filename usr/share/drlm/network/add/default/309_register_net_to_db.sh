@@ -1,5 +1,5 @@
 
-Log "$PROGRAM:$WORWFLOW: Adding Network to database ($NETDB) ..."
+Log "$PROGRAM:$WORWFLOW: Adding Network $NET_NAME to DB"
 
 if add_network "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_DOM" "$NET_DNS" "$NET_BCAST" "$NET_SRV" "$NET_NAME"
 then
