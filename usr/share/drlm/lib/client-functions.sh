@@ -289,4 +289,12 @@ function check_yum ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function get_count_clients ()
+{
+  get_count_clients_dbdvr 
+}
 
+function get_all_clients ()
+{
+  get_all_clients_dbdrv
+}

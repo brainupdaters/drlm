@@ -144,6 +144,12 @@ function mod_client_net_dbdrv ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function get_count_clients_dbdvr ()
+{
+   local NCLI=$(cat $CLIDB | grep -v "^#" | wc -l)
+   echo "$NCLI"
+}
+
 ##############################
 # Network database functions #
 ##############################
