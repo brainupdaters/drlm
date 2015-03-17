@@ -6,9 +6,7 @@ case "$1" in
 	[ -f /var/lib/drlm/client.data.save ] && mv /var/lib/drlm/client.data.save /var/lib/drlm/client.data
 	[ -f /var/lib/drlm/backup.data.save ] && mv /var/lib/drlm/backup.data.save /var/lib/drlm/backup.data
 	[ -f /var/lib/drlm/network.data.save ] && mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
-	#[ -f /var/lib/drlm/calendar.data.save ] && mv /var/lib/drlm/calendar.data.save /var/lib/drlm/calendar.data
-	[ -e /var/lib/drlm/.ids/.idcount.client.save ] && mv /var/lib/drlm/.ids/.idcount.client.save /var/lib/drlm/.ids/.idcount.client
-	[ -e /var/lib/drlm/.ids/.idcount.network.save ] && mv /var/lib/drlm/.ids/.idcount.network.save /var/lib/drlm/.ids/.idcount.network
+	[ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
 	service drlm-stord start
 	;;
 

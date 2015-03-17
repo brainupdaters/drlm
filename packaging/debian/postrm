@@ -3,11 +3,9 @@ set -e
 
 case "$1" in
     upgrade)
-	#mv /var/lib/drlm/.ids.save /var/lib/drlm/.ids
 	#mv /var/lib/drlm/client.data.save /var/lib/drlm/client.data
 	#mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
-	#mv /var/lib/drlm/backup.data.save /var/lib/drlm/backup.data
-	#mv /var/lib/drlm/calendar.data.save /var/lib/drlm/calendar.data	
+	#mv /var/lib/drlm/backup.data.save /var/lib/drlm/backup.data	
 	;;
 
     *)
