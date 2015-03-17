@@ -1,5 +1,5 @@
 
-Log "$PROGRAM:$WORKFLOW: Registering client $CLI_NAME to DB ($CLIDB)"
+Log "$PROGRAM:$WORKFLOW: Registering client $CLI_NAME to DB"
 
 if add_client "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" ;
 then
