@@ -6,6 +6,7 @@ echo ''
 VAR_DIR="/var/lib/drlm"
 source /usr/share/drlm/conf/default.conf
 source /etc/drlm/local.conf
+source /usr/share/drlm/lib/dbdrv/$DB_BACKEND-driver.sh
 source /usr/share/drlm/lib/http-functions.sh
 source /usr/share/drlm/lib/client-functions.sh
 
