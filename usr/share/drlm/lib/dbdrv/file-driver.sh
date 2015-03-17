@@ -150,6 +150,12 @@ function get_count_clients_dbdvr ()
    echo "$NCLI"
 }
 
+function get_clients_by_network_dbdrv ()
+{
+  local NET_NAME=$1
+  echo "$(grep -w $NET_NAME $CLIDB)"
+}
+
 ##############################
 # Network database functions #
 ##############################

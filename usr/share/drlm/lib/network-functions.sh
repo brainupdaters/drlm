@@ -443,3 +443,9 @@ function list_network ()
   printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
   printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_BRO" "$NET_SRV" "$NET_NAME"
 }
+
+function get_all_networks ()
+{
+  get_all_networks_dbdrv
+}
+

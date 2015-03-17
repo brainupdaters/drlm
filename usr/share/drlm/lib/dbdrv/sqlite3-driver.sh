@@ -139,6 +139,12 @@ function get_count_clients_dbdvr ()
    echo "$NCLI"
 }
 
+function get_clients_by_network_dbdrv ()
+{
+  local NET_NAME=$1
+  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients where networks_netname="'${NET_NAME}'";' | sqlite3 drlm.sqlite)"
+}
+
 ##############################
 # Network database functions #
 ##############################

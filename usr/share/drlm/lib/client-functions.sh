@@ -298,3 +298,9 @@ function get_all_clients ()
 {
   get_all_clients_dbdrv
 }
+
+function get_clients_by_network ()
+{
+  local NET_NAME=$1
+  get_clients_by_network_dbdrv "$NET_NAME"
+}
