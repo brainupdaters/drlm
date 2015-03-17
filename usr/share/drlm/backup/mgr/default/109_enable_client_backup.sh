@@ -1,7 +1,7 @@
 
 Log "$PROGRAM:$WORKFLOW:(ID: ${BKP_ID}):${CLI_NAME}: Enabling DRLM Store for client ...."
 
-DR_FILE=$(grep -w ${CLI_NAME} ${BKPDB} | awk -F":" '{print $1,$3,$5}'| grep -w ${BKP_ID} | awk '{print $2}')
+DR_FILE=$(get_backup_drfile "$BKP_ID")
 
 if [ -n "$DR_FILE" ]; then
 

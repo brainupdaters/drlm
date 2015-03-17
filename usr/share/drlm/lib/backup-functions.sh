@@ -291,7 +291,7 @@ function clean_backups ()
 	if [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
 	then
 		BKPID2CLR=$(get_older_backup_by_client_dbdrv "$CLI_NAME")
-		DRFILE2CLR=$(get_backup_drfile_dbdrv "$BKPID2CLR")
+		DRFILE2CLR=$(get_backup_drfile "$BKPID2CLR")
 		
 		del_backup ${BKPID2CLR} ${DRFILE2CLR}
 		if [ $? -eq 0 ]; then return 0; else return 1; fi
@@ -314,4 +314,11 @@ function check_backup_state ()
   losetup -a | grep -w $BKP_ID
   if [ $? -ne 0 ]; then return 0; else return 1; fi
   # Return 0 if backup is not in use else return 1.
+}
+
+function get_backup_drfile ()
+{
+  local ID_BKP=$1
+  local DR_FILE=$(get_backup_drfile_dbdrv "ID_BKP")
+  echo $DR_FILE
 }
