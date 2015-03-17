@@ -1,6 +1,4 @@
 # file with default dns functions to implement.
-# $NETDB is the default.conf variable of Network file
-# $CLIDB is the default.conf variable of Client file
 # $HOSTS_FILE is the default.conf variable of /etc/hosts configuration file
 
 function hosts_add(){

@@ -285,13 +285,6 @@ function get_network_id_by_name ()
   fi
 }
 
-function get_server_ip ()
-{
-  local NET_ID=$1
-  # Get server ip from database and return it
-  get_network_srv_dbdrv "$NET_ID"
-}
-
 function get_network_ip () 
 {
   local NET_ID=$1  
