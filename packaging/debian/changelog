@@ -1,4 +1,10 @@
-drlm (1.00) beta release; urgency=low
+drlm (1.1.0) stable release; urgency=low
+
+ * new features.
+ * bugfixes.
+
+ -- Pau Roura <pau@brainupdaters.net> Wed, 18 Mar 2015 
+drlm (1.0.0) beta release; urgency=low
 
  * Initial package. 
 
