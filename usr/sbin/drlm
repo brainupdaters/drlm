@@ -26,7 +26,7 @@
 # Versioning
 PRODUCT="Disaster Recovery Linux Manager"
 PROGRAM=${0##*/}
-VERSION=1.0.0
+VERSION=1.1.0
 RELEASE_DATE="Git"
 
 STARTTIME=$SECONDS
@@ -43,7 +43,6 @@ fi
 # Program directories - they must be set here. Everything else is then dynamic
 SHARE_DIR="$DRLM_DIR_PREFIX/usr/share/drlm"
 CONFIG_DIR="$DRLM_DIR_PREFIX/etc/drlm"
-VAR_DIR="$DRLM_DIR_PREFIX/var/lib/drlm"
 LOG_DIR="$DRLM_DIR_PREFIX/var/log/drlm"
 CMD_OPTS=( "$@" )
 

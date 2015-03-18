@@ -1,4 +1,4 @@
-%define rpmrelease git
+%define rpmrelease %{nil}
 
 ### Work-around the fact that OpenSUSE/SLES _always_ defined both :-/
 %if 0%{?sles_version} == 0
@@ -7,13 +7,13 @@
 
 Summary: DRLM
 Name: drlm
-Version: 1.00
-Release: %{?rpmrelease}%{?dist}
+Version: 1.1.0
+Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
-#URL: 
+URL: http://drlm.org/
 
-Source: https://future_drlm_website/drlm/drlm-1.00.tar.gz
+Source: http://drlm.org/download/
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -25,7 +25,7 @@ Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: nfs-utils portmap rpcbind 
-Requires: dhcp tftp-server
+Requires: dhcp tftp-server httpd
 
 ### Optional requirement
 #Requires: cfg2html
@@ -94,7 +94,7 @@ Professional services and support are available.
 %files
 %defattr(-, root, root, 0755)
 #%doc AUTHORS COPYING README doc/*.txt
-%doc AUTHORS COPYING README 
+%doc AUTHORS COPYING README.rst 
 %doc %{_mandir}/man8/drlm.8*
 #%config(noreplace) %{_sysconfdir}/cron.d/drlm
 %config(noreplace) %{_sysconfdir}/drlm/
