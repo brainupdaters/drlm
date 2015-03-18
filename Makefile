@@ -17,7 +17,15 @@ ifeq ($(OFFICIAL),)
 ifneq ($(shell which git),)
 git_date := $(shell git log -n 1 --format="%ai")
 git_ref := $(shell git symbolic-ref -q HEAD)
+ifeq ($(word $(shell echo $(words $(subst /, ,$(git_ref)))-1 | bc),$(subst /, ,$(git_ref))),release)
+git_branch = release/$(lastword $(subst /, ,$(git_ref)))
+else
+ifeq ($(word $(shell echo $(words $(subst /, ,$(git_ref)))-1 | bc),$(subst /, ,$(git_ref))),feature)
+git_branch = feature/$(lastword $(subst /, ,$(git_ref)))
+else
 git_branch = $(lastword $(subst /, ,$(git_ref)))
+endif
+endif
 endif
 else
 git_branch = drlm-$(version)
@@ -40,23 +48,14 @@ dscfile = packaging/debian/$(name).dsc
 distversion = $(version)
 debrelease = 0
 rpmrelease = %nil
-#obsproject = Archiving:Backup:DRLM
-#obspackage = $(name)-$(version)
 ifeq ($(OFFICIAL),)
     distversion = $(version)-git
     debrelease = git
     rpmrelease = git
-#    distversion = $(version)-git$(date)
-#    debrelease = 0git$(date)
-#    rpmrelease = .git$(date)
-#    obsproject = Archiving:Backup:DRLM:Snapshot
-#    obspackage = $(name)
 endif
 
-# .PHONY: doc
-
 all:
-	@echo "Nothing to build. Use \`make help' for more information."
+	@echo "Nothing to build. Use 'make help' for more information."
 
 help:
 	@echo -e "DRLM make targets:\n\
@@ -67,8 +66,6 @@ help:
   dist            - Create tar file\n\
   deb             - Create DEB package\n\
   rpm             - Create RPM package\n\
-#  pacman          - Create Pacman package\n\
-#  obs             - Initiate OBS builds\n\
 \n\
 DRLM make variables (optional):\n\
 \n\
@@ -79,7 +76,6 @@ DRLM make variables (optional):\n\
 clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
-	#make -C doc clean
 
 ### You can call 'make validate' directly from your .git/hooks/pre-commit script
 validate:
@@ -87,17 +83,11 @@ validate:
 	find etc/ usr/share/drlm/conf/ -name '*.conf' | xargs bash -n
 	bash -n $(drlmbin)
 	find . -name '*.sh' | xargs bash -n
-### Fails to work on RHEL4
-#	find -L . -type l
 
-man:
-	@echo -e "\033[1m== Prepare manual ==\033[0;0m"
-	#make -C doc man
-	install -Dp -m0644 doc/drlm.8 $(DESTDIR)$(mandir)/man8/drlm.8
-
+man: doc/drlm.8
+	
 doc:
 	@echo -e "\033[1m== Prepare documentation ==\033[0;0m"
-	#make -C doc docs
 
 ifneq ($(git_date),)
 rewrite:
@@ -134,14 +124,16 @@ install-config:
 	install -d -m0700 $(DESTDIR)$(sysconfdir)/drlm/
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
-	install -Dp -m0600 etc/drlm/cert/drlm.crt
-	install -Dp -m0600 etc/drlm/cert/drlm.key
-	install -Dp -m0600 etc/drlm/clients/client_template.cfg
+	install -Dp -m0600 etc/drlm/cert/drlm.crt $(DESTDIR)$(sysconfdir)/drlm/cert/drlm.crt
+	install -Dp -m0600 etc/drlm/cert/drlm.key $(DESTDIR)$(sysconfdir)/drlm/cert/drlm.key
+	install -Dp -m0600 etc/drlm/clients/client_template.cfg $(DESTDIR)$(sysconfdir)/drlm/clients/client_template.cfg
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
 		install -Dp -m0600 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
 		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
+	@echo -e "\033[1m== Prepare manual ==\033[0;0m"
+	install -Dp -m0644 doc/drlm.8 $(DESTDIR)$(mandir)/man8/drlm.8
 
 install-bin:
 	@echo -e "\033[1m== Installing binary ==\033[0;0m"
@@ -176,8 +168,6 @@ install-doc:
 		$(DESTDIR)$(mandir)/man8/drlm.8
 
 install: validate man install-config rewrite install-bin restore install-data install-var 
-#install: validate man install-config rewrite install-bin restore install-data install-var install-doc
-#install: validate install-config rewrite install-bin restore install-data install-var 
 
 uninstall:
 	@echo -e "\033[1m== Uninstalling DRLM ==\033[0;0m"
@@ -188,7 +178,6 @@ uninstall:
 	rm -rv $(DESTDIR)$(localstatedir)/lib/drlm/
 
 dist: clean validate man rewrite $(name)-$(distversion).tar.gz restore
-#dist: clean validate rewrite $(name)-$(distversion).tar.gz restore
 
 $(name)-$(distversion).tar.gz:
 	@echo -e "\033[1m== Building archive $(name)-$(distversion) ==\033[0;0m"
@@ -211,47 +200,3 @@ deb: dist
 	fakeroot dh_install
 	fakeroot debian/rules binary
 	-rm -rf debian/
-
-pacman: BUILD_DIR = /tmp/drlm-$(distversion)
-pacman: dist
-	@echo -e "\033[1m== Building Pacman package $(name)-$(distversion) ==\033[0;0m"
-	rm -rf $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)
-	cp packaging/arch/PKGBUILD.local $(BUILD_DIR)/PKGBUILD
-	cp $(name)-$(distversion).tar.gz $(BUILD_DIR)/
-	cd $(BUILD_DIR) ; sed -i -e 's/VERSION/$(date)/' \
-		-e 's/SOURCE/$(name)-$(distversion).tar.gz/' \
-		-e 's/MD5SUM/$(shell md5sum $(name)-$(distversion).tar.gz | cut -d' ' -f1)/' \
-		PKGBUILD ; makepkg -c
-	cp $(BUILD_DIR)/*.pkg.* .
-	rm -rf $(BUILD_DIR)
-
-obs: BUILD_DIR = /tmp/drlm-$(distversion)
-obs: obsname = $(shell osc ls $(obsproject) $(obspackage) | awk '/.tar.gz$$/ { gsub(".tar.gz$$","",$$1); print }')
-obs: dist
-	@echo -e "\033[1m== Updating OBS from $(obsname) to $(name)-$(distversion)== \033[0;0m"
-ifneq ($(obsname),$(name)-$(distversion))
-	-rm -rf $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)
-ifneq ($(OFFICIAL),)
-#	osc rdelete -m 'Recreating branch $(obspackage)' $(obsproject) $(obspackage)
-#	-osc branch Archiving:Backup:Rear:Snapshot drlm $(obsproject) $(obspackage)
-#	-osc detachbranch $(obsproject) $(obspackage)
-endif
-#	(cd $(BUILD_DIR) ; osc co -c $(obsproject) $(obspackage) )
-#	-(cd $(BUILD_DIR)/$(obspackage) ; osc del *.tar.gz )
-#	cp $(name)-$(distversion).tar.gz $(BUILD_DIR)/$(obspackage)
-#	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/$(specfile) >$(BUILD_DIR)/$(obspackage)/$(name).spec
-#	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/$(dscfile) >$(BUILD_DIR)/$(obspackage)/$(name).dsc
-#	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/packaging/debian/control >$(BUILD_DIR)/$(obspackage)/debian.control
-#	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/packaging/debian/rules >$(BUILD_DIR)/$(obspackage)/debian.rules
-#	echo -e "drlm ($(version)-$(debrelease)) stable; urgency=low\n\n  * new snapshot build\n\n -- OpenSUSE Build System <obs@relax-and-recover.org> $$(date -R)" >$(BUILD_DIR)/$(obspackage)/debian.changelog
-#	tar -xOzf $(name)-$(distversion).tar.gz -C $(BUILD_DIR)/$(obspackage) $(name)-$(distversion)/packaging/debian/changelog >>$(BUILD_DIR)/$(obspackage)/debian.changelog
-#	cd $(BUILD_DIR)/$(obspackage); osc addremove
-#	cd $(BUILD_DIR)/$(obspackage); osc ci -m "Update to $(name)-$(distversion)" $(BUILD_DIR)/$(obspackage)
-#	rm -rf $(BUILD_DIR)
-#	@echo -e "\033[1mNow visit https://build.opensuse.org/package/show?package=drlm&project=$(obsproject)"
-#	@echo -e "or inspect the queue at: https://build.opensuse.org/monitor\033[0;0m"
-else
-#	@echo -e "OBS already updated to this release."
-endif
