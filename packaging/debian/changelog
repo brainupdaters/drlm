@@ -1,3 +1,8 @@
+drlm (1.1.1) stable release; urgency=low
+
+ * bugfixes.
+
+ -- Pau Roura <pau@brainupdaters.net> Wed, 30 Mar 2015 
 drlm (1.1.0) stable release; urgency=low
 
  * new features.

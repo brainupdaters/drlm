@@ -7,7 +7,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 1.1.0
+Version: 1.1.1
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
