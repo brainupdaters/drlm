@@ -17,10 +17,10 @@ ifeq ($(OFFICIAL),)
 ifneq ($(shell which git),)
 git_date := $(shell git log -n 1 --format="%ai")
 git_ref := $(shell git symbolic-ref -q HEAD)
-ifeq ($(word $(shell echo $(words $(subst /, ,$(git_ref)))-1 | bc),$(subst /, ,$(git_ref))),release)
+ifeq ($(word 3,$(subst /, ,$(git_ref))),release)
 git_branch = release/$(lastword $(subst /, ,$(git_ref)))
 else
-ifeq ($(word $(shell echo $(words $(subst /, ,$(git_ref)))-1 | bc),$(subst /, ,$(git_ref))),feature)
+ifeq ($(word 3,$(subst /, ,$(git_ref))),feature)
 git_branch = feature/$(lastword $(subst /, ,$(git_ref)))
 else
 git_branch = $(lastword $(subst /, ,$(git_ref)))
