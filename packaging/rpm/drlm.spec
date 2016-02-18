@@ -20,7 +20,7 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
 ### Dependencies on all distributions
-Requires: openssh-clients openssl nc
+Requires: openssh-clients openssl
 Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux

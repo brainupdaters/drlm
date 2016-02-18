@@ -25,7 +25,7 @@ function split_ip ()
   local octet2=$2
   local octet3=$3
   local octet4=$4
-  IFS=”$OLDIFS”
+  IFS="$OLDIFS"
 
   echo $octet1 $octet2 $octet3 $octet4
 }
@@ -64,7 +64,7 @@ function cidr_to_netmask ()
       netmask+=255
     elif [ $i -eq $full_octets ];
     then
-      netmask+=$( ( 256 – 2**(8-$partial_octet)) )
+      netmask+=$( ( 256 - 2**(8-$partial_octet)) )
     else
       netmask+=0
     fi   
@@ -231,11 +231,18 @@ function format_mac()
   # Converteix la MAC a un format standard (rep MAC i separador com a params)
 }
 
+function check_net_port ()
+{
+  local ip=$1
+  local port=$2
+  exec 3> /dev/tcp/"$ip"/"$port"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function check_ssh_port ()
 {
   local ip=$1
-  nc -z -w 3 $ip 22
-  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  return $(check_net_port $ip 22 &>/dev/null) 
 }
 
 function check_icmp()
