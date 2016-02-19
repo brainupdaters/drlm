@@ -31,6 +31,8 @@
 DESC="DRLM Store Service"
 SHARE_DIR="/usr/share/drlm"
 source $SHARE_DIR/conf/default.conf
+source /etc/drlm/site.conf
+source /etc/drlm/local.conf
 source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
 source $SHARE_DIR/lib/backup-functions.sh
 RETVAL=0

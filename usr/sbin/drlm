@@ -175,20 +175,6 @@ if ! has_binary pidof; then
 	exit 1
 fi
 
-# do not run if another instance is running. pidof -x will always report at least $$
-PID=$(pidof -x -o %PPID "$SCRIPT_FILE")
-if IsInArray "$WORKFLOW" "${LOCKLESS_WORKFLOWS[@]}"; then
-	echo "lockless!" >> /dev/null
-elif [[ "$PID" ]] ; then
-	echo "ERROR: $PROGRAM is already running, not starting again" >&2
-	exit 1
-fi
-
-# keep old log file
-#if [[ -r "$LOGFILE" ]]; then
-#	mv -f "$LOGFILE" "$LOGFILE".old 2>&8
-#fi
-
 mkdir -p $LOG_DIR
 exec 2>"$LOGFILE" || echo "ERROR: Could not create $LOGFILE" >&2
 
