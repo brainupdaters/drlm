@@ -5,23 +5,23 @@ DR_FILE=$(get_backup_drfile "$BKP_ID")
 
 if [ -n "$DR_FILE" ]; then
 
-	if enable_loop_ro ${CLI_ID} ${DR_FILE} ;
+	if enable_loop_rw ${CLI_ID} ${DR_FILE} ;
 	then
-	        Log "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: .... Success!"
-	        if do_mount_ro ${CLI_ID} ${CLI_NAME} ;
+	        Log "$PROGRAM:$WORKFLOW:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: .... Success!"
+	        if do_mount_ext4_ro ${CLI_ID} ${CLI_NAME} ;
 	        then
-	                Log "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
+	                Log "$PROGRAM:$WORKFLOW:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
 	                if enable_nfs_fs_ro ${CLI_NAME} ;
 	                then
-	                        Log "$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE(ro):$CLI_NAME: .... Success!"
+	                        Log "$PROGRAM:$WORKFLOW:NFS:ENABLE(ro):$CLI_NAME: .... Success!"
 	                else
-	                        Error "$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
+	                        Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
 	                fi
 	        else
-	                Error "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem!"
+	                Error "$PROGRAM:$WORKFLOW:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem!"
 	        fi
 	else
-	        Error "$PROGRAM:$WORKFLOW:postbackup:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: Problem enabling Loop Device (ro)!"
+	        Error "$PROGRAM:$WORKFLOW:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: Problem enabling Loop Device (ro)!"
 	fi
 
         if [ "$MODE" == "perm" ]; then

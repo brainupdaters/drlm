@@ -26,6 +26,7 @@ Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: nfs-utils portmap rpcbind 
 Requires: dhcp tftp-server httpd
+Requires: qemu-img
 
 ### Optional requirement
 #Requires: cfg2html

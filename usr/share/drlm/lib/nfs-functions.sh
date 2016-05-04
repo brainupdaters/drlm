@@ -42,7 +42,7 @@ function disable_nfs_fs ()
   local CLI_NAME=$1
 
   exportfs -vu ${CLI_NAME}:${STORDIR}/${CLI_NAME}
-  if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+  if [ $? -eq 0 ]; then sleep 1; exportfs -f; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
 

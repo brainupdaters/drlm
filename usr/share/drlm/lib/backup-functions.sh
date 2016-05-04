@@ -12,7 +12,7 @@ function run_mkbackup_ssh_remote ()
   if [ $? -ne 0 ]
   then    
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
-    eval echo "$BKPOUT"
+    echo "$BKPOUT"
     return 1
   else    
     return 0
@@ -30,7 +30,7 @@ function run_mkrescue_ssh_remote ()
   if [ $? -ne 0 ]
   then    
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
-    eval echo "$BKPOUT"
+    echo "$BKPOUT"
     return 1
   else    
     return 0
@@ -60,8 +60,8 @@ function list_backup_all ()
     local CLI_ID=`echo $line|awk -F":" '{print $2}'`
     local CLI_NAME=$(get_client_name $CLI_ID)
     local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $2}'`
-    local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
-    local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
+    local BAC_DAY=`echo $BAC_NAME|cut -c2-9`
+    local BAC_TIME=`echo $BAC_NAME|cut -c10-13`
     local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
@@ -81,8 +81,8 @@ function list_backup ()
     local CLI_BAC_ID=`echo $line|awk -F":" '{print $2}'`
     local CLI_ID=$(get_client_id_by_name $CLI_NAME)
     local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $2}'`
-    local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
-    local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
+    local BAC_DAY=`echo $BAC_NAME|cut -c2-9`
+    local BAC_TIME=`echo $BAC_NAME|cut -c10-13`
     local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
@@ -119,7 +119,7 @@ function disable_loop ()
   # Return 0 if OK or 1 if NOK
 }
 
-function do_mount_ro ()
+function do_mount_ext2_ro ()
 {
   local LO_DEV="/dev/loop${1}"
   local CLI_NAME=$2
@@ -134,7 +134,7 @@ function do_mount_ro ()
   # Return 0 if OK or 1 if NOK
 }
 
-function do_mount_rw() {
+function do_mount_ext2_rw() {
   local LO_DEV="/dev/loop${1}"
   local CLI_NAME=$2
   local MNTDIR=$3
@@ -144,6 +144,50 @@ function do_mount_rw() {
   fi
 
   /bin/mount -t ext2 -o rw ${LO_DEV} ${MNTDIR} >> /dev/null 2>&1
+  if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function do_mount_ext4_ro ()
+{
+  local LO_DEV="/dev/loop${1}"
+  local CLI_NAME=$2
+  local MNTDIR=$3
+
+  if [ -z "$MNTDIR" ]; then
+    MNTDIR=${STORDIR}/${CLI_NAME}
+  fi
+
+  /bin/mount -t ext4 -o ro ${LO_DEV} ${MNTDIR} >> /dev/null 2>&1
+  if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function do_mount_ext4_rw() {
+  local LO_DEV="/dev/loop${1}"
+  local CLI_NAME=$2
+  local MNTDIR=$3
+
+  if [ -z "$MNTDIR" ]; then
+    MNTDIR=${STORDIR}/${CLI_NAME}
+  fi
+
+  /bin/mount -t ext4 -o rw ${LO_DEV} ${MNTDIR} >> /dev/null 2>&1
+  if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function do_remount() {
+  local PERM=$1
+  local LO_DEV="/dev/loop${2}"
+  local CLI_NAME=$3
+  local MNTDIR=$4
+
+  if [ -z "$MNTDIR" ]; then
+    MNTDIR=${STORDIR}/${CLI_NAME}
+  fi
+
+  /bin/mount -o remount,${PERM} ${LO_DEV} ${MNTDIR} >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -188,12 +232,21 @@ function get_active_cli_bkp_from_db ()
   get_active_cli_bkp_from_db_dbdrv "$CLI_NAME"
 }
 
+#function gen_backup_id ()
+#{
+#  local CLI_NAME=$1
+#  local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
+#  if [ $? -eq 0 ]; then echo $BKP_ID; else echo ""; fi
+#  # Return DR Backup ID or Null string
+#}
+
 function gen_backup_id ()
 {
-  local CLI_NAME=$1
-  local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
-  if [ $? -eq 0 ]; then echo $BKP_ID; else echo ""; fi
-  # Return DR Backup ID or Null string
+  local CLI_ID=$1
+  local BKP_ID=$(date +"$CLI_ID%Y%m%d%H%M%S")
+  if [ $? -eq 0 ]; then echo "$BKP_ID"; else echo ""; fi
+
+# Return DR Backup ID or Null string
 }
 
 function gen_dr_file_name ()
@@ -209,14 +262,34 @@ function gen_dr_file_name ()
 # Return DR File Name or Null string
 }
 
-function make_img_raw () 
-{
-	local DR_NAME=$1
-	local DATA_SIZE=$(du -sm ${STORDIR}/${CLI_NAME}|awk '{print $1}')
-	local INC_SIZE=$((${DATA_SIZE}*5/100))
-	local DR_SIZE=$((${DATA_SIZE}+${INC_SIZE}))
+#function make_img_raw () 
+#{
+#	local DR_NAME=$1
+#	local DATA_SIZE=$(du -sm ${STORDIR}/${CLI_NAME}|awk '{print $1}')
+#	local INC_SIZE=$((${DATA_SIZE}*5/100))
+#	local DR_SIZE=$((${DATA_SIZE}+${INC_SIZE}))
+#
+#	dd if=/dev/zero of=${ARCHDIR}/${DR_NAME} bs=1024k seek=${DR_SIZE} count=0
+#	if [ $? -eq 0 ]; then return 0; else return 1; fi
+## Return 0 if OK or 1 if NOK
+#}
 
-	dd if=/dev/zero of=${ARCHDIR}/${DR_NAME} bs=1024k seek=${DR_SIZE} count=0
+function make_img () 
+{
+	local TYPE=$1
+	local DR_NAME=$2
+	local DR_SIZE=$3
+
+	qemu-img create -f ${TYPE} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M	
+	if [ $? -eq 0 ]; then return 0; else return 1; fi
+# Return 0 if OK or 1 if NOK
+}
+
+function do_format_ext4 () 
+{
+	local LO_DEV="/dev/loop${1}"
+
+	mkfs.ext4 -m1 ${LO_DEV}
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
@@ -230,15 +303,15 @@ function do_format_ext2 ()
 # Return 0 if OK or 1 if NOK
 }
 
-function move_files_to_img () 
-{
-	local CLI_NAME=$1
-	local MNTDIR=$2
-
-	tar -C ${STORDIR}/${CLI_NAME} -cf - . | (cd ${MNTDIR}; tar xf -)
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
-# Return 0 if OK or 1 if NOK
-}
+#function move_files_to_img () 
+#{
+#	local CLI_NAME=$1
+#	local MNTDIR=$2
+#
+#	tar -C ${STORDIR}/${CLI_NAME} -cf - . | (cd ${MNTDIR}; tar xf -)
+#	if [ $? -eq 0 ]; then return 0; else return 1; fi
+## Return 0 if OK or 1 if NOK
+#}
 
 function exist_backup_id ()
 {
@@ -284,7 +357,7 @@ function del_backup ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function clean_backups () 
+function clean_oldest_backup () 
 {
 	local N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
 
@@ -298,6 +371,24 @@ function clean_backups ()
 	else
 		return 0
 	fi
+}
+
+function clean_old_backups ()
+{
+        local N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
+        local ERR=0
+
+        while [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
+        do
+                BKPID2CLR=$(get_older_backup_by_client_dbdrv "$CLI_NAME")
+                DRFILE2CLR=$(get_backup_drfile "$BKPID2CLR")
+
+                del_backup ${BKPID2CLR} ${DRFILE2CLR}
+                if [ $? -ne 0 ]; then ERR=1; fi
+                N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
+        done
+
+        if [ $ERR -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_backup_id_lst_by_client ()
@@ -319,11 +410,52 @@ function check_backup_state ()
 function get_backup_drfile ()
 {
   local ID_BKP=$1
-  local DR_FILE=$(get_backup_drfile_dbdrv "ID_BKP")
+  local DR_FILE=$(get_backup_drfile_dbdrv "$ID_BKP")
   echo $DR_FILE
 }
 
 function get_active_backups ()
 {
   get_active_backups_dbdvr
+}
+
+function get_fs_free_mb () 
+{
+    local FS=$1
+    tmp=( $(stat -c "%s %a" -f "$FS" 2>&1) ) 
+    let "blocks_in_mb=1024*1024/tmp[0]"
+    let "free_mb=tmp[1]/blocks_in_mb"
+    echo $free_mb
+}
+
+function get_fs_size_mb () 
+{
+    local FS=$1
+    tmp=( $(stat -c "%s %b" -f "$FS" 2>&1) ) 
+    let "blocks_in_mb=1024*1024/tmp[0]"
+    let "size_mb=tmp[1]/blocks_in_mb"
+    echo $size_mb
+}
+
+function get_fs_used_mb () 
+{
+    local FS=$1
+    total=$(get_fs_size_mb $FS)
+    free=$(get_fs_free_mb $FS)
+    let "used_mb=total-free"
+    echo $used_mb
+}
+
+function get_client_used_mb () 
+{
+    EXCLUDE_LIST=( ${EXCLUDE_LIST[@]} $(echo $(sudo vgs -o vg_name --noheadings | egrep -v "$(echo "${INCLUDE_LIST[@]}" | tr ' ' '|')")) )
+
+    FS_LIST=( $(sudo mount -l -t "$(echo $(cat /proc/filesystems | grep -v nodev) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $3}') )
+
+    for fs in ${FS_LIST[@]}
+    do
+        let "total_mb=total_mb+$(get_fs_used_mb $fs)"
+    done
+
+    echo $total_mb
 }

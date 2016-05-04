@@ -31,7 +31,7 @@
 DESC="DRLM Store Service"
 SHARE_DIR="/usr/share/drlm"
 source $SHARE_DIR/conf/default.conf
-source /etc/drlm/site.conf
+[ -f /etc/drlm/site.conf ] && source /etc/drlm/site.conf
 source /etc/drlm/local.conf
 source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
 source $SHARE_DIR/lib/backup-functions.sh
@@ -76,7 +76,7 @@ do_mount_stord() {
 	local FS_DEV="/dev/loop${1}"
 	local CLI=$2
 	
-	/bin/mount -t ext2 -o ro ${FS_DEV} ${STORDIR}/${CLI} >> /dev/null &2>1
+	/bin/mount -o ro ${FS_DEV} ${STORDIR}/${CLI} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
 do_umount_stord() {

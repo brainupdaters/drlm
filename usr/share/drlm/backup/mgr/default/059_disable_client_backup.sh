@@ -12,7 +12,7 @@ if [ -n "$A_DR_FILE" ]; then
                 Error "$PROGRAM:$WORKFLOW:NFS:DISABLE:$CLI_NAME: Problem disabling NFS export! aborting ..."
         fi
 
-        LO_MNT=$(mount -lt ext2 | grep -w "loop${CLI_ID}" | awk '{ print $3 }'| grep -w "${STORDIR}/${CLI_NAME}")
+        LO_MNT=$(mount -lt ext2,ext4 | grep -w "loop${CLI_ID}" | awk '{ print $3 }'| grep -w "${STORDIR}/${CLI_NAME}")
         if [ -n "$LO_MNT" ]
         then
                 if do_umount ${CLI_ID} ;
