@@ -59,9 +59,9 @@ function list_backup_all ()
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
     local CLI_ID=`echo $line|awk -F":" '{print $2}'`
     local CLI_NAME=$(get_client_name $CLI_ID)
-    local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $2}'`
-    local BAC_DAY=`echo $BAC_NAME|cut -c2-9`
-    local BAC_TIME=`echo $BAC_NAME|cut -c10-13`
+    local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $3}'`
+    local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
+    local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
     local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
@@ -80,9 +80,9 @@ function list_backup ()
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
     local CLI_BAC_ID=`echo $line|awk -F":" '{print $2}'`
     local CLI_ID=$(get_client_id_by_name $CLI_NAME)
-    local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $2}'`
-    local BAC_DAY=`echo $BAC_NAME|cut -c2-9`
-    local BAC_TIME=`echo $BAC_NAME|cut -c10-13`
+    local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $3}'`
+    local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
+    local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
     local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
@@ -243,7 +243,7 @@ function get_active_cli_bkp_from_db ()
 function gen_backup_id ()
 {
   local CLI_ID=$1
-  local BKP_ID=$(date +"$CLI_ID%Y%m%d%H%M%S")
+  local BKP_ID=$(date +"$CLI_ID.%Y%m%d%H%M%S")
   if [ $? -eq 0 ]; then echo "$BKP_ID"; else echo ""; fi
 
 # Return DR Backup ID or Null string
