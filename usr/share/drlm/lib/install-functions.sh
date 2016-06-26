@@ -84,7 +84,6 @@ function install_rear_yum () {
  local URL_REAR=$3
  local SUDO=$6
  ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} rpm -Uvf ${URL_REAR} )"
- fi
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
