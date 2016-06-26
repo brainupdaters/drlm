@@ -81,17 +81,9 @@ function install_dependencies_yum () {
 function install_rear_yum () {
  local USER=$1
  local CLI_NAME=$2
- local VERSION=$3
- local DISTRO=$4
- local ARCH=$5
+ local URL_REAR=$3
  local SUDO=$6
- if [ ${DISTRO} == "CentOS" ]
- then
- 	ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} yum install rear )"
- fi
- if [ ${DISTRO} == "RedHat" ]
- then
- 	ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} rpm -Uvf http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/RedHat_RHEL-${VERSION}/${ARCH}/rear-1.17.2-1.el${VERSION}.${ARCH}.rpm )"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} rpm -Uvf ${URL_REAR} )"
  fi
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }

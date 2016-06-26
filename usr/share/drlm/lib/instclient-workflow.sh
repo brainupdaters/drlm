@@ -66,7 +66,7 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift
                                 ;;
-                        (-U|--drlm_user)
+                        (-d|--drlm_user)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then
@@ -77,6 +77,18 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift
                                 ;;
+                        (-U|--url_rear)
+                                # We need to take the option argument
+                                if [ -n "$2" ]
+                                then
+                                        URL_REAR="$2"
+                                else
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
+                                shift
+                                ;;
+
                         (-h|--help)
                                 instclienthelp
 				                exit 0
@@ -92,7 +104,7 @@ if [ $WORKFLOW == "instclient" ]; then
                 shift
         done
 
-	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
+	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ] [ -z "$URL_REAR" ]; then
 		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
