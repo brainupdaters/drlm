@@ -90,6 +90,7 @@ function install_rear_yum () {
  	ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} yum install rear )"
  fi
  if [ ${DISTRO} == "RedHat" ]
+ then
  	ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} rpm -Uvf http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/RedHat_RHEL-${VERSION}/${ARCH}/rear-1.17.2-1.el${VERSION}.${ARCH}.rpm )"
  fi
  if [ $? -eq 0 ]; then return 0; else return 1; fi
