@@ -9,6 +9,7 @@ if [ $? -ne 0  ]; then  Error "$PROGRAM: ssh-copy-id failed!" ;else Log "$PROGRA
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
 VERSION=$(echo $RELEASE|cut -c 1)
+ARCH=$(get_arch $USER $CLI_NAME)
 if [[ $DISTRO == "" ]] || [[ $RELEASE == "" ]]
 then
    Error "Release or Distro missing"

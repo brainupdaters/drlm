@@ -4,8 +4,8 @@ Log "####################################################"
 
 case ${DISTRO} in
   Debian)
-        case ${VERSION} in
-                [6*-7*])
+    case ${VERSION} in
+               [6*-8*])
 			if check_apt ${USER} ${CLI_NAME} ${SUDO}
                         then
                             if install_dependencies_apt  ${USER} ${CLI_NAME} ${SUDO}; then Log "Dependencies has been installed"; else Error "Error installing dependencies, check logfile"; fi
@@ -19,15 +19,15 @@ case ${DISTRO} in
                 *)
                         echo "Release OS not identified!"
                         ;;
-        esac
-        ;;
+    esac
+    ;;
   CentOS|RedHat)
     case ${VERSION} in
-                [5*-6*])
+                [5*-7*])
                         if check_yum ${USER} ${CLI_NAME} ${SUDO}
                         then
                             if install_dependencies_yum  ${USER} ${CLI_NAME} ${SUDO}; then Log "Dependencies has been installed"; else Error "Error installing dependencies, check logfile"; fi
-                            if install_rear_yum ${USER} ${CLI_NAME} ${VERSION} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+                            if install_rear_yum ${USER} ${CLI_NAME} ${VERSION} ${DISTRO} ${ARCH} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
                         else
                             Error "yum problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"
                         fi
