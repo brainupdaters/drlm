@@ -1,69 +1,191 @@
-# file with default install functions to implement.
+ # file with default install functions to implement.
+#function get_distro () {
+# local CLI_NAME=$1
+# local DISTRO=""
+# DISTRO=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/debian_version ]; then echo "Debian";fi')
+# if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
+# DISTRO=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo "RedHat";fi')
+# if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
+# DISTRO=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then echo "CentOS";fi')
+# if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
+# if [ "$DISTRO" == "" ]; then return 1; fi
+#}
+#
+#function get_release () {
+# local CLI_NAME=$1
+# local RELEASE=""
+# RELEASE=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi')
+# if [ "$RELEASE" != "" ]; then echo $RELEASE; return 0; fi
+# RELEASE=$(ssh ${USER}@$CLI_NAME "if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release|cut -c 41-43;fi")
+# if [ "$RELEASE" != "" ]; then echo $RELEASE; return 0; fi
+# RELEASE=$(ssh ${USER}@$CLI_NAME "if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release|cut -c 16-18;fi")
+# if [ "$RELEASE" != "" ]; then echo $RELEASE; return 0; fi
+# if [ "$RELEASE" == "" ]; then return 1; fi
+#}
+function get_distro () {
+ if [ -f /etc/debian_version ]; then echo Debian;fi
+ if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo RedHat;fi
+ if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;fi
+}
+
+function ssh_get_distro() {
+ local USER=$1
+ local CLI_NAME=$2
+ ssh ${USER}@${CLI_NAME} "$(declare -p USER CLI_NAME; declare -f get_distro); get_distro"
+}
+
+function get_release() {
+ if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi
+ if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release|cut -c 41-43;fi
+ if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release|cut -c 16-18;fi
+}
+
+function ssh_get_release() {
+ local USER=$1
+ local CLI_NAME=$2
+ ssh ${USER}@${CLI_NAME} "$(declare -p USER CLI_NAME; declare -f get_release); get_release"
+}
+
+
+function check_apt () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt $USER@$CLI_NAME "( ${SUDO} apt-cache search netcat|grep -w netcat )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function check_yum () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum search netcat| grep -w netcat )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_dependencies_yum () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y install mkisofs mingetty syslinux nfs-utils cifs-utils rpcbind wget curl parted )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_rear_yum () {
+ local USER=$1
+ local CLI_NAME=$2
+ local VERSION=$3
+ local SUDO=$4
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} rpm -Uvf http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/RedHat_RHEL-${VERSION}/noarch/rear-1.17.1-1.el${VERSION}.noarch.rpm )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+
+function ssh_keygen () {
+ ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function send_drlm_managed () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} rm /etc/rear/local.conf; ${SUDO} echo DRLM_MANAGED=y > /tmp/etc_rear_local.conf && ${SUDO} mv /tmp/etc_rear_local.conf /etc/rear/local.conf && ${SUDO} chown root:root /etc/rear/local.conf && ${SUDO} chmod 644 /etc/rear/local.conf )"
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function create_drlm_user () {
+ local USER=$1
+ local CLI_NAME=$2
+ local DRLM_USER=$3
+ local SUDO=$4
+ PASS=$(echo -n changeme | openssl passwd -1 -stdin)
+ ssh -ttt ${USER}@${CLI_NAME} "${SUDO} /usr/sbin/useradd -d /home/${DRLM_USER} -c 'DRLM User Agent' -m -s /bin/bash -p '${PASS}' ${DRLM_USER}"
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function disable_drlm_user_login () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} chage -I -1 -m 0 -M 99999 -E -1 drlm; ${SUDO} passwd -l drlm )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function remove_authorized_keys () {
+ sed -i /${AUTH_KEY}/d ${HOME}/.ssh/authorized_keys
+}
+
+function ssh_remove_authorized_keys () {
+ local USER=$1
+ local CLI_NAME=$2
+ local AUTH_KEY=$(cat ~/.ssh/id_rsa.pub|awk '{print $3}')
+ ssh -tt ${USER}@${CLI_NAME} "$(declare -p AUTH_KEY ; declare -f remove_authorized_keys); remove_authorized_keys"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function start_services () {
+ for service in ${SERVICES[@]}
+ do
+        ${SUDO} service $service start
+ done
+}
+
+function ssh_start_services () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SERVICES="$3"
+ local SUDO=$4
+ ssh -tt ${USER}@${CLI_NAME} "$(declare -p SERVICES SUDO; declare -f start_services); start_services"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 
 function config_sudo () {
-cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
-
-Cmnd_Alias DRLM = /usr/sbin/rear -dDv mkrescue, \\
-	/usr/sbin/rear -dDv mkbackup, \\
-	/usr/sbin/rear -d mkrescue, \\
-	/usr/sbin/rear -d mkbackup, \\
-        /usr/sbin/rear -D mkrescue, \\
-        /usr/sbin/rear -D mkbackup, \\
-        /usr/sbin/rear -v mkrescue, \\
-        /usr/sbin/rear -v mkbackup, \\
-        /usr/sbin/rear mkrescue, \\
-        /usr/sbin/rear mkbackup, \\
-	/usr/sbin/rear dump
-
+${SUDO} cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
+Cmnd_Alias DRLM = /usr/sbin/rear, /bin/mount,/sbin/vgs
 ${DRLM_USER}    ALL=(root)      NOPASSWD: DRLM
-
 EOF
+ if [ -d /etc/sudoers.d/ ]
+ then
+        ${SUDO} chmod 440 /tmp/etc_sudoers.d_drlm.sudo
+        ${SUDO} chown root:root /tmp/etc_sudoers.d_drlm.sudo
+        ${SUDO} cp -p /tmp/etc_sudoers.d_drlm.sudo /etc/sudoers.d/drlm
+        ${SUDO} rm -f /tmp/etc_sudoers.d_drlm.sudo
+        if [ $? -eq 0 ]; then return 0; else return 1;fi
+ else
+        return 1
+ fi
+}
+
+function ssh_config_sudo () {
+ local USER=$1
+ local CLI_NAME=$2
+ local DRLM_USER=$3
+ local SUDO=$4
+ ssh -tt ${USER}@${CLI_NAME} "$(declare -p DRLM_USER SUDO ; declare -f config_sudo); config_sudo"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 
-function send_sudo_config () {
+function config_client_cfg () {
 local CLI_NAME=$1
-local INCLDIR=$(ssh -t root@${CLI_NAME} 'grep "#includedir /etc/sudoers.d" /etc/sudoers')   
-if [ $? -ne 0 ] && [ -z "$INCLDIR" ]
-then
-	ssh -t root@${CLI_NAME} 'echo "#includedir /etc/sudoers.d" | tee -a /etc/sudoers'
-	ssh -t root@${CLI_NAME} 'mkdir /etc/sudoers.d'
-	ssh -t root@${CLI_NAME} 'chmod 750 /etc/sudoers.d'
-	scp /tmp/etc_sudoers.d_drlm.sudo root@${CLI_NAME}:/etc/sudoers.d/drlm
-	ssh -t root@${CLI_NAME} 'chmod 440 /etc/sudoers.d/drlm'
-else
-	scp /tmp/etc_sudoers.d_drlm.sudo root@${CLI_NAME}:/etc/sudoers.d/drlm
-	ssh -t root@${CLI_NAME} 'chmod 440 /etc/sudoers.d/drlm'
-fi
-}
+local SRV_IP=$2
+cat >  /etc/drlm/clients/${CLI_NAME}.cfg << EOF
+CLI_NAME=${CLI_NAME}
+SRV_NET_IP=${SRV_IP}
 
-function send_config_rear () {
-local CLI_NAME=$1
-local CLI_ID=$(get_client_id_by_name $CLI_NAME)
-local CLI_NET=$(get_client_net $CLI_ID)
-local NET_ID=$(get_network_id_by_name $CLI_NET)
-local NET_SERVIP=$(get_network_srv $NET_ID)
-
-cat > /tmp/etc_rear_local.conf << EOF
-DRLM_NAME=${CLI_NAME}
-GRUB_RESCUE=
 OUTPUT=PXE
-OUTPUT_URL=nfs://${NET_SERVIP}${STORDIR}/${CLI_NAME}
+OUTPUT_PREFIX=\$OUTPUT
+OUTPUT_PREFIX_PXE=${CLI_NAME}/\$OUTPUT
+OUTPUT_URL=nfs://${SRV_IP}/var/lib/drlm/store/${CLI_NAME}
 BACKUP=NETFS
-BACKUP_URL=nfs://${NET_SERVIP}${STORDIR}/${CLI_NAME}
-SSH_ROOT_PASSWORD=rear
 NETFS_PREFIX=BKP
-OUTPUT_PREFIX=PXE
-SSH_ROOT_PASSWORD=rear
+BACKUP_URL=nfs://${SRV_IP}/var/lib/drlm/store/${CLI_NAME}
 
+SSH_ROOT_PASSWORD=drlm
 EOF
-
-if [ -f /tmp/etc_rear_local.conf ]
-then
-	scp /tmp/etc_rear_local.conf root@${CLI_NAME}:/etc/rear/local.conf
-	return 1
-else
-	return 0
-fi
+chmod 644 /etc/drlm/clients/${CLI_NAME}.cfg
 }
+
 
