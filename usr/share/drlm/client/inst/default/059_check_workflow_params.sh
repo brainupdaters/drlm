@@ -18,7 +18,7 @@ then
 	Error "$PROGRAM: Client named: $CLI_NAME not registered in DB!"
 fi
 
-# Get DRLM SERVER IP to configure client.cfg
+# Get DRLM SERVER IP to configure client.cfg on 459_config_rear_sudo_cfg.sh
 CLI_NET=$(get_client_net ${CLI_ID})
 NET_ID=$(get_network_id_by_name ${CLI_NET})
 SRV_IP=$(get_network_srv ${NET_ID})
