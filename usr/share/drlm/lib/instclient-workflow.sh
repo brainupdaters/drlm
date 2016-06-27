@@ -104,7 +104,7 @@ if [ $WORKFLOW == "instclient" ]; then
                 shift
         done
 
-	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ] [ -z "$URL_REAR" ]; then
+	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ] &&  [ -z "$URL_REAR" ]; then
 		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
