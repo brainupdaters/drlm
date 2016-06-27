@@ -1,27 +1,3 @@
- # file with default install functions to implement.
-#function get_distro () {
-# local CLI_NAME=$1
-# local DISTRO=""
-# DISTRO=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/debian_version ]; then echo "Debian";fi')
-# if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
-# DISTRO=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo "RedHat";fi')
-# if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
-# DISTRO=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then echo "CentOS";fi')
-# if [ "$DISTRO" != "" ]; then echo ${DISTRO}; return 0; fi
-# if [ "$DISTRO" == "" ]; then return 1; fi
-#}
-#
-#function get_release () {
-# local CLI_NAME=$1
-# local RELEASE=""
-# RELEASE=$(ssh ${USER}@$CLI_NAME 'if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi')
-# if [ "$RELEASE" != "" ]; then echo $RELEASE; return 0; fi
-# RELEASE=$(ssh ${USER}@$CLI_NAME "if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release|cut -c 41-43;fi")
-# if [ "$RELEASE" != "" ]; then echo $RELEASE; return 0; fi
-# RELEASE=$(ssh ${USER}@$CLI_NAME "if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release|cut -c 16-18;fi")
-# if [ "$RELEASE" != "" ]; then echo $RELEASE; return 0; fi
-# if [ "$RELEASE" == "" ]; then return 1; fi
-#}
 function get_distro () {
  if [ -f /etc/debian_version ]; then echo Debian;fi
  if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo RedHat;fi
@@ -70,6 +46,14 @@ function check_yum () {
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function install_dependencies_apt () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get install syslinux ethtool genisoimage parted gawk attr sudo curl mingetty )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function install_dependencies_yum () {
  local USER=$1
  local CLI_NAME=$2
@@ -83,10 +67,18 @@ function install_rear_yum () {
  local CLI_NAME=$2
  local URL_REAR=$3
  local SUDO=$6
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} rpm -Uvf ${URL_REAR} )"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} wget -P /tmp/ -O rear.rpm ${URL_REAR}; ${SUDO} yum -y install /tmp/rear.rpm )"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function install_rear_apt () {
+ local USER=$1
+ local CLI_NAME=$2
+ local URL_REAR=$3
+ local SUDO=$6
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y remove rear; ${SUDO} wget -P /tmp/ -O rear.deb ${URL_REAR}; ${SUDO} dpkg -i /tmp/rear.deb  )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
 
 function ssh_keygen () {
  ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa
@@ -150,7 +142,7 @@ function ssh_start_services () {
 
 function config_sudo () {
 ${SUDO} cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
-Cmnd_Alias DRLM = /usr/sbin/rear, /bin/mount,/sbin/vgs
+Cmnd_Alias DRLM = /usr/sbin/rear, /bin/mount, /sbin/vgs
 ${DRLM_USER}    ALL=(root)      NOPASSWD: DRLM
 EOF
  if [ -d /etc/sudoers.d/ ]
