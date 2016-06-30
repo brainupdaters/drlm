@@ -50,7 +50,7 @@ function install_dependencies_apt () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y install syslinux ethtool genisoimage parted gawk attr sudo curl mingetty libgssglue1 libtirpc1 python python2.7 python2.7-minimal python-minimal mime-support portmap  lsb-release file &> /dev/null)"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y ${REAR_DEP_DEBIAN[@]} &> /dev/null)"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -58,7 +58,7 @@ function install_dependencies_yum () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y install mkisofs mingetty syslinux nfs-utils cifs-utils rpcbind wget curl parted &>/dev/null )"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y ${REAR_DEP_REDHAT[@]} &>/dev/null )"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
