@@ -4,7 +4,7 @@ Log "####################################################"
 
 LogPrint "Intalling software with user ${USER}"
 LogPrint "Sending Key for user: ${USER}"
-ssh-copy-id ${USER}@${CLI_NAME}
+ssh-copy-id ${USER}@${CLI_NAME} &> /dev/null
 if [ $? -ne 0  ]; then  Error "$PROGRAM: ssh-copy-id failed!" ;else Log "$PROGRAM: Key succesfully copied to $CLI_NAME"; fi
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
@@ -29,12 +29,12 @@ then
         #Send key for drlm user
         LogPrint "Sending key for drlm user"
         LogPrint "NOTE: enter password (changeme) for drlm user (password will be locked after installation)"
-        ssh-copy-id ${DRLM_USER}@${CLI_NAME}
+        ssh-copy-id ${DRLM_USER}@${CLI_NAME} &> /dev/null
         if [ $? -ne 0  ]
         then
             Error "$PROGRAM: Sending key for ${DRLM_USER} Failed!!!"
         else
-            Log "key for $DRLM_USER has been send on $CLI_NAME"
+            LogPrint "key for $DRLM_USER has been send on $CLI_NAME"
             #Disable password aging for drlm userdd
             if disable_drlm_user_login ${USER} ${CLI_NAME} ${SUDO};then LogPrint "user ${DRLM_USER} has been blocked using password"; else Error "$PROGRAM: Error blocking ${DRLM_USER} User!!!"; fi
         fi

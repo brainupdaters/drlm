@@ -34,7 +34,7 @@ function check_apt () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt $USER@$CLI_NAME "( ${SUDO} apt-cache search netcat|grep -w netcat )"
+ ssh -ttt $USER@$CLI_NAME "( ${SUDO} apt-cache search netcat|grep -w netcat &>/dev/null)"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -42,7 +42,7 @@ function check_yum () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum search netcat| grep -w netcat )"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum search netcat| grep -w netcat &> /dev/null )"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -50,7 +50,7 @@ function install_dependencies_apt () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get install syslinux ethtool genisoimage parted gawk attr sudo curl mingetty )"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y install syslinux ethtool genisoimage parted gawk attr sudo curl mingetty libgssglue1 libtirpc1 python python2.7 python2.7-minimal python-minimal mime-support portmap  lsb-release file &> /dev/null)"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -58,7 +58,7 @@ function install_dependencies_yum () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y install mkisofs mingetty syslinux nfs-utils cifs-utils rpcbind wget curl parted )"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y install mkisofs mingetty syslinux nfs-utils cifs-utils rpcbind wget curl parted &>/dev/null )"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -92,17 +92,39 @@ function ssh_install_rear_yum () {
  fi
 }
 
-function install_rear_apt () {
+function install_rear_dpkg () {
+${SUDO} apt-get -y remove rear &> /dev/null
+${SUDO} wget -P /tmp -O /tmp/rear.deb ${URL_REAR} &> /dev/null
+if [ $? -ne 0 ]
+then
+        echo "Error Downloading rear package"
+else
+        ${SUDO} /usr/bin/dpkg --install /tmp/rear.deb &> /dev/null 
+        if [ $? -ne 0 ]
+        then
+                echo "Error Installing ReaR package"
+        fi
+fi
+}
+
+
+function ssh_install_rear_dpkg () {
  local USER=$1
  local CLI_NAME=$2
  local URL_REAR=$3
- local SUDO=$6
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y remove rear; ${SUDO} wget -P /tmp/ -O rear.deb ${URL_REAR}; ${SUDO} dpkg -i /tmp/rear.deb  )"
- if [ $? -eq 0 ]; then return 0; else return 1; fi
+ local SUDO=$4
+ APT=$(ssh -tt ${USER}@${CLI_NAME} "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg");
+ if [ "${APT}" == "" ]
+ then
+        return 0
+ else
+        echo ${APT}
+        return 1
+ fi
 }
 
 function ssh_keygen () {
- ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa
+ ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa &> /dev/null
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -133,7 +155,7 @@ function disable_drlm_user_login () {
 }
 
 function remove_authorized_keys () {
- sed -i /${AUTH_KEY}/d ${HOME}/.ssh/authorized_keys
+ sed -i /${AUTH_KEY}/d ${HOME}/.ssh/authorized_keys 
 }
 
 function ssh_remove_authorized_keys () {
@@ -208,5 +230,4 @@ SSH_ROOT_PASSWORD=drlm
 EOF
 chmod 644 /etc/drlm/clients/${CLI_NAME}.cfg
 }
-
 
