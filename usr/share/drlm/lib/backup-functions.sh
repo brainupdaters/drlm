@@ -448,7 +448,11 @@ function get_fs_used_mb ()
 
 function get_client_used_mb () 
 {
-    EXCLUDE_LIST=( ${EXCLUDE_LIST[@]} $(echo $(sudo vgs -o vg_name --noheadings | egrep -v "$(echo "${INCLUDE_LIST[@]}" | tr ' ' '|')")) )
+    if [[ -n ${INCLUDE_LIST_VG} ]]; then
+        EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
+    fi
+    
+    EXCLUDE_LIST=( ${EXCLUDE_LIST[@]} ${EXCLUDE_LIST_VG[@]} )
 
     FS_LIST=( $(sudo mount -l -t "$(echo $(cat /proc/filesystems | grep -v nodev) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $3}') )
 
@@ -457,5 +461,5 @@ function get_client_used_mb ()
         let "total_mb=total_mb+$(get_fs_used_mb $fs)"
     done
 
-    echo $total_mb
+    echo -n $total_mb
 }
