@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
 if [ $WORKFLOW == "instclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:I:D:R:u:h" -l "client:,id:,distro:,release:,user:,help" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:u:d:U:h" -l "client:,id:,user:,drlm_user:,url_rear:,help" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
@@ -55,29 +55,7 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi 
                                 shift
                                 ;;
-			(-D|--distro)
-                                # We need to take the option argument
-                                if [ -n "$2" ]
-                                then
-                                        DISTRO="$2"
-                                else
-                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
-                                        exit 1
-                                fi
-                                shift
-                                ;;
-			(-R|--release)
-                                # We need to take the option argument
-                                if [ -n "$2" ]
-                                then
-                                        RELEASE="$2"
-                                else
-                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
-                                        exit 1
-                                fi
-                                shift
-                                ;;
-			(-u|--user)
+	                (-u|--user)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
                                 then
@@ -88,9 +66,32 @@ if [ $WORKFLOW == "instclient" ]; then
                                 fi
                                 shift
                                 ;;
+                        (-d|--drlm_user)
+                                # We need to take the option argument
+                                if [ -n "$2" ]
+                                then
+                                        DRLM_USER="$2"
+                                else
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
+                                shift
+                                ;;
+                        (-U|--url_rear)
+                                # We need to take the option argument
+                                if [ -n "$2" ]
+                                then
+                                        URL_REAR="$2"
+                                else
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
+                                shift
+                                ;;
+
                         (-h|--help)
                                 instclienthelp
-				exit 0
+				                exit 0
                                 ;;
 
                         (--) shift; break;;
@@ -108,6 +109,12 @@ if [ $WORKFLOW == "instclient" ]; then
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
 	fi
+        if [ -z "$URL_REAR" ]; then
+                echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+                exit 1
+        fi
+
 
 	WORKFLOW_instclient () {
     		#echo instclient workflow
@@ -115,3 +122,4 @@ if [ $WORKFLOW == "instclient" ]; then
 	}
 
 fi
+
