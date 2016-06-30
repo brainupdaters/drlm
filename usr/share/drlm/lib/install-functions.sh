@@ -63,12 +63,33 @@ function install_dependencies_yum () {
 }
 
 function install_rear_yum () {
+${SUDO} yum -y remove rear &> /dev/null
+${SUDO} wget -P /tmp -O /tmp/rear.rpm ${URL_REAR} &> /dev/null
+if [ $? -ne 0 ]
+then
+        echo "Error Downloading rear package"
+else
+        ${SUDO} yum -y install /tmp/rear.rpm &> /dev/null
+        if [ $? -ne 0 ]
+        then
+                echo "Error Installing ReaR package"
+        fi
+fi
+}
+
+function ssh_install_rear_yum () {
  local USER=$1
  local CLI_NAME=$2
  local URL_REAR=$3
- local SUDO=$6
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear; ${SUDO} wget -P /tmp/ -O rear.rpm ${URL_REAR}; ${SUDO} yum -y install /tmp/rear.rpm )"
- if [ $? -eq 0 ]; then return 0; else return 1; fi
+ local SUDO=$4
+ YUM=$(ssh -tt ${USER}@${CLI_NAME} "$(declare -p SUDO URL_REAR; declare -f install_rear_yum); install_rear_yum");
+ if [ "${YUM}" == "" ]
+ then
+        return 0
+ else
+        echo ${YUM}
+        return 1
+ fi
 }
 
 function install_rear_apt () {
