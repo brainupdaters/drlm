@@ -280,6 +280,8 @@ function make_img ()
 	local DR_NAME=$2
 	local DR_SIZE=$3
 
+	if [[ ! -d ${ARCHDIR} ]]; then mkdir -p ${ARCHDIR}; fi
+
 	qemu-img create -f ${TYPE} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M	
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK

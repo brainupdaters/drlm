@@ -57,6 +57,8 @@ Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLM Store ...."
 
 Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLM Store .... Success!"
 
+if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
+
 F_CLI_MAC=$(format_mac ${CLI_MAC} ":")
 if [[ ! -e ${STORDIR}/boot/cfg/${F_CLI_MAC} ]]
 then
