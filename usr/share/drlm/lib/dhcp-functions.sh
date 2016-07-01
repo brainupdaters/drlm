@@ -1,8 +1,8 @@
 # file with default dhcp functions to implement.
-# $DHCP_DIR is the defaul.conf variable of dhcp dir file
-# $DHCP_FILE is the defaul.conf variable of dhcp configuration file
-# $DHCP_FIX_CAP is the defaul.conf variable of the fixed part of the header dhcp configuration file
-# $DHCP_FIX_GRU is the defaul.conf variable of the fixed part of the group dhcp configuration file
+# $DHCP_DIR is the default.conf variable of dhcp dir file
+# $DHCP_FILE is the default.conf variable of dhcp configuration file
+# $DHCP_FIX_CAP is the default.conf variable of the fixed part of the header dhcp configuration file
+# $DHCP_FIX_GRU is the default.conf variable of the fixed part of the group dhcp configuration file
 
 
 function generate_dhcp() {
@@ -39,11 +39,13 @@ for XARXA in $(get_all_networks) ; do
    fi
 
    echo	"   option routers $XARXA_GW;" >> $DHCP_FILE
+
+   echo "   next-server $XARXA_SER_IP;" >> $DHCP_FILE
+
    echo "}" >> $DHCP_FILE
 					 
    cat $DHCP_FIX_GRU >> $DHCP_FILE
    
-   echo "   next-server $XARXA_SER_IP;" >> $DHCP_FILE
    echo " " >> $DHCP_FILE
       
    for CLIENT in $(get_clients_by_network "$XARXA_NAME") ; do

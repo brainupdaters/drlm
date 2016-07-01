@@ -33,7 +33,7 @@ fi
 if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/PXE/rear-*) != "755" ]; then
         chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-*
         if [ $? -ne 0 ]; then
-                Error "chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-* failed!"
+                Log "WARNING:$PROGRAM:$WORKFLOW: chmod 755 ${STORDIR}/${CLI_NAME}/PXE/rear-* failed!"
         fi
 fi
 
@@ -57,16 +57,24 @@ Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLM Store ...."
 
 Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLM Store .... Success!"
 
-F_CLI_MAC=$(format_mac ${CLI_MAC} "-")
-if [ ! -L ${STORDIR}/pxelinux.cfg/01-${F_CLI_MAC} ] && [ -e ${STORDIR}/${CLI_NAME}/PXE/rear-${CLI_NAME}* ]
+F_CLI_MAC=$(format_mac ${CLI_MAC} ":")
+if [[ ! -e ${STORDIR}/boot/cfg/${F_CLI_MAC} ]]
 then
-	Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Creating MAC Address link to PXE boot file ...."
-        cd ${STORDIR}/pxelinux.cfg
-        ln -s ../${CLI_NAME}/PXE/rear-${CLI_NAME}* 01-${F_CLI_MAC}
-        if [ $? -eq 0 ]; then
-		Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}:Creating MAC Address link to PXE boot file .... Success!"
-	else
-                report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Problem Creating MAC Address link to PXE boot file! aborting ..."
-                Error "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Problem Creating MAC Address link to PXE boot file! aborting ..."
-        fi
+    Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Creating MAC Address (GRUB2) boot configuration file ...."
+
+    cat << EOF > ${STORDIR}/boot/cfg/${F_CLI_MAC}
+        
+    echo "Loading Linux kernel ..."
+    linux (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.kernel rw vga=normal console=tty0 console=ttyS0,115200n8
+    echo "Loading Linux Initrd image ..."
+    initrd (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz
+
+    EOF
+
+    if [ $? -eq 0 ]; then
+        Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}:Creating MAC Address (GRUB2) boot configuration file .... Success!"
+    else
+        report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Problem Creating MAC Address (GRUB2) boot configuration file! aborting ..."
+        Error "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Problem Creating MAC Address (GRUB2) boot configuration file! aborting ..."
+    fi
 fi
