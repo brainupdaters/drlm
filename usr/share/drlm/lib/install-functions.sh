@@ -49,16 +49,18 @@ function check_yum () {
 function install_dependencies_apt () {
  local USER=$1
  local CLI_NAME=$2
- local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y ${REAR_DEP_DEBIAN[@]} &> /dev/null)"
+ local REAR_DEP_DEBIAN="$3"
+ local SUDO=$4
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y install ${REAR_DEP_DEBIAN[@]} &> /dev/null)"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_dependencies_yum () {
  local USER=$1
  local CLI_NAME=$2
- local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y ${REAR_DEP_REDHAT[@]} &>/dev/null )"
+ local REAR_DEP_REDHAT="$3"
+ local SUDO=$4
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y install ${REAR_DEP_REDHAT[@]} &>/dev/null )"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
