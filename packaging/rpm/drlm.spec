@@ -1,5 +1,8 @@
 %define rpmrelease %{nil}
 
+# Because a problem with Arch dependent GRUB2 modules
+%define _binaries_in_noarch_packages_terminate_build   0
+
 ### Work-around the fact that OpenSUSE/SLES _always_ defined both :-/
 %if 0%{?sles_version} == 0
 %undefine sles_version
