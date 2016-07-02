@@ -107,6 +107,30 @@ Professional services and support are available.
 %{_sbindir}/drlm
 %{_sysconfdir}/init.d/drlm-stord
 
-#%changelog
-#* Sun Apr 08 2013 Didac Oliveira
-#- Initial package. 
+%changelog
+* Sat Jul 16 2016 Didac Oliveira <didac@brainupdaters.net> 2.0.0
+- Multiarch netboot with GRUB2.
+- New installclient workflow.
+- Systemd support.
+- Netcat replacement with bash socket implementation.
+- Improvement of runbackup workflow.
+- Parallel backups support.
+- New database backend (sqlite3).
+- New error reporting methods (mail,nagios,zabbix).
+- lots of bug fixes.
+
+* Thu Feb 11 2016 Pau Roura <pau@brainupdaters.net> 1.1.3
+- bugfixes.
+
+* Wed Feb 10 2016 Pau Roura <pau@brainupdaters.net> 1.1.2
+- bugfixes.
+
+* Wed Mar 30 2015 Pau Roura <pau@brainupdaters.net> 1.1.1
+- bugfixes.
+
+* Wed Mar 18 2015 Pau Roura <pau@brainupdaters.net> 1.1.0
+- new features.
+- bugfixes.
+
+* Sun Apr 08 2013 Didac Oliveira <didac@brainupdaters.net> 1.0.0
+- Initial package.

@@ -1,3 +1,16 @@
+drlm (2.0.0) stable release; urgency=high
+
+ * Multiarch netboot with GRUB2.
+ * New installclient workflow.
+ * Systemd support.
+ * Netcat replacement with bash socket implementation.
+ * Improvement of runbackup workflow.
+ * Parallel backups support.
+ * New database backend (sqlite3).
+ * New error reporting methods (mail,nagios,zabbix).
+ * lots of bugfixes.
+
+ -- Didac Oliveira <didac@brainupdaters.net> Wed, 6 Jul 2016
 drlm (1.1.3) stable release; urgency=low
 
  * bugfixes.
