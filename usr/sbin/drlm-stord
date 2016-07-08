@@ -11,7 +11,7 @@
 #
 # Description:       DRLM is a central Disaster Recovery Manager
 #                    for Linux OS. This service provides DR Images
-#                    Store Service available for Recover configured 
+#                    Store Service available for Recover configured
 #                    servers in your network.
 
 ### BEGIN INIT INFO
@@ -20,10 +20,10 @@
 # Required-Stop:     $local_fs $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: DRLM Store Service 
+# Short-Description: DRLM Store Service
 # Description:       DRLM is a central Disaster Recovery Manager
 #                    for Linux OS. This service provides DR Images
-#                    Store Service available for Recover configured 
+#                    Store Service available for Recover configured
 #                    servers in your network.
 ### END INIT INFO
 
@@ -32,7 +32,7 @@ DESC="DRLM Store Service"
 SHARE_DIR="/usr/share/drlm"
 source $SHARE_DIR/conf/default.conf
 [ -f /etc/drlm/site.conf ] && source /etc/drlm/site.conf
-source /etc/drlm/local.conf
+[ -f /etc/drlm/local.conf ] && source /etc/drlm/local.conf
 source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
 source $SHARE_DIR/lib/backup-functions.sh
 RETVAL=0
@@ -56,7 +56,7 @@ uid=`id | cut -d\( -f1 | cut -d= -f2`
 # Be sure loop module is loaded
 #$(/sbin/modprobe -q loop) || exit 0
 
-function get_err () 
+function get_err ()
 {
         if [ $1 -eq 0 ]; then
                 return 0
@@ -67,7 +67,7 @@ function get_err ()
 
 disable_loop_stord () {
 	local LO_DEV=$1
-	
+
 	/sbin/losetup -d ${LO_DEV} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
@@ -75,13 +75,13 @@ disable_loop_stord () {
 do_mount_stord() {
 	local FS_DEV="/dev/loop${1}"
 	local CLI=$2
-	
+
 	/bin/mount -o ro ${FS_DEV} ${STORDIR}/${CLI} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
 do_umount_stord() {
 	local FS_DEV=$1
-	
+
 	/bin/umount ${FS_DEV} >> /dev/null &2>1
 	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
@@ -252,4 +252,3 @@ case "$OSTYPE" in
 esac
 
 exit $RETVAL
-

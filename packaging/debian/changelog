@@ -1,39 +1,39 @@
 drlm (2.0.0) stable release; urgency=high
 
- * Multiarch netboot with GRUB2.
- * New installclient workflow.
- * Systemd support.
- * Netcat replacement with bash socket implementation.
- * Improvement of runbackup workflow.
- * Parallel backups support.
- * New database backend (sqlite3).
- * New error reporting methods (mail,nagios,zabbix).
- * lots of bugfixes.
+  * Multiarch netboot with GRUB2.
+  * New installclient workflow.
+  * Systemd support.
+  * Netcat replacement with bash socket implementation.
+  * Improvement of runbackup workflow.
+  * Parallel backups support.
+  * New database backend (sqlite3).
+  * New error reporting methods (mail,nagios,zabbix).
+  * lots of bugfixes.
 
- -- Didac Oliveira <didac@brainupdaters.net> Wed, 6 Jul 2016
+ -- Didac Oliveira <didac@brainupdaters.net>  Wed, 6 Jul 2016 00:00:00 +0100
 drlm (1.1.3) stable release; urgency=low
 
- * bugfixes.
+  * bugfixes.
 
- -- Pau Roura <pau@brainupdaters.net> Thu, 11 Feb 2016 
+ -- Pau Roura <pau@brainupdaters.net>  Thu, 11 Feb 2016 00:00:00 +0100
 drlm (1.1.2) stable release; urgency=low
 
- * bugfixes.
+  * bugfixes.
 
- -- Pau Roura <pau@brainupdaters.net> Wed, 10 Feb 2016 
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 10 Feb 2016 00:00:00 +0100
 drlm (1.1.1) stable release; urgency=low
 
- * bugfixes.
+  * bugfixes.
 
- -- Pau Roura <pau@brainupdaters.net> Wed, 30 Mar 2015 
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 30 Mar 2015 00:00:00 +0100
 drlm (1.1.0) stable release; urgency=low
 
- * new features.
- * bugfixes.
+  * new features.
+  * bugfixes.
 
- -- Pau Roura <pau@brainupdaters.net> Wed, 18 Mar 2015 
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 18 Mar 2015 00:00:00 +0100
 drlm (1.0.0) beta release; urgency=low
 
- * Initial package. 
+  * Initial package.
 
- -- Didac Oliveira <didac@brainupdaters.net> Sun, 08 Dec 2013 
+ -- Didac Oliveira <didac@brainupdaters.net>  Sun, 08 Dec 2013 00:00:00 +0100

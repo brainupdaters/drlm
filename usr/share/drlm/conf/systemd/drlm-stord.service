@@ -1,0 +1,13 @@
+[Unit]
+Description=DRLM Stord Service
+After=nfs-kernel-server.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/drlm-stord start
+ExecStop=/usr/sbin/drlm-stord stop
+ExecReload=/usr/sbin/drlm-stord reload
+
+[Install]
+WantedBy=multi-user.target

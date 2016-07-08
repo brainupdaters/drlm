@@ -7,7 +7,19 @@ case "$1" in
 	[ -f /var/lib/drlm/backup.data.save ] && mv /var/lib/drlm/backup.data.save /var/lib/drlm/backup.data
 	[ -f /var/lib/drlm/network.data.save ] && mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
 	[ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
-	service drlm-stord start
+
+  if [ $(ps -p 1 -o comm=) = "systemd" ]
+  then
+	   cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+     systemctl daemon-reload
+     systemctl enable drlm-stord.service
+     systemctl start drlm-stord.service
+  else
+     cp /usr/sbin/drlm-stord /etc/init.d/
+     update-rc.d drlm-stord defaults
+     service drlm-stord start
+  fi
+
 	;;
 
     *)

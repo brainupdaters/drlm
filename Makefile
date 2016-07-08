@@ -1,4 +1,4 @@
-# In some dists (e.g. Ubuntu) bash is not the default shell. Statements like 
+# In some dists (e.g. Ubuntu) bash is not the default shell. Statements like
 #   cp -a etc/drlm/{mappings,templates} ...
 # assumes bash. So its better to set SHELL
 SHELL=/bin/bash
@@ -8,7 +8,7 @@ OFFICIAL =
 
 ### Get version from DRLM itself
 drlmbin = usr/sbin/drlm
-drlm_store_svc = etc/init.d/drlm-stord
+drlm_store_svc = usr/sbin/drlm-stord
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
 
@@ -85,7 +85,7 @@ validate:
 	find . -name '*.sh' | xargs bash -n
 
 man: doc/drlm.8
-	
+
 doc:
 	@echo -e "\033[1m== Prepare documentation ==\033[0;0m"
 
@@ -93,7 +93,7 @@ ifneq ($(git_date),)
 rewrite:
 	@echo -e "\033[1m== Rewriting $(specfile), $(dscfile) and $(drlmbin) ==\033[0;0m"
 	sed -i.orig \
-		-e 's#^Source:.*#Source: https://future_drlm_website/drlm/${version}/$(name)-${distversion}.tar.gz#' \
+		-e 's#^Source:.*#Source: http://drlm.org/download/${version}/$(name)-${distversion}.tar.gz#' \
 		-e 's#^Version:.*#Version: $(version)#' \
 		-e 's#^%define rpmrelease.*#%define rpmrelease $(rpmrelease)#' \
 		-e 's#^%setup.*#%setup -q -n $(name)-$(distversion)#' \
@@ -142,8 +142,7 @@ install-bin:
 		-e 's,^SHARE_DIR=.*,SHARE_DIR="$(datadir)/drlm",' \
 		-e 's,^VAR_DIR=.*,VAR_DIR="$(localstatedir)/lib/drlm",' \
 		$(DESTDIR)$(sbindir)/drlm
-	@echo -e "\033[1m== Installing store service ==\033[0;0m"
-	install -Dp -m0755 $(drlm_store_svc) $(DESTDIR)$(sysconfdir)/init.d/drlm-stord
+	install -Dp -m0755 $(drlm_store_svc) $(DESTDIR)$(sbindir)/drlm-stord
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
@@ -167,7 +166,7 @@ install-doc:
 		-e 's,/usr/share/doc/packages,$(datadir)/doc,' \
 		$(DESTDIR)$(mandir)/man8/drlm.8
 
-install: validate man install-config rewrite install-bin restore install-data install-var 
+install: validate man install-config rewrite install-bin restore install-data install-var
 
 uninstall:
 	@echo -e "\033[1m== Uninstalling DRLM ==\033[0;0m"

@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 1.1.3
+Version: 2.0.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -27,7 +27,7 @@ Requires: openssh-clients openssl
 Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
-Requires: nfs-utils portmap rpcbind 
+Requires: nfs-utils portmap rpcbind
 Requires: dhcp tftp-server httpd
 Requires: qemu-img
 
@@ -61,20 +61,17 @@ Requires: syslinux
 Requires: crontabs
 %endif
 
-#Obsoletes: 
+#Obsoletes:
 
 %description
-DRLM is an Open Source disaster recovery and system ...
+DRLM is an Open Source disaster recovery solution...
 ...
 ...
 
 Professional services and support are available.
 
 %prep
-#%setup -q -n drlm-1.00-git
-%setup -q 
-
-#echo "55 0 * * * root /usr/sbin/drlm sched" >drlm.cron
+%setup -q
 
 ### Add a specific os.conf so we do not depend on LSB dependencies
 %{?fedora:echo -e "OS_VENDOR=Fedora\nOS_VERSION=%{?fedora}" >etc/drlm/os.conf}
@@ -89,23 +86,42 @@ Professional services and support are available.
 %install
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR="%{buildroot}"
-#%{__install} -Dp -m0644 drlm.cron %{buildroot}%{_sysconfdir}/cron.d/drlm
-%{__install} -Dp -m0755 etc/init.d/drlm-stord %{buildroot}%{_sysconfdir}/init.d/drlm-stord
+
+%post
+%if %(ps -p 1 -o comm=) == "systemd"
+%{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable drlm-stord.service
+systemctl start drlm-stord.service
+%else
+%{__cp} /usr/sbin/drlm-stord /etc/init.d/
+chkconfig drlm-stord on
+service drlm-stord start
+%endif
+
+%preun
+%if %(ps -p 1 -o comm=) == "systemd"
+systemctl stop drlm-stord.service
+systemctl disable drlm-stord.service
+systemctl daemon-reload
+%{__rm} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+%else
+service drlm-stord stop
+chkconfig drlm-stord off
+%endif
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %files
 %defattr(-, root, root, 0755)
-#%doc AUTHORS COPYING README doc/*.txt
-%doc AUTHORS COPYING README.rst 
+%doc AUTHORS COPYING README.rst
 %doc %{_mandir}/man8/drlm.8*
-#%config(noreplace) %{_sysconfdir}/cron.d/drlm
 %config(noreplace) %{_sysconfdir}/drlm/
 %{_datadir}/drlm/
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
-%{_sysconfdir}/init.d/drlm-stord
+%{_sbindir}/drlm-stord
 
 %changelog
 * Sat Jul 16 2016 Didac Oliveira <didac@brainupdaters.net> 2.0.0
@@ -125,12 +141,12 @@ Professional services and support are available.
 * Wed Feb 10 2016 Pau Roura <pau@brainupdaters.net> 1.1.2
 - bugfixes.
 
-* Wed Mar 30 2015 Pau Roura <pau@brainupdaters.net> 1.1.1
+* Mon Mar 30 2015 Pau Roura <pau@brainupdaters.net> 1.1.1
 - bugfixes.
 
 * Wed Mar 18 2015 Pau Roura <pau@brainupdaters.net> 1.1.0
 - new features.
 - bugfixes.
 
-* Sun Apr 08 2013 Didac Oliveira <didac@brainupdaters.net> 1.0.0
+* Mon Apr 08 2013 Didac Oliveira <didac@brainupdaters.net> 1.0.0
 - Initial package.
