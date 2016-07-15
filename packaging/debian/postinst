@@ -10,16 +10,27 @@ case "$1" in
 
   if [ $(ps -p 1 -o comm=) = "systemd" ]
   then
+     systemctl enable tftpd-hpa.service
+     systemctl enable nfs-kernel-server.service
+     systemctl enable rpcbind.service
+     systemctl enable isc-dhcp-server.service
+     systemctl enable apache2.service
 	   cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
      systemctl daemon-reload
      systemctl enable drlm-stord.service
      systemctl start drlm-stord.service
   else
+     update-rc.d tftpd-hpa defaults
+     update-rc.d nfs-kernel-server defaults
+     update-rc.d rpcbind defaults
+     update-rc.d isc-dhcp-server defaults
+     update-rc.d apache2 defaults
      cp /usr/sbin/drlm-stord /etc/init.d/
      update-rc.d drlm-stord defaults
      service drlm-stord start
   fi
 
+  [ -f /etc/drlm/local.conf ] && echo "DHCP_SVC_NAME=\"isc-dhcp-server\"" >> /etc/drlm/local.conf
 	;;
 
     *)

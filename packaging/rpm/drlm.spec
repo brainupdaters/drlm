@@ -89,11 +89,21 @@ Professional services and support are available.
 
 %post
 %if %(ps -p 1 -o comm=) == "systemd"
+systemctl enable xinetd.service
+systemctl enable rpcbind.service
+systemctl enable nfs.service
+systemctl enable dhcpd.service
+systemctl enable httpd.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable drlm-stord.service
 systemctl start drlm-stord.service
 %else
+chkconfig xinetd on
+chkconfig rpcbind on
+chkconfig nfs on
+chkconfig dhcpd on
+chkconfig httpd on
 %{__cp} /usr/sbin/drlm-stord /etc/init.d/
 chkconfig drlm-stord on
 service drlm-stord start
