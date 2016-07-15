@@ -2,6 +2,7 @@ function get_distro () {
  if [ -f /etc/debian_version ]; then echo Debian;fi
  if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo RedHat;fi
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;fi
+ if [ -f /etc/SuSE-release ]; then echo Suse; fi
 }
 
 function ssh_get_distro() {
@@ -14,6 +15,7 @@ function get_release() {
  if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi
  if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release|cut -c 41-43;fi
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release|cut -c 16-18;fi
+ if [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';fi
 }
 
 function get_arch() {
@@ -43,6 +45,14 @@ function check_yum () {
  local CLI_NAME=$2
  local SUDO=$3
  ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum search netcat| grep -w netcat &> /dev/null )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function check_zypper () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} zypper se netcat| grep -w netcat &> /dev/null )"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -79,6 +89,15 @@ else
 fi
 }
 
+function install_rear_yum_repo () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} yum -y remove rear;${SUDO} yum -y install rear &>/dev/null )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+}
+
 function ssh_install_rear_yum () {
  local USER=$1
  local CLI_NAME=$2
@@ -93,6 +112,16 @@ function ssh_install_rear_yum () {
         return 1
  fi
 }
+
+function install_rear_zypper_repo () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} zypper rm -y rear;${SUDO} zypper in -y rear  &>/dev/null )"
+ if [ $? -eq 0 ]; then return 0; else return 1; fi
+
+}
+
 
 function install_rear_dpkg () {
 ${SUDO} apt-get -y remove rear &> /dev/null
@@ -124,6 +153,40 @@ function ssh_install_rear_dpkg () {
         return 1
  fi
 }
+
+
+function install_rear_zypper () {
+${SUDO} zypper rm -y rear &> /dev/null
+${SUDO} wget -P /tmp -O /tmp/rear.rpm ${URL_REAR} &> /dev/null
+if [ $? -ne 0 ]
+then
+        echo "Error Downloading rear package"
+else
+        ${SUDO} /usr/bin/zypper in -y /tmp/rear.rpm &> /dev/null
+        if [ $? -ne 0 ]
+        then
+                echo "Error Installing ReaR package"
+        fi
+fi
+}
+
+
+function ssh_install_rear_zypper () {
+ local USER=$1
+ local CLI_NAME=$2
+ local URL_REAR=$3
+ local SUDO=$4
+ ZYPPER=$(ssh -tt ${USER}@${CLI_NAME} "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper");
+ if [ "${ZYPPER}" == "" ]
+ then
+        return 0
+ else
+        echo ${ZYPPER}
+        return 1
+ fi
+}
+
+
 
 function ssh_keygen () {
  ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa &> /dev/null
@@ -172,6 +235,12 @@ function start_services () {
  for service in ${SERVICES[@]}
  do
         ${SUDO} service $service start
+	if [[ ${DISTRO} == "Debian" ]]
+	then 
+		${SUDO} update-rc.d $service enable
+        else
+		${SUDO} chkconfig $service on
+        fi
  done
 }
 
@@ -179,8 +248,9 @@ function ssh_start_services () {
  local USER=$1
  local CLI_NAME=$2
  local SERVICES="$3"
- local SUDO=$4
- ssh -tt ${USER}@${CLI_NAME} "$(declare -p SERVICES SUDO; declare -f start_services); start_services"
+ local DISTRO=$4
+ local SUDO=$5
+ ssh -tt ${USER}@${CLI_NAME} "$(declare -p SERVICES DISTRO SUDO; declare -f start_services); start_services"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
