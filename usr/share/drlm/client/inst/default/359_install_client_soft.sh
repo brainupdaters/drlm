@@ -46,7 +46,7 @@ case ${DISTRO} in
     ;;
   Suse)
     case ${VERSION} in
-                [5*-6*])
+                [11*-12*])
                         if check_zypper ${USER} ${CLI_NAME} ${SUDO}
                         then
                             LogPrint "Installing dependendies and ReaR"
