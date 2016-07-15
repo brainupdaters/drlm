@@ -91,7 +91,7 @@ Professional services and support are available.
 %if %(ps -p 1 -o comm=) == "systemd"
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
-systemctl enable nfs.service
+systemctl enable nfs-server.service
 systemctl enable dhcpd.service
 systemctl enable httpd.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/

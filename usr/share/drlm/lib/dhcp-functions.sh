@@ -24,16 +24,16 @@ for XARXA in $(get_all_networks) ; do
    XARXA_NAME=`echo $XARXA | awk -F":" '{print $9}'`
 
    echo "subnet $XARXA_NET_IP netmask $XARXA_MASK {" >> $DHCP_FILE
-  
-   if [ -z "\$XARXA_DOMAIN" ]; 
+
+   if [ -z "\$XARXA_DOMAIN" ];
    then
       echo "   option domain-name \"${XARXA_DOMAIN}\";" >> $DHCP_FILE
    fi
 
    echo	"   option subnet-mask $XARXA_MASK;" >> $DHCP_FILE
    echo "   option broadcast-address $XARXA_BROAD;" >> $DHCP_FILE
-  
-   if [ -z "\$XARXA_DNS" ]; 
+
+   if [ -z "\$XARXA_DNS" ];
    then
       echo "   option domain-name-servers ${XARXA_DNS};" >> $DHCP_FILE
    fi
@@ -43,11 +43,11 @@ for XARXA in $(get_all_networks) ; do
    echo "   next-server $XARXA_SER_IP;" >> $DHCP_FILE
 
    echo "}" >> $DHCP_FILE
-					 
+
    cat $DHCP_FIX_GRU >> $DHCP_FILE
-   
+
    echo " " >> $DHCP_FILE
-      
+
    for CLIENT in $(get_clients_by_network "$XARXA_NAME") ; do
       CLIENT_HOST=`echo $CLIENT | awk -F":" '{print $2}'`
       CLIENT_MAC=$(format_mac $(echo $CLIENT | awk -F":" '{print $3}') ":")
@@ -56,9 +56,9 @@ for XARXA in $(get_all_networks) ; do
       echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE
       echo "      fixed-address $CLIENT_IP;" >> $DHCP_FILE
       echo "   }" >> $DHCP_FILE
-   done 
-   
-   echo "}" >> $DHCP_FILE 					   
+   done
+
+   echo "}" >> $DHCP_FILE
 done
 
 #Generates the configuration file with clients and networks database
@@ -69,11 +69,17 @@ function reload_dhcp() {
   dhcpd -t -cf $DHCP_FILE
   if [ $? -eq 0 ]; then
      # Reload DHCP (Operating System dependency)
-     service $DHCP_SVC_NAME force-reload > /dev/null
-     if [ $? -eq 0 ]; then
-	return 0
+     if [ $(ps -p 1 -o comm=) = "systemd" ]
+     then
+       systemctl reload-or-try-restart $DHCP_SVC_NAME.service > /dev/null
      else
-	return 2
+       service $DHCP_SVC_NAME force-reload > /dev/null
+     fi
+
+     if [ $? -eq 0 ]; then
+	      return 0
+     else
+	      return 2
      fi
   else
      mv $DHCP_FILE $DHCP_FILE.error

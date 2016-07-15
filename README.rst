@@ -29,7 +29,7 @@ work properly:
 * nfs-server
 * tftpd
 * apache2
-* quemu-img
+* qemu-img
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
 we don't list them as requirements. In case your specific workflow requires
