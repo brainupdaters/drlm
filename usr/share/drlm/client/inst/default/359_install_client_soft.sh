@@ -12,7 +12,7 @@ case ${DISTRO} in
                             if [[ ${VERSION} == 6 ]]
                             then
                                 if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_DEBIAN6}" ${SUDO}; then Log "Dependencies has been installed"; else Error "Error installing dependencies, check logfile"; fi
-                            if
+                            fi
                             if [[ ${VERSION} == 7 ]]
                             then
                                 if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_DEBIAN7}" ${SUDO}; then Log "Dependencies has been installed"; else Error "Error installing dependencies, check logfile"; fi
@@ -45,7 +45,7 @@ case ${DISTRO} in
     ;;
   CentOS|RedHat)
     case ${VERSION} in
-                [6*-7*])
+                [5*-7*])
                         if check_yum ${USER} ${CLI_NAME} ${SUDO}
                         then
                             LogPrint "Installing dependendies and ReaR"
@@ -111,10 +111,8 @@ case ${DISTRO} in
                         ;;
     esac
     ;;
-
   *)
         echo "Distribution not identified"
         ;;
 esac
-
 
