@@ -162,7 +162,7 @@ if [ $? -ne 0 ]
 then
         echo "Error Downloading rear package"
 else
-        ${SUDO} /usr/bin/zypper in -y /tmp/rear.rpm &> /dev/null
+        ${SUDO} /usr/bin/zypper --no-gpg-checks in -y /tmp/rear.rpm &> /dev/null
         if [ $? -ne 0 ]
         then
                 echo "Error Installing ReaR package"
