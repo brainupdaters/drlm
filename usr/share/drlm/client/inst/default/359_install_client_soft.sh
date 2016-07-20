@@ -27,15 +27,15 @@ case ${DISTRO} in
                         fi
                         if [[ ${VERSION} == 6 ]]
                         then
-                           if ssh_start_services ${USER} ${CLI_NAME} "portmap" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                           if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_DEBIAN6}" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         fi
                         if [[ ${VERSION} == 7 ]]
                         then
-                           if ssh_start_services ${USER} ${CLI_NAME} "rpcbind" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                           if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_DEBIAN7}" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         fi
                         if [[ ${VERSION} == 8 ]]
                         then
-                           if ssh_start_services ${USER} ${CLI_NAME} "rpcbind" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                           if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_DEBIAN8}" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         fi
                         ;;
                 *)
@@ -72,15 +72,15 @@ case ${DISTRO} in
                         fi
                         if [[ ${VERSION} == 5 ]]
                         then
-                           if ssh_start_services ${USER} ${CLI_NAME} "portmap nfs" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                           if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_REDHAT5}" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         fi
                         if [[ ${VERSION} == 6 ]]
                         then
-                           if ssh_start_services ${USER} ${CLI_NAME} "rpcbind nfs" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                           if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_REDHAT6}" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         fi
                         if [[ ${VERSION} == 7 ]]
                         then
-                           if ssh_start_services ${USER} ${CLI_NAME} "rpcbind" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                           if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVIVES_REDHAT7}" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         fi
                         ;;
                 *)
@@ -104,7 +104,7 @@ case ${DISTRO} in
                         else
                             Error "zypper problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"
                         fi
-                        if ssh_start_services ${USER} ${CLI_NAME} "rpcbind nfs" ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                        if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_SUSE12}" ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         ;;
                 *)
                         echo "Release not identified!"
