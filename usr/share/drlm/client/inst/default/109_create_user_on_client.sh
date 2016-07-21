@@ -28,7 +28,7 @@ then
         LogPrint "User $DRLM_USER created on $CLI_NAME"
         #Send key for drlm user
         LogPrint "Sending key for drlm user"
-        LogPrint "NOTE: enter password (changeme) for drlm user (password will be locked after installation)"
+        echo "NOTE: enter password (changeme) for drlm user (password will be locked after installation)"
         ssh-copy-id ${DRLM_USER}@${CLI_NAME} &> /dev/null
         if [ $? -ne 0  ]
         then

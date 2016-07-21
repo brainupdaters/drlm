@@ -13,8 +13,8 @@ function ssh_get_distro() {
 
 function get_release() {
  if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi
- if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release|cut -c 41-43;fi
- if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release|cut -c 16-18;fi
+ if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
+ if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
  if [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';fi
 }
 
@@ -197,7 +197,7 @@ function send_drlm_managed () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} rm /etc/rear/local.conf; ${SUDO} echo DRLM_MANAGED=y > /tmp/etc_rear_local.conf && ${SUDO} mv /tmp/etc_rear_local.conf /etc/rear/local.conf && ${SUDO} chown root:root /etc/rear/local.conf && ${SUDO} chmod 644 /etc/rear/local.conf )"
+ ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} echo DRLM_MANAGED=y > /tmp/etc_rear_local.conf && ${SUDO} mv /tmp/etc_rear_local.conf /etc/rear/local.conf && ${SUDO} chown root:root /etc/rear/local.conf && ${SUDO} chmod 644 /etc/rear/local.conf )"
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
