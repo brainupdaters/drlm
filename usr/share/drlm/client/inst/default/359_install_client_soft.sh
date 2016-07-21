@@ -104,7 +104,7 @@ case ${DISTRO} in
                         else
                             Error "zypper problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"
                         fi
-                        if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_SUSE12}" ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
+                        if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_SUSE12}" ${DISTRO} ${SUDO}; then LogPrint "Services has been started succesfully"; else "ERROR starting services"; fi
                         ;;
                 *)
                         echo "Release not identified!"
