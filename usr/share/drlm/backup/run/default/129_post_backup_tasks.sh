@@ -64,14 +64,16 @@ if [[ ! -e ${STORDIR}/boot/cfg/${F_CLI_MAC} ]]
 then
     Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}: Creating MAC Address (GRUB2) boot configuration file ...."
 
-    cat << EOF > ${STORDIR}/boot/cfg/${F_CLI_MAC}
-        
-    echo "Loading Linux kernel ..."
-    linux (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.kernel rw vga=normal console=tty0 console=ttyS0,115200n8
-    echo "Loading Linux Initrd image ..."
-    initrd (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz
+cat << EOF > ${STORDIR}/boot/cfg/${F_CLI_MAC}
+       
+  echo "Loading Linux kernel ..."
+  linux (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.kernel rw vga=normal console=tty0 console=ttyS0,115200n8
+  echo "Loading Linux Initrd image ..."
+  initrd (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz
 
-    EOF
+EOF
+
+    test -f ${STORDIR}/boot/cfg/${F_CLI_MAC}
 
     if [ $? -eq 0 ]; then
         Log "$PROGRAM:$WORKFLOW:postbackup:PXE:${CLI_NAME}:Creating MAC Address (GRUB2) boot configuration file .... Success!"

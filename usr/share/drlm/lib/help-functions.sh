@@ -135,7 +135,7 @@ function instclienthelp() {
 	printf "\n"
 	printf "$(tput bold)Required Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client to install REAR by name"
-	printf '%-25s %-45s\n' "-I|--id <NET_ID>" "Select Client to intall REAR by ID"
+	printf '%-25s %-45s\n' "-I|--id <CLI_ID>" "Select Client to intall REAR by ID"
 	printf "\n"
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-u|--user <USER>" "User with admin privileges to install and configure software"

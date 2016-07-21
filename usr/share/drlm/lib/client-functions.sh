@@ -147,7 +147,7 @@ function check_client_mac ()
   ping  -c 1 -t 2 $CLI_IP &>/dev/null
   if [ $? -eq 0 ];
   then
-    local REAL_MAC=$(arp -a $CLI_IP | awk '{print $4}' | tr -d ":" | tr \[A-Z\] \[a-z\])
+    local REAL_MAC=$(ip n | grep -w $CLI_IP | awk '{print $5}' | tr -d ":" | tr \[A-Z\] \[a-z\])
     if [ "${REAL_MAC}" == "${CLI_MAC}" ]
     then
       return 0; 
