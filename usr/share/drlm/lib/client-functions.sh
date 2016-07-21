@@ -221,7 +221,7 @@ function list_client ()
 
 function get_count_clients ()
 {
-  get_count_clients_dbdvr 
+  get_count_clients_dbdrv 
 }
 
 function get_all_clients ()

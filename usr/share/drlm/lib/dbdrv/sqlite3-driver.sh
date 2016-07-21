@@ -139,7 +139,7 @@ function mod_client_net_dbdrv ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function get_count_clients_dbdvr ()
+function get_count_clients_dbdrv ()
 {
   local NCLI=$(echo "select count(*) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo "$NCLI"
@@ -445,7 +445,7 @@ function get_older_backup_by_client_dbdrv ()
   echo "$OLD_BKP"
 }
 
-function get_active_backups_dbdvr ()
+function get_active_backups_dbdrv ()
 {
   echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups where active=1;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }

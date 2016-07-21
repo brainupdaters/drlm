@@ -144,7 +144,7 @@ function mod_client_net_dbdrv ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function get_count_clients_dbdvr ()
+function get_count_clients_dbdrv ()
 {
    local NCLI=$(cat $CLIDB | grep -v "^#" | wc -l)
    echo "$NCLI"
@@ -465,7 +465,7 @@ function get_older_backup_by_client_dbdrv ()
   echo "$OLD_BKP"
 }
 
-function get_active_backups_dbdvr ()
+function get_active_backups_dbdrv ()
 {
   echo "$(grep -w "true" $BKPDB)"
 }

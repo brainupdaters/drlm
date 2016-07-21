@@ -365,8 +365,8 @@ function clean_oldest_backup ()
 
 	if [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
 	then
-		BKPID2CLR=$(get_older_backup_by_client_dbdrv "$CLI_NAME")
-		DRFILE2CLR=$(get_backup_drfile "$BKPID2CLR")
+		BKPID2CLR=$(get_older_backup_by_client_dbdrv ${CLI_NAME})
+		DRFILE2CLR=$(get_backup_drfile ${BKPID2CLR})
 		
 		del_backup ${BKPID2CLR} ${DRFILE2CLR}
 		if [ $? -eq 0 ]; then return 0; else return 1; fi
@@ -382,8 +382,8 @@ function clean_old_backups ()
 
         while [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
         do
-                BKPID2CLR=$(get_older_backup_by_client_dbdrv "$CLI_NAME")
-                DRFILE2CLR=$(get_backup_drfile "$BKPID2CLR")
+                BKPID2CLR=$(get_older_backup_by_client_dbdrv ${CLI_NAME})
+                DRFILE2CLR=$(get_backup_drfile ${BKPID2CLR})
 
                 del_backup ${BKPID2CLR} ${DRFILE2CLR}
                 if [ $? -ne 0 ]; then ERR=1; fi
@@ -418,7 +418,7 @@ function get_backup_drfile ()
 
 function get_active_backups ()
 {
-  get_active_backups_dbdvr
+  get_active_backups_dbdrv
 }
 
 function get_fs_free_mb () 
