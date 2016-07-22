@@ -31,21 +31,8 @@ Log "$PROGRAM:$WORKFLOW: Populating NFS configuration ..."
 mkdir -p $STORDIR/$CLI_NAME
 chmod 755 $STORDIR/$CLI_NAME
 
-if [[ ! -e /etc/exports ]]; then
-    touch /etc/exports
-    chmod 644 /etc/exports
-fi
 
 if add_nfs_export $CLI_NAME ; then
-
-    NFSCHECK=$(lsmod | grep nfs)
-    if [[ -z "$NFSCHECK" ]]; then
-        if [ $(ps -p 1 -o comm=) = "systemd" ]; then
-            systemctl start nfs
-        else
-            service nfs start
-        fi
-    fi
 
     if enable_nfs_fs_rw $CLI_NAME ; then
         Log "$PROGRAM:$WORKFLOW: NFS service reconfiguration complete!"

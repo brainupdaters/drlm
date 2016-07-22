@@ -66,9 +66,17 @@ function add_nfs_export ()
 	if [ -z "${EXIST}" ]; then
 		echo "$STORDIR/$CLI_NAME $CLI_NAME(rw,sync,no_root_squash,no_subtree_check)" | tee -a $NFS_FILE > /dev/null
 		if [ $? -eq 0 ]; then
-			return 0
+                    NFSCHECK=$(lsmod | grep nfs)
+                    if [[ -z "$NFSCHECK" ]]; then
+                        if [ $(ps -p 1 -o comm=) = "systemd" ]; then
+                            systemctl start $NFS_SVC_NAME.service > /dev/null
+                        else
+                            service $NFS_SVC_NAME start > /dev/null
+                        fi
+                    fi
+		    return 0
 		else
-			return 1
+		    return 1
 		fi
 	fi
 # Return 0 if OK or 1 if NOK
