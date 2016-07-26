@@ -67,7 +67,7 @@ then
 cat << EOF > ${STORDIR}/boot/cfg/${F_CLI_MAC}
        
   echo "Loading Linux kernel ..."
-  linux (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.kernel rw vga=normal console=tty0 console=ttyS0,115200n8
+  linux (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.kernel rw gfxpayload=vga=normal console=tty0 console=ttyS0,115200n8
   echo "Loading Linux Initrd image ..."
   initrd (tftp)/${CLI_NAME}/PXE/${CLI_NAME}.initrd.cgz
 

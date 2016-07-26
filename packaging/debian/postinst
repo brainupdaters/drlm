@@ -8,6 +8,8 @@ case "$1" in
 	[ -f /var/lib/drlm/network.data.save ] && mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
 	[ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
 
+  openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+
   if [ $(ps -p 1 -o comm=) = "systemd" ]
   then
      systemctl enable tftpd-hpa.service
@@ -31,6 +33,7 @@ case "$1" in
   fi
 
   [ -f /etc/drlm/local.conf ] && echo "DHCP_SVC_NAME=\"isc-dhcp-server\"" >> /etc/drlm/local.conf
+
 	;;
 
     *)

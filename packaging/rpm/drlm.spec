@@ -29,7 +29,7 @@ Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: nfs-utils portmap rpcbind
 Requires: dhcp tftp-server httpd
-Requires: qemu-img
+Requires: qemu-img sqlite
 
 ### Optional requirement
 #Requires: cfg2html
@@ -88,6 +88,7 @@ Professional services and support are available.
 %{__make} install DESTDIR="%{buildroot}"
 
 %post
+openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
 %if %(ps -p 1 -o comm=) == "systemd"
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
@@ -110,6 +111,7 @@ service drlm-stord start
 %endif
 
 %preun
+%{__rm} /etc/drlm/cert/drlm.*
 %if %(ps -p 1 -o comm=) == "systemd"
 systemctl stop drlm-stord.service
 systemctl disable drlm-stord.service

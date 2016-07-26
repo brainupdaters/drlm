@@ -30,6 +30,7 @@ work properly:
 * tftpd
 * apache2
 * qemu-img
+* sqlite3
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
 we don't list them as requirements. In case your specific workflow requires

@@ -18,6 +18,7 @@ case "$1" in
 	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
 	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
 	mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
+	rm /etc/drlm/cert/drlm.*
     ;;
 
     upgrade)
@@ -36,6 +37,7 @@ case "$1" in
 	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
 	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
 	mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
+	rm /etc/drlm/cert/drlm.*
 	;;
 
     *)
