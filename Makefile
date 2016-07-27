@@ -125,8 +125,6 @@ install-config:
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
-	install -Dp -m0600 etc/drlm/cert/drlm.crt $(DESTDIR)$(sysconfdir)/drlm/cert/drlm.crt
-	install -Dp -m0600 etc/drlm/cert/drlm.key $(DESTDIR)$(sysconfdir)/drlm/cert/drlm.key
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
 		install -Dp -m0600 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
