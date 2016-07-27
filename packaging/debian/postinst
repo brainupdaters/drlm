@@ -17,7 +17,7 @@ case "$1" in
      systemctl enable rpcbind.service
      systemctl enable isc-dhcp-server.service
      systemctl enable apache2.service
-	   cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+     cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
      systemctl daemon-reload
      systemctl enable drlm-stord.service
      systemctl start drlm-stord.service

@@ -116,10 +116,11 @@ service drlm-stord start
 systemctl stop drlm-stord.service
 systemctl disable drlm-stord.service
 systemctl daemon-reload
-%{__rm} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+%{__rm} /etc/systemd/system/drlm-stord.service
 %else
 service drlm-stord stop
 chkconfig drlm-stord off
+%{__rm} /etc/init.d/drlm-stord
 %endif
 
 %clean
