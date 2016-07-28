@@ -50,9 +50,6 @@ chapter that details each release.
 
       - Mail (NEW!)
 
-  *
-
-  *
 
 NOTE: Features marked experimental are prone to change with future releases.
 
@@ -142,6 +139,7 @@ Also requires some system services in order to work properly:
   * tftpd
   * apache2
   * qemu-img
+  * sqlite3
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
 we don't list them as requirements. In case your specific workflow requires
@@ -171,11 +169,11 @@ Supported Operating Systems
 
 DRLM is supported on the following Linux based operating systems:
 
-  * RHEL 5, 6 and 7
-  * CentOS 5, 6 and 7
-  * Debian 6, 7 and 8
+  * RHEL 6 and 7
+  * CentOS 6 and 7
+  * Debian 7 and 8
 
-If you require support for unsupported Linux Operating System you must
+If you require support for any unsupported Linux Operating System you must
 acquire a DRLM support contract.
 
 
