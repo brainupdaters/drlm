@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
 if [ $WORKFLOW == "instclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:I:u:d:U:h" -l "client:,id:,user:,drlm_user:,url_rear:,help" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:u:d:U:h" -l "client:,id:,user:,drlm_user:,url_rear:,help:,Authors" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
@@ -92,6 +92,11 @@ if [ $WORKFLOW == "instclient" ]; then
                         (-h|--help)
                                 instclienthelp
 				                exit 0
+                                ;;
+			
+			(--Authors)
+                                authors 
+                                                exit 0
                                 ;;
 
                         (--) shift; break;;
