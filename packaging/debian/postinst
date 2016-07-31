@@ -9,6 +9,7 @@ case "$1" in
 	[ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
 
   openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+  mkdir /etc/drlm/clients /etc/drlm/alerts
 
   if [ $(ps -p 1 -o comm=) = "systemd" ]
   then
