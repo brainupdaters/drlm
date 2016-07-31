@@ -1,10 +1,2 @@
 group {
-	site-option-space "pxelinux";
-	#option pxelinux.magic f1:00:74:7e;       # Comment out if PXE is not working properly
-	if exists dhcp-parameter-request-list {
-		option dhcp-parameter-request-list = concat(option dhcp-parameter-request-list,d0,d1,d2,d3);
-	}
-
-	option pxelinux.configfile = concat("pxelinux.cfg/", binary-to-ascii(16, 8, ":", hardware));
-	filename "pxelinux.0";
-	
+# group header keept for possible future needs

@@ -3,23 +3,41 @@ set -e
 
 case "$1" in
     remove)
-	service drlm-stord stop
-	mv /var/lib/drlm/.ids/.idcount.client /var/lib/drlm/.ids/.idcount.client.save
-	mv /var/lib/drlm/.ids/.idcount.network /var/lib/drlm/.ids/.idcount.network.save
+    if [ $(ps -p 1 -o comm=) = "systemd" ]
+    then
+      systemctl stop drlm-stord.service
+      systemctl disable drlm-stord.service
+      rm /etc/systemd/system/drlm-stord.service
+      systemctl daemon-reload
+    else
+      service drlm-stord stop
+      update-rc.d drlm-stord remove
+      rm /etc/init.d/drlm-stord
+    fi
 	mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
 	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
 	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
-	#mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
-        ;;
+	mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
+	rm /etc/drlm/cert/drlm.*
+    ;;
 
     upgrade)
-	service drlm-stord stop
-	mv /var/lib/drlm/.ids/.idcount.client /var/lib/drlm/.ids/.idcount.client.save
-	mv /var/lib/drlm/.ids/.idcount.network /var/lib/drlm/.ids/.idcount.network.save
+    if [ $(ps -p 1 -o comm=) = "systemd" ]
+    then
+      systemctl stop drlm-stord.service
+      systemctl disable drlm-stord.service
+      rm /etc/systemd/system/drlm-stord.service
+      systemctl daemon-reload
+    else
+      service drlm-stord stop
+      update-rc.d drlm-stord remove
+      rm /etc/init.d/drlm-stord
+    fi
 	mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
 	mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
 	mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
-	#mv /var/lib/drlm/calendar.data /var/lib/drlm/calendar.data.save
+	mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
+	rm /etc/drlm/cert/drlm.*
 	;;
 
     *)

@@ -234,6 +234,27 @@ modify network properties.
 (bkpmgr argument)
 .RE
 .PP
+\-u \-\-user
+.RS 4
+
+\fBAdmin user\fR
+(instclient argument)
+.RE
+.PP
+\-d \-\-drlm_user
+.RS 4
+
+\fBdrlm user\fR
+(instclient argument)
+.RE
+.PP
+\-U \-\-url_rear
+.RS 4
+
+\fBURL ReaR\fR
+(instclient argument)
+.RE
+.PP
 \-A \-\-all
 .RS 4
 
@@ -304,6 +325,19 @@ To create a new network \&. Options debug and Verbose are applied.
 .sp
 To create a new client (WOPR) in this example\&. Options debug and Verbose are appliedi\&. Net1 must exist\&.
 .sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# drlm -vD instclient -u admin -c WOPR -U \m[blue]\fBhttp://download\&.opensuse\&.org/repositories/Archiving\&:/Backup\&:/Rear/Debian_8.0/all/rear_1\&.17\&.2_all\&.deb\fR\m[]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+To install ReaR and configure DRLM on a new client \&. Options debug and Verbose are applied.
+.sp
+
 .SH "FILES"
 .PP
 /usr/sbin/drlm
@@ -351,7 +385,7 @@ Feedback is welcome, please report any issues or improvements to our issue\-trac
 .sp
 Pau Roura, Didac Oliveira, Ruben Carbonell\&.
 .sp
-Logan & Krbu (this man page)\&.
+Logan & Krbu & Mad Max (this man page)\&.
 .sp
 DRLM is a collaborative process using Github at: \m[blue]\fBhttp://github\&.com/brainupdaters/drlm/\fR\m[]
 .sp

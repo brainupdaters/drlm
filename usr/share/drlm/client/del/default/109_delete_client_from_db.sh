@@ -1,5 +1,5 @@
 
-Log "$PROGRAM:$WORKFLOW: Deleting Client $CLI_NAME from database ($CLIDB) ..."
+Log "$PROGRAM:$WORKFLOW: Deleting Client $CLI_NAME from DB"
 
 if del_client_id $CLI_ID ;
 then

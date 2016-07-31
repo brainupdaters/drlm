@@ -1,21 +1,15 @@
 #PRE RUN BACKUP
 
-Log "Deactivating previous DR store for client: ${CLI_NAME} ..."
-
 if [ ! -d ${STORDIR}/${CLI_NAME} ]; then
+
+	Log "Making DR store mountpoint for client: ${CLI_NAME} ..."
 
 	mkdir -v ${STORDIR}/${CLI_NAME}
 	chmod 755 ${STORDIR}/${CLI_NAME}
 
-        if enable_nfs_fs_rw ${CLI_NAME} ;
-	then
-		Log "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: .... Success!"
-	else
-		report_error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..." 
-		Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
-	fi
-
 else
+
+	Log "Deactivating previous DR store for client: ${CLI_NAME} ..."
 
 	if disable_nfs_fs ${CLI_NAME} ;
 	then
@@ -29,7 +23,7 @@ else
 
 	if [ -n "$A_DR_FILE" ]; then
 
-        	LO_MNT=$(mount -lt ext2 | grep -w "loop${CLI_ID}" | awk '{ print $3 }'| grep -w "${STORDIR}/${CLI_NAME}")
+        	LO_MNT=$(mount -lt ext2,ext4 | grep -w "loop${CLI_ID}" | awk '{ print $3 }'| grep -w "${STORDIR}/${CLI_NAME}")
         	if [ -n "$LO_MNT" ]
         	then
                 if do_umount ${CLI_ID} ;
@@ -39,7 +33,7 @@ else
 			report_error "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): Problem unmounting Filesystem! aborting ..." 
 			Error "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): Problem unmounting Filesystem! aborting ..."
 		fi
-        	fi
+        fi
 
         	if disable_loop ${CLI_ID} ;
 		then
@@ -48,17 +42,7 @@ else
 			report_error "$PROGRAM:$WORKFLOW:LOOPDEV(${CLI_ID}):DISABLE:$CLI_NAME: Problem disabling Loop Device! aborting ..." 
 			Error "$PROGRAM:$WORKFLOW:LOOPDEV(${CLI_ID}):DISABLE:$CLI_NAME: Problem disabling Loop Device! aborting ..."
 		fi
-        fi
-
-        if enable_nfs_fs_rw ${CLI_NAME} ;
-	then
-		Log "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: .... Success!"
-	else
-		report_error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..." 
-		Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
 	fi
+
+	Log "Finished Deactivating DR store for client: ${CLI_NAME} ..."
 fi
-
-Log "Finished Deactivating DR store for client: ${CLI_NAME} ..."
-
-

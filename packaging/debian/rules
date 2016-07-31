@@ -25,9 +25,9 @@ clean:
 binary-indep: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
-	
+
 	# The DESTDIR Has To Be Exactly debian/drlm
 	mkdir -vp \
 		debian/drlm/DEBIAN/ \
@@ -37,26 +37,23 @@ binary-indep: build
 		debian/drlm/var/lib/drlm/ \
 		debian/drlm/usr/share/man/man8/ \
 		debian/drlm/var/log/drlm/
-	
+
 
 	# copy drlm components into directories
 	cp -av etc/drlm debian/drlm/etc/
-	cp -av etc/init.d debian/drlm/etc/
 	cp -av usr/sbin/drlm debian/drlm/usr/sbin/
+	cp -av usr/sbin/drlm-stord debian/drlm/usr/sbin/
 	cp -av usr/share/drlm debian/drlm/usr/share/
 	cp -av var/lib/drlm debian/drlm/var/lib/
 	cp -av doc/drlm.8 debian/drlm/usr/share/man/man8/
-	
-	#Install pre/post inst/rm scripts 
+
+	#Install pre/post inst/rm scripts
 	install -Dp -m0755 packaging/debian/preinst debian/drlm/DEBIAN/preinst
 	install -Dp -m0755 packaging/debian/prerm debian/drlm/DEBIAN/prerm
 	install -Dp -m0755 packaging/debian/postinst debian/drlm/DEBIAN/postinst
 	install -Dp -m0755 packaging/debian/postrm debian/drlm/DEBIAN/postrm
-
 	install -Dp -m0644 packaging/debian/conffiles debian/drlm/DEBIAN/conffiles
 	install -Dp -m0644 packaging/debian/control debian/drlm/DEBIAN/control
-#	install -Dp -m0644 packaging/debian/md5sums debian/drlm/DEBIAN/md5sums
-
 
 	# patch drlm main script with correct locations for drlm components
 	sed -i  \
@@ -64,15 +61,15 @@ binary-indep: build
 		-e 's#^SHARE_DIR=.*#SHARE_DIR="/usr/share/drlm"#' \
 		-e 's#^VAR_DIR=.*#VAR_DIR="/var/lib/drlm"#' \
 		debian/drlm/usr/sbin/drlm
-	
+
 	# update man page with correct locations
 	install -Dp -m0644 doc/drlm.8 debian/drlm/usr/share/man/man8/drlm.8
 	sed -i \
 		-e 's#/usr/share/doc/packages#/usr/share/doc#' \
 		debian/drlm/usr/share/man/man8/drlm.8
-	
+
 	# --- end custom part for installing
-	
+
 #	dh_installdocs README doc/*
 	dh_installdocs README.rst
 	dh_installchangelogs

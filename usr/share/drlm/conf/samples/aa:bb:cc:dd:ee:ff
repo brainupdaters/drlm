@@ -1,0 +1,6 @@
+# DRLM Example GRUB2 Netboot configuration
+
+echo "Loading Linux kernel ..."
+linux (tftp)/rear/PXE/rear.kernel rw console=tty0 console=ttyS0,115200n8 
+echo "Loading Linux Initrd image ..."
+initrd (tftp)/rear/PXE/rear.initrd.cgz

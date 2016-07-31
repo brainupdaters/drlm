@@ -1,6 +1,6 @@
 Log "$PROGRAM:$WORKFLOW:ARCHIVE:CLEAN:${CLI_NAME}: DR Archive Clean in progress .... "
 
-if clean_backups ;
+if clean_old_backups ;
 then
 	Log "$PROGRAM:$WORKFLOW:ARCHIVE:DR:CLEAN:FS:DB:${CLI_NAME}: .... Success!"
 else
