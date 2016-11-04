@@ -337,6 +337,18 @@ To create a new client (WOPR) in this example\&. Options debug and Verbose are a
 .sp
 To install ReaR and configure DRLM on a new client \&. Options debug and Verbose are applied.
 .sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# drlm -vD addclient -n Net1 -i 192\&.168\&.2\&.113 -M 08\&:00\&:27\&:02\&:01\&:A7 -c WOPR -I -u admin -c WOPR -U \m[blue]\fBhttp://download\&.opensuse\&.org/repositories/Archiving\&:/Backup\&:/Rear/Debian_8.0/all/rear_1\&.17\&.2_all\&.deb\fR\m[]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+To create a new client (WOPR) and install/configure ReaR with an admin user in this example\&. Options debug and Verbose are appliedi\&. Net1 must exist\&.
+.sp
 
 .SH "FILES"
 .PP

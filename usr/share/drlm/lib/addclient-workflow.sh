@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 
 if [ "$WORKFLOW" == "addclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:h" -l "client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:Iu:d:U:h" -l "client:,ipaddr:,macaddr:,netname:,installclient,user:,drlm_user:,url_rear:,help" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
@@ -77,6 +77,43 @@ if [ "$WORKFLOW" == "addclient" ]; then
                                 fi 
                                 shift
                                 ;;
+                        (-I|--installclient)
+                                INSTALL="Y"
+                                ;;
+                        (-u|--user)
+                                # We need to take the option argument
+                                if [ -n "$2" ]
+                                then
+                                        USER="$2"
+                                else
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
+                                shift
+                                ;;
+                        (-d|--drlm_user)
+                                # We need to take the option argument
+                                if [ -n "$2" ]
+                                then
+                                        DRLM_USER="$2"
+                                else
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
+                                shift
+                                ;;
+                        (-U|--url_rear)
+                                # We need to take the option argument
+                                if [ -n "$2" ]
+                                then
+                                        URL_REAR="$2"
+                                else
+                                        echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+                                        exit 1
+                                fi
+                                shift
+                                ;;
+
                         (-h|--help)
                                 addclienthelp
 				exit 0
@@ -100,5 +137,9 @@ if [ "$WORKFLOW" == "addclient" ]; then
 	WORKFLOW_addclient () {
     		#echo addclient workflow
     		SourceStage "client/add"
+		if [ "$INSTALL" == "Y" ]
+                then
+                        SourceStage "client/inst"
+                fi
 	}
 fi
