@@ -43,6 +43,9 @@ if add_nfs_export $CLI_NAME ; then
 else
     Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."
 fi
+
+#Add client config file at DRLM Server
+if config_client_cfg ${CLI_NAME} ${SRV_IP}; then LogPrint "${CLI_NAME} has been configured at /etc/drlm/clients/${CLI_NAME}.cfg with a default configuration , check ReaR options to change the configuration"; else Error "Error creating configuration file fot ${CLI_NAME}"; fi
 	
 
 Log "------------------------------------------------------------------"
