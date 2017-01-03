@@ -51,6 +51,13 @@ function get_client_id_by_name_dbdrv ()
   echo "$CLI_ID"
 }
 
+function get_client_name_by_id_dbdrv ()
+{
+  local CLI_ID=$1
+  CLI_NAME=$(echo "select cliname from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$CLI_NAME"
+}
+
 function get_client_ip_dbdrv ()
 {
   local CLI_ID=$1
@@ -448,4 +455,76 @@ function get_older_backup_by_client_dbdrv ()
 function get_active_backups_dbdrv ()
 {
   echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups where active=1;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+
+##########################
+# Job database functions #
+##########################
+
+
+function update_job_ndate_dbdrv ()
+{
+  local JOB_ID=$1       
+  local JOB_NDATE=$2
+  echo "update jobs set next_date = '${JOB_NDATE}' where idjob = '${JOB_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH 
+  if [ $? -eq 0 ]; then return 0;else return 1; fi
+}
+
+function update_job_ldate_dbdrv ()
+{
+  local JOB_ID=$1       
+  local JOB_LDATE=$2
+  echo "update jobs set last_date = '${JOB_LDATE}' where idjob = '${JOB_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH 
+  if [ $? -eq 0 ]; then return 0;else return 1; fi
+}
+
+function exist_job_id_dbdrv () 
+{
+  local JOB_ID=$1
+  COUNT=$(echo "select count(*) from jobs where idjob='${JOB_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function get_jobs_by_client_dbdrv ()
+{
+  local CLI_ID=$1
+  echo "$(echo -e ".separator "," \n select idjob,start_date,end_date,last_date,next_date,repeat,enabled from jobs where clients_id=${CLI_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_job_by_id_dbdrv ()
+{
+  local JOB_ID=$1
+  echo "$(echo -e ".separator "," \n select clients_id,start_date,end_date,last_date,next_date,repeat,enabled from jobs where idjob=${JOB_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_all_jobs_dbdrv ()
+{
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_jobs_by_ndate_dbdrv ()
+{
+  local DATE=$1
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,next_date,end_date,repeat,enabled from jobs where datetime(next_date) <= datetime('${DATE}') and (end_date = '' or datetime(end_date) >= datetime('${DATE}'));" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function add_job_dbdrv () 
+{
+  local CLI_ID=$1
+  local JOB_SDATE=$2
+  local JOB_EDATE=$3
+  local JOB_NDATE=$JOB_SDATE
+  local JOB_REPEAT=$4
+  
+  echo "INSERT INTO jobs (clients_id, start_date, end_date, next_date, repeat, enabled) VALUES (${CLI_ID}, '${JOB_SDATE}', '${JOB_EDATE}', '${JOB_NDATE}', '${JOB_REPEAT}', 1); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH 
+  if [ $? -eq 0 ]; then return 0;else return 1; fi
+  
+}
+
+function del_job_id_dbdrv () 
+{
+  local JOB_ID=$1
+  echo "delete from jobs where idjob='${JOB_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }

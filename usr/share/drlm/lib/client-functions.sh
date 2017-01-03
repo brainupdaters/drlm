@@ -45,6 +45,19 @@ function get_client_id_by_name ()
   fi
 }
 
+function get_client_name_by_id ()
+{
+  local CLI_ID=$1
+  # Check if parameter $1 is ok
+  exist_client_id "$CLI_ID"
+  if [ $? -eq 0 ]
+  then
+    # Get client name from database and return it
+    get_client_name_by_id_dbdrv "$CLI_ID"
+    return 0
+  fi  
+}
+
 function get_client_ip ()
 {
   local CLI_ID=$1
