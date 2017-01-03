@@ -150,7 +150,7 @@ hash -r
 export LC_CTYPE=C LC_ALL=C LANG=C
 
 # Logfile name
-TIMESTAMP=$(date +"%Y%m%d.%H%M%S")
+TIMESTAMP=$(date +"%Y%m%d.%H%M%S.%4N")
 LOGFILE="$LOG_DIR/drlm-$HOSTNAME-$WORKFLOW.$TIMESTAMP.log"
 
 # include default config

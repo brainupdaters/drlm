@@ -89,6 +89,7 @@ Professional services and support are available.
 
 %post
 openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+/usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 %if %(ps -p 1 -o comm=) == "systemd"
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
