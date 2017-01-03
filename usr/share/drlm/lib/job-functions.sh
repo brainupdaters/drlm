@@ -116,15 +116,15 @@ function get_job_by_id ()
 
 function check_date ()
 {
-  local DATE=$1
+  local DATE=$(echo $1 | tr -d ":" | tr -d "-" | tr "T" " ")
   date "+%Y-%m-%dT%H:%M" --date="$DATE"
-  if [ $? -eq 0 ];then return 0; else return 1; fi     
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function get_format_date ()
 {
-  local DATE=$(date "+%Y-%m-%dT%H:%M" --date="$1")
-  echo "$DATE"    
+  local DATE=$(date "+%Y-%m-%dT%H:%M" --date="$(echo $1 | tr -d ":" | tr -d "-" | tr "T" " ")")
+  echo "$DATE"
 }
 
 function get_epoch_date ()
@@ -157,6 +157,6 @@ function sched_job() {
   # close all non-std* fds
     eval exec {3..255}\>\&-
   # run command with setsid
-    exec setsid "$@"    
+    setsid "$@"    
   ) &
 }

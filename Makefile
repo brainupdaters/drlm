@@ -124,6 +124,7 @@ install-config:
 	install -d -m0700 $(DESTDIR)$(sysconfdir)/drlm/
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
 	install -Dp -m0600 etc/drlm/cert/README.rst $(DESTDIR)$(sysconfdir)/drlm/cert/README.rst
+	install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
@@ -133,8 +134,6 @@ install-config:
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 	@echo -e "\033[1m== Prepare manual ==\033[0;0m"
 	install -Dp -m0644 doc/drlm.8 $(DESTDIR)$(mandir)/man8/drlm.8
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/cron.d/drlm ]] && \
-		install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
 
 install-bin:
 	@echo -e "\033[1m== Installing binary ==\033[0;0m"

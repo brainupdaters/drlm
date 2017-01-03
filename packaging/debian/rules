@@ -41,6 +41,7 @@ binary-indep: build
 
 	# copy drlm components into directories
 	cp -av etc/drlm debian/drlm/etc/
+	cp -av etc/cron.d debian/drlm/etc/
 	cp -av usr/sbin/drlm debian/drlm/usr/sbin/
 	cp -av usr/sbin/drlm-stord debian/drlm/usr/sbin/
 	cp -av usr/share/drlm debian/drlm/usr/share/

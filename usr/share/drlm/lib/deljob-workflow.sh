@@ -76,7 +76,7 @@ if [ "$WORKFLOW" == "deljob" ]; then
 	    exit 1
 	fi
 
-	if [ -z "$CLI_NAME" ] || [ -z "$JOB_ID" ]; then
+	if [ -z "$CLI_NAME" ] && [ -z "$JOB_ID" ]; then
 		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1

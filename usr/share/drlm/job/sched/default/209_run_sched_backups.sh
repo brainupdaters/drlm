@@ -35,7 +35,7 @@ if [ "$SCHED_MODE" == "run" ]; then
           JOB_LDATE=$NOW
           update_job_ldate "$JOB_ID" "$JOB_LDATE"
           Log "$PROGRAM:$WORKFLOW:Setting last date [ $JOB_LDATE ] for JOB ID: [ $JOB_ID ]"
-          sched_job "/usr/sbin/drlm runbackup -I $CLI_ID"
+          sched_job /usr/sbin/drlm runbackup -I $CLI_ID
           Log "$PROGRAM:$WORKFLOW:Running JOB ID [ $JOB_ID ] for client [ $CLI_ID ]"
         fi 
       else
@@ -44,7 +44,7 @@ if [ "$SCHED_MODE" == "run" ]; then
             JOB_LDATE=$NOW
             update_job_ldate "$JOB_ID" "$JOB_LDATE"
             Log "$PROGRAM:$WORKFLOW:Setting last date [ $JOB_LDATE ] for JOB ID: [ $JOB_ID ]"
-            sched_job "/usr/sbin/drlm runbackup -I $CLI_ID"
+            sched_job /usr/sbin/drlm runbackup -I $CLI_ID
             Log "$PROGRAM:$WORKFLOW:Running JOB ID [ $JOB_ID ] for client [ $CLI_ID ]"
           fi
         fi

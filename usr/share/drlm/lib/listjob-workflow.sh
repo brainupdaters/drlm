@@ -55,10 +55,10 @@ if [ "$WORKFLOW" == "listjob" ]; then
 				fi
 				shift 
 				;;
-			(-e|--enabled)
-				;;
-			(-d|--disabled)
-				;;	
+			#(-e|--enabled)
+			#	;;
+			#(-d|--disabled)
+			#	;;	
 			(-A|--all)
 				CLI_NAME="all" 
 				;;
@@ -76,7 +76,7 @@ if [ "$WORKFLOW" == "listjob" ]; then
 		shift
 	done
 
-       	if [ -z "$CLI_NAME" ] || [ -z "$JOB_ID" ]; then
+       	if [ -z "$CLI_NAME" ] && [ -z "$JOB_ID" ]; then
        		echo "$PROGRAM $WORKFLOW: there are not all required parameters to run the command."
        		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
        		exit 1
