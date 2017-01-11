@@ -214,6 +214,13 @@ function get_network_id_by_name_dbdrv ()
   echo "$NET_ID"
 }
 
+function get_network_id_by_netip_dbdrv ()
+{
+  local NET_IP=$1
+  NET_ID=$(echo "select idnetwork from networks where netip='${NET_IP}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$NET_ID"
+}
+
 function get_network_ip_dbdrv ()
 {
   local NET_ID=$1

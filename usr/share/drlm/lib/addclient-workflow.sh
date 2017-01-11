@@ -128,11 +128,15 @@ if [ "$WORKFLOW" == "addclient" ]; then
                 shift
         done
 
-	if [ -z "$CLI_NAME" ] || [ -z "$CLI_IP" ] || [ -z "$CLI_MAC" ] || [ -z "$CLI_NET" ]; then
-		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-		exit 1
-	fi
+        if [ -z "$CLI_NAME" ] || [ -z "$CLI_IP" ] || [ -z "$CLI_MAC" ] || [ -z "$CLI_NET" ]; then
+                ADDCLI_MODE=online
+        fi
+
+        if [ -z "$CLI_IP" ]; then
+                echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+                exit 1
+        fi
 
 	WORKFLOW_addclient () {
     		#echo addclient workflow
