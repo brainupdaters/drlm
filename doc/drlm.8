@@ -28,7 +28,7 @@
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
 .SH "NAME"
-drlm \- bare metal disaster recovery linux manager 
+drlm \- Disaster Recovery Linux Manager 
 .SH "SYNOPSIS"
 .sp
 \fBdrlm\fR [\fB\-dDsSvV\fR] \fICOMMAND\fR [\-\- \fIARGS\fR\&...]
@@ -81,9 +81,9 @@ version information
 .RE
 .SS "COMMANDS"
 .PP
-\fBaddbackup\fR
+\fBaddjob\fR
 .RS 4
-register backup to DB. (Not yet implemented) 
+register backup job to DB.
 .RE
 .PP
 \fBaddclient\fR
@@ -99,6 +99,11 @@ register new network to DB.
 \fBbkpmgr\fR
 .RS 4
 manage DRLM backup states.
+.RE
+.PP
+\fBdeljob\fR
+.RS 4
+delete job from DB.
 .RE
 .PP
 \fBdelbackup\fR
@@ -121,6 +126,11 @@ delete network from DB.
 install client from DRLM
 .RE
 .PP
+\fBlistjob\fR
+.RS 4
+list client jobs.
+.RE
+.PP
 \fBlistbackup\fR
 .RS 4
 list client backups.
@@ -136,11 +146,6 @@ list existent clients.
 list existent networks.
 .RE
 .PP
-\fBmodbackup\fR
-.RS 4
-modify backup properties. (Not yet implemented)
-.RE
-.PP
 \fBmodclient\fR
 .RS 4
  modify client properties.
@@ -149,6 +154,11 @@ modify backup properties. (Not yet implemented)
 \fBmodnetwork\fR
 .RS 4
 modify network properties.
+.RE
+.PP
+\fBsched\fR
+.RS 4
+manage job scheduler.
 .RE
 .PP
 \fBrunbackup\fR
@@ -161,14 +171,14 @@ modify network properties.
 .RS 4
 
 \fBclient name\fR
-(client_name, used in addclient, addnetwork, bkpmgr and delclient arguments)
+(client_name, used in addclient, addnetwork, bkpmgr, addjob, deljob, listjob  and delclient arguments)
 .RE
 .PP
 \-i \-\-ipaddr
 .RS 4
 
 \fBip address\fR
-(ip address, used in addclient, addnetwork and bkpmgr arguments)
+(ip address, used in addclient and addnetwork arguments)
 .RE
 .PP
 \-M \-\-macaddr
@@ -209,28 +219,63 @@ modify network properties.
 \-I \-\-id
 .RS 4
 
-\fBBackup id\fR
+\fBbackup, client and network id's\fR
 (bkpmgr, delclient, delbackup and delnetwork argument)
+.RE
+.PP
+\-J \-\-job_id
+.RS 4
+
+\fBjob id\fR
+(deljob and listjob argument)
 .RE
 .PP
 \-e \-\-enable
 .RS 4
 
-\fBenable backup\fR
-(bkpmgr argument)
+\fBenable backup or job scheduler\fR
+(bkpmgr and sched argument)
 .RE
 .PP
 \-d \-\-disable
 .RS 4
 
-\fBdisable backup\fR
-(bkpmgr argument)
+\fBdisable backup or job scheduler\fR
+(bkpmgr and sched argument)
+.RE
+.PP
+\-r \-\-run
+.RS 4
+
+\fBrun planned jobs in scheduler\fR
+(sched argument)
+.RE
+.PP
+\-r \-\-repeat
+.RS 4
+
+\fBset periodicity of job\fR
+(addjob argument in following format: 1min(s) or 1hour(s) or 1day(s) or 1week(s) or 1month(s) or 1year(s))
+.RE
+.PP
+\-s \-\-start_date
+.RS 4
+
+\fBset start date for a new job\fR
+(addjob argument in following format: %Y-%m-%dT%H:%M)
+.RE
+.PP
+\-e \-\-end_date
+.RS 4
+
+\fBset end date for a new job\fR
+(addjob argument in following format: %Y-%m-%dT%H:%M)
 .RE
 .PP
 \-P 
 .RS 4
 
-\fBPermanent backup\fR
+\fBpermanent backup\fR
 (bkpmgr argument)
 .RE
 .PP
@@ -259,7 +304,7 @@ modify network properties.
 .RS 4
 
 \fBAll\fR
-(delbackup, listclient, listnetwork and listbackup argument)
+(delbackup, listclient, listnetwork, listjob and listbackup argument)
 .RE 
 .PP
 \-h \-\-help
@@ -293,13 +338,13 @@ The next examples shows how to use drlm from command line\&.
 .RS 4
 .\}
 .nf
-# drlm -dV listclient --all
+# drlm -dv listclient --all
 .fi
 .if n \{\
 .RE
 .\}
 .sp
-To list all clients on the clent database\&. Options debug and Verbose are applied. 
+To list all clients in the database\&. Options debug and Verbose are applied. 
 .sp
 .if n \{\
 .RS 4
@@ -323,7 +368,7 @@ To create a new network \&. Options debug and Verbose are applied.
 .RE
 .\}
 .sp
-To create a new client (WOPR) in this example\&. Options debug and Verbose are appliedi\&. Net1 must exist\&.
+To create a new client (WOPR) in this example\&. Options debug and Verbose are applied\&. Net1 must exist\&.
 .sp
 .if n \{\
 .RS 4
@@ -349,6 +394,18 @@ To install ReaR and configure DRLM on a new client \&. Options debug and Verbose
 .sp
 To create a new client (WOPR) and install/configure ReaR with an admin user in this example\&. Options debug and Verbose are appliedi\&. Net1 must exist\&.
 .sp
+.if n \{\
+.RS 4
+.\}
+.nf
+# drlm -vD addjob -c reardeb8 -s 2017-01-03T22:50 -e 2018-01-03T23:55 -r 1month\fR\m[]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+To create a new monthly job for client reardeb8 starting at 2017-01-03T22:50 with end date 2018-01-03T23:55\&. Options debug and Verbose are applied\&. reardeb8 client must exist\&.
+.sp
 
 .SH "FILES"
 .PP
@@ -359,7 +416,11 @@ The program itself\&.
 .PP
 /usr/share/drlm/conf/default.conf
 .RS 4
-Default configuration file\&.
+Default configuration file\&. Contains a complete set of parameters and its explanation\&. Please do not edit or modify\&. Copy values to
+\fIlocal\&.conf\fR
+or
+\fIsite\&.conf\fR
+instead\&.
 .RE
 .PP
 /etc/drlm/local\&.conf
@@ -372,23 +433,34 @@ System specific configuration can be set here\&.
 Site specific configuration can be set here\&.
 .RE
 .PP
+/etc/cron\&.d/drlm
+.RS 4
+DRLM cron file\&.
+.RE
+.PP
 /var/log/drlm/
 .RS 4
-Directory holding the log files\&.
+Directory holding log files\&.
+.RE
+.PP
+/etc/drlm/
+.RS 4
+Directory holding configuration files\&.
+.RE
+.PP
+/etc/drlm/certs
+.RS 4
+Directory holding cert files\&.
+.RE
+.PP
+/etc/drlm/clients
+.RS 4
+Directory holding client configuration files\&.
 .RE
 .PP
 /tmp/drlm\&.####
 .RS 4
-Relax\-and\-Recover script components\&.
-.RE
-.PP
-/usr/share/drlm/conf/default\&.conf
-.RS 4
-DRLM\(cqs included defaults\&. Contains a complete set of parameters and its explanation\&. Please do not edit or modify\&. Copy values to
-\fIlocal\&.conf\fR
-or
-\fIsite\&.conf\fR
-instead\&.
+DRLM script components\&.
 .RE
 .SH "BUGS"
 .sp
@@ -404,7 +476,7 @@ DRLM is a collaborative process using Github at: \m[blue]\fBhttp://github\&.com/
 The DRLM website is located at: \m[blue]\fBhttp://DRLM\&.org/\fR\m[]
 .SH "COPYRIGHT"
 .sp
-(c) 2013\-2014
+(c) 2013\-2017
 .sp
 Pau Roura
 .sp
