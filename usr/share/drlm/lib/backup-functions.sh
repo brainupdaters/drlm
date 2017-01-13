@@ -1,38 +1,54 @@
 # file with default backup functions to implement.
 
-function run_mkbackup_ssh_remote () 
+function run_mkbackup_ssh_remote ()
 {
    #returns stdo of ssh
   local CLI_ID=$1
   local CLIENT=$(get_client_name $CLI_ID)
   local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
-  local REARCMD
   local BKPOUT
-  BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear mkbackup SERVER=${SRV_IP} REST_OPTS=${REST_OPTS} ID=${CLIENT} 2>&1)
+
+  #Get the global options and generate GLOB_OPT string var to pass it to ReaR
+   if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
+     GLOB_OPT="-"
+     if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
+     if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
+     if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
+   fi
+
+  BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkbackup SERVER=${SRV_IP} REST_OPTS=${REST_OPTS} ID=${CLIENT} 2>&1)
   if [ $? -ne 0 ]
-  then    
+  then
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
     echo "$BKPOUT"
     return 1
-  else    
+  else
     return 0
   fi
 }
 
-function run_mkrescue_ssh_remote () 
+function run_mkrescue_ssh_remote ()
 {
    #returns stdo of ssh
   local CLI_ID=$1
   local CLIENT=$(get_client_name $CLI_ID)
-  local REARCMD
   local BKPOUT
-  BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} 'sudo /usr/sbin/rear mkrescue' 2>&1)
+
+ #Get the global options and generate GLOB_OPT string var to pass it to ReaR
+  if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
+    GLOB_OPT="-"
+    if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
+    if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
+    if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
+  fi
+
+  BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkrescue 2>&1)
   if [ $? -ne 0 ]
-  then    
+  then
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
     echo "$BKPOUT"
     return 1
-  else    
+  else
     return 0
   fi
 }
@@ -50,7 +66,7 @@ function mod_pxe_link ()
   if [ $? -eq 0 ];then return 0; else return 1;fi
 }
 
-function list_backup_all () 
+function list_backup_all ()
 {
   printf '%-20s\n' "$(tput bold)"
   printf '%-20s %-15s %-20s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status$(tput sgr0)"
@@ -70,7 +86,7 @@ function list_backup_all ()
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
-function list_backup () 
+function list_backup ()
 {
   local CLI_NAME=$1
   printf '%-20s\n' "$(tput bold)"
@@ -90,12 +106,12 @@ function list_backup ()
   done
 }
 
-function enable_loop_ro () 
+function enable_loop_ro ()
 {
   local LO_DEV="/dev/loop${1}"
   local DR_FILE=$2
 
-  /sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1  
+  /sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -105,7 +121,7 @@ function enable_loop_rw ()
   local LO_DEV="/dev/loop${1}"
   local DR_FILE=$2
 
-  /sbin/losetup ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1  
+  /sbin/losetup ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -192,7 +208,7 @@ function do_remount() {
   # Return 0 if OK or 1 if NOK
 }
 
-function do_umount () 
+function do_umount ()
 {
   local LO_DEV="/dev/loop${1}"
 
@@ -253,7 +269,7 @@ function gen_dr_file_name ()
 {
 	local CLI_NAME=$1
 	local BKP_ID=$2
-	if [ $? -eq 0 ]; then 
+	if [ $? -eq 0 ]; then
 		local DR_NAME="$CLI_NAME.$BKP_ID.dr"
 		echo $DR_NAME
 	else
@@ -262,7 +278,7 @@ function gen_dr_file_name ()
 # Return DR File Name or Null string
 }
 
-#function make_img_raw () 
+#function make_img_raw ()
 #{
 #	local DR_NAME=$1
 #	local DATA_SIZE=$(du -sm ${STORDIR}/${CLI_NAME}|awk '{print $1}')
@@ -274,7 +290,7 @@ function gen_dr_file_name ()
 ## Return 0 if OK or 1 if NOK
 #}
 
-function make_img () 
+function make_img ()
 {
 	local TYPE=$1
 	local DR_NAME=$2
@@ -282,12 +298,12 @@ function make_img ()
 
 	if [[ ! -d ${ARCHDIR} ]]; then mkdir -p ${ARCHDIR}; fi
 
-	qemu-img create -f ${TYPE} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M	
+	qemu-img create -f ${TYPE} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
 
-function do_format_ext4 () 
+function do_format_ext4 ()
 {
 	local LO_DEV="/dev/loop${1}"
 
@@ -296,7 +312,7 @@ function do_format_ext4 ()
 # Return 0 if OK or 1 if NOK
 }
 
-function do_format_ext2 () 
+function do_format_ext2 ()
 {
 	local LO_DEV="/dev/loop${1}"
 
@@ -305,7 +321,7 @@ function do_format_ext2 ()
 # Return 0 if OK or 1 if NOK
 }
 
-#function move_files_to_img () 
+#function move_files_to_img ()
 #{
 #	local CLI_NAME=$1
 #	local MNTDIR=$2
@@ -338,10 +354,10 @@ function exist_dr_file_fs ()
   # Return 0 if OK or 1 if NOK
 }
 
-function register_backup () 
+function register_backup ()
 {
   local BKP_ID=$1
-  local CLI_ID=$2  
+  local CLI_ID=$2
   local CLI_NAME=$3
   local DR_FILE=$4
   local BKP_MODE=$5
@@ -349,7 +365,7 @@ function register_backup ()
   register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_MODE"
 }
 
-function del_backup () 
+function del_backup ()
 {
   local BKP_ID=$1
   local DR_FILE=$2
@@ -359,7 +375,7 @@ function del_backup ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function clean_oldest_backup () 
+function clean_oldest_backup ()
 {
 	local N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
 
@@ -367,7 +383,7 @@ function clean_oldest_backup ()
 	then
 		BKPID2CLR=$(get_older_backup_by_client_dbdrv ${CLI_NAME})
 		DRFILE2CLR=$(get_backup_drfile ${BKPID2CLR})
-		
+
 		del_backup ${BKPID2CLR} ${DRFILE2CLR}
 		if [ $? -eq 0 ]; then return 0; else return 1; fi
 	else
@@ -421,25 +437,25 @@ function get_active_backups ()
   get_active_backups_dbdrv
 }
 
-function get_fs_free_mb () 
+function get_fs_free_mb ()
 {
     local FS=$1
-    tmp=( $(stat -c "%s %a" -f "$FS" 2>&1) ) 
+    tmp=( $(stat -c "%s %a" -f "$FS" 2>&1) )
     let "blocks_in_mb=1024*1024/tmp[0]"
     let "free_mb=tmp[1]/blocks_in_mb"
     echo $free_mb
 }
 
-function get_fs_size_mb () 
+function get_fs_size_mb ()
 {
     local FS=$1
-    tmp=( $(stat -c "%s %b" -f "$FS" 2>&1) ) 
+    tmp=( $(stat -c "%s %b" -f "$FS" 2>&1) )
     let "blocks_in_mb=1024*1024/tmp[0]"
     let "size_mb=tmp[1]/blocks_in_mb"
     echo $size_mb
 }
 
-function get_fs_used_mb () 
+function get_fs_used_mb ()
 {
     local FS=$1
     total=$(get_fs_size_mb $FS)
@@ -448,15 +464,15 @@ function get_fs_used_mb ()
     echo $used_mb
 }
 
-function get_client_used_mb () 
+function get_client_used_mb ()
 {
     if [[ -n ${INCLUDE_LIST_VG} ]]; then
         EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
     fi
-    
+
     EXCLUDE_LIST=( ${EXCLUDE_LIST[@]} ${EXCLUDE_LIST_VG[@]} )
 
-    if [[ -z ${EXCLUDE_LIST} ]]; then 
+    if [[ -z ${EXCLUDE_LIST} ]]; then
         EXCLUDE_LIST=( no_fs_to_exclude )
     fi
 
