@@ -14,11 +14,20 @@ if [ "$SCHED_MODE" == "run" ]; then
     Log "$PROGRAM:$WORKFLOW:Schedule of JOB ID: [ $JOB_ID ] for client [ $CLI_ID ] where next date [ $JOB_NDATE ]."
 
     if [ $(get_epoch_date "$JOB_NDATE") -lt $(get_epoch_date "$NOW") ]; then
-      JOB_NDATE=$(get_format_date "$JOB_NDATE+$JOB_REPEAT")
-      while [ $(get_epoch_date "$JOB_NDATE") -lt $(get_epoch_date "$NOW") ]
-      do
+      if [ "$JOB_REPEAT" != "" ]; then
         JOB_NDATE=$(get_format_date "$JOB_NDATE+$JOB_REPEAT")
-      done
+        while [ $(get_epoch_date "$JOB_NDATE") -lt $(get_epoch_date "$NOW") ]
+        do
+          JOB_NDATE=$(get_format_date "$JOB_NDATE+$JOB_REPEAT")
+        done
+      else
+        Log "$PROGRAM:$WORKFLOW:Deleting JOB ID: [ $JOB_ID ] for client [ $CLI_ID ]. Last execution date was [ $JOB_NDATE ] without planned repetitions."  
+        if del_job_id "$JOB_ID" ; then
+          Log "$PROGRAM:$WORKFLOW: Job [ $JOB_ID ] has been deleted! Success!"
+        else
+          Error "$PROGRAM:$WORKFLOW: Problem deleting Job [ $JOB_ID ] from the database! See $LOGFILE for details."
+        fi
+      fi  
     fi
 
     if [ $(get_epoch_date "$JOB_NDATE") -gt $(get_epoch_date "$NOW") ] && ( [ "$JOB_EDATE" == "" ] || [ $(get_epoch_date "$JOB_EDATE") -gt $(get_epoch_date "$JOB_NDATE") ] ); then
