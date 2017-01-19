@@ -8,7 +8,8 @@ if test -n "$CLI_NAME"; then
       printf '%25s\n' "$(tput bold)$CLI_NAME$(tput sgr0) not found in database!!"	
     fi
   else
-    list_jobs_by_client $CLI_NAME
+    CLI_ID=$(get_client_id_by_name $CLI_NAME)
+    list_jobs_by_client $CLI_ID
   fi
 fi
 
