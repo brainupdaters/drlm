@@ -132,6 +132,7 @@ chkconfig drlm-stord off
 %doc AUTHORS COPYING README.rst
 %doc %{_mandir}/man8/drlm.8*
 %config(noreplace) %{_sysconfdir}/drlm/
+%config(noreplace) %{_sysconfdir}/cron.d/drlm
 %{_datadir}/drlm/
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
