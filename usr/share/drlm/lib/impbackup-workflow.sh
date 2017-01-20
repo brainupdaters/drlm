@@ -18,10 +18,10 @@
 #
 #
 
-WORKFLOW_impbackup_DESCRIPTION="export backup from DB."
+WORKFLOW_impbackup_DESCRIPTION="import backup from DB."
 WORKFLOWS=( ${WORKFLOWS[@]} impbackup )
 
-if [ "$WORKFLOW" == "exportdr" ]; then
+if [ "$WORKFLOW" == "impbackup" ]; then
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "f:c:h" -l "file:,client:,help" -- "$@")"
 	if (( $? != 0 )); then

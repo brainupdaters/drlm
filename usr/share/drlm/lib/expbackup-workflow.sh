@@ -21,7 +21,7 @@
 WORKFLOW_expbackup_DESCRIPTION="export backup from DB."
 WORKFLOWS=( ${WORKFLOWS[@]} expbackup )
 
-if [ "$WORKFLOW" == "exportdr" ]; then
+if [ "$WORKFLOW" == "expbackup" ]; then
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "I:f:h" -l "id:,file:,help" -- "$@")"
 	if (( $? != 0 )); then
