@@ -364,7 +364,7 @@ function schedjobhelp() {
 	printf "\n"
 }
 
-function expbackup() {
+function expbackuphelp() {
 	printf "\n"
 	printf "\n"
 	printf "$(tput bold)Usage:\n$(tput sgr0)"
@@ -380,7 +380,7 @@ function expbackup() {
 	printf "\n"
 }
 
-function impbackup() {
+function impbackuphelp() {
 	printf "\n"
 	printf "\n"
 	printf "$(tput bold)Usage:\n$(tput sgr0)"

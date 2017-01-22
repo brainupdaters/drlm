@@ -10,8 +10,9 @@ if [ -n "$CLI_NAME" ]; then
   fi
 fi
 
-if [ -f "$EXP_FILE_NAME" ]; then
-  Log "${EXP_FILE_NAME} exists!"
+# Check if IMP_FILE_NAME exists
+if [ -f "$IMP_FILE_NAME" ]; then
+  Log "${IMP_FILE_NAME} exists!"
 else
-  Error "$PROGRAM: filename $EXP_FILE_NAME does not exists "
+  Error "$PROGRAM: filename $IMP_FILE_NAME does not exists "
 fi
