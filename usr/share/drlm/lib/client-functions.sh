@@ -16,7 +16,7 @@ function exist_client_name ()
 # Check if parameter $1 is ok and if exists client with this name in database. Return 0 for ok , return 1 not ok.
 }
 
-function exist_client_mac () 
+function exist_client_mac ()
 {
   local CLI_MAC=$1
   exist_client_mac_dbdrv "$CLI_MAC"
@@ -24,7 +24,7 @@ function exist_client_mac ()
   # Check if parameter $1 is ok and if exists client with this id in database. Return 0 for ok, return 1 not ok.
  }
 
-function exist_client_ip () 
+function exist_client_ip ()
 {
   local CLI_IP=$1
   exist_client_ip_dbdrv "$CLI_IP"
@@ -38,24 +38,11 @@ function get_client_id_by_name ()
   # Check if parameter $1 is ok
   exist_client_name "$CLI_NAME"
   if [ $? -eq 0 ]
-  then 
+  then
     # Get client id from database and return it
     get_client_id_by_name_dbdrv "$CLI_NAME"
     return 0
   fi
-}
-
-function get_client_name_by_id ()
-{
-  local CLI_ID=$1
-  # Check if parameter $1 is ok
-  exist_client_id "$CLI_ID"
-  if [ $? -eq 0 ]
-  then
-    # Get client name from database and return it
-    get_client_name_by_id_dbdrv "$CLI_ID"
-    return 0
-  fi  
 }
 
 function get_client_ip ()
@@ -103,13 +90,13 @@ function check_client_connectivity ()
   fi
 }
 
-function check_client_ssh () 
+function check_client_ssh ()
 {
   local CLI_ID=$1
 # Check if parameter $1 is ok
   if exist_client_id "$CLI_ID" ;
   then
-    # Get IP and NAME  
+    # Get IP and NAME
     CLI_IP=$(get_client_ip $CLI_ID)
     CLI_NAME=$(get_client_name $CLI_ID)
     #get hostname to compare with cliname , if ok , return client name
@@ -125,7 +112,7 @@ function check_client_ssh ()
   fi
 }
 
-function add_client () 
+function add_client ()
 {
   local CLI_ID=""
   local CLI_NAME=$1
@@ -138,7 +125,7 @@ function add_client ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function del_client_id () 
+function del_client_id ()
 {
   local CLI_ID=$1
   if exist_client_id "$CLI_ID";
@@ -163,11 +150,11 @@ function check_client_mac ()
     local REAL_MAC=$(ip n | grep -w $CLI_IP | awk '{print $5}' | tr -d ":" | tr \[A-Z\] \[a-z\])
     if [ "${REAL_MAC}" == "${CLI_MAC}" ]
     then
-      return 0; 
-    else 
+      return 0;
+    else
       return 1;
     fi
-  fi 
+  fi
 }
 
 function mod_client_name ()
@@ -202,7 +189,7 @@ function mod_client_net ()
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
-function list_client_all () 
+function list_client_all ()
 {
   printf '%-15s\n' "$(tput bold)"
   printf '%-6s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network$(tput sgr0)"
@@ -219,7 +206,7 @@ function list_client_all ()
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
-function list_client () 
+function list_client ()
 {
   local CLI_NAME=$1
   local CLI_ID=$(get_client_id_by_name $CLI_NAME)
@@ -234,7 +221,7 @@ function list_client ()
 
 function get_count_clients ()
 {
-  get_count_clients_dbdrv 
+  get_count_clients_dbdrv
 }
 
 function get_all_clients ()
@@ -268,4 +255,3 @@ SSH_ROOT_PASSWORD=drlm
 EOF
 chmod 644 /etc/drlm/clients/${CLI_NAME}.cfg
 }
-
