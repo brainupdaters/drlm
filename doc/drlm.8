@@ -28,13 +28,13 @@
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
 .SH "NAME"
-drlm \- Disaster Recovery Linux Manager 
+drlm \- Disaster Recovery Linux Manager
 .SH "SYNOPSIS"
 .sp
 \fBdrlm\fR [\fB\-dDsSvV\fR] \fICOMMAND\fR [\-\- \fIARGS\fR\&...]
 .SH "DESCRIPTION"
 .sp
-DRLM is the first central manager for ReaR, the leading Open Source disaster recovery solution\&. 
+DRLM is the first central manager for ReaR, the leading Open Source disaster recovery solution\&.
 .sp
 DRLM comes with ABSOLUTELY NO WARRANTY; for details see the GNU General Public License at: \m[blue]\fBhttp://www\&.gnu\&.org/licenses/gpl\&.html\fR\m[]
 .SH "OPTIONS"
@@ -81,14 +81,14 @@ version information
 .RE
 .SS "COMMANDS"
 .PP
-\fBaddjob\fR
-.RS 4
-register backup job to DB.
-.RE
-.PP
 \fBaddclient\fR
 .RS 4
 register new client to DB.
+.RE
+.PP
+\fBaddjob\fR
+.RS 4
+register backup job to DB.
 .RE
 .PP
 \fBaddnetwork\fR
@@ -101,11 +101,6 @@ register new network to DB.
 manage DRLM backup states.
 .RE
 .PP
-\fBdeljob\fR
-.RS 4
-delete job from DB.
-.RE
-.PP
 \fBdelbackup\fR
 .RS 4
 delete backup and unregister from DB.
@@ -116,19 +111,29 @@ delete backup and unregister from DB.
 delete client from DB.
 .RE
 .PP
+\fBdeljob\fR
+.RS 4
+delete job from DB.
+.RE
+.PP
 \fBdelnetwork\fR
 .RS 4
 delete network from DB.
 .RE
 .PP
+\fBexpbackup\fR
+.RS 4
+export DR file.
+.RE
+.PP
+\fBimpbackup\fR
+.RS 4
+import DR file.
+.RE
+.PP
 \fBinstclient\fR
 .RS 4
 install client from DRLM
-.RE
-.PP
-\fBlistjob\fR
-.RS 4
-list client jobs.
 .RE
 .PP
 \fBlistbackup\fR
@@ -139,6 +144,11 @@ list client backups.
 \fBlistclient\fR
 .RS 4
 list existent clients.
+.RE
+.PP
+\fBlistjob\fR
+.RS 4
+list client jobs.
 .RE
 .PP
 \fBlistnetwork\fR
@@ -156,14 +166,14 @@ list existent networks.
 modify network properties.
 .RE
 .PP
-\fBsched\fR
-.RS 4
-manage job scheduler.
-.RE
-.PP
 \fBrunbackup\fR
 .RS 4
 modify network properties.
+.RE
+.PP
+\fBsched\fR
+.RS 4
+manage job scheduler.
 .sp
 .SS "ARGUMENTS"
 .PP
@@ -171,7 +181,7 @@ modify network properties.
 .RS 4
 
 \fBclient name\fR
-(client_name, used in addclient, addnetwork, bkpmgr, addjob, deljob, listjob  and delclient arguments)
+(client_name, used in addclient, addnetwork, bkpmgr, addjob, deljob, listjob, delclient and impbackup arguments)
 .RE
 .PP
 \-i \-\-ipaddr
@@ -220,7 +230,7 @@ modify network properties.
 .RS 4
 
 \fBbackup, client and network id's\fR
-(bkpmgr, delclient, delbackup and delnetwork argument)
+(bkpmgr, delclient, delbackup, delnetwork and expbackup argument)
 .RE
 .PP
 \-J \-\-job_id
@@ -272,7 +282,7 @@ modify network properties.
 (addjob argument in following format: %Y-%m-%dT%H:%M)
 .RE
 .PP
-\-P 
+\-P
 .RS 4
 
 \fBpermanent backup\fR
@@ -293,6 +303,13 @@ modify network properties.
 (instclient argument)
 .RE
 .PP
+\-f \-\-file
+.RS 4
+
+\fBdr file\fR
+(expbackup and impbackup argument)
+.RE
+.PP
 \-U \-\-url_rear
 .RS 4
 
@@ -305,7 +322,7 @@ modify network properties.
 
 \fBAll\fR
 (delbackup, listclient, listnetwork, listjob and listbackup argument)
-.RE 
+.RE
 .PP
 \-h \-\-help
 .RS 4
@@ -332,7 +349,7 @@ The process of bare metal disaster recovery consists of two parts:
 .RE
 .SH "EXAMPLES"
 .sp
-The next examples shows how to use drlm from command line\&. 
+The next examples shows how to use drlm from command line\&.
 .sp
 .if n \{\
 .RS 4
@@ -344,7 +361,7 @@ The next examples shows how to use drlm from command line\&.
 .RE
 .\}
 .sp
-To list all clients in the database\&. Options debug and Verbose are applied. 
+To list all clients in the database\&. Options debug and Verbose are applied.
 .sp
 .if n \{\
 .RS 4

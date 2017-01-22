@@ -1,3 +1,4 @@
+# impbackup workflow
 
 Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating previous DR store for client: .... "
 
@@ -26,5 +27,7 @@ if [ -n "$A_DR_FILE" ]; then
   else
     Error "$PROGRAM:$WORKFLOW:LOOPDEV(${CLI_ID}):DISABLE:$CLI_NAME: Problem disabling Loop Device! aborting ..."
   fi
+
+fi
 
 Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating previous DR store for client: .... Success!"

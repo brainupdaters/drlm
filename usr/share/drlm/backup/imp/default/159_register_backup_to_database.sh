@@ -1,4 +1,6 @@
-Log "$PROGRAM:$WORKFLOW:DB:Backup(${BKP_ID}):${CLI_NAME}: Registering DR backup to DRLM database .... " 
+# impbackup workflow
+
+Log "$PROGRAM:$WORKFLOW:DB:Backup(${BKP_ID}):${CLI_NAME}: Registering DR backup to DRLM database .... "
 
 if register_backup "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_MODE" ;
 then
@@ -9,3 +11,5 @@ else
 fi
 
 Log "$PROGRAM:$WORKFLOW:DB:Backup(${BKP_ID}):${CLI_NAME}: Registering DR backup to DRLM database .... Success!"
+
+Print "Backup successfully imported to client ${CLI_NAME}. New Backup id: ${BKP_ID}"
