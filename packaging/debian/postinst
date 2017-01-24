@@ -8,7 +8,7 @@ case "$1" in
 	[ -f /var/lib/drlm/network.data.save ] && mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
 	[ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
 	[ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
-	[ ! -d /etc/drlm/alerts] && mkdir /etc/drlm/alerts
+	[ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
 
   openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
   
