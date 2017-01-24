@@ -8,7 +8,7 @@ ssh-copy-id ${USER}@${CLI_NAME} &> /dev/null
 if [ $? -ne 0  ]; then  Error "$PROGRAM: ssh-copy-id failed!" ;else Log "$PROGRAM: Key succesfully copied to $CLI_NAME"; fi
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
-VERSION=$(echo $RELEASE|cut -c 1)
+if [ $DISTRO == "Ubuntu" ]; then VERSION=$(echo $RELEASE|cut -c 1,2); else VERSION=$(echo $RELEASE|cut -c 1); fi
 ARCH=$(get_arch $USER $CLI_NAME)
 if [[ $DISTRO == "" ]] || [[ $RELEASE == "" ]]
 then

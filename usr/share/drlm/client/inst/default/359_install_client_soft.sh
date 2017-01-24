@@ -43,6 +43,80 @@ case ${DISTRO} in
                         ;;
     esac
     ;;
+
+  Ubuntu)
+    case ${VERSION} in
+	1[2-6])
+		if check_apt ${USER} ${CLI_NAME} ${SUDO}
+		then
+       		    LogPrint "Installing dependencies and ReaR"
+		    if [[ ${VERSION} == 12 ]]
+		    then
+		        if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_UBUNTU12}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Error installing dependencies, check logfile"; fi
+               	        fi   
+               	    if [[ ${VERSION} == 14 ]]
+               	    then
+               	        if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_UBUNTU14}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Error installing dependencies, check logfile"; fi
+               	    fi	
+                    if [[ ${VERSION} == 16 ]]
+                    then
+                        if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_UBUNTU16}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Error installing dependencies, check logfile"; fi
+                    fi
+						
+		    if [[ ${URL_REAR} != "" ]]; then                             
+		        if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+		    else
+		        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 12 ]] ; then
+		            URL_REAR=${URL_REAR_UBUNTU12_64}
+		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+		        fi
+		        if [[ ${ARCH} == "i686" ]] && [[ ${VERSION} == 12 ]] ; then
+		            URL_REAR=${URL_REAR_UBUNTU12_32}
+		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+		        fi
+		        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 14 ]] ; then 
+		            URL_REAR=${URL_REAR_UBUNTU14_64}
+		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+		        fi
+		        if [[ ${ARCH} == "i686" ]] && [[ ${VERSION} == 14 ]] ; then
+		            URL_REAR=${URL_REAR_UBUNTU14_32}
+		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+		        fi
+
+		        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 16 ]] ; then
+		            URL_REAR=${URL_REAR_UBUNTU16_64}
+		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+		        fi
+		        if [[ ${ARCH} == "i686" ]] && [[ ${VERSION} == 16 ]] ; then
+		            URL_REAR=${URL_REAR_UBUNTU16_32}
+		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Error installing ReaR, check logfile"; fi
+		        fi
+		    fi	
+								
+                else
+               	    Error "apt-get problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"
+                fi
+                        
+                if [[ ${VERSION} == 12 ]]
+                then
+               	    if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_UBUNTU12}" ${DISTRO} ${SUDO}; then LogPrint "Services have been started succesfully"; else "ERROR starting services"; fi
+                fi
+                if [[ ${VERSION} == 14 ]]
+                then
+               	    if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_UBUNTU14}" ${DISTRO} ${SUDO}; then LogPrint "Services have been started succesfully"; else "ERROR starting services"; fi
+                fi
+                if [[ ${VERSION} == 16 ]]
+                then
+               	    if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_UBUNTU16}" ${DISTRO} ${SUDO}; then LogPrint "Services have been started succesfully"; else "ERROR starting services"; fi
+                fi
+                ;;
+
+             *)
+                echo "Ubuntu version not identified or unsupported!"
+                ;;
+    esac
+    ;;
+
   CentOS|RedHat)
     case ${VERSION} in
                 [5*-7*])

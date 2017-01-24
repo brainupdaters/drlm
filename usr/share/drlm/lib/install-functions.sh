@@ -1,5 +1,6 @@
 function get_distro () {
- if [ -f /etc/debian_version ]; then echo Debian;fi
+ if [ -f /etc/dpkg/origins/ubuntu ]; then echo Ubuntu;fi
+ if [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;fi
  if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo RedHat;fi
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;fi
  if [ -f /etc/SuSE-release ]; then echo Suse; fi
@@ -16,6 +17,7 @@ function get_release() {
  if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
  if [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';fi
+ if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; fi
 }
 
 function get_arch() {
@@ -60,8 +62,13 @@ function install_dependencies_apt () {
  local USER=$1
  local CLI_NAME=$2
  local REAR_DEP_DEBIAN="$3"
+ local REAR_DEP_UBUNTU="$3"
  local SUDO=$4
- ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y install ${REAR_DEP_DEBIAN[@]} &> /dev/null)"
+ if [[ ${DISTRO} -eq "Debian" ]]; then
+     ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y install ${REAR_DEP_DEBIAN[@]} &> /dev/null)"
+ else
+     ssh -ttt ${USER}@${CLI_NAME} "( ${SUDO} apt-get -y install ${REAR_DEP_UBUNTU[@]} &> /dev/null)"
+ fi
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -234,13 +241,19 @@ function ssh_remove_authorized_keys () {
 function start_services () {
  for service in ${SERVICES[@]}
  do
-        ${SUDO} service $service start
-	if [[ ${DISTRO} == "Debian" ]]
-	then 
-		${SUDO} update-rc.d $service enable
-        else
-		${SUDO} chkconfig $service on
-        fi
+   if [ $(ps -p 1 -o comm=) = "systemd" ]
+   then
+       ${SUDO} systemctl start $service.service 
+       ${SUDO} systemctl enable $service.service 
+   else
+       ${SUDO} service $service start
+       if [[ ${DISTRO} == "Debian" ]] || [[ ${DISTRO} == "Ubuntu" ]]
+       then 
+           ${SUDO} update-rc.d $service enable
+       else
+           ${SUDO} chkconfig $service on
+       fi
+   fi 
  done
 }
 
