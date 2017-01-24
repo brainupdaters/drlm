@@ -155,9 +155,9 @@ function instclienthelp() {
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Examples:\n$(tput sgr0)"
-	printf "drlm insclient -c|--client <cli_name>\n"
+	printf "drlm instclient -c|--client <cli_name>\n"
 	printf "	or\n"
-	printf "drlm instlient -I|--id <cli_id> [ options ]\n"
+	printf "drlm instclient -I|--id <cli_id> [ options ]\n"
 	printf "\n"
 }
 

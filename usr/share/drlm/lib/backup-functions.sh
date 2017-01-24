@@ -16,7 +16,7 @@ function run_mkbackup_ssh_remote ()
      if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
    fi
 
-  BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkbackup SERVER=${SRV_IP} REST_OPTS=${REST_OPTS} ID=${CLIENT} 2>&1)
+  BKPOUT=$(ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkbackup SERVER=${SRV_IP} REST_OPTS=${REST_OPTS} ID=${CLIENT} 2>&1)
   if [ $? -ne 0 ]
   then
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
@@ -42,7 +42,7 @@ function run_mkrescue_ssh_remote ()
     if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
   fi
 
-  BKPOUT=$(ssh -tt ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkrescue 2>&1)
+  BKPOUT=$(ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkrescue 2>&1)
   if [ $? -ne 0 ]
   then
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )

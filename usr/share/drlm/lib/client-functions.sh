@@ -100,7 +100,7 @@ function check_client_ssh ()
     CLI_IP=$(get_client_ip $CLI_ID)
     CLI_NAME=$(get_client_name $CLI_ID)
     #get hostname to compare with cliname , if ok , return client name
-    CLI_NAME_CHECK=$(ssh -o BatchMode=yes -o ConnectTimeout=33 drlm@$CLI_IP hostname -s)
+    CLI_NAME_CHECK=$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no -o BatchMode=yes -o ConnectTimeout=33 drlm@$CLI_IP hostname -s)
     if [ $? -eq 0 ]
     then
       return 0
