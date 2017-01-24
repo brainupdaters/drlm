@@ -9,28 +9,28 @@ function get_distro () {
 function ssh_get_distro() {
  local USER=$1
  local CLI_NAME=$2
- ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p USER CLI_NAME; declare -f get_distro); get_distro"
+ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p USER CLI_NAME; declare -f get_distro); get_distro"
 }
 
 function get_release() {
+ if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; fi
  if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi
  if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
  if [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';fi
- if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; fi
 }
 
 function get_arch() {
  local USER=$1
  local CLI_NAME=$2
- ARCH=$( ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} arch )
+ ARCH=$( ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} arch )
  if [ ${ARCH} == "" ]; then echo noarch; else echo ${ARCH}; fi
 }
 
 function ssh_get_release() {
  local USER=$1
  local CLI_NAME=$2
- ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p USER CLI_NAME; declare -f get_release); get_release"
+ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p USER CLI_NAME; declare -f get_release); get_release"
 }
 
 

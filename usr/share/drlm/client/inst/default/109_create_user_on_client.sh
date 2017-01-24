@@ -16,7 +16,7 @@ then
 fi
 LogPrint "Creating  ${DRLM_USER} user"
 #Create user on client
-ssh -ttt ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
+ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
 if [[ $? != 0 ]]
 then
     Log "${DRLM_USER} not exist, creating user"
