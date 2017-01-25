@@ -5,6 +5,7 @@ function get_distro () {
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;fi
  if [ -f /etc/SuSE-release ]; then echo Suse; fi
 }
+if [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;fi
 
 function ssh_get_distro() {
  local USER=$1
@@ -14,7 +15,7 @@ function ssh_get_distro() {
 
 function get_release() {
  if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; fi
- if [ -f /etc/debian_version ]; then cat /etc/debian_version;fi
+ if [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;fi
  if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
  if [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';fi

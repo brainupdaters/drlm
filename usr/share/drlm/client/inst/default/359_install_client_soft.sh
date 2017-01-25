@@ -70,7 +70,7 @@ case ${DISTRO} in
                 fi
                 ;;
         *)
-            echo "Debian release not identified!"
+            Error "Debian release not identified!"
             ;;
     esac
     ;;
@@ -143,7 +143,7 @@ case ${DISTRO} in
                 ;;
 
              *)
-                echo "Ubuntu version not identified or unsupported!"
+                Error "Ubuntu version not identified or unsupported!"
                 ;;
     esac
     ;;
@@ -189,7 +189,7 @@ case ${DISTRO} in
                         fi
                         ;;
                 *)
-                        echo "CentOS / RHEL Release not identified!"
+                        Error "CentOS / RHEL Release not identified!"
                         ;;
     esac
     ;;
@@ -217,7 +217,7 @@ case ${DISTRO} in
     esac
     ;;
   *)
-        echo "GNU/Linux Distribution not identified"
+        Error "GNU/Linux Distribution not identified"
         ;;
 esac
 
