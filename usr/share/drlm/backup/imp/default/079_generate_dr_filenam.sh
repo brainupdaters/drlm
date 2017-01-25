@@ -11,6 +11,8 @@ fi
 
 LogPrint "Importing ${IMP_FILE_NAME} to ${ARCHDIR}/$DR_FILE"
 
+if [[ ! -d ${ARCHDIR} ]]; then mkdir -p ${ARCHDIR}; fi
+
 cp $IMP_FILE_NAME ${ARCHDIR}/$DR_FILE >> /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	Log "$PROGRAM:$WORKFLOW:gendrfilename: ${IMP_FILE_NAME} copied to ${ARCHDIR}/$DR_FILE. Success!"

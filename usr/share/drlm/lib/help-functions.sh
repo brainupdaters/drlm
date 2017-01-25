@@ -376,7 +376,7 @@ function expbackuphelp() {
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Examples:\n$(tput sgr0)"
-	printf "drlm delbackup -I|--id <BKP_ID> -f|--file <DESTINATION_FILE>\n"
+	printf "drlm expbackup -I|--id <BKP_ID> -f|--file <DESTINATION_FILE>\n"
 	printf "\n"
 }
 
@@ -392,6 +392,6 @@ function impbackuphelp() {
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Examples:\n$(tput sgr0)"
-	printf "drlm delbackup -c|--client <CLI_NAME> -f|--file <FILE_NAME>\n"
+	printf "drlm impbackup -c|--client <CLI_NAME> -f|--file <FILE_NAME>\n"
 	printf "\n"
 }
