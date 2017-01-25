@@ -59,6 +59,7 @@ Requires: syslinux
 ### On RHEL/Fedora the genisoimage packages provides mkisofs
 %if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
 Requires: crontabs
+Requires: redhat-lsb-core
 %endif
 
 #Obsoletes:
