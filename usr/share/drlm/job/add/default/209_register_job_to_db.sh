@@ -7,6 +7,11 @@ else
   Error "$PROGRAM:$WORKFLOW: Problem registering job for client [ $CLI_NAME ] to DB! See $LOGFILE for details."
 fi
 
+if [[ $(grep "sched" $DRLM_CRON_FILE | grep "^#" | wc -l) -eq 1 ]]; then
+    Print "WARNING: DRLM Job Scheduler is DISABLED! Could be enabled with: drlm sched [-e|--enable]."
+fi
+
+
 Log "------------------------------------------------------------------"
 Log "$PROGRAM $WORWFLOW:                                               "
 Log "                                                                  "

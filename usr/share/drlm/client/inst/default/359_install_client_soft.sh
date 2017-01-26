@@ -212,7 +212,7 @@ case ${DISTRO} in
                         if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_SUSE12}" ${DISTRO} ${SUDO}; then LogPrint "Services have been started succesfully"; else Error "Problem starting services"; fi
                         ;;
                 *)
-                        echo "Suse Release not identified!"
+                        Error "SUSE Release not identified!"
                         ;;
     esac
     ;;

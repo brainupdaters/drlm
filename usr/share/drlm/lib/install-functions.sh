@@ -5,7 +5,6 @@ function get_distro () {
  if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;fi
  if [ -f /etc/SuSE-release ]; then echo Suse; fi
 }
-if [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;fi
 
 function ssh_get_distro() {
  local USER=$1
@@ -220,6 +219,14 @@ function create_drlm_user () {
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
+function delete_drlm_user () {
+ local USER=$1
+ local CLI_NAME=$2
+ local DRLM_USER=$3
+ local SUDO=$4
+ ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "${SUDO} /usr/sbin/userdel -r ${DRLM_USER}"
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
 
 function disable_drlm_user_login () {
  local USER=$1
