@@ -20,7 +20,7 @@ ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${C
 if [[ $? -eq 0 ]]
 then
     Log "$PROGRAM:$WORKFLOW: ${DRLM_USER} exists, deleting user ..."
-    delete_drlm_user
+    delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
     if [ $? -ne 0  ]
     then
         Error "$PROGRAM:$WORKFLOW: User ${DRLM_USER} deletion Failed!!!"
@@ -36,9 +36,9 @@ else
     LogPrint "$PROGRAM:$WORKFLOW: User $DRLM_USER created on $CLI_NAME"
     #Send key for drlm user
     LogPrint "$PROGRAM:$WORKFLOW: Sending ssh key for drlm user ..."
-    echo "---------------------------------------------------------------------------------------------"
-    echo "NOTE: enter password: [ changeme ] for drlm user (password will be locked after installation)"
-    echo "---------------------------------------------------------------------------------------------"
+    echo "-------------------------------------------------------------------------------------"
+    echo "NOTE: enter password: [changeme] for drlm user (It will be locked after installation)"
+    echo "-------------------------------------------------------------------------------------"
     ssh-copy-id ${DRLM_USER}@${CLI_NAME} &> /dev/null
     if [ $? -ne 0  ]
     then
