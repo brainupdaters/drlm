@@ -23,13 +23,13 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
 ### Dependencies on all distributions
-Requires: openssh-clients openssl
+Requires: openssl
 Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: nfs-utils portmap rpcbind
-Requires: dhcp tftp-server httpd
-Requires: qemu-img sqlite
+Requires: dhcp 
+Requires: sqlite
 
 ### Optional requirement
 #Requires: cfg2html
@@ -42,6 +42,11 @@ Requires: syslinux
 #%endif
 
 %if %{?suse_version:1}0
+Requires: apache2
+Requires: openssh
+Requires: qemu-tools
+Requires: yast2-tftp-server tftp
+
 #Requires: iproute2
 ### recent SuSE versions have an extra nfs-client package
 ### and switched to genisoimage/wodim
@@ -58,6 +63,9 @@ Requires: syslinux
 
 ### On RHEL/Fedora the genisoimage packages provides mkisofs
 %if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
+Requires: openssh-clients 
+Requires: dhcp tftp-server httpd
+Requires: qemu-img 
 Requires: crontabs
 Requires: redhat-lsb-core
 %endif
@@ -96,7 +104,12 @@ systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
+%if %{?suse_version:1}0
+systemctl enable apache2.service
+%endif
+%if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
 systemctl enable httpd.service
+%endif
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable drlm-stord.service
@@ -166,3 +179,4 @@ chkconfig drlm-stord off
 
 * Mon Apr 08 2013 Didac Oliveira <didac@brainupdaters.net> 1.0.0
 - Initial package.
+
