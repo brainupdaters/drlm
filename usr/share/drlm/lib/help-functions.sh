@@ -296,7 +296,7 @@ function deljobhelp() {
 	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drlm deljob -c|--client <cli_name>\n"
 	printf "       	or\n"
-	printf "drlm deljob -J|--job_id <cli_ID>\n"
+	printf "drlm deljob -J|--job_id <job_ID>\n"
 	printf "\n"
 }
 
