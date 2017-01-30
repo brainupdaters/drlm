@@ -8,7 +8,7 @@ else
 fi
 
 if [[ $(grep "sched" $DRLM_CRON_FILE | grep "^#" | wc -l) -eq 1 ]]; then
-    Print "WARNING: DRLM Job Scheduler is DISABLED! Could be enabled with: drlm sched [-e|--enable]."
+    echo "WARNING: DRLM Job Scheduler is DISABLED! Could be enabled with: drlm sched [-e|--enable]."
 fi
 
 

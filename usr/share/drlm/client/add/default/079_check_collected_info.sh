@@ -15,7 +15,7 @@ if [ "$ADDCLI_MODE" == "online" ]; then
       shift ;;
     *)
       printf '\n' ""
-      Print "If wrong/none information collected, set it manually."
+      echo "If wrong/none information collected, set it manually."
       printf '\n' ""
       exit 1
       ;;
