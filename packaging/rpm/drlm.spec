@@ -27,16 +27,16 @@ Requires: openssl
 Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
-Requires: nfs-utils portmap rpcbind
-Requires: dhcp 
+Requires: rpcbind
 Requires: sqlite
+Requires: xinetd
 
 ### Optional requirement
 #Requires: cfg2html
 
-%ifarch %ix86 x86_64
-Requires: syslinux
-%endif
+#%ifarch %ix86 x86_64
+#Requires: syslinux
+#%endif
 #%ifarch ppc ppc64
 #Requires: yaboot
 #%endif
@@ -45,37 +45,61 @@ Requires: syslinux
 Requires: apache2
 Requires: openssh
 Requires: qemu-tools
-Requires: yast2-tftp-server tftp
+Requires: tftp
+Requires: dhcp-server
+Requires: nfs-kernel-server
+Requires: lsb-release
 
 #Requires: iproute2
 ### recent SuSE versions have an extra nfs-client package
 ### and switched to genisoimage/wodim
-%if 0%{?suse_version} >= 1020
+#%if 0%{?suse_version} >= 1020
 #Requires: genisoimage
-%else
+#%else
 #Requires: mkisofs
-%endif
+#%endif
 ###
-%if %{!?sles_version:1}0
+#%if %{!?sles_version:1}0
 #Requires: lsb
-%endif
+#%endif
 %endif
 
 ### On RHEL/Fedora the genisoimage packages provides mkisofs
 %if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
-Requires: openssh-clients 
+Requires: openssh-clients
 Requires: dhcp tftp-server httpd
-Requires: qemu-img 
+Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
+Requires: nfs-utils
 %endif
 
 #Obsoletes:
 
 %description
-DRLM is an Open Source disaster recovery solution...
-...
-...
+Disaster Recovery Linux Manager (DRLM) is a Centralized Management
+Open Source solution for small-to-large Disaster Recovery implementations
+using ReaR.
+
+Is an easy-to-use software to manage your growing ReaR infrastructure.
+Is written in the Bash language (like ReaR) and offers all needed tools to
+efficiently manage your GNU/Linux disaster recovery backups,
+reducing Disaster Recovery management costs.
+
+ReaR is great solution, but when we're dealing with hundreds of systems,
+could be complex to manage well all ReaR deployments.
+With DRLM you can, easily and centrally, deploy and manage ReaR installations
+for all your GNU/Linux systems in your DataCenter(s).
+
+DRLM is able to manage all required services (TFTP, DHCP-PXE, NFS, ...) with
+no need of manual services configuration. Only with few easy commands,
+the users will be able to create, modify and delete ReaR clients and networks,
+providing an easy way to boot and recover your GNU/Linux systems over
+the network with ReaR.
+
+Furthermore DRLM acts as a central scheduling system for all ReaR installations.
+Is able to start rear backups remotely and store the rescue-boot/backup in
+DR images easily managed by DRLM.
 
 Professional services and support are available.
 
