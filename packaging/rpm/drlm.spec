@@ -28,7 +28,6 @@ Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: rpcbind
-Requires: sqlite
 Requires: xinetd
 
 ### Optional requirement
@@ -49,6 +48,7 @@ Requires: tftp
 Requires: dhcp-server
 Requires: nfs-kernel-server
 Requires: lsb-release
+Requires: sqlite3
 
 #Requires: iproute2
 ### recent SuSE versions have an extra nfs-client package
@@ -72,6 +72,7 @@ Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
 Requires: nfs-utils
+Requires: sqlite
 %endif
 
 #Obsoletes:
