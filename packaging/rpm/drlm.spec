@@ -65,7 +65,7 @@ Requires: sqlite3
 %endif
 
 ### On RHEL/Fedora the genisoimage packages provides mkisofs
-%if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
 Requires: dhcp tftp-server httpd
 Requires: qemu-img
@@ -133,7 +133,7 @@ systemctl enable dhcpd.service
 %if %{?suse_version:1}0
 systemctl enable apache2.service
 %endif
-%if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 systemctl enable httpd.service
 %endif
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
