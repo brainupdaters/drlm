@@ -125,6 +125,7 @@ Professional services and support are available.
 openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
 /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 %if %(ps -p 1 -o comm=) == "systemd"
+echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
