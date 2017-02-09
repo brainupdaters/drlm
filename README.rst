@@ -139,4 +139,4 @@ To use Disaster Recovery Linux Manager you always call the main script
    runbackup       run backup and register to DB.
    sched           schedule planned jobs.
 
-Use 'drlm COMMAND --help' for more advanced commands.
+  Use 'drlm COMMAND --help' for more advanced commands.
