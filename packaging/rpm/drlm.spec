@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.0.0
+Version: 2.1.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -179,6 +179,16 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
+* Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0
+- DRLM reporting with nsca-ng, nsca.
+- DRLM Server for SLES. 
+- Support for drlm unattended installation (instclient) on Ubuntu.
+- NEW Import & Export DR images between DRLM servers.
+- Pass DRLM global options to ReaR.
+- New DRLM backup job scheduler.
+- Addclient install mode (automatize install client after the client creation).
+- Solved lots of bugs.
+
 * Sat Jul 16 2016 Didac Oliveira <didac@brainupdaters.net> 2.0.0
 - Multiarch netboot with GRUB2.
 - New installclient workflow.
