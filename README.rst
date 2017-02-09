@@ -17,7 +17,7 @@ through network.
 <http://www.brainupdaters.net/en/drlm-services/>`_.
 
 For more detailed information about Disaster Recovery Linux Manager, please
-read the Disaster Recovery Linux Manager `project web page
+read the Disaster Recovery Linux Manager `Project Web Page
 <http://www.drlm.org/>`_.
 
 
@@ -66,7 +66,7 @@ On DEB based systems you can execute the command:
   $ make deb
 
 For more information about Disaster Recovery Linux Manager intallation, 
-please read the Disaster Recovery Linux Manager `documentation page
+please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
 
@@ -90,7 +90,7 @@ Also is needed increment the loop limit devices in grub config in order to be
 able reach all DRLM clients.
 
 For more information about Disaster Recovery Linux Manager configuration, 
-please read the Disaster Recovery Linux Manager `documentation page
+please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
 
@@ -117,26 +117,26 @@ To use Disaster Recovery Linux Manager you always call the main script
    -v           verbose mode; show more output
    -V           version information
 
-List of commands:
+  List of commands:
  
-  addclient       register new client to DB.
-  addjob          register new job to DB.
-  addnetwork      register new network to DB.
-  bkpmgr          manage DRLM backup states.
-  delbackup       delete backup and unregister from DB.
-  delclient       delete client from DB.
-  deljob          delete job from DB.
-  delnetwork      delete network from DB.
-  expbackup       export backup from DB.
-  impbackup       import backup from DB.
-  instclient      install client from DRLM
-  listbackup      list client backups.
-  listclient      list registered clients.
-  listjob         list planned jobs.
-  listnetwork     list registered networks.
-  modclient       modify client properties.
-  modnetwork      modify network properties.
-  runbackup       run backup and register to DB.
-  sched           schedule planned jobs.
+   addclient       register new client to DB.
+   addjob          register new job to DB.
+   addnetwork      register new network to DB.
+   bkpmgr          manage DRLM backup states.
+   delbackup       delete backup and unregister from DB.
+   delclient       delete client from DB.
+   deljob          delete job from DB.
+   delnetwork      delete network from DB.
+   expbackup       export backup from DB.
+   impbackup       import backup from DB.
+   instclient      install client from DRLM
+   listbackup      list client backups.
+   listclient      list registered clients.
+   listjob         list planned jobs.
+   listnetwork     list registered networks.
+   modclient       modify client properties.
+   modnetwork      modify network properties.
+   runbackup       run backup and register to DB.
+   sched           schedule planned jobs.
 
 Use 'drlm COMMAND --help' for more advanced commands.
