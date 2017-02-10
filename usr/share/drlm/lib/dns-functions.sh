@@ -7,7 +7,7 @@ function hosts_add(){
 	local CLI_IP=$2
 	local EXIST=$(grep -w ${CLI_IP} ${HOSTS_FILE} | grep -w ${CLI_NAME})
 	if [ -z "${EXIST}" ]; then
-		printf "${CLI_IP}\t${CLI_NAME}\n" | tee -a ${HOSTS_FILE}
+		printf "${CLI_IP}\t${CLI_NAME}\n" | tee -a ${HOSTS_FILE} > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			return 0
 		else

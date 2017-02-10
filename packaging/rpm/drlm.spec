@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.0.0
+Version: 2.1.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -23,50 +23,62 @@ BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch: noarch
 
 ### Dependencies on all distributions
-Requires: openssh-clients openssl
+Requires: openssl
 Requires: wget gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
-Requires: nfs-utils portmap rpcbind
-Requires: dhcp tftp-server httpd
-Requires: qemu-img sqlite
+Requires: rpcbind
+Requires: xinetd
 
-### Optional requirement
-#Requires: cfg2html
-
-%ifarch %ix86 x86_64
-Requires: syslinux
-%endif
-#%ifarch ppc ppc64
-#Requires: yaboot
-#%endif
-
+### SUSE packages
 %if %{?suse_version:1}0
-#Requires: iproute2
-### recent SuSE versions have an extra nfs-client package
-### and switched to genisoimage/wodim
-%if 0%{?suse_version} >= 1020
-#Requires: genisoimage
-%else
-#Requires: mkisofs
-%endif
-###
-%if %{!?sles_version:1}0
-#Requires: lsb
-%endif
+Requires: apache2
+Requires: openssh
+Requires: qemu-tools
+Requires: tftp
+Requires: dhcp-server
+Requires: nfs-kernel-server
+Requires: lsb-release
+Requires: sqlite3
 %endif
 
-### On RHEL/Fedora the genisoimage packages provides mkisofs
-%if %{?centos_version:1}%{?fedora_version:1}%{?rhel_version:1}0
+### RHEL/Fedora/Centos packages
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
+Requires: openssh-clients
+Requires: dhcp tftp-server httpd
+Requires: qemu-img
 Requires: crontabs
+Requires: redhat-lsb-core
+Requires: nfs-utils
+Requires: sqlite
 %endif
 
 #Obsoletes:
 
 %description
-DRLM is an Open Source disaster recovery solution...
-...
-...
+Disaster Recovery Linux Manager (DRLM) is a Centralized Management
+Open Source solution for small-to-large Disaster Recovery implementations
+using ReaR.
+
+Is an easy-to-use software to manage your growing ReaR infrastructure.
+Is written in the Bash language (like ReaR) and offers all needed tools to
+efficiently manage your GNU/Linux disaster recovery backups,
+reducing Disaster Recovery management costs.
+
+ReaR is great solution, but when we're dealing with hundreds of systems,
+could be complex to manage well all ReaR deployments.
+With DRLM you can, easily and centrally, deploy and manage ReaR installations
+for all your GNU/Linux systems in your DataCenter(s).
+
+DRLM is able to manage all required services (TFTP, DHCP-PXE, NFS, ...) with
+no need of manual services configuration. Only with few easy commands,
+the users will be able to create, modify and delete ReaR clients and networks,
+providing an easy way to boot and recover your GNU/Linux systems over
+the network with ReaR.
+
+Furthermore DRLM acts as a central scheduling system for all ReaR installations.
+Is able to start rear backups remotely and store the rescue-boot/backup in
+DR images easily managed by DRLM.
 
 Professional services and support are available.
 
@@ -89,12 +101,19 @@ Professional services and support are available.
 
 %post
 openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+/usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 %if %(ps -p 1 -o comm=) == "systemd"
+echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
+%if %{?suse_version:1}0
+systemctl enable apache2.service
+%endif
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 systemctl enable httpd.service
+%endif
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable drlm-stord.service
@@ -131,12 +150,23 @@ chkconfig drlm-stord off
 %doc AUTHORS COPYING README.rst
 %doc %{_mandir}/man8/drlm.8*
 %config(noreplace) %{_sysconfdir}/drlm/
+%config(noreplace) %{_sysconfdir}/cron.d/drlm
 %{_datadir}/drlm/
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
 
 %changelog
+* Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0
+- DRLM reporting with nsca-ng, nsca.
+- DRLM Server for SLES. 
+- Support for drlm unattended installation (instclient) on Ubuntu.
+- NEW Import & Export DR images between DRLM servers.
+- Pass DRLM global options to ReaR.
+- New DRLM backup job scheduler.
+- Addclient install mode (automatize install client after the client creation).
+- Solved lots of bugs.
+
 * Sat Jul 16 2016 Didac Oliveira <didac@brainupdaters.net> 2.0.0
 - Multiarch netboot with GRUB2.
 - New installclient workflow.
@@ -163,3 +193,4 @@ chkconfig drlm-stord off
 
 * Mon Apr 08 2013 Didac Oliveira <didac@brainupdaters.net> 1.0.0
 - Initial package.
+

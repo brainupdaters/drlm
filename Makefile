@@ -124,6 +124,7 @@ install-config:
 	install -d -m0700 $(DESTDIR)$(sysconfdir)/drlm/
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
 	install -Dp -m0600 etc/drlm/cert/README.rst $(DESTDIR)$(sysconfdir)/drlm/cert/README.rst
+	install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \

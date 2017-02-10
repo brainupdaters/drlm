@@ -56,18 +56,18 @@ function cidr_to_netmask ()
 {
   local i
   local netmask=""
-  local full_octets=$( ($1/8) )
-  local partial_octet=$( ($1%8) )
+  local full_octets=$(( $1 / 8 ))
+  local partial_octet=$(( $1 % 8 ))
   for (( i=0 ; i<4 ; i+=1 )); do
     if [ $i -lt $full_octets ];
     then
       netmask+=255
     elif [ $i -eq $full_octets ];
     then
-      netmask+=$( ( 256 - 2**(8-$partial_octet)) )
+      netmask+=$(( 256 - 2**(8-$partial_octet) ))
     else
       netmask+=0
-    fi   
+    fi
     [ $i -lt 3 ] && netmask+=.
   done
 
@@ -449,3 +449,15 @@ function get_all_networks ()
   get_all_networks_dbdrv
 }
 
+function get_network_id_by_netip ()
+{
+  local NET_IP=$1
+  # Check if parameter $1 is ok
+  exist_network_ip "$NET_IP"
+  if [ $? -eq 0 ];
+  then
+    # Get network id from database and return it
+    get_network_id_by_netip_dbdrv "$NET_IP"
+    return 0
+  fi
+}

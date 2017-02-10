@@ -2,42 +2,50 @@ Log "####################################################"
 Log "#         $CLI_NAME Install process: Create User   #"
 Log "####################################################"
 
-LogPrint "Intalling software with user ${USER}"
-LogPrint "Sending Key for user: ${USER}"
+LogPrint "$PROGRAM:$WORKFLOW: Installing software with user ${USER}"
+LogPrint "$PROGRAM:$WORKFLOW: Sending Key for user: ${USER}"
 ssh-copy-id ${USER}@${CLI_NAME} &> /dev/null
-if [ $? -ne 0  ]; then  Error "$PROGRAM: ssh-copy-id failed!" ;else Log "$PROGRAM: Key succesfully copied to $CLI_NAME"; fi
+if [ $? -ne 0  ]; then  Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!" ;else Log "$PROGRAM:$WORKFLOW: Key succesfully copied to $CLI_NAME"; fi
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
-VERSION=$(echo $RELEASE|cut -c 1)
+if [ $DISTRO == "Ubuntu" ]; then VERSION=$(echo $RELEASE|cut -c 1,2); else VERSION=$(echo $RELEASE|cut -c 1); fi
 ARCH=$(get_arch $USER $CLI_NAME)
 if [[ $DISTRO == "" ]] || [[ $RELEASE == "" ]]
 then
-   Error "Release or Distro missing"
+   Error "$PROGRAM:$WORKFLOW: Missing Release or Distro!"
 fi
-LogPrint "Creating  ${DRLM_USER} user"
+
 #Create user on client
-ssh -ttt ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
-if [[ $? != 0 ]]
+ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
+if [[ $? -eq 0 ]]
 then
-    Log "${DRLM_USER} not exist, creating user"
-    create_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
+    Log "$PROGRAM:$WORKFLOW: ${DRLM_USER} exists, deleting user ..."
+    delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
     if [ $? -ne 0  ]
     then
-        Error "$PROGRAM: User ${DRLM_USER} creation Failed!!!"
-    else
-        LogPrint "User $DRLM_USER created on $CLI_NAME"
-        #Send key for drlm user
-        LogPrint "Sending key for drlm user"
-        echo "NOTE: enter password (changeme) for drlm user (password will be locked after installation)"
-        ssh-copy-id ${DRLM_USER}@${CLI_NAME} &> /dev/null
-        if [ $? -ne 0  ]
-        then
-            Error "$PROGRAM: Sending key for ${DRLM_USER} Failed!!!"
-        else
-            LogPrint "key for $DRLM_USER has been send on $CLI_NAME"
-            #Disable password aging for drlm userdd
-            if disable_drlm_user_login ${USER} ${CLI_NAME} ${SUDO};then LogPrint "user ${DRLM_USER} has been blocked using password"; else Error "$PROGRAM: Error blocking ${DRLM_USER} User!!!"; fi
-        fi
+        Error "$PROGRAM:$WORKFLOW: User ${DRLM_USER} deletion Failed!!!"
     fi
 fi
 
+Log "$PROGRAM:$WORKFLOW: Creating DRLM user: ${DRLM_USER} ..."
+create_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
+if [ $? -ne 0  ]
+then
+    Error "$PROGRAM:$WORKFLOW: User ${DRLM_USER} creation Failed!!!"
+else
+    LogPrint "$PROGRAM:$WORKFLOW: User $DRLM_USER created on $CLI_NAME"
+    #Send key for drlm user
+    LogPrint "$PROGRAM:$WORKFLOW: Sending ssh key for drlm user ..."
+    echo "-------------------------------------------------------------------------------------"
+    echo "NOTE: enter password: [changeme] for drlm user (It will be locked after installation)"
+    echo "-------------------------------------------------------------------------------------"
+    ssh-copy-id ${DRLM_USER}@${CLI_NAME} &> /dev/null
+    if [ $? -ne 0  ]
+    then
+        Error "$PROGRAM:$WORKFLOW: Sending key for ${DRLM_USER} Failed!!!"
+    else
+        LogPrint "$PROGRAM:$WORKFLOW: key for $DRLM_USER has been sent on $CLI_NAME"
+        #Disable password aging for drlm userdd
+        if disable_drlm_user_login ${USER} ${CLI_NAME} ${SUDO};then LogPrint "$PROGRAM:$WORKFLOW: User ${DRLM_USER} has been blocked using password"; else Error "$PROGRAM:$WORKFLOW: Problem blocking ${DRLM_USER} User!!!"; fi
+    fi
+fi

@@ -12,6 +12,6 @@ then
 	Log "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: .... remote space collection Success!"
 	let "DR_IMG_SIZE_MB+=DR_IMG_SIZE_MB*10/100"
 else
-	report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote sapce! aborting ...  Error Message: [ $DR_IMG_SIZE_MB ]"
+	report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! aborting ...  Error Message: [ $DR_IMG_SIZE_MB ]"
 	Error "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote sapce! aborting ..."
 fi

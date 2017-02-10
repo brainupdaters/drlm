@@ -35,7 +35,7 @@ Log "Checking if Network Mask: ${NET_MASK} is valid..."
 if valid_ip $NET_MASK;
 then
         Log "$PROGRAM: Network Mask: $NET_MASK is in valid format..."
-        if [ "$NET_IP" != $(get_netaddress "$NET_SRV" "$NET_MASK") ];
+        if [ "$NET_IP" != $(get_netaddress "$NET_GW" "$NET_MASK") ];
         then
                 Error "$PROGRAM: Network Mask: $NET_MASK is not correct for this net $NET_IP"
         else
@@ -65,12 +65,6 @@ Log "Checking if Server IP: ${NET_SRV} is registered in DRLM database ..."
 if valid_ip $NET_SRV;
 then
         Log "$PROGRAM: Server IP: $NET_SRV is in valid format..."
-        if [ "$NET_IP" != $(get_netaddress "$NET_SRV" "$NET_MASK") ];
-        then
-                Error "$PROGRAM: Server IP: $NET_SRV not in correct net $NET_IP"
-        else
-                Log "$PROGRAM: Server IP: $NET_SRV is valid in net $NET_IP"
-        fi
 else
         Error "$PROGRAM: Server IP: $NET_SRV is in wrong format. Correct this and try again."
 fi

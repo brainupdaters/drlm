@@ -28,8 +28,8 @@ function report_error_ovo () {
    	fi
 }
 
-function report_error_nagios () {
-# Report $ERR_MSG through nagios
+function report_error_nsca-ng () {
+# Report $ERR_MSG through nsca-ng
 # Return 0 for ok, return 1 not ok
 
 ## Nagios Service Checks:
@@ -49,6 +49,29 @@ function report_error_nagios () {
    	else
    		LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"
    	fi
+}
+
+function report_error_nsca () {
+# Report $ERR_MSG through nsca
+# Return 0 for ok, return 1 not ok
+
+## Nagios Service Checks:
+#<host_name>[tab]<svc_description>[tab]<return_code>[tab]<plugin_output>[newline]
+
+   local ERRMSG=$( echo "$@" | tr "\\n" " - " )
+   local CMDOUT
+
+    if [[ -f "$NAGCONF" &&  -x "$NAGCMD" ]]; then
+        CMDOUT=$( printf "%s\t%s\t%s\t%s\n" "$NAGSRV" "$NAGSVC" "2" "$ERRMSG" | "$NAGCMD" -H "${NAGHOST}" -p "${NAGPORT}" -c "$NAGCONF" )
+                if [ $? -eq 0 ]; then
+                   return 0
+                else
+                   echo "$CMDOUT"
+                   return 1
+                fi
+        else
+                LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"
+        fi
 }
 
 function report_error_zabbix () {
@@ -90,7 +113,7 @@ function report_error_mail () {
 }
 
 function report_error () {
-# triggers the correct reporting type $REPORT_TYPE [ ovo|nagios|zabbix|mail ]
+# triggers the correct reporting type $REPORT_TYPE [ ovo|nsca-ng|nsca|zabbix|mail ]
 # Return 0 for ok return 1 not ok
    local ERRMSG="$@"
 
@@ -100,8 +123,11 @@ function report_error () {
          ovo)
             return $(report_error_ovo "$ERRMSG")
          ;;
-         nagios)
-            return $(report_error_nagios "$ERRMSG")
+         nsca-ng)
+            return $(report_error_nsca-ng "$ERRMSG")
+         ;;
+         nsca)
+            return $(report_error_nsca "$ERRMSG")
          ;;
          zabbix)
             return $(report_error_zabbix "$ERRMSG")
@@ -115,3 +141,4 @@ function report_error () {
       esac
    fi
 }
+
