@@ -32,23 +32,23 @@ chapter that details each release.
 
   * Multiarch netboot client support (x86_64-efi, i386-efi, i386-pc)
 
-  * Centralized backup scheduling
+  * Automatic client intallation from DRLM server
 
-  * Installclient workflow (NEW!)
-
-  * Parallel backups (NEW!)
-
-  * Sqlite3 database backend (NEW!)
+  * Parallel backups
 
   * Error reporting support to:
 
       - HP OpenView
 
-      - Nagios (NEW!)
+      - Nagios (NSCA & NSCA-ng) (NEW!)
 
-      - Zabbix (NEW!)
+      - Zabbix
 
-      - Mail (NEW!)
+      - Mail
+
+  * Centralized backup scheduling with a job scheduler (NEW!)
+
+  * Export and Import backup between DRLM servers or DRLM clients (NEW!)
 
 
 NOTE: Features marked experimental are prone to change with future releases.
@@ -63,6 +63,25 @@ fixes. Note that all releases are cumulative, and that all releases of
 DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
+
+DRLM Version 2.1.0 (February 2017) - Release Notes
+--------------------------------------------------
+
+  * DRLM reporting with nsca-ng, nsca. (issue #47)
+
+  * DRLM Server for SLES. (issue #45)
+
+  * Support for drlm unattended installation (instclient) on Ubuntu (issue #43)
+
+  * NEW Import & Export DR images between DRLM servers. (issue #39)
+
+  * Pass DRLM global options to ReaR. (issue #37)
+
+  * New DRLM backup job scheduler (issue #35)
+
+  * Addclient install mode (automatize install client after the client creation) (issue #32)
+
+  * Solved lots of bugs
 
 
 DRLM Version 2.0.0 (July 2016) -  Release Notes
@@ -172,6 +191,8 @@ DRLM is supported on the following Linux based operating systems:
   * RHEL 6 and 7
   * CentOS 6 and 7
   * Debian 7 and 8
+  * Ubuntu 14 and 16
+  * SLES 12 SP1 
 
 If you require support for any unsupported Linux Operating System you must
 acquire a DRLM support contract.

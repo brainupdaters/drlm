@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.0.0
+Version: 2.1.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -30,16 +30,7 @@ Requires: coreutils util-linux
 Requires: rpcbind
 Requires: xinetd
 
-### Optional requirement
-#Requires: cfg2html
-
-#%ifarch %ix86 x86_64
-#Requires: syslinux
-#%endif
-#%ifarch ppc ppc64
-#Requires: yaboot
-#%endif
-
+### SUSE packages
 %if %{?suse_version:1}0
 Requires: apache2
 Requires: openssh
@@ -49,22 +40,9 @@ Requires: dhcp-server
 Requires: nfs-kernel-server
 Requires: lsb-release
 Requires: sqlite3
-
-#Requires: iproute2
-### recent SuSE versions have an extra nfs-client package
-### and switched to genisoimage/wodim
-#%if 0%{?suse_version} >= 1020
-#Requires: genisoimage
-#%else
-#Requires: mkisofs
-#%endif
-###
-#%if %{!?sles_version:1}0
-#Requires: lsb
-#%endif
 %endif
 
-### On RHEL/Fedora the genisoimage packages provides mkisofs
+### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
 Requires: dhcp tftp-server httpd
@@ -179,6 +157,16 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
+* Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0
+- DRLM reporting with nsca-ng, nsca.
+- DRLM Server for SLES. 
+- Support for drlm unattended installation (instclient) on Ubuntu.
+- NEW Import & Export DR images between DRLM servers.
+- Pass DRLM global options to ReaR.
+- New DRLM backup job scheduler.
+- Addclient install mode (automatize install client after the client creation).
+- Solved lots of bugs.
+
 * Sat Jul 16 2016 Didac Oliveira <didac@brainupdaters.net> 2.0.0
 - Multiarch netboot with GRUB2.
 - New installclient workflow.
