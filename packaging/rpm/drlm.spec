@@ -30,16 +30,7 @@ Requires: coreutils util-linux
 Requires: rpcbind
 Requires: xinetd
 
-### Optional requirement
-#Requires: cfg2html
-
-#%ifarch %ix86 x86_64
-#Requires: syslinux
-#%endif
-#%ifarch ppc ppc64
-#Requires: yaboot
-#%endif
-
+### SUSE packages
 %if %{?suse_version:1}0
 Requires: apache2
 Requires: openssh
@@ -49,22 +40,9 @@ Requires: dhcp-server
 Requires: nfs-kernel-server
 Requires: lsb-release
 Requires: sqlite3
-
-#Requires: iproute2
-### recent SuSE versions have an extra nfs-client package
-### and switched to genisoimage/wodim
-#%if 0%{?suse_version} >= 1020
-#Requires: genisoimage
-#%else
-#Requires: mkisofs
-#%endif
-###
-#%if %{!?sles_version:1}0
-#Requires: lsb
-#%endif
 %endif
 
-### On RHEL/Fedora the genisoimage packages provides mkisofs
+### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
 Requires: dhcp tftp-server httpd
