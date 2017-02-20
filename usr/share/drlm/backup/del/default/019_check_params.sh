@@ -1,6 +1,7 @@
+# delbackup workflow
 
 if [ -z "$CLEAN_ALL" ]; then
-        # Check if the target backup ID is in DRLM database
+# Check if the target backup ID is in DRLM database
         if test -n "$BKP_ID"; then
                 Log "Checking if Backup ID: ${BKP_ID} is registered in DRLM database ..."
                 if exist_backup_id "$BKP_ID" ;
