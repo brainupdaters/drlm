@@ -71,7 +71,7 @@ if [ "$WORKFLOW" == "delbackup" ]; then
 	done
 
 		#if delete all client backups = yes then
-		if [ -n "$CLEAN_ALL"]; then
+		if [ -n "$CLEAN_ALL" ]; then
 			#Client name is needed to delete all backup
 			if [ -z "$CLI_NAME" ]; then
 		        echo "$PROGRAM $WORKFLOW: Client name is required for delete all backups."
