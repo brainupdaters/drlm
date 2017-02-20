@@ -4,7 +4,7 @@ Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Removing client backup(s)! .... "
 for ID in $ID_LIST; do
 	if check_backup_state $ID ;
 	then
-		DR_FILE=$(gen_dr_file_name $CLI_NAME $ID)
+		DR_FILE=$(get_backup_drfile $ID)
 		if ! exist_dr_file_fs $DR_FILE ;
 		then
 			LogPrint "WARNING: $PROGRAM:$WORKFLOW:ID($ID):$CLI_NAME: Backup DR file not in FS! Removing only from DB .... "
