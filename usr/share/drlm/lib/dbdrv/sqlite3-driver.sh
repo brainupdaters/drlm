@@ -438,6 +438,13 @@ function get_backup_id_lst_by_client_dbdrv ()
   echo $ID_LIST
 }
 
+function get_client_id_by_backup_id_dbdrv ()
+{
+  local BKP_ID=$1
+  local CLI_ID=$(echo "select clients_id from backups where idbackup='${BKP_ID}.%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_ID
+}
+
 function get_backup_drfile_dbdrv ()
 {
   local BKP_ID=$1

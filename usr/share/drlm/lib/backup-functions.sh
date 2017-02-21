@@ -397,9 +397,16 @@ function check_backup_state ()
 
 function get_backup_drfile ()
 {
-  local ID_BKP=$1
-  local DR_FILE=$(get_backup_drfile_dbdrv "$ID_BKP")
+  local BKP_ID=$1
+  local DR_FILE=$(get_backup_drfile_dbdrv "$BKP_ID")
   echo $DR_FILE
+}
+
+function get_client_id_by_backup_id ()
+{
+  local BKP_ID=$1
+  local CLI_ID=$(get_client_id_by_backup_id_dbdrv "$BKP_ID")
+  echo $CLI_ID
 }
 
 function get_active_backups ()

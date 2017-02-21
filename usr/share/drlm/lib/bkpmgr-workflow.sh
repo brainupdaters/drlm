@@ -36,6 +36,7 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
                 case "$1" in
                         (-e|--enable) ENABLE="yes";;
                         (-d|--disable) DISABLE="yes";;
+                        # (-c|--client) option Not used! Only for compatibility with old versions or demos.
                         (-c|--client)
                                 # We need to take the option argument
                                 if [ -n "$2" ]
@@ -58,10 +59,9 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
                                 fi
                                 shift
                                 ;;
-                        (-P) MODE="perm";;
                         (-h|--help)
                                 bkpmgrhelp
-				exit 0
+				                exit 0
                                 ;;
                         (--) shift; break;;
                         (-*)
@@ -73,26 +73,20 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
                 shift
         done
 
-        if [ -n "$ENABLE" ] && [ -n "$DISABLE" ]; then
-
+        if [ -z "$BKP_ID" ]; then
+            echo "$PROGRAM $WORKFLOW: ENABLE: --client and --id options are required"
+            echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+            exit 1
+        else
+            if [ -n "$ENABLE" ] && [ -n "$DISABLE" ]; then
                 echo "$PROGRAM $WORKFLOW: Only one option (-d or -e) required!!"
                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
-        else
-                if [ "$ENABLE" == "yes" ]; then
-                        if  [ -z "$CLI_NAME" ] || [ -z "$BKP_ID" ]; then
-                                echo "$PROGRAM $WORKFLOW: ENABLE: --client and --id options are required"
-                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-                                exit 1
-                        fi
-                fi
-                if [ "$DISABLE" == "yes" ]; then
-                        if [ -z "$CLI_NAME" ]; then
-                                echo "$PROGRAM $WORKFLOW: DISABLE: --client option required"
-                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-                                exit 1
-                        fi
-                fi
+            elif [ -z "$ENABLE" ] && [ -z "$DISABLE" ]; then
+                    echo "$PROGRAM $WORKFLOW: One option (-d or -e) required!!"
+                    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+                    exit 1
+            fi
         fi
 
 	WORKFLOW_bkpmgr () {
