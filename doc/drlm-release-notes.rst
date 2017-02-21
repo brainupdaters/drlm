@@ -67,9 +67,13 @@ The references pointing to fix #nr or issue #nr refer to our issues tracker
 DRLM Version 2.1.1 (February 2017) - Release Notes
 --------------------------------------------------
 
-  * Solved some of bugs. (issue #49)
+  * Solved some of bugs. (issue #49, #50)
 
   * No Client ID required for delete backups. (issue #40)
+
+  * No Client ID required for manage backups. (issue #46)
+
+  * Persistent mode deleted. 
 
 
 DRLM Version 2.1.0 (February 2017) - Release Notes

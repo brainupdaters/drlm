@@ -157,9 +157,11 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
-* Mon Feb 20 2017 Pau Roura <pau@brainupdaters.net> 2.1.1
+* Mon Feb 21 2017 Pau Roura <pau@brainupdaters.net> 2.1.1
 - Solved some bugs.
 - No Client ID required for delete backups.
+- No Client ID required for delete backups.
+- Persistent mode deleted.
 
 %changelog
 * Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0
