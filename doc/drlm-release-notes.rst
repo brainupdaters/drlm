@@ -73,8 +73,13 @@ DRLM Version 2.1.1 (February 2017) - Release Notes
 
   * No Client ID required for manage backups. (issue #46)
 
-  * Persistent mode deleted. 
+  * bkpmgr: Persistent mode deleted. 
 
+  * Solved PXE files: forced console=ttyS0 in kernel options. (issue #52)
+ 
+  * Solved hardcoded PXE filenames (initrd.xz (lzma) now supported). (issue #52) 
+
+  * While recommended, It ain't mandatory to use hostname as client_name. (issue #52)
 
 DRLM Version 2.1.0 (February 2017) - Release Notes
 --------------------------------------------------

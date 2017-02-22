@@ -161,7 +161,10 @@ chkconfig drlm-stord off
 - Solved some bugs.
 - No Client ID required for delete backups.
 - No Client ID required for delete backups.
-- Persistent mode deleted.
+- bkpmgr: Persistent mode deleted.
+- Solved PXE files: forced console=ttyS0 in kernel options.
+- Solved hardcoded PXE filenames (initrd.xz (lzma) now supported).
+- While recommended, It ain't mandatory to use hostname as client_name.
 
 %changelog
 * Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0

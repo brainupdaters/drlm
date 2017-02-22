@@ -1,4 +1,4 @@
-Log "Collecting DR Image space requirements..."
+Log "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Collecting DR Image space requirements..."
 
 eval "$(egrep "EXCLUDE_MOUNTPOINTS|EXCLUDE_VG|INCLUDE_VG|ONLY_INCLUDE_VG|BACKUP_PROG_EXCLUDE" /etc/drlm/clients/$CLI_NAME.cfg | grep -v '#')"
 
@@ -13,5 +13,5 @@ then
 	let "DR_IMG_SIZE_MB+=DR_IMG_SIZE_MB*10/100"
 else
 	report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! aborting ...  Error Message: [ $DR_IMG_SIZE_MB ]"
-	Error "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote sapce! aborting ..."
+	Error "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! aborting ..."
 fi
