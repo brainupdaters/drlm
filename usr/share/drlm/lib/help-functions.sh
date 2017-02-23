@@ -150,7 +150,6 @@ function instclienthelp() {
 	printf "\n"
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-u|--user <USER>" "User with admin privileges to install and configure software"
-	printf '%-25s %-45s\n' "-d|--drlm_user <DRLM_USER>" "Force drlm_user name , default is drlm"
 	printf '%-25s %-45s\n' "-U|--url_rear <URL_REAR>" "rpm or deb package for especific distro for example http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/Debian_7.0/all/rear_1.17.2_all.deb"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
