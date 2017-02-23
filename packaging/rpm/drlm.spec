@@ -165,6 +165,8 @@ chkconfig drlm-stord off
 - Solved PXE files: forced console=ttyS0 in kernel options.
 - Solved hardcoded PXE filenames (initrd.xz (lzma) now supported).
 - While recommended, It ain't mandatory to use hostname as client_name.
+- Solved drlm user hardcoded in installclient.
+- NAGSRV and NAGPORT added in default.conf.
 
 %changelog
 * Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0

@@ -81,6 +81,11 @@ DRLM Version 2.1.1 (February 2017) - Release Notes
 
   * While recommended, It ain't mandatory to use hostname as client_name. (issue #52)
 
+  * Solved drlm user hardcoded in installclient. (issue #51)
+
+  * NAGSRV and NAGPORT added in default.conf.
+
+
 DRLM Version 2.1.0 (February 2017) - Release Notes
 --------------------------------------------------
 
