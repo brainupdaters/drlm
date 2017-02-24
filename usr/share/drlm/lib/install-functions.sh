@@ -232,7 +232,7 @@ function disable_drlm_user_login () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( ${SUDO} chage -I -1 -m 0 -M 99999 -E -1 drlm; ${SUDO} passwd -l drlm )"
+ ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( ${SUDO} chage -I -1 -m 0 -M 99999 -E -1 ${DRLM_USER}; ${SUDO} passwd -l ${DRLM_USER} )"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
