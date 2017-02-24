@@ -150,7 +150,6 @@ function instclienthelp() {
 	printf "\n"
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-u|--user <USER>" "User with admin privileges to install and configure software"
-	printf '%-25s %-45s\n' "-d|--drlm_user <DRLM_USER>" "Force drlm_user name , default is drlm"
 	printf '%-25s %-45s\n' "-U|--url_rear <URL_REAR>" "rpm or deb package for especific distro for example http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/Debian_7.0/all/rear_1.17.2_all.deb"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
@@ -246,7 +245,7 @@ function delbackuphelp() {
 	printf '%-25s %-45s\n' "drlm delbackup [OPTARGS]" "Delete Backup(s) form DRLM"
 	printf "\n"
 	printf "$(tput bold)Required Options:\n$(tput sgr0)"
-	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client for backup deletion"
+	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client for backups deletion"
 	printf '%-25s %-45s\n' "-I|--id <BKP_ID>" "Select Backup to delete by ID"
 	printf '%-25s %-45s\n' "-A|--all" "Select all Backups for Client"
 	printf "\n"
@@ -256,7 +255,7 @@ function delbackuphelp() {
 	printf "$(tput bold)Examples:\n$(tput sgr0)"
 	printf "drlm delbackup -c|--client <CLI_NAME> -A|--all\n"
 	printf "	or\n"
-	printf "drlm delbackup -c|--client <CLI_NAME> -I|--id <BKP_ID>\n"
+	printf "drlm delbackup -I|--id <BKP_ID>\n"
 	printf "\n"
 }
 

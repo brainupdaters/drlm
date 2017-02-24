@@ -248,14 +248,6 @@ function get_active_cli_bkp_from_db ()
   get_active_cli_bkp_from_db_dbdrv "$CLI_NAME"
 }
 
-#function gen_backup_id ()
-#{
-#  local CLI_NAME=$1
-#  local BKP_ID=$(stat -c %y ${STORDIR}/${CLI_NAME}/BKP/backup.tar.gz | awk '{print $1$2}' | awk -F"." '{print $1}' | tr -d ":" | tr -d "-")
-#  if [ $? -eq 0 ]; then echo $BKP_ID; else echo ""; fi
-#  # Return DR Backup ID or Null string
-#}
-
 function gen_backup_id ()
 {
   local CLI_ID=$1
@@ -277,18 +269,6 @@ function gen_dr_file_name ()
 	fi
 # Return DR File Name or Null string
 }
-
-#function make_img_raw ()
-#{
-#	local DR_NAME=$1
-#	local DATA_SIZE=$(du -sm ${STORDIR}/${CLI_NAME}|awk '{print $1}')
-#	local INC_SIZE=$((${DATA_SIZE}*5/100))
-#	local DR_SIZE=$((${DATA_SIZE}+${INC_SIZE}))
-#
-#	dd if=/dev/zero of=${ARCHDIR}/${DR_NAME} bs=1024k seek=${DR_SIZE} count=0
-#	if [ $? -eq 0 ]; then return 0; else return 1; fi
-## Return 0 if OK or 1 if NOK
-#}
 
 function make_img ()
 {
@@ -320,16 +300,6 @@ function do_format_ext2 ()
 	if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
-
-#function move_files_to_img ()
-#{
-#	local CLI_NAME=$1
-#	local MNTDIR=$2
-#
-#	tar -C ${STORDIR}/${CLI_NAME} -cf - . | (cd ${MNTDIR}; tar xf -)
-#	if [ $? -eq 0 ]; then return 0; else return 1; fi
-## Return 0 if OK or 1 if NOK
-#}
 
 function exist_backup_id ()
 {
@@ -393,20 +363,20 @@ function clean_oldest_backup ()
 
 function clean_old_backups ()
 {
-        local N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
-        local ERR=0
+  local N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
+  local ERR=0
 
-        while [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
-        do
-                BKPID2CLR=$(get_older_backup_by_client_dbdrv ${CLI_NAME})
-                DRFILE2CLR=$(get_backup_drfile ${BKPID2CLR})
+  while [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
+  do
+    BKPID2CLR=$(get_older_backup_by_client_dbdrv ${CLI_NAME})
+    DRFILE2CLR=$(get_backup_drfile ${BKPID2CLR})
 
-                del_backup ${BKPID2CLR} ${DRFILE2CLR}
-                if [ $? -ne 0 ]; then ERR=1; fi
-                N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
-        done
+    del_backup ${BKPID2CLR} ${DRFILE2CLR}
+    if [ $? -ne 0 ]; then ERR=1; fi
+    N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
+  done
 
-        if [ $ERR -eq 0 ]; then return 0; else return 1; fi
+  if [ $ERR -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_backup_id_lst_by_client ()
@@ -427,9 +397,16 @@ function check_backup_state ()
 
 function get_backup_drfile ()
 {
-  local ID_BKP=$1
-  local DR_FILE=$(get_backup_drfile_dbdrv "$ID_BKP")
+  local BKP_ID=$1
+  local DR_FILE=$(get_backup_drfile_dbdrv "$BKP_ID")
   echo $DR_FILE
+}
+
+function get_client_id_by_backup_id ()
+{
+  local BKP_ID=$1
+  local CLI_ID=$(get_client_id_by_backup_id_dbdrv "$BKP_ID")
+  echo $CLI_ID
 }
 
 function get_active_backups ()

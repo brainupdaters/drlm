@@ -64,6 +64,28 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.1.1 (February 2017) - Release Notes
+--------------------------------------------------
+
+  * Solved some of bugs. (issue #49, #50)
+
+  * No Client ID required for delete backups. (issue #40)
+
+  * No Client ID required for manage backups. (issue #46)
+
+  * bkpmgr: Persistent mode deleted. 
+
+  * Solved PXE files: forced console=ttyS0 in kernel options. (issue #52)
+ 
+  * Solved hardcoded PXE filenames (initrd.xz (lzma) now supported). (issue #52) 
+
+  * While recommended, It ain't mandatory to use hostname as client_name. (issue #52)
+
+  * Solved drlm user hardcoded in installclient. (issue #51)
+
+  * NAGSRV and NAGPORT added in default.conf.
+
+
 DRLM Version 2.1.0 (February 2017) - Release Notes
 --------------------------------------------------
 

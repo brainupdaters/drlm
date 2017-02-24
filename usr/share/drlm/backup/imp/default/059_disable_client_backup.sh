@@ -1,4 +1,5 @@
 # impbackup workflow
+
 if [ ! -d ${STORDIR}/${CLI_NAME} ]; then
 
 	Log "Making DR store mountpoint for client: ${CLI_NAME} ..."

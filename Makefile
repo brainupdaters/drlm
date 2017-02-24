@@ -23,7 +23,11 @@ else
 ifeq ($(word 3,$(subst /, ,$(git_ref))),feature)
 git_branch = feature/$(lastword $(subst /, ,$(git_ref)))
 else
+ifeq ($(word 3,$(subst /, ,$(git_ref))),hotfix)
+git_branch = hotfix/$(lastword $(subst /, ,$(git_ref)))
+else
 git_branch = $(lastword $(subst /, ,$(git_ref)))
+endif
 endif
 endif
 endif

@@ -1,7 +1,6 @@
 
 if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
 
-CLI_ID=$(get_client_id_by_name $CLI_NAME)
 CLI_MAC=$(get_client_mac $CLI_ID)
 F_CLI_MAC=$(format_mac ${CLI_MAC} ":")
 CLI_KERNEL_FILE=$(ls ${STORDIR}/${CLI_NAME}/PXE/*kernel | xargs -n 1 basename)

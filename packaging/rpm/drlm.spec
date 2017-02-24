@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.1.0
+Version: 2.1.1
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -155,6 +155,18 @@ chkconfig drlm-stord off
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
+
+%changelog
+* Mon Feb 21 2017 Pau Roura <pau@brainupdaters.net> 2.1.1
+- Solved some bugs.
+- No Client ID required for delete backups.
+- No Client ID required for delete backups.
+- bkpmgr: Persistent mode deleted.
+- Solved PXE files: forced console=ttyS0 in kernel options.
+- Solved hardcoded PXE filenames (initrd.xz (lzma) now supported).
+- While recommended, It ain't mandatory to use hostname as client_name.
+- Solved drlm user hardcoded in installclient.
+- NAGSRV and NAGPORT added in default.conf.
 
 %changelog
 * Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0

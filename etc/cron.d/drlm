@@ -1,1 +1,2 @@
 * * * * * root /usr/sbin/drlm sched --run
+*/10 * * * * root /usr/bin/find /var/log/drlm \( -name "*list*" -o -name "*help*" -o -size 582c -a -name "*sched*" \) -delete > /dev/null
