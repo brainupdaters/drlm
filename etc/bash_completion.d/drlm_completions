@@ -1,4 +1,6 @@
-DESC="DRLM Store Service"
+#drlm_completions
+#Bash Completion file for DRLM
+
 SHARE_DIR="/usr/share/drlm"
 source $SHARE_DIR/conf/default.conf
 [ -f /etc/drlm/site.conf  ] && source /etc/drlm/site.conf
