@@ -84,6 +84,30 @@ function get_all_clients_dbdrv ()
   echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
+function get_count_clients_dbdrv ()
+{
+  local NCLI=$(echo "select count(*) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$NCLI"
+}
+
+function get_clients_by_network_dbdrv ()
+{
+  local NET_NAME=$1
+  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients where networks_netname="'${NET_NAME}'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_all_client_names_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select cliname from clients where cliname like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_all_client_id_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select idclient from clients where idclient like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
 function add_client_dbdrv ()
 {
   local CLI_ID=0
@@ -137,18 +161,6 @@ function mod_client_net_dbdrv ()
   local CLI_NET=$2
   echo "update clients set networks_netname='$CLI_NET' where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
-}
-
-function get_count_clients_dbdrv ()
-{
-  local NCLI=$(echo "select count(*) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-  echo "$NCLI"
-}
-
-function get_clients_by_network_dbdrv ()
-{
-  local NET_NAME=$1
-  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients where networks_netname="'${NET_NAME}'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 ##############################
@@ -273,6 +285,18 @@ function get_network_srv_dbdrv ()
 function get_all_networks_dbdrv ()
 {
   echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_all_network_names_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select netname from networks where netname like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_all_network_id_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select idnetwork from networks where idnetwork like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
 function mod_network_name_dbdrv ()
@@ -431,10 +455,33 @@ function register_backup_dbdrv ()
   fi
 }
 
+
 function get_backup_id_lst_by_client_dbdrv ()
 {
   local CLI_NAME=$1
   local ID_LIST=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_backpu_id_by_client_dbdrv ()
+{
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_backup_id_dbdrv ()
+{
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_client_names_in_backups_dbdrv()
+{
+  local COMP=$1
+  local ID_LIST=$(echo "select distinct cliname from clients, backups where clients.idclient = backups.clients_id and clients.cliname like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
@@ -508,6 +555,28 @@ function get_job_by_id_dbdrv ()
 function get_all_jobs_dbdrv ()
 {
   echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_all_jobs_id_dbdrv()
+{
+  local COMP=$1
+  local ID_LIST=$(echo "select idjob from jobs where idjob like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_jobs_id_by_client_dbdrv()
+{
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idjob from jobs where clients_id = '${CLI_NAME}' and idjob like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_client_names_in_jobs_dbdrv()
+{
+  local COMP=$1
+  local ID_LIST=$(echo "select distinct cliname from clients, jobs where clients.idclient = jobs.clients_id and clients.cliname like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
 }
 
 function get_jobs_by_ndate_dbdrv ()
