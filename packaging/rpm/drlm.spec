@@ -151,7 +151,7 @@ chkconfig drlm-stord off
 %doc %{_mandir}/man8/drlm.8*
 %config(noreplace) %{_sysconfdir}/drlm/
 %config(noreplace) %{_sysconfdir}/cron.d/drlm
-%config(noreplace) %{_sysconfdir}/bash_completion.d/drlm
+%config(noreplace) %{_sysconfdir}/bash_completion.d/drlm_completions
 %{_datadir}/drlm/
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
