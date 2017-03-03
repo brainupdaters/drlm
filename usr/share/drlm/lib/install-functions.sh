@@ -88,7 +88,7 @@ if [ $? -ne 0 ]
 then
         echo "Error Downloading rear package"
 else
-        ${SUDO} yum -y install /tmp/rear.rpm &> /dev/null
+        ${SUDO} yum --nogpgcheck -y install /tmp/rear.rpm &> /dev/null
         if [ $? -ne 0 ]
         then
                 echo "Error Installing ReaR package"
@@ -281,22 +281,29 @@ function ssh_start_services () {
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-
 function config_sudo () {
+local MOUNT=$(which mount)
+local VGS=$(which vgs)
+if [ ! -d /etc/sudoers.d/ ]
+then
+       ${SUDO} mkdir /etc/sudoers.d
+       ${SUDO} chmod 755 /etc/sudoers.d
+       ${SUDO} sh -c "echo '#includedir /etc/sudoers.d' >> /etc/sudoers"
+fi
 ${SUDO} cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
-Cmnd_Alias DRLM = /usr/sbin/rear, /bin/mount, /sbin/vgs
+Cmnd_Alias DRLM = /usr/sbin/rear, ${MOUNT}, ${VGS}
 ${DRLM_USER}    ALL=(root)      NOPASSWD: DRLM
 EOF
- if [ -d /etc/sudoers.d/ ]
- then
-        ${SUDO} chmod 440 /tmp/etc_sudoers.d_drlm.sudo
-        ${SUDO} chown root:root /tmp/etc_sudoers.d_drlm.sudo
-        ${SUDO} cp -p /tmp/etc_sudoers.d_drlm.sudo /etc/sudoers.d/drlm
-        ${SUDO} rm -f /tmp/etc_sudoers.d_drlm.sudo
-        if [ $? -eq 0 ]; then return 0; else return 1;fi
- else
-        return 1
- fi
+if [ -d /etc/sudoers.d/ ]
+then
+       ${SUDO} chmod 440 /tmp/etc_sudoers.d_drlm.sudo
+       ${SUDO} chown root:root /tmp/etc_sudoers.d_drlm.sudo
+       ${SUDO} cp -p /tmp/etc_sudoers.d_drlm.sudo /etc/sudoers.d/drlm
+       ${SUDO} rm -f /tmp/etc_sudoers.d_drlm.sudo
+       if [ $? -eq 0 ]; then return 0; else return 1;fi
+else
+       return 1
+fi
 }
 
 
