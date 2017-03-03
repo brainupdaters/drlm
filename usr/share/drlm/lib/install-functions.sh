@@ -282,8 +282,12 @@ function ssh_start_services () {
 }
 
 function config_sudo () {
-local MOUNT=$(which mount)
-local VGS=$(which vgs)
+SUDO_CMDS_DRLM=( $(${SUDO} which ${SUDO_CMDS_DRLM[@]}) )
+SLen=${#SUDO_CMDS_DRLM[@]}
+for (( i=0; i<${SLen}; i++ ));
+do
+        SUDO_COMMANDS+=( , ${SUDO_CMDS_DRLM[$i]} )
+done
 if [ ! -d /etc/sudoers.d/ ]
 then
        ${SUDO} mkdir /etc/sudoers.d
@@ -291,7 +295,7 @@ then
        ${SUDO} sh -c "echo '#includedir /etc/sudoers.d' >> /etc/sudoers"
 fi
 ${SUDO} cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
-Cmnd_Alias DRLM = /usr/sbin/rear, ${MOUNT}, ${VGS}
+Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
 ${DRLM_USER}    ALL=(root)      NOPASSWD: DRLM
 EOF
 if [ -d /etc/sudoers.d/ ]
@@ -306,13 +310,12 @@ else
 fi
 }
 
-
 function ssh_config_sudo () {
  local USER=$1
  local CLI_NAME=$2
  local DRLM_USER=$3
  local SUDO=$4
- ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p DRLM_USER SUDO ; declare -f config_sudo); config_sudo"
+ ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO ; declare -f config_sudo); config_sudo"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
