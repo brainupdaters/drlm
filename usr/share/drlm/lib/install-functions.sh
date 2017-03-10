@@ -88,7 +88,7 @@ if [ $? -ne 0 ]
 then
         echo "Error Downloading rear package"
 else
-        ${SUDO} yum -y install /tmp/rear.rpm &> /dev/null
+        ${SUDO} yum --nogpgcheck -y install /tmp/rear.rpm &> /dev/null
         if [ $? -ne 0 ]
         then
                 echo "Error Installing ReaR package"
@@ -259,12 +259,13 @@ function start_services () {
        ${SUDO} systemctl start $service.service 
        ${SUDO} systemctl enable $service.service 
    else
-       ${SUDO} service $service start
        if [[ ${DISTRO} == "Debian" ]] || [[ ${DISTRO} == "Ubuntu" ]]
        then 
-           ${SUDO} update-rc.d $service enable
+           ${SUDO} /usr/sbin/service $service start
+           ${SUDO} /usr/sbin/update-rc.d $service enable
        else
-           ${SUDO} chkconfig $service on
+           ${SUDO} /sbin/service $service start
+           ${SUDO} /sbin/chkconfig $service on
        fi
    fi 
  done
@@ -281,31 +282,42 @@ function ssh_start_services () {
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-
 function config_sudo () {
+export PATH="$PATH:/sbin:/usr/sbin"
+if [ -z ${SUDO} ]; then SUDO_CMDS_DRLM=( $(which ${SUDO_CMDS_DRLM[@]}) ); else SUDO_CMDS_DRLM=( $(${SUDO} "PATH=$PATH" which ${SUDO_CMDS_DRLM[@]}) ); fi
+SLen=${#SUDO_CMDS_DRLM[@]}
+for (( i=0; i<${SLen}; i++ ));
+do
+        SUDO_COMMANDS+=( , ${SUDO_CMDS_DRLM[$i]} )
+done
+if [ ! -d /etc/sudoers.d/ ]
+then
+       ${SUDO} mkdir /etc/sudoers.d
+       ${SUDO} chmod 755 /etc/sudoers.d
+       ${SUDO} sh -c "echo '#includedir /etc/sudoers.d' >> /etc/sudoers"
+fi
 ${SUDO} cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
-Cmnd_Alias DRLM = /usr/sbin/rear, /bin/mount, /sbin/vgs
+Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
 ${DRLM_USER}    ALL=(root)      NOPASSWD: DRLM
 EOF
- if [ -d /etc/sudoers.d/ ]
- then
-        ${SUDO} chmod 440 /tmp/etc_sudoers.d_drlm.sudo
-        ${SUDO} chown root:root /tmp/etc_sudoers.d_drlm.sudo
-        ${SUDO} cp -p /tmp/etc_sudoers.d_drlm.sudo /etc/sudoers.d/drlm
-        ${SUDO} rm -f /tmp/etc_sudoers.d_drlm.sudo
-        if [ $? -eq 0 ]; then return 0; else return 1;fi
- else
-        return 1
- fi
+if [ -d /etc/sudoers.d/ ]
+then
+       ${SUDO} chmod 440 /tmp/etc_sudoers.d_drlm.sudo
+       ${SUDO} chown root:root /tmp/etc_sudoers.d_drlm.sudo
+       ${SUDO} cp -p /tmp/etc_sudoers.d_drlm.sudo /etc/sudoers.d/drlm
+       ${SUDO} rm -f /tmp/etc_sudoers.d_drlm.sudo
+       if [ $? -eq 0 ]; then return 0; else return 1;fi
+else
+       return 1
+fi
 }
-
 
 function ssh_config_sudo () {
  local USER=$1
  local CLI_NAME=$2
  local DRLM_USER=$3
  local SUDO=$4
- ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p DRLM_USER SUDO ; declare -f config_sudo); config_sudo"
+ ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO ; declare -f config_sudo); config_sudo"
  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

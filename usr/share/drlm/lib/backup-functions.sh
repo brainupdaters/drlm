@@ -417,7 +417,7 @@ function get_active_backups ()
 function get_fs_free_mb ()
 {
     local FS=$1
-    tmp=( $(stat -c "%s %a" -f "$FS" 2>&1) )
+    tmp=( $(sudo stat -c "%s %a" -f "$FS" 2>&1) )
     let "blocks_in_mb=1024*1024/tmp[0]"
     let "free_mb=tmp[1]/blocks_in_mb"
     echo $free_mb
@@ -426,7 +426,7 @@ function get_fs_free_mb ()
 function get_fs_size_mb ()
 {
     local FS=$1
-    tmp=( $(stat -c "%s %b" -f "$FS" 2>&1) )
+    tmp=( $(sudo stat -c "%s %b" -f "$FS" 2>&1) )
     let "blocks_in_mb=1024*1024/tmp[0]"
     let "size_mb=tmp[1]/blocks_in_mb"
     echo $size_mb
@@ -444,7 +444,7 @@ function get_fs_used_mb ()
 function get_client_used_mb ()
 {
     if [[ -n ${INCLUDE_LIST_VG} ]]; then
-        EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
+        EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
     fi
 
     EXCLUDE_LIST=( ${EXCLUDE_LIST[@]} ${EXCLUDE_LIST_VG[@]} )
