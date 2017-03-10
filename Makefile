@@ -133,7 +133,7 @@ install-config:
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
-		install -Dp -m0600 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
+		install -Dp -m0644 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
 		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
@@ -159,6 +159,7 @@ install-var:
 	@echo -e "\033[1m== Installing working directory ==\033[0;0m"
 	install -d -m0755 $(DESTDIR)$(localstatedir)/lib/drlm/
 	install -d -m0755 $(DESTDIR)$(localstatedir)/log/drlm/
+	install -d -m0755 $(DESTDIR)$(localstatedir)/log/drlm/rear/
 	cp -a var/lib/drlm/. $(DESTDIR)$(localstatedir)/lib/drlm/
 	-find $(DESTDIR)$(localstatedir)/lib/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 

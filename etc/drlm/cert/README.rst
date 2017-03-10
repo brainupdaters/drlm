@@ -8,4 +8,4 @@ please re-run the following command with proper options:
 
 ::
 
-  openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+  openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/$(hostname -s).key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/$(hostname -s).crt

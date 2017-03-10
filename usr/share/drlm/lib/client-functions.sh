@@ -254,4 +254,6 @@ BACKUP_URL=nfs://${SRV_IP}/var/lib/drlm/store/${CLI_NAME}
 SSH_ROOT_PASSWORD=drlm
 EOF
 chmod 644 /etc/drlm/clients/${CLI_NAME}.cfg
+mkdir /etc/drlm/clients/${CLI_NAME}.cfg.d
+chmod 755 /etc/drlm/clients/${CLI_NAME}.cfg.d
 }
