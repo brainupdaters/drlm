@@ -283,7 +283,8 @@ function ssh_start_services () {
 }
 
 function config_sudo () {
-SUDO_CMDS_DRLM=( $(${SUDO} which ${SUDO_CMDS_DRLM[@]}) )
+export PATH="$PATH:/sbin:/usr/sbin"
+if [ -z ${SUDO} ]; then SUDO_CMDS_DRLM=( $(which ${SUDO_CMDS_DRLM[@]}) ); else SUDO_CMDS_DRLM=( $(${SUDO} "PATH=$PATH" which ${SUDO_CMDS_DRLM[@]}) ); fi
 SLen=${#SUDO_CMDS_DRLM[@]}
 for (( i=0; i<${SLen}; i++ ));
 do
