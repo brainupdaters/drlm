@@ -259,12 +259,13 @@ function start_services () {
        ${SUDO} systemctl start $service.service 
        ${SUDO} systemctl enable $service.service 
    else
-       ${SUDO} service $service start
        if [[ ${DISTRO} == "Debian" ]] || [[ ${DISTRO} == "Ubuntu" ]]
        then 
-           ${SUDO} update-rc.d $service enable
+           ${SUDO} /usr/sbin/service $service start
+           ${SUDO} /usr/sbin/update-rc.d $service enable
        else
-           ${SUDO} chkconfig $service on
+           ${SUDO} /sbin/service $service start
+           ${SUDO} /sbin/chkconfig $service on
        fi
    fi 
  done
