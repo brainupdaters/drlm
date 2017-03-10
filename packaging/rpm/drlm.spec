@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.1.1
+Version: 2.1.2
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -160,6 +160,16 @@ chkconfig drlm-stord off
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
+
+%changelog
+* Fri Mar 10 2017 Ruben Carbonell <ruben@brainupdaters.net> 2.1.2
+- SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo
+- Automatic creation of /etc/sudoers.d if not exists RedHat/CenOS 5
+- Fixed some errors for dependencies on default.conf.
+- DRLM_USER variable deleted on addclient and help.
+- Added sudo for stat to allow check size on File Systems without perms.
+- Sudo configuration files are dynamically created according to the OS type.
+- Solved problem for start services with non root user.
 
 %changelog
 * Mon Feb 21 2017 Pau Roura <pau@brainupdaters.net> 2.1.1
