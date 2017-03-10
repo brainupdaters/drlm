@@ -64,6 +64,25 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+
+DRLM Version 2.1.2 (March 2017) - Release Notes
+-----------------------------------------------
+
+  * SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo commands.
+ 
+  * Automatic creation of /etc/sudoers.d if not exists on systems RedHat/CenOS 5.
+
+  * Fixed some errors for dependencies on default.conf.
+
+  * DRLM_USER variable deleted on addclient and help.
+
+  * Added sudo for command stat to allow check size on File Systems without perms.
+
+  * Sudo configuration files are dynamically created according to the OS type.
+
+  * Solved problem for start services with non root user. 
+
+
 DRLM Version 2.1.1 (February 2017) - Release Notes
 --------------------------------------------------
 
