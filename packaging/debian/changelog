@@ -8,7 +8,7 @@ drlm (2.1.2) stable release; urgency=high
   * Sudo configuration files are dynamically created according to the OS type.
   * Solved problem for start services with non root user. 
 
- -- Ruben Carbonell <ruben@brainupdaters.net>  Mon, 10 Mar 2017 00:00:00 +0100
+ -- Ruben Carbonell <ruben@brainupdaters.net>  Fri, 10 Mar 2017 00:00:00 +0100
 
 drlm (2.1.1) stable release; urgency=high
 
