@@ -36,7 +36,8 @@ binary-indep: build
 		debian/drlm/usr/share/ \
 		debian/drlm/var/lib/drlm/ \
 		debian/drlm/usr/share/man/man8/ \
-		debian/drlm/var/log/drlm/
+		debian/drlm/var/log/drlm/ \
+		debian/drlm/var/log/drlm/rear/
 
 
 	# copy drlm components into directories

@@ -100,7 +100,11 @@ Professional services and support are available.
 %{__make} install DESTDIR="%{buildroot}"
 
 %post
-openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+HTTP_GROUP=$(grep -h ^Group /etc/apache2/uid.conf /etc/httpd/conf/httpd.conf 2>/dev/null | awk '{print $2}')
+mkdir -p /var/log/drlm/rear
+chown root:${HTTP_GROUP} /var/log/drlm/rear
+chmod 775 /var/log/drlm/rear
+openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/$(hostname -s).key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/$(hostname -s).crt
 /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 %if %(ps -p 1 -o comm=) == "systemd"
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf

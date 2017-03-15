@@ -200,14 +200,37 @@ function ssh_keygen () {
 }
 
 
+#function send_drlm_managed () {
+# local USER=$1
+# local CLI_NAME=$2
+# local SUDO=$3
+# ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( ${SUDO} echo DRLM_MANAGED=y > /tmp/etc_rear_local.conf && ${SUDO} mv /tmp/etc_rear_local.conf /etc/rear/local.conf && ${SUDO} chown root:root /etc/rear/local.conf && ${SUDO} chmod 644 /etc/rear/local.conf )"
+# if [ $? -eq 0 ];then return 0; else return 1; fi
+#}
+
 function send_drlm_managed () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( ${SUDO} echo DRLM_MANAGED=y > /tmp/etc_rear_local.conf && ${SUDO} mv /tmp/etc_rear_local.conf /etc/rear/local.conf && ${SUDO} chown root:root /etc/rear/local.conf && ${SUDO} chmod 644 /etc/rear/local.conf )"
+ ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( printf '%s\n%s\n%s\n%s\n' "DRLM_MANAGED=y" "DRLM_SERVER=$(hostname -s)" "DRLM_ID=$CLI_NAME" "DRLM_REST_OPTS=\"$REST_OPTS\"" | ${SUDO} tee /etc/rear/local.conf >/dev/null && ${SUDO} chmod 644 /etc/rear/local.conf )"
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
+function send_ssl_cert () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ cat /etc/drlm/cert/$(hostname -s).crt | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt )"
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function send_drlm_hostname () {
+ local USER=$1
+ local CLI_NAME=$2
+ local SUDO=$3
+ ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( printf '%s\t\t%s\n' "$DRLM_SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )"
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
 
 function create_drlm_user () {
  local USER=$1
