@@ -64,12 +64,17 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.1.3 (March 2017) - Release Notes
+-----------------------------------------------
+
+  * Update Debian 6 installclient dependencies. (issue #57)
+  
 
 DRLM Version 2.1.2 (March 2017) - Release Notes
 -----------------------------------------------
 
   * SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo commands.
- 
+
   * Automatic creation of /etc/sudoers.d if not exists on systems RedHat/CenOS 5.
 
   * Fixed some errors for dependencies on default.conf.
@@ -80,7 +85,7 @@ DRLM Version 2.1.2 (March 2017) - Release Notes
 
   * Sudo configuration files are dynamically created according to the OS type.
 
-  * Solved problem for start services with non root user. 
+  * Solved problem for start services with non root user.
 
 
 DRLM Version 2.1.1 (February 2017) - Release Notes
@@ -92,11 +97,11 @@ DRLM Version 2.1.1 (February 2017) - Release Notes
 
   * No Client ID required for manage backups. (issue #46)
 
-  * bkpmgr: Persistent mode deleted. 
+  * bkpmgr: Persistent mode deleted.
 
   * Solved PXE files: forced console=ttyS0 in kernel options. (issue #52)
- 
-  * Solved hardcoded PXE filenames (initrd.xz (lzma) now supported). (issue #52) 
+
+  * Solved hardcoded PXE filenames (initrd.xz (lzma) now supported). (issue #52)
 
   * While recommended, It ain't mandatory to use hostname as client_name. (issue #52)
 
@@ -233,7 +238,7 @@ DRLM is supported on the following Linux based operating systems:
   * CentOS 6 and 7
   * Debian 7 and 8
   * Ubuntu 14 and 16
-  * SLES 12 SP1 
+  * SLES 12 SP1
 
 If you require support for any unsupported Linux Operating System you must
 acquire a DRLM support contract.
