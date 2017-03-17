@@ -33,4 +33,6 @@ then
 	if [ $? -eq 0  ]; then Log " .ssh/id_rsa.pub key have been created"; else Error "Error creating .ssh/id_rsa.pub key"; fi
 fi 
 
-
+CLI_NET=$(get_client_net ${CLI_ID})
+NET_ID=$(get_network_id_by_name ${CLI_NET})
+SRV_IP=$(get_network_srv ${NET_ID})
