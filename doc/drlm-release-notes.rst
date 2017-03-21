@@ -68,7 +68,8 @@ DRLM Version 2.1.3 (March 2017) - Release Notes
 -----------------------------------------------
 
   * Update Debian 6 installclient dependencies. (issue #57)
-  
+  * Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
+
 
 DRLM Version 2.1.2 (March 2017) - Release Notes
 -----------------------------------------------
