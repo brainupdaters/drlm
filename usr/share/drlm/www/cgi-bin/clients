@@ -78,10 +78,10 @@ else
             LOG_WFLOW=$(echo $PATH_INFO | awk -F"/" '{print $4}')
             LOG_DATE=$(echo $PATH_INFO | awk -F"/" '{print $5}')
             LOG_NAME="rear-$CLI_NAME.$LOG_WFLOW.$LOG_DATE.log"
-            while read line
+            while read -r lines
             do
-                echo "$line" >> $REAR_LOG_DIR/$LOG_NAME
-            done </dev/stdin
+                echo "$lines" >> $REAR_LOG_DIR/$LOG_NAME
+            done <&0
             echo "Content-type: text/html"
             echo ''
         else
