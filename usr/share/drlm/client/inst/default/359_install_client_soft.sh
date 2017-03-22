@@ -9,7 +9,7 @@ case ${DISTRO} in
         [6*-8*])
                 if check_apt ${USER} ${CLI_NAME} ${SUDO}
                 then
-                    LogPrint "Installing dependendies and ReaR"
+                    LogPrint "Installing dependencies and ReaR"
                     if [[ ${VERSION} == 6 ]]
                     then
                         if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_DEBIAN6}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Problem installing dependencies, check logfile"; fi
@@ -22,8 +22,8 @@ case ${DISTRO} in
                     then
                         if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_DEBIAN8}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Problem installing dependencies, check logfile"; fi
                     fi
-                                
-                    if [[ ${URL_REAR} != "" ]]; then                             
+
+                    if [[ ${URL_REAR} != "" ]]; then
 						if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
                     else
                         if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 6 ]] ; then
@@ -34,7 +34,7 @@ case ${DISTRO} in
                             URL_REAR=${URL_REAR_DEBIAN6_32}
                             if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
                         fi
-                        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 7 ]] ; then 
+                        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 7 ]] ; then
                             URL_REAR=${URL_REAR_DEBIAN7_64}
                             if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
                         fi
@@ -50,12 +50,12 @@ case ${DISTRO} in
                             URL_REAR=${URL_REAR_DEBIAN8_32}
                             if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
                         fi
-                    fi	
+                    fi
 
                 else
                	    Error "apt-get problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"
                 fi
-                        
+
                 if [[ ${VERSION} == 6 ]]
                 then
                     if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_DEBIAN6}" ${DISTRO} ${SUDO}; then LogPrint "Services have been started succesfully"; else Error "Problem starting services"; fi
@@ -84,17 +84,17 @@ case ${DISTRO} in
 		    if [[ ${VERSION} == 12 ]]
 		    then
 		        if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_UBUNTU12}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Problem installing dependencies, check logfile"; fi
-               	        fi   
+               	        fi
                	    if [[ ${VERSION} == 14 ]]
                	    then
                	        if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_UBUNTU14}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Problem installing dependencies, check logfile"; fi
-               	    fi	
+               	    fi
                     if [[ ${VERSION} == 16 ]]
                     then
                         if install_dependencies_apt  ${USER} ${CLI_NAME} "${REAR_DEP_UBUNTU16}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Problem installing dependencies, check logfile"; fi
                     fi
-						
-		    if [[ ${URL_REAR} != "" ]]; then                             
+
+		    if [[ ${URL_REAR} != "" ]]; then
 		        if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
 		    else
 		        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 12 ]] ; then
@@ -105,7 +105,7 @@ case ${DISTRO} in
 		            URL_REAR=${URL_REAR_UBUNTU12_32}
 		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
 		        fi
-		        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 14 ]] ; then 
+		        if [[ ${ARCH} == "x86_64" ]] && [[ ${VERSION} == 14 ]] ; then
 		            URL_REAR=${URL_REAR_UBUNTU14_64}
 		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
 		        fi
@@ -122,12 +122,12 @@ case ${DISTRO} in
 		            URL_REAR=${URL_REAR_UBUNTU16_32}
 		            if ssh_install_rear_dpkg ${USER} ${CLI_NAME} ${URL_REAR} ${SUDO}; then Log "ReaR has been installed"; else Error "Problem installing ReaR, check logfile"; fi
 		        fi
-		    fi	
-								
+		    fi
+
                 else
                	    Error "apt-get problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"
                 fi
-                        
+
                 if [[ ${VERSION} == 12 ]]
                 then
                	    if ssh_start_services ${USER} ${CLI_NAME} "${REAR_SERVICES_UBUNTU12}" ${DISTRO} ${SUDO}; then LogPrint "Services have been started succesfully"; else Error "Problem starting services"; fi
@@ -153,7 +153,7 @@ case ${DISTRO} in
                 [5*-7*])
                         if check_yum ${USER} ${CLI_NAME} ${SUDO}
                         then
-                            LogPrint "Installing dependendies and ReaR"
+                            LogPrint "Installing dependencies and ReaR"
                             if [[ ${VERSION} == 5 ]]
                             then
                                 if install_dependencies_yum  ${USER} ${CLI_NAME} "${REAR_DEP_REDHAT5}" ${SUDO}; then Log "Dependencies have been installed"; else Error "Problem installing dependencies, check logfile"; fi
@@ -198,7 +198,7 @@ case ${DISTRO} in
                 [11*-12*-13*-42*])
                         if check_zypper ${USER} ${CLI_NAME} ${SUDO}
                         then
-                            LogPrint "Installing dependendies and ReaR"
+                            LogPrint "Installing dependencies and ReaR"
                             #if install_dependencies_zypper  ${USER} ${CLI_NAME} ${SUDO}; then Log "Dependencies have been installed"; else Error "Error installing dependencies, check logfile"; fi
 			    if [[ ${URL_REAR} == "" ]]
                             then
@@ -220,4 +220,3 @@ case ${DISTRO} in
         Error "GNU/Linux Distribution not identified"
         ;;
 esac
-
