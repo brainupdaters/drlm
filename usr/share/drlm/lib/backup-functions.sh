@@ -443,6 +443,7 @@ function get_fs_used_mb ()
 
 function get_client_used_mb ()
 {
+    export PATH="$PATH:/sbin:/usr/sbin" # vgs is located in diferent places depending of the version this allows to find the command
     if [[ -n ${INCLUDE_LIST_VG} ]]; then
         EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
     fi
