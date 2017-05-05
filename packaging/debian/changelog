@@ -1,3 +1,11 @@
+drlm (2.1.3) stable release; urgency=high
+
+  * Update Debian 6 installclient dependencies.
+  * Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
+  * Set global UMASK value for all DRLM creating files durting execution.
+
+ -- Pau Roura <pau@brainupdaters.net>  Thu, 16 Mar 2017 00:00:00 +0100
+
 drlm (2.1.2) stable release; urgency=high
 
   * SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo
@@ -6,16 +14,16 @@ drlm (2.1.2) stable release; urgency=high
   * DRLM_USER variable deleted on addclient and help.
   * Added sudo for stat to allow check size on File Systems without perms.
   * Sudo configuration files are dynamically created according to the OS type.
-  * Solved problem for start services with non root user. 
+  * Solved problem for start services with non root user.
 
  -- Ruben Carbonell <ruben@brainupdaters.net>  Fri, 10 Mar 2017 00:00:00 +0100
 
 drlm (2.1.1) stable release; urgency=high
 
-  * Bugfixes. 
+  * Bugfixes.
   * No Client ID required for delete backups.
   * No Client ID required for manage backups.
-  * bkpmgr: Persistent mode deleted. 
+  * bkpmgr: Persistent mode deleted.
   * Solved PXE files: forced console=ttyS0 in kernel options.
   * Solved hardcoded PXE filenames (initrd.xz (lzma) now supported).
   * While recommended, It ain't mandatory to use hostname as client_name.
@@ -27,7 +35,7 @@ drlm (2.1.1) stable release; urgency=high
 drlm (2.1.0) stable release; urgency=high
 
   * DRLM reporting with nsca-ng, nsca.
-  * DRLM Server for SLES. 
+  * DRLM Server for SLES.
   * Support for drlm unattended installation (instclient) on Ubuntu.
   * NEW Import & Export DR images between DRLM servers.
   * Pass DRLM global options to ReaR.

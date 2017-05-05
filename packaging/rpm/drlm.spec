@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.1.2
+Version: 2.1.3
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -162,6 +162,12 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
+* Fri May 05 2017 Pau Roura <pau@brainupdaters.net> 2.1.3
+- Update Debian 6 installclient dependencies.
+- Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
+- Set global UMASK value for all DRLM creating files durting execution.
+
+%changelog
 * Fri Mar 10 2017 Ruben Carbonell <ruben@brainupdaters.net> 2.1.2
 - SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo
 - Automatic creation of /etc/sudoers.d if not exists RedHat/CenOS 5
@@ -186,7 +192,7 @@ chkconfig drlm-stord off
 %changelog
 * Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0
 - DRLM reporting with nsca-ng, nsca.
-- DRLM Server for SLES. 
+- DRLM Server for SLES.
 - Support for drlm unattended installation (instclient) on Ubuntu.
 - NEW Import & Export DR images between DRLM servers.
 - Pass DRLM global options to ReaR.
@@ -220,4 +226,3 @@ chkconfig drlm-stord off
 
 * Mon Apr 08 2013 Didac Oliveira <didac@brainupdaters.net> 1.0.0
 - Initial package.
-
