@@ -157,9 +157,10 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
-* Thu Mar 16 2017 Pau Roura <pau@brainupdaters.net> 2.1.3
+* Fri May 05 2017 Pau Roura <pau@brainupdaters.net> 2.1.3
 - Update Debian 6 installclient dependencies.
 - Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
+- Set global UMASK value for all DRLM creating files durting execution.
 
 %changelog
 * Fri Mar 10 2017 Ruben Carbonell <ruben@brainupdaters.net> 2.1.2

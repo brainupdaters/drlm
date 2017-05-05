@@ -2,6 +2,7 @@ drlm (2.1.3) stable release; urgency=high
 
   * Update Debian 6 installclient dependencies.
   * Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
+  * Set global UMASK value for all DRLM creating files durting execution.
 
  -- Pau Roura <pau@brainupdaters.net>  Thu, 16 Mar 2017 00:00:00 +0100
 
