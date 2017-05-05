@@ -273,7 +273,7 @@ function config_sudo () {
     $SUDO cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
     Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
     $DRLM_USER    ALL=(root)      NOPASSWD: DRLM
-    EOF
+EOF
     if [ -d /etc/sudoers.d/ ]; then
         $SUDO chmod 440 /tmp/etc_sudoers.d_drlm.sudo
         $SUDO chown root:root /tmp/etc_sudoers.d_drlm.sudo
