@@ -149,6 +149,9 @@ hash -r
 # make sure that we use only english
 export LC_CTYPE=C LC_ALL=C LANG=C
 
+# set umask
+umask 0022
+
 # Logfile name
 TIMESTAMP=$(date +"%Y%m%d.%H%M%S.%4N")
 LOGFILE="$LOG_DIR/drlm-$HOSTNAME-$WORKFLOW.$TIMESTAMP.log"
