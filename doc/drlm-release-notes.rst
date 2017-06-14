@@ -64,11 +64,26 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.2.0 (June 2017) - Release Notes
+-----------------------------------------------
+
+  * "Make deb" improved deleting residual files.
+
+  * NEW Real time clients log in DRLM server.
+
+  * NEW bash_completion feature added to facilitate the use.
+
+  * It is possible to perform a "rear recover" without the parameters DRLM_SERVER, REST_OPTS and ID.
+
+  * listbackup, listclient and listnetwork with "-A" parameter by default.
+
 DRLM Version 2.1.3 (May 2017) - Release Notes
 -----------------------------------------------
 
   * Update Debian 6 installclient dependencies. (issue #57)
+
   * Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
+
   * Set global UMASK value for all DRLM creating files durting execution.
 
 DRLM Version 2.1.2 (March 2017) - Release Notes

@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.1.3
+Version: 2.2.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -160,6 +160,14 @@ chkconfig drlm-stord off
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
+
+%changelog
+* Fri Jun 16 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
+- "Make deb" improved deleting residual files.
+- NEW Real time clients log in DRLM server.
+- NEW bash_completion feature added to facilitate the use.
+- It is possible to perform a "rear recover" without the parameters DRLM_SERVER, REST_OPTS and ID.
+- listbackup, listclient and listnetwork with "-A" parameter by default.
 
 %changelog
 * Fri May 05 2017 Pau Roura <pau@brainupdaters.net> 2.1.3

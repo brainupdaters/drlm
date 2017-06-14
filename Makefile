@@ -205,3 +205,5 @@ deb: dist
 	fakeroot dh_install
 	fakeroot debian/rules binary
 	-rm -rf debian/
+	-rm build-stamp
+	-rm drlm*.tar.gz
