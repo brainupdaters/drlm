@@ -77,6 +77,8 @@ DRLM Version 2.2.0 (June 2017) - Release Notes
 
   * listbackup, listclient and listnetwork with "-A" parameter by default.
 
+  * SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
+
 DRLM Version 2.1.3 (May 2017) - Release Notes
 -----------------------------------------------
 

@@ -90,28 +90,6 @@ function check_client_connectivity ()
   fi
 }
 
-function check_client_ssh ()
-{
-  local CLI_ID=$1
-# Check if parameter $1 is ok
-  if exist_client_id "$CLI_ID" ;
-  then
-    # Get IP and NAME
-    CLI_IP=$(get_client_ip $CLI_ID)
-    CLI_NAME=$(get_client_name $CLI_ID)
-    #get hostname to compare with cliname , if ok , return client name
-    CLI_NAME_CHECK=$(ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no -o BatchMode=yes -o ConnectTimeout=33 drlm@$CLI_IP hostname -s)
-    if [ $? -eq 0 ]
-    then
-      return 0
-    else
-      return 1
-    fi
-  else
-    return 1
-  fi
-}
-
 function add_client ()
 {
   local CLI_ID=""
