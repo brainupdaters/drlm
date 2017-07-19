@@ -169,6 +169,7 @@ chkconfig drlm-stord off
 - It is possible to perform a "rear recover" without the parameters DRLM_SERVER, REST_OPTS and ID.
 - listbackup, listclient and listnetwork with "-A" parameter by default.
 - SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
+- Debian 9 compatibility added.
 
 %changelog
 * Fri May 05 2017 Pau Roura <pau@brainupdaters.net> 2.1.3
