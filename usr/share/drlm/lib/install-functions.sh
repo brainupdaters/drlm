@@ -9,7 +9,7 @@ function get_distro () {
 function ssh_get_distro() {
     local USER=$1
     local CLI_NAME=$2
-    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no $USER@$CLI_NAME "$(declare -p USER CLI_NAME; declare -f get_distro); get_distro"
+    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p USER CLI_NAME; declare -f get_distro); get_distro"
 }
 
 function get_release() {
@@ -30,7 +30,7 @@ function get_arch() {
 function ssh_get_release() {
     local USER=$1
     local CLI_NAME=$2
-    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no $USER@$CLI_NAME "$(declare -p USER CLI_NAME; declare -f get_release); get_release"
+    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p USER CLI_NAME; declare -f get_release); get_release"
 }
 
 function check_apt () {
