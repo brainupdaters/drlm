@@ -64,7 +64,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.2.0 (June 2017) - Release Notes
+DRLM Version 2.2.0 (July 2017) - Release Notes
 -----------------------------------------------
 
   * "Make deb" improved deleting residual files.
@@ -80,6 +80,8 @@ DRLM Version 2.2.0 (June 2017) - Release Notes
   * SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
 
   * Debian 9 compatibility added.
+
+  * Improved client configuration template.
 
 DRLM Version 2.1.3 (May 2017) - Release Notes
 -----------------------------------------------

@@ -162,7 +162,7 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
-* Fri Jun 16 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
+* Mon Jul 24 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
 - "Make deb" improved deleting residual files.
 - NEW Real time clients log in DRLM server.
 - NEW bash_completion feature added to facilitate the use.
@@ -170,6 +170,7 @@ chkconfig drlm-stord off
 - listbackup, listclient and listnetwork with "-A" parameter by default.
 - SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
 - Debian 9 compatibility added.
+- Improved client configuration template.
 
 %changelog
 * Fri May 05 2017 Pau Roura <pau@brainupdaters.net> 2.1.3
