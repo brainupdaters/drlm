@@ -9,7 +9,7 @@ function get_distro () {
 function ssh_get_distro() {
     local USER=$1
     local CLI_NAME=$2
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p USER CLI_NAME; declare -f get_distro); get_distro"
+    echo $(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -f get_distro); get_distro") | tr -dc '[:alnum:][:punct:]'
 }
 
 function get_release() {
@@ -23,14 +23,14 @@ function get_release() {
 function get_arch() {
     local USER=$1
     local CLI_NAME=$2
-    ARCH=$( ssh $SSH_OPTS $USER@$CLI_NAME arch )
-    if [ $ARCH == "" ]; then echo noarch; else echo $ARCH; fi
+    ARCH=$(echo $( ssh $SSH_OPTS $USER@$CLI_NAME arch ) | tr -dc '[:alnum:][:punct:]')
+    if [ $ARCH == "" ]; then echo noarch; else echo $ARCH ; fi
 }
 
 function ssh_get_release() {
     local USER=$1
     local CLI_NAME=$2
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p USER CLI_NAME; declare -f get_release); get_release"
+    echo $(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -f get_release); get_release") | tr -dc '[:alnum:][:punct:]'
 }
 
 function check_apt () {
