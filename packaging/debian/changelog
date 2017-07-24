@@ -9,7 +9,7 @@ drlm (2.2.0) stable release; urgency=high
   * Debian 9 compatibility added.
   * Improved client configuration template.
 
- -- Pau Roura <pau@brainupdaters.net>  Mon, 24 July 2017 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Mon, 24 Jul 2017 00:00:00 +0100
 
 drlm (2.1.3) stable release; urgency=high
 
