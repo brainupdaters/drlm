@@ -8,8 +8,9 @@ drlm (2.2.0) stable release; urgency=high
   * SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
   * Debian 9 compatibility added.
   * Improved client configuration template.
+  * Improved treatment of deleted client backups
 
- -- Pau Roura <pau@brainupdaters.net>  Mon, 24 Jul 2017 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 23 Aug 2017 00:00:00 +0100
 
 drlm (2.1.3) stable release; urgency=high
 

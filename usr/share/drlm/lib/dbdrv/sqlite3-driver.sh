@@ -114,7 +114,6 @@ function add_client_dbdrv ()
   local CLI_NAME=$1
   local CLI_MAC=$2
   local CLI_IP=$3
-  local CLI_OS=$4
   local CLI_NET=$5
 
   CLI_ID=$(echo "select ifnull(max(idclient)+1, 1) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
@@ -369,9 +368,16 @@ function mod_network_srv_dbdrv ()
 
 function del_backup_dbdrv ()
 {
-  local BKP_ID=$1
-  echo "delete from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-  if [ $? -eq 0 ]; then return 0; else return 1; fi
+    local BKP_ID=$1
+    echo "delete from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function del_all_db_client_backup_dbdrv ()
+{
+    local CLI_ID=$1
+    echo "delete from backups where clients_id='$CLI_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_active_cli_bkp_from_db_dbdrv ()

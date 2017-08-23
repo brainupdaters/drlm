@@ -337,46 +337,47 @@ function register_backup ()
 
 function del_backup ()
 {
-  local BKP_ID=$1
-  local DR_FILE=$2
+    local BKP_ID=$1
+    local DR_FILE=$2
 
-  rm -vf ${ARCHDIR}/${DR_FILE}
-  del_backup_dbdrv "$BKP_ID"
-  if [ $? -eq 0 ]; then return 0; else return 1; fi
+    rm -vf $ARCHDIR/$DR_FILE
+    del_backup_dbdrv "$BKP_ID"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function clean_oldest_backup ()
+function del_all_db_client_backup ()
 {
-	local N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
+    local CLI_ID=$1
 
-	if [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
-	then
-		BKPID2CLR=$(get_older_backup_by_client_dbdrv ${CLI_NAME})
-		DRFILE2CLR=$(get_backup_drfile ${BKPID2CLR})
-
-		del_backup ${BKPID2CLR} ${DRFILE2CLR}
-		if [ $? -eq 0 ]; then return 0; else return 1; fi
-	else
-		return 0
-	fi
+    del_all_db_client_backup_dbdrv "$CLI_ID"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function clean_old_backups ()
 {
-  local N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
-  local ERR=0
+    local CLI_NAME=$1
 
-  while [[ ${N_BKP} -gt ${HISTBKPMAX} ]]
-  do
-    BKPID2CLR=$(get_older_backup_by_client_dbdrv ${CLI_NAME})
-    DRFILE2CLR=$(get_backup_drfile ${BKPID2CLR})
+    if clean_backups $CLI_NAME $HISTBKPMAX ; then return 0; else return 1; fi
+}
 
-    del_backup ${BKPID2CLR} ${DRFILE2CLR}
-    if [ $? -ne 0 ]; then ERR=1; fi
-    N_BKP=$(get_count_backups_by_client_dbdrv ${CLI_NAME})
-  done
+function clean_backups ()
+{
+    local CLI_NAME=$1
+    local N_BKPTOTAL=$(get_count_backups_by_client_dbdrv $CLI_NAME)
+    local N_BKPSAVE=$2
+    local ERR=0
 
-  if [ $ERR -eq 0 ]; then return 0; else return 1; fi
+    while [[ $N_BKPTOTAL -gt $N_BKPSAVE ]]
+    do
+        BKPID2CLR=$(get_older_backup_by_client_dbdrv $CLI_NAME)
+        DRFILE2CLR=$(get_backup_drfile $BKPID2CLR)
+
+        del_backup $BKPID2CLR $DRFILE2CLR
+        if [ $? -ne 0 ]; then ERR=1; fi
+        (( N_BKPTOTAL-- ))
+    done
+
+    if [ $ERR -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_backup_id_lst_by_client ()
