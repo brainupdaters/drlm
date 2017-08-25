@@ -62,6 +62,6 @@ CREATE TABLE IF NOT EXISTS "counters" (
     "idcounter" varchar(20) NOT NULL,
     "value" int(11) NOT NULL,
     PRIMARY KEY ("idcounter")
-)
+);
 
 COMMIT;
