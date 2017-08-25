@@ -53,7 +53,7 @@ case $BKP_CLI_PER in
         fi
         ;;
     2)
-        if clean_backups $CLI_ID 0 ;
+        if clean_backups $CLI_NAME 0 ;
         then
             Log "$PROGRAM:$WORKFLOW:BACKUP:HARD:DELETE:$CLI_NAME: .... Success!"
         else
