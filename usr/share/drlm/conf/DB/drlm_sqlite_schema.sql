@@ -56,4 +56,12 @@ CREATE INDEX IF NOT EXISTS "jobs_fk_jobs_clients" ON "jobs" ("clients_id");
 CREATE INDEX IF NOT EXISTS "jobs_next_date" ON "jobs" ("next_date");
 CREATE INDEX IF NOT EXISTS "jobs_idjob_UNIQUE" ON "jobs" ("idjob");
 
+-- 2.2.0 new
+
+CREATE TABLE IF NOT EXISTS "counters" (
+    "idcounter" varchar(20) NOT NULL,
+    "value" int(11) NOT NULL,
+    PRIMARY KEY ("idcounter")
+)
+
 COMMIT;
