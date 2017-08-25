@@ -217,7 +217,7 @@ function config_client_cfg () {
 local CLI_NAME=$1
 local SRV_IP=$2
 
-cp $SHARE_DIR/conf/samples/client_sample.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
+cp $CONFIG_DIR/client_local_template.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
 
 sed -i -e "s/%CLI_NAME%/$CLI_NAME/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
 sed -i -e "s/%SRV_IP%/$SRV_IP/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
