@@ -206,7 +206,7 @@ function add_network_dbdrv ()
     local NET_NAME=$8
 
     NET_ID=$(echo "select count(*) from counters where idcounter='networks';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-    if [ $CLI_ID -eq  0]; then
+    if [ $NET_ID -eq  0]; then
         NET_ID=$(echo "select ifnull(max(idnetwork)+1, 1) from networks;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
         echo "INSERT INTO counters (idcounter, value) VALUES ('networks', $NET_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     else
