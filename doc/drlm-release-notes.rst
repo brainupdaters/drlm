@@ -40,15 +40,15 @@ chapter that details each release.
 
       - HP OpenView
 
-      - Nagios (NSCA & NSCA-ng) (NEW!)
+      - Nagios (NSCA & NSCA-ng)
 
       - Zabbix
 
       - Mail
 
-  * Centralized backup scheduling with a job scheduler (NEW!)
+  * Centralized backup scheduling with a job scheduler
 
-  * Export and Import backup between DRLM servers or DRLM clients (NEW!)
+  * Export and Import backup between DRLM servers or DRLM clients
 
 
 NOTE: Features marked experimental are prone to change with future releases.
@@ -260,7 +260,7 @@ DRLM is supported on the following Linux based operating systems:
 
   * RHEL 6 and 7
   * CentOS 6 and 7
-  * Debian 7 and 8
+  * Debian 7, 8 and 9
   * Ubuntu 14 and 16
   * SLES 12 SP1
 
