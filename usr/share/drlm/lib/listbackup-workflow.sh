@@ -26,17 +26,18 @@ if [ "$WORKFLOW" == "listbackup" ]; then
 	# Parse options
 	OPT="$(getopt -n $WORKFLOW -o "c:Ah" -l "client:,all,help" -- "$@")"
 	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	        exit 1
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
 	fi
-	
+
+	CLI_NAME="all"
+
 	eval set -- "$OPT"
 	while true; do
-	        case "$1" in
-	                (-c|--client)
-	                        # We need to take the option argument
-	                        if [ -n "$2" ]
-				then 
+		case "$1" in
+			(-c|--client)
+				# We need to take the option argument
+				if [ -n "$2" ]; then 
 					CLI_NAME="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
@@ -44,26 +45,29 @@ if [ "$WORKFLOW" == "listbackup" ]; then
 				fi
 				shift 
 				;;
-	                (-A|--all)
+			(-A|--all)
 				CLI_NAME="all" 
 				;;
-                        (-h|--help)
-                                listbackuphelp
+			(-h|--help)
+				listbackuphelp
 				exit 0
-                                ;;
-	                (--) shift; break;;
-	                (-*)
-	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	                        exit 1
-	                        ;;
-	        esac
-	        shift
+				;;
+			(--) 
+				shift
+				break
+				;;
+			(-*)
+				echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+				echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+				exit 1
+				;;
+		esac
+		shift
 	done
 
 	WORKFLOW_listbackup () {
-    		#echo listbackup workflow
-    		SourceStage "backup/list"
+		#echo listbackup workflow
+		SourceStage "backup/list"
 	}
 
 fi

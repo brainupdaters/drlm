@@ -16,7 +16,7 @@ then
 fi
 
 #Create user on client
-ssh -ttt -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
+ssh $SSH_OPTS ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
 if [[ $? -eq 0 ]]
 then
     Log "$PROGRAM:$WORKFLOW: ${DRLM_USER} exists, deleting user ..."

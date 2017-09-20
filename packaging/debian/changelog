@@ -1,6 +1,20 @@
+drlm (2.2.0) stable release; urgency=high
+
+  * "Make deb" improved deleting residual files.
+  * NEW Real time clients log in DRLM server.
+  * NEW bash_completion feature added to facilitate the use.
+  * It is possible to perform a "rear recover" without the parameters DRLM_SERVER, REST_OPTS and ID.
+  * listbackup, listclient and listnetwork with "-A" parameter by default.
+  * SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
+  * Debian 9 compatibility added.
+  * Improved client configuration template.
+  * Improved treatment of deleted client backups
+
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 23 Aug 2017 00:00:00 +0100
+
 drlm (2.1.3) stable release; urgency=high
 
-  * Update Debian 6 installclient dependencies.
+  * Updated Debian 6 installclient dependencies.
   * Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
   * Set global UMASK value for all DRLM creating files durting execution.
 

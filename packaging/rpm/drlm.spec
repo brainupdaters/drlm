@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.1.3
+Version: 2.2.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -100,7 +100,11 @@ Professional services and support are available.
 %{__make} install DESTDIR="%{buildroot}"
 
 %post
-openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+HTTP_GROUP=$(grep -h ^Group /etc/apache2/uid.conf /etc/httpd/conf/httpd.conf 2>/dev/null | awk '{print $2}')
+mkdir -p /var/log/drlm/rear
+chown root:${HTTP_GROUP} /var/log/drlm/rear
+chmod 775 /var/log/drlm/rear
+openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
 /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 %if %(ps -p 1 -o comm=) == "systemd"
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
@@ -151,10 +155,23 @@ chkconfig drlm-stord off
 %doc %{_mandir}/man8/drlm.8*
 %config(noreplace) %{_sysconfdir}/drlm/
 %config(noreplace) %{_sysconfdir}/cron.d/drlm
+%config(noreplace) %{_sysconfdir}/bash_completion.d/drlm_completions
 %{_datadir}/drlm/
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
+
+%changelog
+* Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
+- "Make deb" improved deleting residual files.
+- NEW Real time clients log in DRLM server.
+- NEW bash_completion feature added to facilitate the use.
+- It is possible to perform a "rear recover" without the parameters DRLM_SERVER, REST_OPTS and ID.
+- listbackup, listclient and listnetwork with "-A" parameter by default.
+- SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
+- Debian 9 compatibility added.
+- Improved client configuration template.
+- Improved treatment of deleted client backups
 
 %changelog
 * Fri May 05 2017 Pau Roura <pau@brainupdaters.net> 2.1.3

@@ -36,12 +36,14 @@ binary-indep: build
 		debian/drlm/usr/share/ \
 		debian/drlm/var/lib/drlm/ \
 		debian/drlm/usr/share/man/man8/ \
-		debian/drlm/var/log/drlm/
+		debian/drlm/var/log/drlm/ \
+		debian/drlm/var/log/drlm/rear/
 
 
 	# copy drlm components into directories
 	cp -av etc/drlm debian/drlm/etc/
 	cp -av etc/cron.d debian/drlm/etc/
+	cp -av etc/bash_completion.d debian/drlm/etc/
 	cp -av usr/sbin/drlm debian/drlm/usr/sbin/
 	cp -av usr/sbin/drlm-stord debian/drlm/usr/sbin/
 	cp -av usr/share/drlm debian/drlm/usr/share/

@@ -30,13 +30,14 @@ if [ "$WORKFLOW" == "listjob" ]; then
 	    exit 1
 	fi
 	
+	CLI_NAME="all"
+	
 	eval set -- "$OPT"
 	while true; do
 		case "$1" in
 			(-J|--job_id)
 				# We need to take the option argument
-				if [ -n "$2" ]
-				then 
+				if [ -n "$2" ]; then 
 					JOB_ID="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
@@ -46,8 +47,7 @@ if [ "$WORKFLOW" == "listjob" ]; then
 				;;
 			(-c|--client)
 				# We need to take the option argument
-				if [ -n "$2" ]
-				then 
+				if [ -n "$2" ]; then 
 					CLI_NAME="$2"
 				else
 					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
@@ -55,10 +55,6 @@ if [ "$WORKFLOW" == "listjob" ]; then
 				fi
 				shift 
 				;;
-			#(-e|--enabled)
-			#	;;
-			#(-d|--disabled)
-			#	;;	
 			(-A|--all)
 				CLI_NAME="all" 
 				;;
@@ -66,7 +62,10 @@ if [ "$WORKFLOW" == "listjob" ]; then
 				listjobhelp
 				exit 0
 				;;
-			(--) shift; break;;
+			(--) 
+				shift
+				break
+				;;
 			(-*)
 				echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
 				echo "Try \`$PROGRAM $WORKFLOW --help' for more information."

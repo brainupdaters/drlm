@@ -129,10 +129,13 @@ install-config:
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
 	install -Dp -m0600 etc/drlm/cert/README.rst $(DESTDIR)$(sysconfdir)/drlm/cert/README.rst
 	install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
+	install -Dp -m0600 etc/bash_completion.d/drlm_completions $(DESTDIR)$(sysconfdir)/bash_completion.d/drlm_completions
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
-		install -Dp -m0600 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
+		install -Dp -m0644 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
+	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg ]] && \
+		install -Dp -m0644 etc/drlm/client_local_template.cfg $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg		
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
 		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
@@ -158,6 +161,7 @@ install-var:
 	@echo -e "\033[1m== Installing working directory ==\033[0;0m"
 	install -d -m0755 $(DESTDIR)$(localstatedir)/lib/drlm/
 	install -d -m0755 $(DESTDIR)$(localstatedir)/log/drlm/
+	install -d -m0755 $(DESTDIR)$(localstatedir)/log/drlm/rear/
 	cp -a var/lib/drlm/. $(DESTDIR)$(localstatedir)/lib/drlm/
 	-find $(DESTDIR)$(localstatedir)/lib/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
 
@@ -203,3 +207,5 @@ deb: dist
 	fakeroot dh_install
 	fakeroot debian/rules binary
 	-rm -rf debian/
+	-rm build-stamp
+	-rm drlm*.tar.gz

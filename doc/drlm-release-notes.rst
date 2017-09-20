@@ -40,15 +40,15 @@ chapter that details each release.
 
       - HP OpenView
 
-      - Nagios (NSCA & NSCA-ng) (NEW!)
+      - Nagios (NSCA & NSCA-ng)
 
       - Zabbix
 
       - Mail
 
-  * Centralized backup scheduling with a job scheduler (NEW!)
+  * Centralized backup scheduling with a job scheduler
 
-  * Export and Import backup between DRLM servers or DRLM clients (NEW!)
+  * Export and Import backup between DRLM servers or DRLM clients
 
 
 NOTE: Features marked experimental are prone to change with future releases.
@@ -64,11 +64,34 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.2.0 (August 2017) - Release Notes
+-----------------------------------------------
+
+  * "Make deb" improved deleting residual files.
+
+  * NEW Real time clients log in DRLM server.
+
+  * NEW bash_completion feature added to facilitate the use.
+
+  * It is possible to perform a "rear recover" without the parameters DRLM_SERVER, REST_OPTS and ID.
+
+  * listbackup, listclient and listnetwork with "-A" parameter by default.
+
+  * SSH_OPTS variable created in default.conf for remove hardcoded ssh options.
+
+  * Debian 9 compatibility added.
+
+  * Improved client configuration template.
+
+  * Improved treatment of deleted client backups
+
 DRLM Version 2.1.3 (May 2017) - Release Notes
 -----------------------------------------------
 
   * Update Debian 6 installclient dependencies. (issue #57)
+
   * Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
+
   * Set global UMASK value for all DRLM creating files durting execution.
 
 DRLM Version 2.1.2 (March 2017) - Release Notes
@@ -237,7 +260,7 @@ DRLM is supported on the following Linux based operating systems:
 
   * RHEL 6 and 7
   * CentOS 6 and 7
-  * Debian 7 and 8
+  * Debian 7, 8 and 9
   * Ubuntu 14 and 16
   * SLES 12 SP1
 

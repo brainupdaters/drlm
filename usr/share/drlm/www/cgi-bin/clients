@@ -1,8 +1,5 @@
 #!/bin/bash
 
-echo "Content-type: text/html"
-echo ''
-
 VAR_DIR="/var/lib/drlm"
 source /usr/share/drlm/conf/default.conf
 source /etc/drlm/local.conf
@@ -10,16 +7,94 @@ source /usr/share/drlm/lib/dbdrv/$DB_BACKEND-driver.sh
 source /usr/share/drlm/lib/http-functions.sh
 source /usr/share/drlm/lib/client-functions.sh
 
+
 CLI_NAME=$(echo $PATH_INFO | awk -F"/" '{print $2}')
 CLI_ID=$(get_client_id_by_name $CLI_NAME)
 CLI_IP=$(get_client_ip $CLI_ID)
+RESOURCE=$(echo $PATH_INFO | awk -F"/" '{print $3}')
 
-if [ -f $CLI_CONF_DIR/$CLI_NAME.cfg ]; then
-    if [ "$CLI_IP" == "$REMOTE_ADDR" ]; then
-        grep -E -v "^#|=$" $CLI_CONF_DIR/$CLI_NAME.cfg
+
+if [ "$CLI_IP" != "$REMOTE_ADDR" ]; then
+    echo "Status: 403 Forbidden"
+    echo "Content-type: text/html"
+    echo ''
+fi
+
+# Keep backwards compatible with previous versions of ReaR (1.17 to 2.00)
+if [ -z "$RESOURCE" ]; then
+    if [ "$REQUEST_METHOD" == "GET" ]; then
+        if [ -f $CLI_CONF_DIR/$CLI_NAME.cfg ]; then
+       	    echo "Content-type: text/html"
+       	    echo ''
+            grep -E -v "^#|=$" $CLI_CONF_DIR/$CLI_NAME.cfg
+        else
+            echo "Status: 404 Not Found"
+            echo "Content-type: text/html"
+            echo ''
+        fi
     else
-        echo "HTTP response ?????"
+        echo "Status: 405 Method Not Allowed"
+        echo "Content-type: text/html"
+        echo ''
     fi
 else
-    echo "HTTP response NOT FOUND"
+    case $RESOURCE in
+
+    config)
+
+        if [ "$REQUEST_METHOD" == "GET" ]; then
+            CONF_FILE=$(echo $PATH_INFO | awk -F"/" '{print $4}')
+            if [ -z "$CONF_FILE" ]; then
+                if [ -f $CLI_CONF_DIR/$CLI_NAME.cfg ]; then
+       	            echo "Content-type: text/html"
+       	            echo ''
+                    grep -E -v "^#|=$" $CLI_CONF_DIR/$CLI_NAME.cfg
+                else
+                    echo "Status: 404 Not Found"
+                    echo "Content-type: text/html"
+                    echo ''
+                fi
+            else
+       	        if [ -f $CLI_CONF_DIR/$CLI_NAME.cfg.d/$CONF_FILE.cfg ]; then
+                    echo "Content-type: text/html"
+                    echo ''
+                    grep -E -v "^#|=$" $CLI_CONF_DIR/$CLI_NAME.cfg.d/$CONF_FILE.cfg
+                else
+                    echo "Status: 404 Not Found"
+                    echo "Content-type: text/html"
+                    echo ''
+                fi
+            fi
+        else
+            echo "Status: 405 Method Not Allowed"
+            echo "Content-type: text/html"
+            echo ''
+        fi
+        ;;
+
+    log)
+
+        if [ "$REQUEST_METHOD" == "PUT" ]; then
+            LOG_WFLOW=$(echo $PATH_INFO | awk -F"/" '{print $4}')
+            LOG_DATE=$(echo $PATH_INFO | awk -F"/" '{print $5}')
+            LOG_NAME="rear-$CLI_NAME.$LOG_WFLOW.$LOG_DATE.log"
+            while read -r lines
+            do
+                echo "$lines" >> $REAR_LOG_DIR/$LOG_NAME
+            done <&0
+            echo "Content-type: text/html"
+            echo ''
+        else
+            echo "Status: 405 Method Not Allowed"
+            echo "Content-type: text/html"
+            echo ''
+        fi
+        ;;
+
+    *)
+        echo "Status: 400 Bad Request"
+        echo "Content-type: text/html"
+        echo ''
+
+    esac
 fi

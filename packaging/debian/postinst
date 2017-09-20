@@ -9,8 +9,12 @@ case "$1" in
 	[ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
 	[ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
 	[ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
+	[ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
+	HTTP_GROUP=$(grep -h APACHE_RUN_GROUP /etc/apache2/envvars | awk -F"=" '{print $2}')
+	chown root:$HTTP_GROUP /var/log/drlm/rear
+	chmod 775 /var/log/drlm/rear
 
-  openssl req -newkey rsa:2048 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=www.drlm.org" -out /etc/drlm/cert/drlm.crt
+  openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
   
   /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 
