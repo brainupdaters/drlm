@@ -203,7 +203,8 @@ function send_ssl_cert () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- cat /etc/drlm/cert/drlm.crt | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
+ local CERT=$(cat /etc/drlm/cert/drlm.crt)
+ ssh $SSH_OPTS ${USER}@${CLI_NAME} "$(declare -p CERT); ( echo \"$CERT\" | ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
