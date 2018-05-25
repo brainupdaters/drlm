@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.2.0
+Version: 2.2.1
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File

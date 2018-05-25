@@ -64,8 +64,13 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.2.1 (June 2018) - Release Notes
+----------------------------------------------
+
+  * Updated ssh_install_rear_xxx funcitons to solve issue #62.
+
 DRLM Version 2.2.0 (August 2017) - Release Notes
------------------------------------------------
+------------------------------------------------
 
   * "Make deb" improved deleting residual files.
 
@@ -86,7 +91,7 @@ DRLM Version 2.2.0 (August 2017) - Release Notes
   * Improved treatment of deleted client backups
 
 DRLM Version 2.1.3 (May 2017) - Release Notes
------------------------------------------------
+---------------------------------------------
 
   * Update Debian 6 installclient dependencies. (issue #57)
 
