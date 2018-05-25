@@ -1,5 +1,9 @@
 drlm (2.2.1) stable release; urgency=high
-  * Updated ssh_install_rear_xxx funcitons to solve issue #62.
+  * Updated ssh_install_rear_xxx funcitons to solve (issue #62).
+  * Ubuntu 18.04 support.
+  * Fixed Mac address change not reflected on PXE (issue #65).
+  * Solve certificate deployment to clients (issue #66).
+  * Improve sched log cleanups (issue #67).
 
 -- Pau Roura <pau@brainupdaters.net>  Fri, 01 Jun 2018 00:00:00 +0100
 

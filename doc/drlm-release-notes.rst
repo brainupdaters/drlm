@@ -67,7 +67,16 @@ The references pointing to fix #nr or issue #nr refer to our issues tracker
 DRLM Version 2.2.1 (June 2018) - Release Notes
 ----------------------------------------------
 
-  * Updated ssh_install_rear_xxx funcitons to solve issue #62.
+  * Updated ssh_install_rear_xxx funcitons (issue #62).
+  
+  * Ubuntu 18.04 support.
+
+  * Fixed Mac address change not reflected on PXE (issue #65).
+
+  * Solve certificate deployment to clients (issue #66).
+
+  * Improve sched log cleanups (issue #67).
+
 
 DRLM Version 2.2.0 (August 2017) - Release Notes
 ------------------------------------------------
