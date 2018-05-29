@@ -64,7 +64,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.2.1 (June 2018) - Release Notes
+DRLM Version 2.2.1 (May 2018) - Release Notes
 ----------------------------------------------
 
   * Updated ssh_install_rear_xxx funcitons (issue #62).
@@ -77,6 +77,7 @@ DRLM Version 2.2.1 (June 2018) - Release Notes
 
   * Improve sched log cleanups (issue #67).
 
+  * Improve addclient and addnetwork database ID allocation (issue #69).
 
 DRLM Version 2.2.0 (August 2017) - Release Notes
 ------------------------------------------------

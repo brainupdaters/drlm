@@ -162,6 +162,15 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
+* Tue May 29 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
+- Updated ssh_install_rear_xxx funcitons (issue #62).
+- Ubuntu 18.04 support.
+- Fixed Mac address change not reflected on PXE (issue #65).
+- Solve certificate deployment to clients (issue #66).
+- Improve sched log cleanups (issue #67).
+- Improve addclient and addnetwork database ID allocation (issue #69).
+
+%changelog
 * Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
 - "Make deb" improved deleting residual files.
 - NEW Real time clients log in DRLM server.
