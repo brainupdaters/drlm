@@ -116,13 +116,15 @@ function add_client_dbdrv ()
     local CLI_IP=$3
     local CLI_NET=$5
 
+    #To improve prevention of duplicated id when addclients are done simultaneously
+    sleep $(echo 0.$[ $RANDOM % 10 ]$[ $RANDOM % 10 ])
+
     CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     if [ $CLI_ID -eq  0 ]; then
         CLI_ID=$(echo "select ifnull(max(idclient)+1, 1) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
         echo "INSERT INTO counters (idcounter, value) VALUES ('clients', $CLI_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     else
-        CLI_ID=$(echo "select ifnull(value+1, 1) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-        echo "UPDATE counters set value=$CLI_ID where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+        CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     fi
 
     echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
