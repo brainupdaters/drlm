@@ -5,6 +5,7 @@ drlm (2.2.1) stable release; urgency=high
   * Solve certificate deployment to clients (issue #66).
   * Improve sched log cleanups (issue #67).
   * Improve addclient and addnetwork database ID allocation (issue #69).
+  * Improve security on HTTP server getting the client config. (issue #76).
 
 -- Pau Roura <pau@brainupdaters.net>  Fri, 01 Jun 2018 00:00:00 +0100
 
