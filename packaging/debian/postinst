@@ -26,6 +26,9 @@ case "$1" in
      systemctl enable isc-dhcp-server.service
      systemctl enable apache2.service
      cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+     if [ $(systemctl --version | head -n 1 | cut -d' ' -f2) -lt 229 ]; then
+        sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
+     fi
      systemctl daemon-reload
      systemctl enable drlm-stord.service
      systemctl start drlm-stord.service

@@ -119,6 +119,11 @@ systemctl enable apache2.service
 systemctl enable httpd.service
 %endif
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+
+%if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
+%{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
+%endif
+
 systemctl daemon-reload
 systemctl enable drlm-stord.service
 systemctl start drlm-stord.service
@@ -171,6 +176,7 @@ chkconfig drlm-stord off
 - Improve addclient and addnetwork database ID allocation (issue #69).
 - Improve security on HTTP server getting the client config. (issue #76).
 - Delete client related jobs in delclient workflow (issue #82).
+- Updated timeout for drlm-stord.service (issue #74).
 
 %changelog
 * Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
