@@ -81,6 +81,8 @@ DRLM Version 2.2.1 (May 2018) - Release Notes
 
   * Improve security on HTTP server getting the client config. (issue #76).
 
+  * Delete client related jobs in delclient workflow (issue #82).
+
 DRLM Version 2.2.0 (August 2017) - Release Notes
 ------------------------------------------------
 
