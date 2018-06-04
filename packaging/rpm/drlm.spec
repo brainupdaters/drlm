@@ -177,6 +177,8 @@ chkconfig drlm-stord off
 - Improve security on HTTP server getting the client config. (issue #76).
 - Delete client related jobs in delclient workflow (issue #82).
 - Updated timeout for drlm-stord.service (issue #74).
+- Modnetwork server ip now modify client.cfg files (issue #77).  
+- In modnetwork if netmask is not specified, is taken database saved netmask.
 
 %changelog
 * Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0

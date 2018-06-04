@@ -8,6 +8,8 @@ drlm (2.2.1) stable release; urgency=high
   * Improve security on HTTP server getting the client config. (issue #76).
   * Delete client related jobs in delclient workflow (issue #82).
   * Updated timeout for drlm-stord.service (issue #74).
+  * Modnetwork server ip now modify client.cfg files (issue #77).  
+  * In modnetwork if netmask is not specified, is taken database saved netmask.
 
 -- Pau Roura <pau@brainupdaters.net>  Mon, 04 Jun 2018 00:00:00 +0100
 

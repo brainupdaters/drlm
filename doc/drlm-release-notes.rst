@@ -84,6 +84,10 @@ DRLM Version 2.2.1 (May 2018) - Release Notes
   * Delete client related jobs in delclient workflow (issue #82).
   
   * Updated timeout for drlm-stord.service (issue #74).
+  
+  * Modnetwork server ip now modify client.cfg files (issue #77).  
+
+  * In modnetwork if netmask is not specified, is taken database saved netmask.
 
 DRLM Version 2.2.0 (August 2017) - Release Notes
 ------------------------------------------------
