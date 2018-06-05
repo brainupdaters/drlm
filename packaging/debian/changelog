@@ -9,9 +9,10 @@ drlm (2.2.1) stable release; urgency=high
   * Delete client related jobs in delclient workflow (issue #82).
   * Updated timeout for drlm-stord.service (issue #74).
   * Modnetwork server ip now modify client.cfg files (issue #77).  
-  * In modnetwork if netmask is not specified, is taken database saved netmask.
+  * In modnetwork if netmask is not specified is taken database saved netmask.
+  * In addnetwork if network IP is not specified will be calculated (issue #84).
 
--- Pau Roura <pau@brainupdaters.net>  Mon, 04 Jun 2018 00:00:00 +0100
+-- Pau Roura <pau@brainupdaters.net>  Tue, 05 Jun 2018 00:00:00 +0100
 
 drlm (2.2.0) stable release; urgency=high
 

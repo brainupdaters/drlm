@@ -167,7 +167,7 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
-* Mon Jun 04 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
+* Tue Jun 05 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).
 - Ubuntu 18.04 support.
 - Fixed Mac address change not reflected on PXE (issue #65).
@@ -178,7 +178,8 @@ chkconfig drlm-stord off
 - Delete client related jobs in delclient workflow (issue #82).
 - Updated timeout for drlm-stord.service (issue #74).
 - Modnetwork server ip now modify client.cfg files (issue #77).  
-- In modnetwork if netmask is not specified, is taken database saved netmask.
+- In modnetwork if netmask is not specified is taken database saved netmask.
+- In addnetwork if network IP is not specified will be calculated (issue #84).
 
 %changelog
 * Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
