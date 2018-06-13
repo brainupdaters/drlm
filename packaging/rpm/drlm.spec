@@ -167,9 +167,9 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-stord
 
 %changelog
-* Tue Jun 05 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
+* Wed Jun 13 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).
-- Ubuntu 18.04 support.
+- Ubuntu 18.04 support (issue #81).
 - Fixed Mac address change not reflected on PXE (issue #65).
 - Solve certificate deployment to clients (issue #66).
 - Improve sched log cleanups (issue #67).

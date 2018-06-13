@@ -69,7 +69,7 @@ DRLM Version 2.2.1 (June 2018) - Release Notes
 
   * Updated ssh_install_rear_xxx funcitons (issue #62).
   
-  * Ubuntu 18.04 support.
+  * Ubuntu 18.04 support (issue #81).
 
   * Fixed Mac address change not reflected on PXE (issue #65).
 

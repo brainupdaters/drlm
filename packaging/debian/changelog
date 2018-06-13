@@ -1,6 +1,6 @@
 drlm (2.2.1) stable release; urgency=high
   * Updated ssh_install_rear_xxx funcitons to solve (issue #62).
-  * Ubuntu 18.04 support.
+  * Ubuntu 18.04 support (issue #81).
   * Fixed Mac address change not reflected on PXE (issue #65).
   * Solve certificate deployment to clients (issue #66).
   * Improve sched log cleanups (issue #67).
@@ -12,7 +12,7 @@ drlm (2.2.1) stable release; urgency=high
   * In modnetwork if netmask is not specified is taken database saved netmask.
   * In addnetwork if network IP is not specified will be calculated (issue #84).
 
--- Pau Roura <pau@brainupdaters.net>  Tue, 05 Jun 2018 00:00:00 +0100
+-- Pau Roura <pau@brainupdaters.net>  Wed, 13 Jun 2018 00:00:00 +0100
 
 drlm (2.2.0) stable release; urgency=high
 
