@@ -242,7 +242,7 @@ function check_net_port ()
 function check_ssh_port ()
 {
   local ip=$1
-  return $(check_net_port $ip 22 &>/dev/null) 
+  return $(check_net_port $ip ${SSH_PORT} &>/dev/null) 
 }
 
 function check_icmp()
