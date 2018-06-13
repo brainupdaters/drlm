@@ -6,7 +6,7 @@ CLI_MAC=$(get_client_mac $CLI_ID)
 F_CLI_MAC=$(format_mac ${CLI_MAC} ":")
 CLI_KERNEL_FILE=$(ls ${STORDIR}/${CLI_NAME}/PXE/*kernel | xargs -n 1 basename)
 CLI_INITRD_FILE=$(ls ${STORDIR}/${CLI_NAME}/PXE/*initrd* | xargs -n 1 basename)
-CLI_REAR_PXE_FILE=$(grep -w append ${STORDIR}/${CLI_NAME}/PXE/rear-* | awk -F':' '{print $1}' | xargs -n 1 basename)
+CLI_REAR_PXE_FILE=$(grep -w append ${STORDIR}/${CLI_NAME}/PXE/rear* | awk -F':' '{print $1}' | xargs -n 1 basename)
 CLI_KERNEL_OPTS=$(grep -h -w append ${STORDIR}/${CLI_NAME}/PXE/${CLI_REAR_PXE_FILE} | awk '{print substr($0, index($0,$3))}' | sed 's/vga/gfxpayload=vga/')
 
 Log "$PROGRAM:$WORKFLOW:PXE:${CLI_NAME}: Creating MAC Address (GRUB2) boot configuration file ..."

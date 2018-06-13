@@ -180,6 +180,7 @@ chkconfig drlm-stord off
 - Modnetwork server ip now modify client.cfg files (issue #77).  
 - In modnetwork if netmask is not specified is taken database saved netmask.
 - In addnetwork if network IP is not specified will be calculated (issue #84).
+- Problem with PXE folder file parsing fixed (issue #86).
 
 %changelog
 * Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0

@@ -91,6 +91,8 @@ DRLM Version 2.2.1 (June 2018) - Release Notes
 
   * In addnetwork if network IP is not specified will be calculated (issue #84).
 
+  * Problem with PXE folder file parsing fixed (issue #86).
+
 DRLM Version 2.2.0 (August 2017) - Release Notes
 ------------------------------------------------
 
