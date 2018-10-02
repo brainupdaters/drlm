@@ -79,6 +79,8 @@ DRLM Version 2.2.1 (June 2018) - Release Notes
 
   * Improve addclient and addnetwork database ID allocation (issue #69).
 
+  * New variable SSH_PORT has been created on default.conf to allow user to choose the ssh port (issue #70)
+
   * Improve security on HTTP server getting the client config. (issue #76).
 
   * Delete client related jobs in delclient workflow (issue #82).
@@ -92,6 +94,8 @@ DRLM Version 2.2.1 (June 2018) - Release Notes
   * In addnetwork if network IP is not specified will be calculated (issue #84).
 
   * Problem with PXE folder file parsing fixed (issue #86).
+
+  * Automatically remove DR files after failed backup (issue #90).
 
 DRLM Version 2.2.0 (August 2017) - Release Notes
 ------------------------------------------------

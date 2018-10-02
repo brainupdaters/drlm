@@ -104,7 +104,12 @@ HTTP_GROUP=$(grep -h ^Group /etc/apache2/uid.conf /etc/httpd/conf/httpd.conf 2>/
 mkdir -p /var/log/drlm/rear
 chown root:${HTTP_GROUP} /var/log/drlm/rear
 chmod 775 /var/log/drlm/rear
+if [ "$1" == "1" ]; then
 openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+else
+mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
+mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
+fi
 /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 %if %(ps -p 1 -o comm=) == "systemd"
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
@@ -118,24 +123,24 @@ systemctl enable apache2.service
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 systemctl enable httpd.service
 %endif
-%{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
-
+%{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
-%{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
+%{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
 %endif
-
-systemctl daemon-reload
-systemctl enable drlm-stord.service
-systemctl start drlm-stord.service
+if [ "$1" == "2" ]; then
+systemctl stop drlm-stord.service
+fi
 %else
 chkconfig xinetd on
 chkconfig rpcbind on
 chkconfig nfs on
 chkconfig dhcpd on
 chkconfig httpd on
-%{__cp} /usr/sbin/drlm-stord /etc/init.d/
-chkconfig drlm-stord on
-service drlm-stord start
+%{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
+if [ "$1" == "2" ]; then
+service drlm-stord stop
+chkconfig drlm-stord off
+fi
 %endif
 
 %preun
@@ -166,6 +171,21 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
 
+%posttrans
+mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
+mv /etc/drlm/cert/tmp_drlm.crt /etc/drlm/cert/drlm.crt
+
+%if %(ps -p 1 -o comm=) == "systemd"
+mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
+systemctl daemon-reload
+systemctl enable drlm-stord.service
+systemctl start drlm-stord.service
+%else
+mv /etc/init.d/tmp_drlm-stord /etc/init.d/drlm-stord
+chkconfig drlm-stord on
+service drlm-stord start
+%endif
+
 %changelog
 * Wed Jun 13 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).
@@ -174,6 +194,7 @@ chkconfig drlm-stord off
 - Solve certificate deployment to clients (issue #66).
 - Improve sched log cleanups (issue #67).
 - Improve addclient and addnetwork database ID allocation (issue #69).
+- New variable SSH_PORT has been created on default.conf to allow user to choose the ssh port (issue #70)
 - Improve security on HTTP server getting the client config. (issue #76).
 - Delete client related jobs in delclient workflow (issue #82).
 - Updated timeout for drlm-stord.service (issue #74).
@@ -181,6 +202,7 @@ chkconfig drlm-stord off
 - In modnetwork if netmask is not specified is taken database saved netmask.
 - In addnetwork if network IP is not specified will be calculated (issue #84).
 - Problem with PXE folder file parsing fixed (issue #86).
+- Automatically remove DR files after failed backup (issue #90).
 
 %changelog
 * Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
@@ -211,7 +233,7 @@ chkconfig drlm-stord off
 - Solved problem for start services with non root user.
 
 %changelog
-* Mon Feb 21 2017 Pau Roura <pau@brainupdaters.net> 2.1.1
+* Mon Feb 20 2017 Pau Roura <pau@brainupdaters.net> 2.1.1
 - Solved some bugs.
 - No Client ID required for delete backups.
 - No Client ID required for delete backups.
