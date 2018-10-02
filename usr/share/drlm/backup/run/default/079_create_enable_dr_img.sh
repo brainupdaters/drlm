@@ -12,6 +12,7 @@ fi
 if make_img raw ${DR_FILE} ${DR_IMG_SIZE_MB};
 then
 	Log "$PROGRAM:$WORKFLOW:genimage:MAKE(raw):DR:${DR_FILE}: .... Success!"
+	AddExitTask "rm -f $ARCHDIR/$DR_FILE"
 else
 	report_error "ERROR:$PROGRAM:$WORKFLOW:genimage:MAKE(raw):DR:${DR_FILE}: Problem creating DR image file (raw)! aborting ..."
 	Error "$PROGRAM:$WORKFLOW:genimage:MAKE(raw):DR:${DR_FILE}: Problem creating DR image file (raw)! aborting ..."
