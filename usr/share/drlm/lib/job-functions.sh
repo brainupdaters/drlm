@@ -34,6 +34,17 @@ function del_job_id ()
   fi
 }
 
+function del_all_client_job ()
+{
+  local CLI_ID=$1
+  for line in $(get_jobs_by_client_dbdrv "${CLI_ID}")
+  do
+    local JOB_ID=$(echo $line|awk -F"," '{print $1}')
+    del_job_id_dbdrv "$JOB_ID"
+  done
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
 function list_job_all ()
 {
   printf '%-15s\n' "$(tput bold)"

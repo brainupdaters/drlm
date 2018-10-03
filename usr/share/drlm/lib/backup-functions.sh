@@ -58,11 +58,11 @@ function mod_pxe_link ()
   local OLD_CLI_MAC=$1
   local CLI_MAC=$2
 
-  CLI_MAC=$(format_mac ${CLI_MAC} "-")
-  OLD_CLI_MAC=$(format_mac ${OLD_CLI_MAC} "-")
+  CLI_MAC=$(format_mac ${CLI_MAC} ":")
+  OLD_CLI_MAC=$(format_mac ${OLD_CLI_MAC} ":")
 
-  cd ${STORDIR}/pxelinux.cfg
-  mv 01-${OLD_CLI_MAC} 01-${CLI_MAC}
+  cd ${STORDIR}/boot/cfg
+  mv ${OLD_CLI_MAC} ${CLI_MAC}
   if [ $? -eq 0 ];then return 0; else return 1;fi
 }
 

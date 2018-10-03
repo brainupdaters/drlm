@@ -8,6 +8,7 @@ RemainAfterExit=yes
 ExecStart=/usr/sbin/drlm-stord start
 ExecStop=/usr/sbin/drlm-stord stop
 ExecReload=/usr/sbin/drlm-stord reload
+TimeoutSec=infinity
 
 [Install]
 WantedBy=multi-user.target

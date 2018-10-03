@@ -3,47 +3,52 @@ set -e
 
 case "$1" in
     configure)
-	[ -f /var/lib/drlm/client.data.save ] && mv /var/lib/drlm/client.data.save /var/lib/drlm/client.data
-	[ -f /var/lib/drlm/backup.data.save ] && mv /var/lib/drlm/backup.data.save /var/lib/drlm/backup.data
-	[ -f /var/lib/drlm/network.data.save ] && mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
-	[ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
-	[ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
-	[ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
-	[ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
-	HTTP_GROUP=$(grep -h APACHE_RUN_GROUP /etc/apache2/envvars | awk -F"=" '{print $2}')
-	chown root:$HTTP_GROUP /var/log/drlm/rear
-	chmod 775 /var/log/drlm/rear
+        [ -f /var/lib/drlm/client.data.save ] && mv /var/lib/drlm/client.data.save /var/lib/drlm/client.data
+        [ -f /var/lib/drlm/backup.data.save ] && mv /var/lib/drlm/backup.data.save /var/lib/drlm/backup.data
+        [ -f /var/lib/drlm/network.data.save ] && mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
+        [ -f /var/lib/drlm/drlm.sqlite.save ] && mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/drlm.sqlite
+        [ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
+        [ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
+        [ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
+        HTTP_GROUP=$(grep -h APACHE_RUN_GROUP /etc/apache2/envvars | awk -F"=" '{print $2}')
+        chown root:$HTTP_GROUP /var/log/drlm/rear
+        chmod 775 /var/log/drlm/rear
 
-  openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
-  
-  /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
+        if [ ! -f /etc/drlm/cert/drlm.key ]; then
+            openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+        fi
+        
+        /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
 
-  if [ $(ps -p 1 -o comm=) = "systemd" ]
-  then
-     systemctl enable tftpd-hpa.service
-     systemctl enable nfs-kernel-server.service
-     systemctl enable rpcbind.service
-     systemctl enable isc-dhcp-server.service
-     systemctl enable apache2.service
-     cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
-     systemctl daemon-reload
-     systemctl enable drlm-stord.service
-     systemctl start drlm-stord.service
-  else
-     update-rc.d tftpd-hpa defaults
-     update-rc.d nfs-kernel-server defaults
-     update-rc.d rpcbind defaults
-     update-rc.d isc-dhcp-server defaults
-     update-rc.d apache2 defaults
-     cp /usr/sbin/drlm-stord /etc/init.d/
-     update-rc.d drlm-stord defaults
-     service drlm-stord start
-  fi
+        if [ $(ps -p 1 -o comm=) = "systemd" ]
+        then
+            systemctl enable tftpd-hpa.service
+            systemctl enable nfs-kernel-server.service
+            systemctl enable rpcbind.service
+            systemctl enable isc-dhcp-server.service
+            systemctl enable apache2.service
+            cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+            if [ $(systemctl --version | head -n 1 | cut -d' ' -f2) -lt 229 ]; then
+                sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
+            fi
+            systemctl daemon-reload
+            systemctl enable drlm-stord.service
+            systemctl start drlm-stord.service
+        else
+            update-rc.d tftpd-hpa defaults
+            update-rc.d nfs-kernel-server defaults
+            update-rc.d rpcbind defaults
+            update-rc.d isc-dhcp-server defaults
+            update-rc.d apache2 defaults
+            cp /usr/sbin/drlm-stord /etc/init.d/
+            update-rc.d drlm-stord defaults
+            service drlm-stord start
+        fi
 
-  [ -f /etc/drlm/local.conf ] && echo "DHCP_SVC_NAME=\"isc-dhcp-server\"" >> /etc/drlm/local.conf
-  [ -f /etc/drlm/local.conf ] && echo "NFS_SVC_NAME=\"nfs-kernel-server\"" >> /etc/drlm/local.conf
+        [ -f /etc/drlm/local.conf ] && echo "DHCP_SVC_NAME=\"isc-dhcp-server\"" >> /etc/drlm/local.conf
+        [ -f /etc/drlm/local.conf ] && echo "NFS_SVC_NAME=\"nfs-kernel-server\"" >> /etc/drlm/local.conf
 
-	;;
+        ;;
 
     *)
         echo "postinst called with unknown argument \`$1'" >&2

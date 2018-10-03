@@ -107,13 +107,8 @@ function ssh_install_rear_yum () {
     local CLI_NAME=$2
     local URL_REAR=$3
     local SUDO=$4
-    YUM=$(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_yum); install_rear_yum");
-    if [ "$YUM" == "" ]; then
-        return 0
-    else
-        echo $YUM
-        return 1
-    fi
+    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_yum); install_rear_yum"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_rear_zypper_repo () {
@@ -142,13 +137,8 @@ function ssh_install_rear_dpkg () {
     local CLI_NAME=$2
     local URL_REAR=$3
     local SUDO=$4
-    APT=$(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg");
-    if [ "$APT" == "" ]; then
-        return 0
-    else
-        echo $APT
-        return 1
-    fi
+    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_rear_zypper () {
@@ -169,13 +159,8 @@ function ssh_install_rear_zypper () {
     local CLI_NAME=$2
     local URL_REAR=$3
     local SUDO=$4
-    ZYPPER=$(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper");
-    if [ "$ZYPPER" == "" ]; then
-        return 0
-    else
-        echo $ZYPPER
-        return 1
-    fi
+    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function ssh_keygen () {
@@ -203,7 +188,8 @@ function send_ssl_cert () {
  local USER=$1
  local CLI_NAME=$2
  local SUDO=$3
- cat /etc/drlm/cert/drlm.crt | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeychecking=no ${USER}@${CLI_NAME} "( ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
+ local CERT=$(cat /etc/drlm/cert/drlm.crt)
+ ssh $SSH_OPTS ${USER}@${CLI_NAME} "$(declare -p CERT); ( echo \"$CERT\" | ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 

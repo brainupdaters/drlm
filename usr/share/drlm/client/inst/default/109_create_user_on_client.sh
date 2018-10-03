@@ -4,7 +4,7 @@ Log "####################################################"
 
 LogPrint "$PROGRAM:$WORKFLOW: Installing software with user ${USER}"
 LogPrint "$PROGRAM:$WORKFLOW: Sending Key for user: ${USER}"
-ssh-copy-id ${USER}@${CLI_NAME} &> /dev/null
+ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
 if [ $? -ne 0  ]; then  Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!" ;else Log "$PROGRAM:$WORKFLOW: Key succesfully copied to $CLI_NAME"; fi
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
@@ -39,7 +39,7 @@ else
     echo "-------------------------------------------------------------------------------------"
     echo "NOTE: enter password: [changeme] for drlm user (It will be locked after installation)"
     echo "-------------------------------------------------------------------------------------"
-    ssh-copy-id ${DRLM_USER}@${CLI_NAME} &> /dev/null
+    ssh-copy-id -p ${SSH_PORT} ${DRLM_USER}@${CLI_NAME} &> /dev/null
     if [ $? -ne 0  ]
     then
         Error "$PROGRAM:$WORKFLOW: Sending key for ${DRLM_USER} Failed!!!"

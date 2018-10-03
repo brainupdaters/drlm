@@ -64,8 +64,41 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.2.1 (October 2018) - Release Notes
+-------------------------------------------------
+
+  * Updated ssh_install_rear_xxx funcitons (issue #62).
+  
+  * Ubuntu 18.04 support (issue #81).
+
+  * Fixed Mac address change not reflected on PXE (issue #65).
+
+  * Solve certificate deployment to clients (issue #66).
+
+  * Improve sched log cleanups (issue #67).
+
+  * Improve addclient and addnetwork database ID allocation (issue #69).
+
+  * New variable SSH_PORT has been created on default.conf to allow user to choose the ssh port (issue #70)
+
+  * Improve security on HTTP server getting the client config. (issue #76).
+
+  * Delete client related jobs in delclient workflow (issue #82).
+  
+  * Updated timeout for drlm-stord.service (issue #74).
+  
+  * Modnetwork server ip now modify client.cfg files (issue #77).  
+
+  * In modnetwork if netmask is not specified is taken database saved netmask.
+
+  * In addnetwork if network IP is not specified will be calculated (issue #84).
+
+  * Problem with PXE folder file parsing fixed (issue #86).
+
+  * Automatically remove DR files after failed backup (issue #90).
+
 DRLM Version 2.2.0 (August 2017) - Release Notes
------------------------------------------------
+------------------------------------------------
 
   * "Make deb" improved deleting residual files.
 
@@ -86,7 +119,7 @@ DRLM Version 2.2.0 (August 2017) - Release Notes
   * Improved treatment of deleted client backups
 
 DRLM Version 2.1.3 (May 2017) - Release Notes
------------------------------------------------
+---------------------------------------------
 
   * Update Debian 6 installclient dependencies. (issue #57)
 

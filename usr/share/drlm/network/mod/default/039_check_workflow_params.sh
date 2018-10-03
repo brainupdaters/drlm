@@ -1,4 +1,6 @@
-
+if  [ -z "$NET_MASK" ]; then
+    NET_MASK=$(get_network_mask $NET_ID);
+fi 
 
 Log "Checking if Network Mask: ${NET_MASK} is valid..."
 
@@ -19,8 +21,11 @@ if [ -n "$NET_GW" ]; then
         	Error "$PROGRAM: Network GW: $NET_GW is in wrong format. Correct this and try again."
 	fi
 fi
-Log "Checking if Server IP: ${NET_SRV} is "
+
+Log "Checking if Server IP: ${NET_SRV} is valid..."
 if [ -n "$NET_SRV" ]; then
+	#getting de old SRV_IP for replacement if needed
+	OLD_SRV_IP=$(get_network_srv $NET_ID)
 	if valid_ip $NET_SRV;
 	then
         	Log "$PROGRAM: Server IP: $NET_SRV is in valid format..."
@@ -29,10 +34,9 @@ if [ -n "$NET_SRV" ]; then
         	Error "$PROGRAM: Server IP: $NET_SRV is in wrong format. Correct this and try again."
 	fi
 fi
+
 Log "Calculating Network Address and Broadcast address..."
-
 if [ -n "$NET_IP_GW" ] && [ -n "$NET_IP_SRV" ]; then
-
 	if [ "$NET_IP_GW" == "$NET_IP_SRV" ]; then
 		NET_IP=$NET_IP_GW
 	else

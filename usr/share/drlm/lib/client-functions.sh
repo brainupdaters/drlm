@@ -214,15 +214,15 @@ function get_clients_by_network ()
 }
 
 function config_client_cfg () {
-local CLI_NAME=$1
-local SRV_IP=$2
+  local CLI_NAME=$1
+  local SRV_IP=$2
 
-cp $CONFIG_DIR/client_local_template.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
+  cp $CONFIG_DIR/client_local_template.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
 
-sed -i -e "s/%CLI_NAME%/$CLI_NAME/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
-sed -i -e "s/%SRV_IP%/$SRV_IP/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
+  sed -i -e "s/%CLI_NAME%/$CLI_NAME/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
+  sed -i -e "s/%SRV_IP%/$SRV_IP/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
 
-chmod 644 $CONFIG_DIR/clients/${CLI_NAME}.cfg
-mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
-chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
+  chmod 644 $CONFIG_DIR/clients/${CLI_NAME}.cfg
+  mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
+  chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
 }
