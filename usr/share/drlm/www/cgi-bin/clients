@@ -18,6 +18,7 @@ if [ "$CLI_IP" != "$REMOTE_ADDR" ]; then
     echo "Status: 403 Forbidden"
     echo "Content-type: text/html"
     echo ''
+    exit 0
 fi
 
 # Keep backwards compatible with previous versions of ReaR (1.17 to 2.00)

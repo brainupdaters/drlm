@@ -33,92 +33,91 @@ if [ "$WORKFLOW" == "modnetwork" ]; then
 	eval set -- "$OPT"
 	while true; do
 	        case "$1" in
-	                (-I|--id)
-				# We need to take the option argument
-				if [ -n "$2" ]
-				then 
-					NET_ID="$2"
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+	            (-I|--id)
+					# We need to take the option argument
+					if [ -n "$2" ]
+					then 
+						NET_ID="$2"
+					else
+						echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+						exit 1
+					fi
+					shift 
+					;;
+	            (-n|--netname)
+					# We need to take the option argument
+					if [ -n "$2" ]
+					then 
+						NET_NAME="$2"
+					else
+						echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+						exit 1
+					fi
+					shift 
+					;;
+	            (-g|--gateway)
+					# We need to take the option argument
+					if [ -n "$2" ]
+					then 
+						NET_GW="$2" 
+					else
+						echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+						exit 1
+					fi 
+					shift
+					;;
+	            (-m|--mask)
+					# We need to take the option argument
+					if [ -n "$2" ]
+					then 
+						NET_MASK="$2" 
+					else
+						echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+						exit 1
+					fi 
+					shift
+					;;
+	            (-s|--server)
+					# We need to take the option argument
+					if [ -n "$2" ]
+					then 
+						NET_SRV="$2" 
+					else
+						echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+						exit 1
+					fi 
+					shift
+					;;
+                (-h|--help)
+                    modnetworkhelp
+					exit 0
+                    ;;
+				(--) 
+					shift 
+					break
+					;;
+				(-*)
+					echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+					echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 					exit 1
-				fi
-				shift 
-				;;
-	                (-n|--netname)
-				# We need to take the option argument
-				if [ -n "$2" ]
-				then 
-					NET_NAME="$2"
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-					exit 1
-				fi
-				shift 
-				;;
-	                (-g|--gateway)
-				# We need to take the option argument
-				if [ -n "$2" ]
-				then 
-					NET_GW="$2" 
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-					exit 1
-				fi 
-				shift
-				;;
-	                (-m|--mask)
-				# We need to take the option argument
-				if [ -n "$2" ]
-				then 
-					NET_MASK="$2" 
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-					exit 1
-				fi 
-				shift
-				;;
-	                (-s|--server)
-				# We need to take the option argument
-				if [ -n "$2" ]
-				then 
-					NET_SRV="$2" 
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-					exit 1
-				fi 
-				shift
-				;;
-                        (-h|--help)
-                                modnetworkhelp
-				exit 0
-                                ;;
-	                (--) shift; break;;
-	                (-*)
-	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	                        exit 1
-	                        ;;
+					;;
 	        esac
 	        shift
 	done
 
 	if [ -n "$NET_NAME" ] && [ -n "$NET_ID" ]; then
-        	echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
-        	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-        	exit 1
-        fi
-	if [ -n "$NET_GW" ] && [ -z "$NET_MASK" ]; then
-        	echo "$PROGRAM $WORKFLOW: Netmask is required to re-calculate other network attributes"
-        	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-        	exit 1
-        fi
-	if [ -n "$NET_SRV" ] && [ -z "$NET_MASK" ]; then
-        	echo "$PROGRAM $WORKFLOW: Netmask is required to re-calculate other network attributes"
-        	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-        	exit 1
-        fi
+		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+    fi
 
 	if [ -z "$NET_NAME" ] && [ -z "$NET_ID" ]; then
+		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
+	fi
+
+	if [ -z "$NET_GW" ] && [ -z "$NET_SRV" ] && [ -z "$NET_MASK" ]; then
 		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
