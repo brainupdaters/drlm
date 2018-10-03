@@ -15,7 +15,7 @@ drlm (2.2.1) stable release; urgency=high
   * Problem with PXE folder file parsing fixed (issue #86).
   * Automatically remove DR files after failed backup (issue #90).
 
--- Pau Roura <pau@brainupdaters.net>  Wed, 13 Jun 2018 00:00:00 +0100
+-- Pau Roura <pau@brainupdaters.net>  Wed, 03 Oct 2018 00:00:00 +0100
 
 drlm (2.2.0) stable release; urgency=high
 

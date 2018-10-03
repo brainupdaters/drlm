@@ -187,7 +187,7 @@ service drlm-stord start
 %endif
 
 %changelog
-* Wed Jun 13 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
+* Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).
 - Ubuntu 18.04 support (issue #81).
 - Fixed Mac address change not reflected on PXE (issue #65).

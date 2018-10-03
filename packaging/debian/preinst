@@ -7,8 +7,8 @@ case "$1" in
         ;;
 
     upgrade)
-	#service drlm-stord stop
-	;;
+        #service drlm-stord stop
+        ;;
 
     *)
         exit 0
