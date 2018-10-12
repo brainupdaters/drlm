@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
 if [ $WORKFLOW == "instclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:I:u:U:h" -l "client:,id:,user:,url_rear:,help,Authors" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:I:u:U:C:h" -l "client:,id:,user:,url_rear:,config,help,Authors" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
@@ -75,6 +75,11 @@ if [ $WORKFLOW == "instclient" ]; then
                                         echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
                                         exit 1
                                 fi
+                                shift
+                                ;;
+
+                        (-C|--config)
+                                CONFIG_ONLY=true
                                 shift
                                 ;;
 

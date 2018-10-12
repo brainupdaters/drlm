@@ -149,6 +149,7 @@ function instclienthelp() {
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-u|--user <USER>" "User with admin privileges to install and configure software"
 	printf '%-25s %-45s\n' "-U|--url_rear <URL_REAR>" "rpm or deb package for especific distro for example http://download.opensuse.org/repositories/Archiving:/Backup:/Rear/Debian_7.0/all/rear_1.17.2_all.deb"
+	printf '%-25s %-45s\n' "-C|--config" "ReaR and the required packages for ReaR will not be installed, but the client will be configured. Useful when the client has no connection to the internet or repository."
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Examples:\n$(tput sgr0)"
