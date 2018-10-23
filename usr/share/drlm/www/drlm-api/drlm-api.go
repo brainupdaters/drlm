@@ -15,7 +15,7 @@ func drlmClientsService(w http.ResponseWriter, r *http.Request) {
 	if strings.Join(os.Args[1:], "") != "" {
 		CGIpath = strings.Join(os.Args[1:], "")
 	} else {
-		CGIpath = "/home/pau/src/testgo"
+		CGIpath = "/usr/share/drlm/www/cgi-bin"
 	}
 
 	path := "/"
