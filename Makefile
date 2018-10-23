@@ -194,6 +194,7 @@ $(name)-$(distversion).tar.gz:
 
 rpm: dist
 	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
+	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
 	rpmbuild -tb --clean \
 		--define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
 		--define "debug_package %{nil}" \
@@ -201,6 +202,7 @@ rpm: dist
 
 deb: dist
 	@echo -e "\033[1m== Building DEB package $(name)-$(distversion) ==\033[0;0m"
+	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
 	cp -r packaging/debian/ .
 	chmod 755 debian/rules
 	fakeroot debian/rules clean
