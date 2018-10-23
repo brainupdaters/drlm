@@ -10,8 +10,8 @@ case "$1" in
         [ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
         [ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
         [ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
-        HTTP_GROUP=$(grep -h APACHE_RUN_GROUP /etc/apache2/envvars | awk -F"=" '{print $2}')
-        chown root:$HTTP_GROUP /var/log/drlm/rear
+        ####HTTP_GROUP=$(grep -h APACHE_RUN_GROUP /etc/apache2/envvars | awk -F"=" '{print $2}')
+        #### chown root:$HTTP_GROUP /var/log/drlm/rear
         chmod 775 /var/log/drlm/rear
 
         if [ ! -f /etc/drlm/cert/drlm.key ]; then
@@ -26,7 +26,7 @@ case "$1" in
             systemctl enable nfs-kernel-server.service
             systemctl enable rpcbind.service
             systemctl enable isc-dhcp-server.service
-            systemctl enable apache2.service
+            ####systemctl enable apache2.service
             cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
             if [ $(systemctl --version | head -n 1 | cut -d' ' -f2) -lt 229 ]; then
                 sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
@@ -39,7 +39,7 @@ case "$1" in
             update-rc.d nfs-kernel-server defaults
             update-rc.d rpcbind defaults
             update-rc.d isc-dhcp-server defaults
-            update-rc.d apache2 defaults
+            ####update-rc.d apache2 defaults
             cp /usr/sbin/drlm-stord /etc/init.d/
             update-rc.d drlm-stord defaults
             service drlm-stord start
