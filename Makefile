@@ -9,6 +9,7 @@ OFFICIAL =
 ### Get version from DRLM itself
 drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
+drlm_api = usr/sbin/drlm-api
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
 
@@ -150,6 +151,7 @@ install-bin:
 		-e 's,^VAR_DIR=.*,VAR_DIR="$(localstatedir)/lib/drlm",' \
 		$(DESTDIR)$(sbindir)/drlm
 	install -Dp -m0755 $(drlm_store_svc) $(DESTDIR)$(sbindir)/drlm-stord
+	install -Dp -m0755 $(drlm_api) $(DESTDIR)$(sbindir)/drlm-api
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"

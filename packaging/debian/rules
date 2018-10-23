@@ -46,6 +46,7 @@ binary-indep: build
 	cp -av etc/bash_completion.d debian/drlm/etc/
 	cp -av usr/sbin/drlm debian/drlm/usr/sbin/
 	cp -av usr/sbin/drlm-stord debian/drlm/usr/sbin/
+	cp -av usr/sbin/drlm-api debian/drlm/usr/sbin/
 	cp -av usr/share/drlm debian/drlm/usr/share/
 	cp -av var/lib/drlm debian/drlm/var/lib/
 	cp -av doc/drlm.8 debian/drlm/usr/share/man/man8/
