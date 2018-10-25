@@ -68,8 +68,8 @@ function mod_pxe_link ()
 
 function list_backup_all ()
 {
-  printf '%-20s\n' "$(tput bold)"
-  printf '%-20s %-15s %-20s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status$(tput sgr0)"
+  printf '%-18s\n' "$(tput bold)"
+  printf '%-18s %-15s %-18s %-15s %-15s %-15s %-30s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size" "File$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
   do
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
@@ -78,10 +78,12 @@ function list_backup_all ()
     local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $3}'`
     local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
     local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
-    local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
+    local BAC_FILE=`echo $line|awk -F":" '{print $3}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
-    printf '%-20s %-15s %-20s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT"
+    local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
+    local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
+    printf '%-18s %-15s %-18s %-15s %-15s %-15s %-30s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE" "$BAC_FILE"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -89,8 +91,8 @@ function list_backup_all ()
 function list_backup ()
 {
   local CLI_NAME=$1
-  printf '%-20s\n' "$(tput bold)"
-  printf '%-20s %-15s %-20s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status$(tput sgr0)"
+  printf '%-18s\n' "$(tput bold)"
+  printf '%-18s %-15s %-18s %-15s %-15s %-15s %-30s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size" "File$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
   do
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
@@ -99,10 +101,12 @@ function list_backup ()
     local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $3}'`
     local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
     local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
-    local BAC_FILE=`echo $line|awk -F":" '{print $4}'`
+    local BAC_FILE=`echo $line|awk -F":" '{print $3}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
-    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-20s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT"; fi
+    local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
+    local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
+    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-18s %-15s %-18s %-15s %-15s %-15s %-30s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE" "$BAC_FILE"; fi
   done
 }
 
@@ -330,9 +334,10 @@ function register_backup ()
   local CLI_ID=$2
   local CLI_NAME=$3
   local DR_FILE=$4
-  local BKP_MODE=$5
+  local BKP_DURATION=$6
+  local BKP_SIZE=$7
 
-  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_MODE"
+  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_MODE" "$BKP_DURATION" "$BKP_SIZE"
 }
 
 function del_backup ()

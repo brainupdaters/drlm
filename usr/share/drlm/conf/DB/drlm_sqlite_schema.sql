@@ -64,4 +64,9 @@ CREATE TABLE IF NOT EXISTS "counters" (
     PRIMARY KEY ("idcounter")
 );
 
+-- 2.3.0 new
+
+ALTER TABLE backups ADD COLUMN "duration" VARCHAR(8);
+ALTER TABLE backups ADD COLUMN "size" VARCHAR(10);
+
 COMMIT;
