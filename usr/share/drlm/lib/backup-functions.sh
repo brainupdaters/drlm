@@ -334,10 +334,10 @@ function register_backup ()
   local CLI_ID=$2
   local CLI_NAME=$3
   local DR_FILE=$4
-  local BKP_DURATION=$6
-  local BKP_SIZE=$7
+  local BKP_DURATION=$5
+  local BKP_SIZE=$6
 
-  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_MODE" "$BKP_DURATION" "$BKP_SIZE"
+  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_DURATION" "$BKP_SIZE"
 }
 
 function del_backup ()
