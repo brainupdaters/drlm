@@ -8,7 +8,7 @@ then
 	#Getting the backup duration in seconds 
 	BKP_DURATION=$(echo "$(($(date +%s) - $BKP_DURATION))")
 	#From seconds to hours:minuts:seconds
-	BKP_DURATION=$(printf '%dh:%dm:%ds\n' $(($BKP_DURATION/3600)) $(($BKP_DURATION%3600/60)) $(($BKP_DURATION%60)))
+	BKP_DURATION=$(printf '%dh.%dm.%ds\n' $(($BKP_DURATION/3600)) $(($BKP_DURATION%3600/60)) $(($BKP_DURATION%60)))
 
 	Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: .... remote mkbackup Success!"
 else

@@ -69,7 +69,7 @@ function mod_pxe_link ()
 function list_backup_all ()
 {
   printf '%-18s\n' "$(tput bold)"
-  printf '%-18s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size(tput sgr0)"
+  printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
   do
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
@@ -83,7 +83,7 @@ function list_backup_all ()
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    printf '%-18s %-15s %-18s %-15s %-15s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"
+    printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -92,7 +92,7 @@ function list_backup ()
 {
   local CLI_NAME=$1
   printf '%-18s\n' "$(tput bold)"
-  printf '%-18s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size(tput sgr0)"
+  printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
   do
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
@@ -106,7 +106,7 @@ function list_backup ()
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-18s %-15s %-18s %-15s %-15s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"; fi
+    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"; fi
   done
 }
 

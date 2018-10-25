@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS "counters" (
 
 -- 2.3.0 new
 
-ALTER TABLE backups ADD COLUMN "duration" VARCHAR(8);
-ALTER TABLE backups ADD COLUMN "size" VARCHAR(10);
+ALTER TABLE backups ADD COLUMN "duration" VARCHAR(12);
+ALTER TABLE backups ADD COLUMN "size" VARCHAR(12);
 
 COMMIT;
