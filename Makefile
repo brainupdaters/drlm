@@ -93,7 +93,7 @@ validate:
 
 ifneq ($(shell which gofmt),)
 	#Validating GO Syntax
-	gofmt $(drlm_api) > /dev/null
+	gofmt $(shell find usr/share/drlm/ -name '*.go') > /dev/null
 else
 	@echo -e "Warning: gofmt not found, can not validate DRLM API code."
 endif
@@ -210,7 +210,7 @@ rpm: dist
 		--define "debug_package %{nil}" \
 		--define "_rpmdir %(pwd)" $(name)-$(distversion).tar.gz
 
-deb: dist clean
+deb: dist
 	@echo -e "\033[1m== Building DEB package $(name)-$(distversion) ==\033[0;0m"
 	cp -r packaging/debian/ .
 	chmod 755 debian/rules
@@ -218,3 +218,5 @@ deb: dist clean
 	fakeroot dh_install
 	fakeroot debian/rules binary
 	-rm -rf debian/
+	rm -f $(name)-$(distversion).tar.gz
+	rm -f build-stamp
