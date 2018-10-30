@@ -179,7 +179,7 @@ service drlm-stord start
 %endif
 
 %changelog
-* Thu Oct 30 2018 Pau Roura <pau@brainupdaters.net> 2.3.0
+* Tue Oct 30 2018 Pau Roura <pau@brainupdaters.net> 2.3.0
 - Golang DRLM API replacing Apache2.
 - Listbackup command now shows size and duration of backup.
 - Improved database version control.
