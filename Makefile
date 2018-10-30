@@ -33,7 +33,7 @@ endif
 endif
 endif
 else
-	git_branch = drlm-$(version)
+git_branch = drlm-$(version)
 endif
 git_branch ?= master
 
@@ -218,5 +218,5 @@ deb: dist
 	fakeroot dh_install
 	fakeroot debian/rules binary
 	-rm -rf debian/
-	rm -f $(name)-$(distversion).tar.gz
-	rm -f build-stamp
+	rm $(name)-$(distversion).tar.gz
+	rm build-stamp
