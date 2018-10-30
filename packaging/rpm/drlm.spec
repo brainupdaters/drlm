@@ -162,6 +162,7 @@ chkconfig drlm-stord off
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
+%{_sbindir}/drlm-api
 
 %posttrans
 mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key

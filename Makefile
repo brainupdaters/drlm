@@ -125,6 +125,11 @@ restore:
 	mv -f $(specfile).orig $(specfile)
 	mv -f $(dscfile).orig $(dscfile)
 	mv -f $(drlmbin).orig $(drlmbin)
+else	
+rewrite:	
+	@echo "Nothing to do."	
+restore:	
+	@echo "Nothing to do."
 endif
 
 install-config:
@@ -201,6 +206,7 @@ dist: clean validate drlmapi man rewrite $(name)-$(distversion).tar.gz restore
 
 $(name)-$(distversion).tar.gz:
 	@echo -e "\033[1m== Building archive $(name)-$(distversion) ==\033[0;0m"
+	git checkout $(git_branch)
 	git ls-tree -r --name-only --full-tree $(git_branch) | \
 		tar -czf $(name)-$(distversion).tar.gz --transform='s,^,$(name)-$(distversion)/,S' --files-from=-
 
