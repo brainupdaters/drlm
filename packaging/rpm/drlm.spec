@@ -16,7 +16,7 @@ License: GPLv3
 Group: Applications/File
 URL: http://drlm.org/
 
-Source: http://github.com/brainupdaters/drlm
+Source: http://github.com/brainupdaters/drlm/
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -32,7 +32,6 @@ Requires: xinetd
 
 ### SUSE packages
 %if %{?suse_version:1}0
-####Requires: apache2
 Requires: openssh
 Requires: qemu-tools
 Requires: tftp
@@ -46,7 +45,6 @@ Requires: sqlite3
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
 Requires: dhcp tftp-server 
-####Requires: httpd
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
@@ -101,9 +99,7 @@ Professional services and support are available.
 %{__make} install DESTDIR="%{buildroot}"
 
 %post
-####HTTP_GROUP=$(grep -h ^Group /etc/apache2/uid.conf /etc/httpd/conf/httpd.conf 2>/dev/null | awk '{print $2}')
 mkdir -p /var/log/drlm/rear
-####chown root:${HTTP_GROUP} /var/log/drlm/rear
 chmod 775 /var/log/drlm/rear
 if [ "$1" == "1" ]; then
 openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
@@ -120,12 +116,6 @@ systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
-####%if %{?suse_version:1}0
-####systemctl enable apache2.service
-####%endif
-####%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
-####systemctl enable httpd.service
-####%endif
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
@@ -138,7 +128,6 @@ chkconfig xinetd on
 chkconfig rpcbind on
 chkconfig nfs on
 chkconfig dhcpd on
-####chkconfig httpd on
 %{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
 if [ "$1" == "2" ]; then
 service drlm-stord stop
