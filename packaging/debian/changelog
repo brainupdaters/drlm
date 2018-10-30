@@ -4,7 +4,7 @@ drlm (2.3.0) stable release; urgency=high
   * Improved database version control.
   * dpkg purge section added. 
 
- -- Pau Roura <pau@brainupdaters.net>  Thu, 30 Oct 2018 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Tue, 30 Oct 2018 00:00:00 +0100
 
 drlm (2.2.1) stable release; urgency=high
   * Updated ssh_install_rear_xxx funcitons to solve (issue #62).
