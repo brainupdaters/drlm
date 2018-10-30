@@ -7,7 +7,7 @@ case "$1" in
         ;;
 
     upgrade)
-        #service drlm-stord stop
+        # do something
         ;;
 
     *)

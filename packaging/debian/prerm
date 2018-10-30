@@ -14,9 +14,6 @@ case "$1" in
         update-rc.d drlm-stord remove
         rm /etc/init.d/drlm-stord
       fi
-      mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
-      mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
-      mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
       mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
       rm /etc/drlm/cert/drlm.*
       ;;
@@ -33,11 +30,7 @@ case "$1" in
         update-rc.d drlm-stord remove
         rm /etc/init.d/drlm-stord
       fi
-      mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
-      mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
-      mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
       mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
-      #rm /etc/drlm/cert/drlm.*
       ;;
 
     *)

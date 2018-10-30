@@ -16,7 +16,7 @@ License: GPLv3
 Group: Applications/File
 URL: http://drlm.org/
 
-Source: http://drlm.org/download/
+Source: http://github.com/brainupdaters/drlm
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
