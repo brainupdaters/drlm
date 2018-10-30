@@ -14,7 +14,8 @@ case "$1" in
         update-rc.d drlm-stord remove
         rm /etc/init.d/drlm-stord
       fi
-      mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
+      drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+      mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
       rm /etc/drlm/cert/drlm.*
       ;;
 
@@ -30,7 +31,8 @@ case "$1" in
         update-rc.d drlm-stord remove
         rm /etc/init.d/drlm-stord
       fi
-      mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
+      drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+      mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
       ;;
 
     *)

@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.2.1
+Version: 2.3.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -110,8 +110,10 @@ openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 
 else
 mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
 mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
+drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
 fi
-/usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
+/usr/share/drlm/conf/DB/drlm_db_version.sh
 %if %(ps -p 1 -o comm=) == "systemd"
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl enable xinetd.service
@@ -186,6 +188,13 @@ mv /etc/init.d/tmp_drlm-stord /etc/init.d/drlm-stord
 chkconfig drlm-stord on
 service drlm-stord start
 %endif
+
+%changelog
+* Thu Oct 30 2018 Pau Roura <pau@brainupdaters.net> 2.3.0
+- Golang DRLM API replacing Apache2.
+- Listbackup command now shows size and duration of backup.
+- Improved database version control.
+- dpkg purge section added.
 
 %changelog
 * Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
