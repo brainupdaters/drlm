@@ -19,12 +19,15 @@ case "$1" in
         rm -rf /etc/drlm
         rm -rf /var/log/drlm
 
+        #Check for systemd or initd
         if [ $(ps -p 1 -o comm=) = "systemd" ]
         then
-            systemctl stop drlm-stord.service
-            systemctl disable drlm-stord.service
-            rm /etc/systemd/system/drlm-stord.service
-            systemctl daemon-reload
+            if [ -f /etc/systemd/system/drlm-stord.service ]; then
+                systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+                systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+                rm /etc/systemd/system/drlm-stord.service
+                systemctl daemon-reload
+            fi
 
             # systemctl stop tftpd-hpa.service
             # systemctl disable tftpd-hpa.service
@@ -37,7 +40,7 @@ case "$1" in
         else
             service drlm-stord stop
             update-rc.d drlm-stord remove
-            rm /etc/init.d/drlm-stord
+            [ -f /etc/init.d/drlm-stord ] && rm /etc/init.d/drlm-stord
 
             # update-rc.d tftpd-hpa stop
             # update-rc.d tftpd-hpa remove

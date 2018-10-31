@@ -7,12 +7,21 @@ case "$1" in
         ;;
 
     upgrade)
-        # do something
+        # Check if older versions than 2.3.0 is beeing updated
+        if [ -f /var/lib/drlm/drlm.sqlite.save ]; then
+            [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+            mv /var/lib/drlm/drlm.sqlite.save /var/lib/drlm/$drlm_ver-drlm.sqlite.save
+        fi
+        
+        #Stop apache2 server of older versions
+        systemctl is-active --quiet apache2.service && systemctl stop apache2.service
+        systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
         ;;
 
     *)
         exit 0
         ;;
+
 esac
 
 exit 0

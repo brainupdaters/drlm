@@ -3,14 +3,12 @@ set -e
 
 case "$1" in
     configure)
-        [ -f /var/lib/drlm/client.data.save ] && mv /var/lib/drlm/client.data.save /var/lib/drlm/client.data
-        [ -f /var/lib/drlm/backup.data.save ] && mv /var/lib/drlm/backup.data.save /var/lib/drlm/backup.data
-        [ -f /var/lib/drlm/network.data.save ] && mv /var/lib/drlm/network.data.save /var/lib/drlm/network.data
         [ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
         [ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
         [ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
         chmod 775 /var/log/drlm/rear
 
+        #Check if drlm.key has been generated in older installations.
         if [ ! -f /etc/drlm/cert/drlm.key ]; then
             openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
         fi
@@ -18,6 +16,7 @@ case "$1" in
         #Update old database or create new one running drlm_db_version script.
         /usr/share/drlm/conf/DB/drlm_db_version.sh
 
+        #Check for systemd or initd
         if [ $(ps -p 1 -o comm=) = "systemd" ]
         then
             systemctl enable tftpd-hpa.service
