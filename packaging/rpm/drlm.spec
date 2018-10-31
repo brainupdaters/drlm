@@ -98,25 +98,47 @@ Professional services and support are available.
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR="%{buildroot}"
 
-%post
-mkdir -p /var/log/drlm/rear
-chmod 775 /var/log/drlm/rear
-if [ "$1" == "1" ]; then
-openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
-else
-mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
-mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
+%pre
+### IF IS UPGRADE
+if [ "$1" == "2" ]; then
+### Save old data
 drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
+### Stop drlm-stord
+%if %(ps -p 1 -o comm=) == "systemd"
+systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+systemctl daemon-reload
+%else
+service drlm-stord stop
+chkconfig drlm-stord off
+%endif
 fi
+
+%post
+### Create logs folder
+mkdir -p /var/log/drlm/rear
+chmod 775 /var/log/drlm/rear
+### IF IS INSTALL 
+if [ "$1" == "1" ]; then
+### create keys
+openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+### IF IS UPDATE
+else
+### save keys
+mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
+mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
+fi
+### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
+### If is SYSTEMD ###############################################################################################
 %if %(ps -p 1 -o comm=) == "systemd"
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
-
+### If is upgrade from older DRLM versions is important stop https server
 if [ "$1" == "2" ]; then
 %if %{?suse_version:1}0
 systemctl is-active --quiet apache2.service && systemctl stop apache2.service
@@ -127,24 +149,25 @@ systemctl is-active --quiet httpd.service && systemctl stop httpd.service
 systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 %endif
 fi
-
+### Save drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
+### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
 %endif
-if [ "$1" == "2" ]; then
-systemctl stop drlm-stord.service
-fi
+### If is INITD ##################################################################################################
 %else
 chkconfig xinetd on
 chkconfig rpcbind on
 chkconfig nfs on
 chkconfig dhcpd on
-%{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
+### If is upgrade from older DRLM versions is important stop https server
 if [ "$1" == "2" ]; then
-service drlm-stord stop
-chkconfig drlm-stord off
+chkconfig httpd off
+service httpd stop
 fi
+### Save drlm-stord.service
+%{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
 %endif
 
 %preun
