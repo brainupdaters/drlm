@@ -116,6 +116,18 @@ systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
+
+if [ "$1" == "2" ]; then
+%if %{?suse_version:1}0
+systemctl is-active --quiet apache2.service && systemctl stop apache2.service
+systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
+%endif
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
+systemctl is-active --quiet httpd.service && systemctl stop httpd.service
+systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
+%endif
+fi
+
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service

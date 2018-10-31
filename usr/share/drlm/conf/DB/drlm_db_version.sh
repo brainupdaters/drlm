@@ -5,7 +5,7 @@ drlm_old_file=""
 drlm_new_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
 
 #Loking for old databases, get the newest and convert version to numeric (2.1.10 --> 20110; 2.10.1 --> 21001)     
-for file in /var/lib/drlm/*.save; do
+for file in /var/lib/drlm/*sqlite.save; do
     if [ -f "$file" ]; then
         file=$(basename $file)
         
