@@ -11,14 +11,12 @@ export DH_COMPAT=5
 build: build-stamp
 build-stamp:
 	dh_testdir
-	# noop
 	touch build-stamp
 
 clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
-	# noop
 	dh_clean
 
 # Build architecture-independent files here.
@@ -39,14 +37,11 @@ binary-indep: build
 		debian/drlm/var/log/drlm/ \
 		debian/drlm/var/log/drlm/rear/
 
-
 	# copy drlm components into directories
 	cp -av etc/drlm debian/drlm/etc/
 	cp -av etc/cron.d debian/drlm/etc/
 	cp -av etc/bash_completion.d debian/drlm/etc/
-	cp -av usr/sbin/drlm debian/drlm/usr/sbin/
-	cp -av usr/sbin/drlm-stord debian/drlm/usr/sbin/
-	cp -av usr/sbin/drlm-api debian/drlm/usr/sbin/
+	cp -av usr/sbin/. debian/drlm/usr/sbin/
 	cp -av usr/share/drlm debian/drlm/usr/share/
 	cp -av var/lib/drlm debian/drlm/var/lib/
 	cp -av doc/drlm.8 debian/drlm/usr/share/man/man8/
@@ -74,19 +69,12 @@ binary-indep: build
 
 	# --- end custom part for installing
 
-#	dh_installdocs README doc/*
 	dh_installdocs README.rst
 	dh_installchangelogs
-#	dh_installman usr/share/drlm/doc/drlm.8
 	find debian/drlm -name ".git*" -exec rm {} \;
-#	rm debian/drlm/usr/share/doc/drlm/Makefile
-#	rm debian/drlm/usr/share/doc/drlm/drlm.8.txt
-#	rm debian/drlm/usr/share/doc/drlm/user-guide/Makefile
-#	rm debian/drlm/usr/share/doc/drlm/drlm.8
 	dh_link
 	dh_strip
 	dh_fixperms
-#	dh_installdeb  # Install prerm preinst portrm postinst conffiles
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums

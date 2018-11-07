@@ -10,13 +10,13 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.2.1
+Version: 2.3.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
 URL: http://drlm.org/
 
-Source: http://drlm.org/download/
+Source: http://github.com/brainupdaters/drlm/
 
 BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -32,7 +32,6 @@ Requires: xinetd
 
 ### SUSE packages
 %if %{?suse_version:1}0
-####Requires: apache2
 Requires: openssh
 Requires: qemu-tools
 Requires: tftp
@@ -46,7 +45,6 @@ Requires: sqlite3
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
 Requires: dhcp tftp-server 
-####Requires: httpd
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
@@ -100,48 +98,76 @@ Professional services and support are available.
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR="%{buildroot}"
 
+%pre
+### IF IS UPGRADE
+if [ "$1" == "2" ]; then
+### Save old data
+drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
+### Stop drlm-stord
+%if %(ps -p 1 -o comm=) == "systemd"
+systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+systemctl daemon-reload
+%else
+service drlm-stord stop
+chkconfig drlm-stord off
+%endif
+fi
+
 %post
-####HTTP_GROUP=$(grep -h ^Group /etc/apache2/uid.conf /etc/httpd/conf/httpd.conf 2>/dev/null | awk '{print $2}')
+### Create logs folder
 mkdir -p /var/log/drlm/rear
-####chown root:${HTTP_GROUP} /var/log/drlm/rear
 chmod 775 /var/log/drlm/rear
+### IF IS INSTALL 
 if [ "$1" == "1" ]; then
+### create keys
 openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+### IF IS UPDATE
 else
+### save keys
 mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
 mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
 fi
-/usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/drlm_sqlite_schema.sql
+### Generate Database
+/usr/share/drlm/conf/DB/drlm_db_version.sh
+### If is SYSTEMD ###############################################################################################
 %if %(ps -p 1 -o comm=) == "systemd"
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
-####%if %{?suse_version:1}0
-####systemctl enable apache2.service
-####%endif
-####%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
-####systemctl enable httpd.service
-####%endif
+### If is upgrade from older DRLM versions is important stop https server
+if [ "$1" == "2" ]; then
+%if %{?suse_version:1}0
+systemctl is-active --quiet apache2.service && systemctl stop apache2.service
+systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
+%endif
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
+systemctl is-active --quiet httpd.service && systemctl stop httpd.service
+systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
+%endif
+fi
+### Save drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
+### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
 %endif
-if [ "$1" == "2" ]; then
-systemctl stop drlm-stord.service
-fi
+### If is INITD ##################################################################################################
 %else
 chkconfig xinetd on
 chkconfig rpcbind on
 chkconfig nfs on
 chkconfig dhcpd on
-####chkconfig httpd on
-%{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
+### If is upgrade from older DRLM versions is important stop https server
 if [ "$1" == "2" ]; then
-service drlm-stord stop
-chkconfig drlm-stord off
+chkconfig httpd off
+service httpd stop
 fi
+### Save drlm-stord.service
+%{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
 %endif
 
 %preun
@@ -171,6 +197,7 @@ chkconfig drlm-stord off
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
+%{_sbindir}/drlm-api
 
 %posttrans
 mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
@@ -186,6 +213,13 @@ mv /etc/init.d/tmp_drlm-stord /etc/init.d/drlm-stord
 chkconfig drlm-stord on
 service drlm-stord start
 %endif
+
+%changelog
+* Tue Oct 30 2018 Pau Roura <pau@brainupdaters.net> 2.3.0
+- Golang DRLM API replacing Apache2.
+- Listbackup command now shows size and duration of backup.
+- Improved database version control.
+- dpkg purge section added.
 
 %changelog
 * Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
