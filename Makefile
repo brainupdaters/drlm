@@ -9,6 +9,7 @@ OFFICIAL =
 ### Get version from DRLM itself
 drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
+drlm_api = usr/sbin/drlm-api
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
 
@@ -150,6 +151,7 @@ install-bin:
 		-e 's,^VAR_DIR=.*,VAR_DIR="$(localstatedir)/lib/drlm",' \
 		$(DESTDIR)$(sbindir)/drlm
 	install -Dp -m0755 $(drlm_store_svc) $(DESTDIR)$(sbindir)/drlm-stord
+	install -Dp -m0755 $(drlm_api) $(DESTDIR)$(sbindir)/drlm-api
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
@@ -194,6 +196,7 @@ $(name)-$(distversion).tar.gz:
 
 rpm: dist
 	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
+	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
 	rpmbuild -tb --clean \
 		--define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
 		--define "debug_package %{nil}" \
@@ -201,6 +204,7 @@ rpm: dist
 
 deb: dist
 	@echo -e "\033[1m== Building DEB package $(name)-$(distversion) ==\033[0;0m"
+	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
 	cp -r packaging/debian/ .
 	chmod 755 debian/rules
 	fakeroot debian/rules clean
