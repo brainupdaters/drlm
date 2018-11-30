@@ -407,7 +407,7 @@ function get_active_cli_bkp_from_db_dbdrv ()
 
 function get_all_backups_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::" from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::", "duration",":", "size" from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function enable_backup_db_dbdrv ()
@@ -458,7 +458,8 @@ function register_backup_dbdrv ()
   local CLI_ID=$2
   local CLI_NAME=$3
   local DR_FILE=$4
-  local BKP_MODE=$5
+  local BKP_DURATION=$5
+  local BKP_SIZE=$6
   local BKP_IS_ACTIVE=1
 
 # MARK LAST ACTIVE BACKUP AS INACTIVE
@@ -472,13 +473,12 @@ function register_backup_dbdrv ()
   local A_BKP=$(get_count_active_backups_by_client_dbdrv "$CLI_NAME")
 
   if [ $A_BKP -eq 0 ]; then
-    echo "INSERT INTO backups VALUES('${BKP_ID}', ${CLI_ID}, '${DR_FILE}', ${BKP_IS_ACTIVE} );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    echo "INSERT INTO backups VALUES('${BKP_ID}', ${CLI_ID}, '${DR_FILE}', ${BKP_IS_ACTIVE}, '${BKP_DURATION}', '${BKP_SIZE}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   else
     return 1
   fi
 }
-
 
 function get_backup_id_lst_by_client_dbdrv ()
 {

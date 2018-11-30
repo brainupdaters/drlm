@@ -1,6 +1,8 @@
+# runbackup workflow
+
 Log "$PROGRAM:$WORKFLOW:DB:Backup(${BKP_ID}):${CLI_NAME}: Registering DR backup to DRLM database .... " 
 
-if register_backup "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_MODE" ;
+if register_backup "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_DURATION" "$(du -h $ARCHDIR/$DR_FILE | cut -f1)" ;
 then
 	Log "$PROGRAM:$WORKFLOW:DB:insert:Backup(${BKP_ID}):${CLI_NAME}: .... Success!"
 	RemoveExitTask "rm -f $ARCHDIR/$DR_FILE"

@@ -9,6 +9,7 @@ OFFICIAL =
 ### Get version from DRLM itself
 drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
+drlm_api = usr/sbin/drlm-api
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
 
@@ -53,9 +54,9 @@ distversion = $(version)
 debrelease = 0
 rpmrelease = %nil
 ifeq ($(OFFICIAL),)
-    distversion = $(version)-git
-    debrelease = git
-    rpmrelease = git
+distversion = $(version)-git
+debrelease = git
+rpmrelease = git
 endif
 
 all:
@@ -81,12 +82,21 @@ clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
 
-### You can call 'make validate' directly from your .git/hooks/pre-commit script
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
+	
+	#Validating BASH Syntax 
 	find etc/ usr/share/drlm/conf/ -name '*.conf' | xargs bash -n
 	bash -n $(drlmbin)
+	bash -n $(drlm_store_svc)
 	find . -name '*.sh' | xargs bash -n
+
+ifneq ($(shell which gofmt),)
+	#Validating GO Syntax
+	gofmt $(shell find usr/share/drlm/ -name '*.go') > /dev/null
+else
+	@echo -e "Warning: gofmt not found, can not validate DRLM API code."
+endif
 
 man: doc/drlm.8
 
@@ -115,11 +125,10 @@ restore:
 	mv -f $(specfile).orig $(specfile)
 	mv -f $(dscfile).orig $(dscfile)
 	mv -f $(drlmbin).orig $(drlmbin)
-else
-rewrite:
-	@echo "Nothing to do."
-
-restore:
+else	
+rewrite:	
+	@echo "Nothing to do."	
+restore:	
 	@echo "Nothing to do."
 endif
 
@@ -150,6 +159,7 @@ install-bin:
 		-e 's,^VAR_DIR=.*,VAR_DIR="$(localstatedir)/lib/drlm",' \
 		$(DESTDIR)$(sbindir)/drlm
 	install -Dp -m0755 $(drlm_store_svc) $(DESTDIR)$(sbindir)/drlm-stord
+	install -Dp -m0755 $(drlm_api) $(DESTDIR)$(sbindir)/drlm-api
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
@@ -184,7 +194,15 @@ uninstall:
 	rm -rv $(DESTDIR)$(sysconfdir)/drlm/
 	rm -rv $(DESTDIR)$(localstatedir)/lib/drlm/
 
-dist: clean validate man rewrite $(name)-$(distversion).tar.gz restore
+drlmapi:
+ifneq ($(shell which go),)
+	@echo -e "\033[1m== Building DRLM API ==\033[0;0m"
+	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
+else
+	@echo -e "No Go binaries detected to build DRLM API, will be copied the builded one"
+endif
+
+dist: clean validate drlmapi man rewrite $(name)-$(distversion).tar.gz restore
 
 $(name)-$(distversion).tar.gz:
 	@echo -e "\033[1m== Building archive $(name)-$(distversion) ==\033[0;0m"
@@ -193,7 +211,7 @@ $(name)-$(distversion).tar.gz:
 		tar -czf $(name)-$(distversion).tar.gz --transform='s,^,$(name)-$(distversion)/,S' --files-from=-
 
 rpm: dist
-	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
+	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"	
 	rpmbuild -tb --clean \
 		--define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
 		--define "debug_package %{nil}" \
@@ -207,5 +225,5 @@ deb: dist
 	fakeroot dh_install
 	fakeroot debian/rules binary
 	-rm -rf debian/
-	-rm build-stamp
-	-rm drlm*.tar.gz
+	rm $(name)-$(distversion).tar.gz
+	rm build-stamp
