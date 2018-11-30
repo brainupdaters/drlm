@@ -215,14 +215,14 @@ service drlm-stord start
 %endif
 
 %changelog
-* Tue Nov 27 2018 Pau Roura <pau@brainupdaters.net> 2.3.0
+* Fri Nov 30 2018 Ruben Carbonell <ruben@brainupdaters.net> 2.3.0
 - Golang DRLM API replacing Apache2.
 - Listbackup command now shows size and duration of backup.
 - Improved database version control.
 - dpkg purge section added.
 - Improved disable_nfs_fs function.
+- Added "-C" on install workflow to allow configuration of the client without install dependencies.
 
-%changelog
 * Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).
 - Ubuntu 18.04 support (issue #81).
@@ -240,7 +240,6 @@ service drlm-stord start
 - Problem with PXE folder file parsing fixed (issue #86).
 - Automatically remove DR files after failed backup (issue #90).
 
-%changelog
 * Wed Aug 23 2017 Pau Roura <pau@brainupdaters.net> 2.2.0
 - "Make deb" improved deleting residual files.
 - NEW Real time clients log in DRLM server.
@@ -252,13 +251,11 @@ service drlm-stord start
 - Improved client configuration template.
 - Improved treatment of deleted client backups
 
-%changelog
 * Fri May 05 2017 Pau Roura <pau@brainupdaters.net> 2.1.3
 - Update Debian 6 installclient dependencies.
 - Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
 - Set global UMASK value for all DRLM creating files durting execution.
 
-%changelog
 * Fri Mar 10 2017 Ruben Carbonell <ruben@brainupdaters.net> 2.1.2
 - SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo
 - Automatic creation of /etc/sudoers.d if not exists RedHat/CenOS 5
@@ -268,7 +265,6 @@ service drlm-stord start
 - Sudo configuration files are dynamically created according to the OS type.
 - Solved problem for start services with non root user.
 
-%changelog
 * Mon Feb 20 2017 Pau Roura <pau@brainupdaters.net> 2.1.1
 - Solved some bugs.
 - No Client ID required for delete backups.
@@ -280,7 +276,6 @@ service drlm-stord start
 - Solved drlm user hardcoded in installclient.
 - NAGSRV and NAGPORT added in default.conf.
 
-%changelog
 * Thu Feb 09 2017 Pau Roura <pau@brainupdaters.net> 2.1.0
 - DRLM reporting with nsca-ng, nsca.
 - DRLM Server for SLES.

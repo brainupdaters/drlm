@@ -76,6 +76,8 @@ DRLM Version 2.3.0 (November 2018) - Release Notes
 
   * Improved disable_nfs_fs function.
 
+  * Added "-C" on install workflow to allow configuration of the client without install dependencies.  
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 
