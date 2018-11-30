@@ -2,7 +2,7 @@ Log "####################################################"
 Log "# Install Dependencies and ReaR                    #"
 Log "####################################################"
 
-if ! ${CONFIG_ONLY}
+if [ -z ${CONFIG_ONLY} ]
 then
    case ${DISTRO} in
        Debian)
