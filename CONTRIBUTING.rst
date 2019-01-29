@@ -123,17 +123,17 @@ Update your fork
 ````````````````
 If you have already forked DRLM and you want to update your fork to match the upstream repository, you have to follow this steps:
 
-1. Add the upstream as a Git remote
+1. **Add the upstream as a Git remote**
 
    Inside your repository, you need to add the upstream repository as a remote:
    ``git remote add upstream https://github.com/brainupdaters/drlm``
 
-2. Fetch the latest changes
+2. **Fetch the latest changes**
 
    Now you need to download the latest changes from the upstream repository
    ``git fetch upstream``
 
-3. Merge the changes
+3. **Merge the changes**
 
    Finally, you need to merge the upstream changes to your repository. Keep in mind that the merge is specific depending on the branch you are:
    ``git merge upstream/<current-branch>``
