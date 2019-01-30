@@ -53,7 +53,7 @@ If you want to fix a bug, you have to follow this steps:
    When all you work is ready, you need to create the Pull Request. First you'll need to publish the branch:
    ``git flow hotfix publish``
 
-   After publishing the branch, go to the `Brain Updaters DRLM repository <https://github.com/brainupdaters/drlm`_ and make a new Pull Request from your ``feature/<feature-name>`` branch of your fork to the ``develop`` branch. Don't worry, we'll change your Pull Request to the correct branch.You might need to click ``compare between forks``.
+   After publishing the branch, go to the `Brain Updaters DRLM repository <https://github.com/brainupdaters/drlm>`_ and make a new Pull Request from your ``feature/<feature-name>`` branch of your fork to the ``develop`` branch. Don't worry, we'll change your Pull Request to the correct branch.You might need to click ``compare between forks``.
 
 
 Suggesting new features or enhancements
@@ -100,7 +100,7 @@ If you want to add new functionality, you have to follow this steps:
    When all you work is ready, you need to create the Pull Request. First you'll need to publish the branch:
    ``git flow feature publish``
 
-   After publishing the branch, go to the `Brain Updaters DRLM repository <https://github.com/brainupdaters/drlm`_ and make a new Pull Request from your ``feature/<feature-name>`` branch of your fork to the ``develop`` branch. You might need to click ``compare between forks``.
+   After publishing the branch, go to the `Brain Updaters DRLM repository <https://github.com/brainupdaters/drlm>`_ and make a new Pull Request from your ``feature/<feature-name>`` branch of your fork to the ``develop`` branch. You might need to click ``compare between forks``.
 
 
 Style guidelines
