@@ -18,7 +18,7 @@ Bug reports are submited through `GitHub Issues <https://guides.github.com/featu
 
 
 Fixing a bug
-`````````
+````````````
 If you want to fix a bug, you have to follow this steps:
 
 1. **Fork DRLM**
@@ -34,6 +34,8 @@ If you want to fix a bug, you have to follow this steps:
 
    Now you need to initialize Git Flow on your local repository:
    ``git flow init``
+
+   **Note**: When Git Flow asks for the production releases branch, type ``master``
 
 4. **Create the new branch**
 
@@ -66,7 +68,7 @@ Suggestions are submited through `GitHub Issues <https://guides.github.com/featu
 
 
 Adding a new functionality
-`````````````````````
+``````````````````````````
 If you want to add new functionality, you have to follow this steps:
 
 1. **Fork DRLM**
@@ -82,6 +84,8 @@ If you want to add new functionality, you have to follow this steps:
 
    Now you need to initialize Git Flow on your local repository:
    ``git flow init``
+
+   **Note**: When Git Flow asks for the production releases branch, type ``master``
 
 4. **Create the new branch**
 
