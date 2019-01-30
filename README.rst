@@ -82,9 +82,6 @@ automatically configured through DRLM commands.
 To configure the TFTP is nedeed deefine the DRLM Store Dir as root and enable
 the TFTP service on system startup.
 
-To configure the HTTP is nedeed enable SSL in the Apache server and include the
-DRLM http config file in the Apache configuration files.
-
 Also is needed increment the loop limit devices in grub config in order to be 
 able reach all DRLM clients.
 
