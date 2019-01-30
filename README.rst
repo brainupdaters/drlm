@@ -32,7 +32,6 @@ Also requires some system services in order to work properly:
   * isc-dhcpd
   * nfs-server
   * tftpd
-  * apache2
   * qemu-img
   * sqlite3
 
