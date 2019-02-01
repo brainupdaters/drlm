@@ -23,7 +23,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} impbackup )
 
 if [ "$WORKFLOW" == "impbackup" ]; then
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "f:c:h" -l "file:,client:,help" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "f:c:I:h" -l "file:,client:,id:,help" -- "$@")"
 	if (( $? != 0 )); then
 			echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 			exit 1
