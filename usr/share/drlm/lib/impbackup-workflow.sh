@@ -52,6 +52,16 @@ if [ "$WORKFLOW" == "impbackup" ]; then
 				fi
 				shift
 				;;
+		(-I|--id)
+				# We need to take the option argument
+				if [ -n "$2" ]; then
+					IMP_BKP_ID="$2"
+				else
+					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+					exit 1
+				fi
+				shift
+				;;
 		(-h|--help)
 				impbackuphelp
 				exit 0
@@ -72,8 +82,8 @@ if [ "$WORKFLOW" == "impbackup" ]; then
 	  exit 1
 	fi
 
-	if [ -z "$IMP_FILE_NAME" ];then
-		echo "$PROGRAM $WORKFLOW: Input file is required."
+	if [ -z "$IMP_FILE_NAME" ] && [ -z "$IMP_BKP_ID" ];then
+		echo "$PROGRAM $WORKFLOW: Input is required."
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
 	fi

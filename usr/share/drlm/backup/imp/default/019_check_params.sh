@@ -11,8 +11,22 @@ if [ -n "$CLI_NAME" ]; then
 fi
 
 # Check if IMP_FILE_NAME exists
-if [ -f "$IMP_FILE_NAME" ]; then
-  Log "${IMP_FILE_NAME} exists!"
-else
-  Error "$PROGRAM: filename $IMP_FILE_NAME does not exists "
+if [ -n "$IMP_FILE_NAME" ]; then
+	if [ -f "$IMP_FILE_NAME" ]; then
+	  Log "${IMP_FILE_NAME} exists!"
+	else
+	  Error "$PROGRAM: filename $IMP_FILE_NAME does not exists "
+	fi
+fi
+
+# Check if IMP_BKP_ID exists
+if  [-n "$IMP_BKP_ID" ]; then
+		Log "Checking if Backup ID: ${IMP_BKP_ID} is registered in DRLM database ..."
+		if exist_backup_id "$IMP_BKP_ID" ;
+		then
+			ID_LIST="$IMP_BKP_ID"
+				Log "${IMP_BKP_ID} found in DRLM database!"
+		else
+				Error "$PROGRAM: Backup ID: $IMP_BKP_ID not registered!"
+		fi
 fi
