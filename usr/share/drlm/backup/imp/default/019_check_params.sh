@@ -20,7 +20,7 @@ if [ -n "$IMP_FILE_NAME" ]; then
 fi
 
 # Check if IMP_BKP_ID exists
-if  [-n "$IMP_BKP_ID" ]; then
+if  [ -n "$IMP_BKP_ID" ]; then
 		Log "Checking if Backup ID: ${IMP_BKP_ID} is registered in DRLM database ..."
 		if exist_backup_id "$IMP_BKP_ID" ;
 		then
