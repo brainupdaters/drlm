@@ -52,6 +52,6 @@ if [ "$WORKFLOW" == "listunsched" ]; then
 	done
 
 	WORKFLOW_listunsched () {
-		SourceStatge "client/unsched"
+		SourceStage "client/unsched"
 	}
 fi
