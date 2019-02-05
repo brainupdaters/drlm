@@ -24,10 +24,32 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listunsched )
 
 if [ "$WORKFLOW" == "listunsched" ]; then
 	# Parse options
+	OPT="$(getopt -n "$WORKFLOW" -o "h" -l "help" -- "$@")"
 	if (( $? != 0 )); then
-		listunschedhelp
-		exit 0
+		echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+		exit 1
 	fi
+
+	eval set -- "$OPT"
+	while true; do
+		case "$1" in
+			(-h|--help)
+				listunschedhelp
+				exit 0
+				;;
+			(--)
+				shift
+				break
+				;;
+			(-*)
+				echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+				echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+				exit 1
+				;;
+		esac
+		shift
+	done
 
 	WORKFLOW_listunsched () {
 		SourceStatge "client/unsched"
