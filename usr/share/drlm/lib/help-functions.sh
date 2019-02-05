@@ -195,6 +195,14 @@ function listclienthelp() {
 	printf "\n"
 }
 
+function listunschedhelp() {
+	printf "\n"
+	printf "\n"
+	printf "$(tput bold)Usage:\n$(tput sgr0)"
+	printf '%-25s %-45s\n' "drlm listunsched" "List DRLM clients without scheduled jobs"
+	printf "\n"
+}
+
 function listnetworkhelp() {
 	printf "\n"
 	printf "\n"
