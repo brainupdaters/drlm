@@ -10,6 +10,13 @@ if [ -n "$CLI_NAME" ]; then
   fi
 fi
 
+# Check if both IMP_FILE_NAME and IMP_BKP_ID are passed 
+if [ -n "$IMP_FILE_NAME" ] && [ -n "$IMP_BKP_ID" ]; then
+    echo "$PROGRAM $WORKFLOW: Only one option can be used: --file or --id."	
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+fi
+
 # Check if IMP_FILE_NAME exists
 if [ -n "$IMP_FILE_NAME" ]; then
 	if [ -f "$IMP_FILE_NAME" ]; then
