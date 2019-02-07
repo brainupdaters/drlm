@@ -387,6 +387,7 @@ function impbackuphelp() {
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client to import backup"
 	printf '%-25s %-45s\n' "-f|--file <FILE_NAME>" "Importation filename"
+	printf '%-25s %-45s\n' "-I|--id <BKP_ID>" "Select Backup ID from which is going to import the backup"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Examples:\n$(tput sgr0)"

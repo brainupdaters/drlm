@@ -551,15 +551,21 @@ __drlm_expbackup ()
 
 __drlm_impbackup ()
 {
-	local options_s="-c -f -h"
-	local options_l="--client --file --help"
+	local options_s="-c -f -I -h"
+	local options_l="--client --file  --id --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
-	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
+	elif __drlm_exist_option "-f --file" "$workflow"; then
 		local options_s="-c -f"
 		local options_l="--client --file"
+	elif __drlm_exist_option "-I --id" "$workflow"; then
+		local options_s="-c -I"
+		local options_l="--client --id"
+	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
+		local options_s="-c -f -I"
+		local options_l="--client --file --id"
 	fi
 
 	case "$prev" in
@@ -572,6 +578,13 @@ __drlm_impbackup ()
 			;;
 		-f | --file)
 			_filedir
+			;;
+		-I | --id)
+			local i=0
+			query=$(get_all_backup_id_dbdrv "$cur")
+			for result in $query; do
+				COMPREPLY[i++]="$result"
+			done
 			;;
 		*)
 			__drlmcomp3 "$options_s" "$options_l"
