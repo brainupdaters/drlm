@@ -67,7 +67,7 @@ If you want to fix a bug, you have to follow this steps:
    To delete the local branch, you need to execute:
    ``git checkout develop && git branch -d feature/<feature-name>``
 
-   To delete the remote branch, you need to go to your fork page (https://github.com/<your-username>/drlm), click in ``branches``, next to the commits number, find your branch and delete it.
+   To delete the remote branch, you need to go to your fork page (``https://github.com/<your-username>/drlm``), click in ``branches``, next to the commits number, find your branch and delete it.
 
 Suggesting new features or enhancements
 ```````````````````````````````````````
@@ -127,7 +127,7 @@ If you want to add new functionality, you have to follow this steps:
    To delete the local branch, you need to execute:
    ``git checkout develop && git branch -d feature/<feature-name>``
 
-   To delete the remote branch, you need to go to your fork page (https://github.com/<your-username>/drlm), click in ``branches``, next to the commits number, find your branch and delete it.
+   To delete the remote branch, you need to go to your fork page (``https://github.com/<your-username>/drlm``), click in ``branches``, next to the commits number, find your branch and delete it.
 
 
 Style guidelines
