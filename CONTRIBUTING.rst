@@ -58,10 +58,16 @@ If you want to fix a bug, you have to follow this steps:
    After publishing the branch, go to the `Brain Updaters DRLM repository <https://github.com/brainupdaters/drlm>`_ and make a new Pull Request from your ``feature/<feature-name>`` branch of your fork to the ``develop`` branch. Don't worry, we'll change your Pull Request to the correct branch. You might need to click ``compare between forks``.
 
    **Note**: in case you face merge conficts, you'll need to `Update your fork`_ and resolve the conficts locally.
+   **Note**: in case you commit changes after executing ``git flow hotfix publish``, you'll need to execute ``git push`` in order to upload your latest changes to the Pull Request
 
 7. **Cleanup**
 
    After the Pull Request is merged, remember to remove the branch in your local repository and in the GitHub.
+   
+   To delete the local branch, you need to execute:
+   ``git checkout develop && git branch -d feature/<feature-name>``
+
+   To delete the remote branch, you need to go to your fork page (`<https://github.com/<your-username>/drlm>`_), click in ``branches``, next to the commits number, find your branch and delete it.
 
 Suggesting new features or enhancements
 ```````````````````````````````````````
@@ -112,10 +118,16 @@ If you want to add new functionality, you have to follow this steps:
    After publishing the branch, go to the `Brain Updaters DRLM repository <https://github.com/brainupdaters/drlm>`_ and make a new Pull Request from your ``feature/<feature-name>`` branch of your fork to the ``develop`` branch. You might need to click ``compare between forks``.
 
    **Note**: in case you face merge conficts, you'll need to `Update your fork`_ and resolve the conficts locally.
+   **Note**: in case you commit changes after executing ``git flow feature publish``, you'll need to execute ``git push`` in order to upload your latest changes to the Pull Request
 
 7. **Cleanup**
 
    After the Pull Request is merged, remember to remove the branch in your local repository and in the GitHub.
+   
+   To delete the local branch, you need to execute:
+   ``git checkout develop && git branch -d feature/<feature-name>``
+
+   To delete the remote branch, you need to go to your fork page (`<https://github.com/<your-username>/drlm>`_), click in ``branches``, next to the commits number, find your branch and delete it.
 
 
 Style guidelines
