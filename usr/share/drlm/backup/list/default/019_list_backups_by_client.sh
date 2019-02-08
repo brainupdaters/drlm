@@ -81,6 +81,7 @@ else
 				line=$(set_color 7, "yellow", "$line")
 			fi
 
+			echo "$line"
 		done < list_backup $CLI_NAME
 	fi
 fi

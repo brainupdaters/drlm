@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listbackup )
 
 if [ "$WORKFLOW" == "listbackup" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:Aph" -l "client:,all,pretty,help" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:A:p:h" -l "client:,all:,pretty:,help" -- "$@")"
 	if (( $? != 0 )); then
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
