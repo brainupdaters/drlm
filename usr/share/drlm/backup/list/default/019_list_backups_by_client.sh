@@ -57,35 +57,39 @@ function set_color() {
     echo "$(echo "$line" | awk 'BEGIN { FPAT = "([[:space:]]*[[:alnum:][:punct:][:digit:]]+)"; OFS = ""; } { $'$field'="'${!color}"${column}"$no_color'"; print $0; }')"
 }
 
+function pretty() {
+	local all_backups="$1"
+
+	head -n 2 <<< "$all_backups"
+
+	while read -r line; do
+		# Check time
+		bkp_time_status="$(check_backup_time_status "$line")"
+		if [ "$bkp_time_status" == "failed" ]; then
+			line="$(set_color 6 "red" "$line")"
+		elif [ "$bkp_time_status" == "warning" ]; then
+			line="$(set_color 6 "yellow" "$line")"
+		fi
+
+		# Check size
+		bkp_size_status="$(check_backup_size_status "$line")"
+		if [ "$bkp_size_status" == "failed" ]; then
+			line="$(set_color 7, "red", "$line")"
+		elif [ "$bkp_size_status" == "unknown" ]; then
+			line="$(set_color 7, "yellow", "$line")"
+		fi
+
+		echo "$line"
+	done <<< "$(tail -n +3 <<< "$all_backups")"
+}
+
 
 if ! exist_client_name "$CLI_NAME"; then
 	if [ "$CLI_NAME" == "all" ]; then
 		if [ -z "$PRETTY" ]; then 
         	list_backup_all
 		else
-			all_backups="$(list_backup_all)"
-
-			head -n 2 <<< "$all_backups"
-
-			while read -r line; do
-				# Check time
-				bkp_time_status="$(check_backup_time_status "$line")"
-				if [ "$bkp_time_status" == "failed" ]; then
-					line="$(set_color 6 "red" "$line")"
-				elif [ "$bkp_time_status" == "warning" ]; then
-					line="$(set_color 6 "yellow" "$line")"
-				fi
-
-				# Check size
-				bkp_size_status="$(check_backup_size_status "$line")"
-				if [ "$bkp_size_status" == "failed" ]; then
-					line="$(set_color 7, "red", "$line")"
-				elif [ "$bkp_size_status" == "unknown" ]; then
-					line="$(set_color 7, "yellow", "$line")"
-				fi
-
-				echo "$line"
-			done <<< "$(tail -n +3 <<< "$all_backups")"
+			pretty "$(list_backup_all)"
 		fi
 	else
 		printf '%25s\n' "$(tput bold)$CLI_NAME$(tput sgr0) not found in database!!"	
@@ -94,28 +98,6 @@ else
 	if [ -z "$PRETTY" ]; then 
 		list_backup "$CLI_NAME"
 	else
-			all_backups="$(list_backup "$CLI_NAME")"
-
-			head -n 2 <<< "$all_backups"
-
-			while read -r line; do
-				# Check time
-				bkp_time_status="$(check_backup_time_status "$line")"
-				if [ "$bkp_time_status" == "failed" ]; then
-					line="$(set_color 6 "red" "$line")"
-				elif [ "$bkp_time_status" == "warning" ]; then
-					line="$(set_color 6 "yellow" "$line")"
-				fi
-
-				# Check size
-				bkp_size_status="$(check_backup_size_status "$line")"
-				if [ "$bkp_size_status" == "failed" ]; then
-					line="$(set_color 7, "red", "$line")"
-				elif [ "$bkp_size_status" == "unknown" ]; then
-					line="$(set_color 7, "yellow", "$line")"
-				fi
-
-				echo "$line"
-			done <<< "$(tail -n +3 <<< "$all_backups")"
+		pretty "$(list_backup "$CLI_NAME")"
 	fi
 fi
