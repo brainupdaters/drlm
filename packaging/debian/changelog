@@ -5,8 +5,10 @@ drlm (2.3.0) stable release; urgency=high
   * dpkg purge section added. 
   * Improved disable_nfs_fs function.
   * Added "-C" on install workflow to allow configuration of the client without install dependencies.
+  * Added the "listunsched" command to list the clients that have no scheduled jobs.
+  * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 
- -- Ruben Carbonell <ruben@brainupdaters.net>  Fri, 30 Nov 2018 00:00:00 +0100
+ -- Néfix Estrada <nefixestrada@gmail.com>  Tue, 12 Feb 2019 00:00:00 +0100
 
 drlm (2.2.1) stable release; urgency=high
   * Updated ssh_install_rear_xxx funcitons to solve (issue #62).

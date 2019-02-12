@@ -64,7 +64,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.3.0 (November 2018) - Release Notes
+DRLM Version 2.3.0 (February 2019) - Release Notes
 --------------------------------------------------
   * Golang DRLM API replacing Apache2.
 
@@ -77,6 +77,10 @@ DRLM Version 2.3.0 (November 2018) - Release Notes
   * Improved disable_nfs_fs function.
 
   * Added "-C" on install workflow to allow configuration of the client without install dependencies.  
+
+  * Added the "listunsched" command to list the clients that have no scheduled jobs.
+
+  * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------

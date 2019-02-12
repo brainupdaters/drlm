@@ -168,6 +168,7 @@ function listbackuphelp() {
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client to list its backups"
 	printf '%-25s %-45s\n' "-A|--all" "List all backups"
+	printf '%-25s %-45s\n' "-p|--pretty" "Marks those backups that might have failed with colors"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Examples:\n$(tput sgr0)"
@@ -201,6 +202,8 @@ function listunschedhelp() {
 	printf "$(tput bold)Usage:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "drlm listunsched" "List DRLM clients without scheduled jobs"
 	printf "\n"
+	printf "$(tput bold)Examples:\n$(tput srg0)"
+	printf "drlm listunsched"
 }
 
 function listnetworkhelp() {
