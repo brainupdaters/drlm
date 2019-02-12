@@ -169,6 +169,8 @@ fi
 ### Save drlm-stord.service
 %{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
 %endif
+# Import the bash completions
+source /etc/bash_completion
 
 %preun
 %{__rm} /etc/drlm/cert/drlm.*
