@@ -475,7 +475,18 @@ function get_client_used_mb ()
 }
 
 function check_backup_size_status() {
-	echo "$1" | awk '{pring $7}'
+	local line="$1"
+
+	input_size="$(echo "$line" | awk '{print $7}')"
+	size_number="${input_size::-1}"
+
+	if [[ "$size_number" -le 100 ]]; then
+		echo -n "failed"
+	else
+		if [[ "$size_number" -le 500 ]]; then
+			echo -n "warning"
+		fi
+	fi
 }
 
 function check_backup_time_status() {
@@ -545,7 +556,7 @@ function pretty() {
 		bkp_size_status="$(check_backup_size_status "$line")"
 		if [ "$bkp_size_status" == "failed" ]; then
 			line="$(set_color 7, "red", "$line")"
-		elif [ "$bkp_size_status" == "unknown" ]; then
+		elif [ "$bkp_size_status" == "warning" ]; then
 			line="$(set_color 7, "yellow", "$line")"
 		fi
 
