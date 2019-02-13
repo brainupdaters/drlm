@@ -506,9 +506,9 @@ function check_backup_size_status() {
     local input_size="$1"
     size_number="${input_size::-1}"
 
-	if [[ "$size_number" -le 200 ]]; then
+	if [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
 		echo -n "\\e[0;31m%-15s\\e[0m"
-	elif [[ "$size_number" -le 1100 ]]; then
+	elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
 		echo -n "\\e[1;33m%-15s\\e[0m"
 	else
 		echo -n "%-15s"
@@ -529,9 +529,9 @@ function check_backup_time_status() {
 
 		total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
 
-		if [[ "$total_seconds" -le 120 ]]; then
+		if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
 			echo -n "\\e[0;31m%-15s\\e[0m"
-		elif [[ "$total_seconds" -le "240" ]]; then
+		elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
 			echo -n "\\e[1;33m%-15s\\e[0m"
 		else
 			echo -n "%-15s"
