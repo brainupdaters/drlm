@@ -461,18 +461,21 @@ __drlm_listclient ()
 
 __drlm_listbackup ()
 {
-	local options_s="-c -A -h"
-	local options_l="--client --all --help"
+	local options_s="-c -A -p -h"
+	local options_l="--client --all --pretty --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-c"
-		local options_l="--client"
+		local options_s="-c -p"
+		local options_l="--client --pretty"
 	elif __drlm_exist_option "-A --all" "$workflow"; then
-		local options_s="-A"
-		local options_l="--all"
+		local options_s="-A -p"
+		local options_l="--all --pretty"
+	elif __drlm_exist_option "-p --pretty" "$workflow"; then
+		local options_s="-p -c -A"
+		local options_l="--pretty --client --all"
 	fi
 
 	case "$prev" in
