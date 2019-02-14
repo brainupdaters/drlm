@@ -170,7 +170,7 @@ function mod_client_net ()
 function list_client_all ()
 {
   printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Has Scheduled Jobs$(tput sgr0)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Scheduled$(tput sgr0)"
   for line in $(get_all_clients_dbdrv)
   do
     local CLI_ID=`echo $line|awk -F":" '{print $1}'`
@@ -207,8 +207,29 @@ function list_client ()
 	  local CLI_HAS_JOBS="True"
   fi
 
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Has Scheduled Jobs$(tput sgr0)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Scheduled$(tput sgr0)"
   printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_HAS_JOBS"
+}
+
+function list_client_unsched () {
+  printf '%-15s\n' "$(tput bold)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Scheduled$(tput sgr0)"
+  for line in $(get_all_clients_dbdrv)
+  do
+    local CLI_ID=`echo $line|awk -F":" '{print $1}'`
+    local CLI_NAME=`echo $line|awk -F":" '{print $2}'`
+    local CLI_MAC=`echo $line|awk -F":" '{print $3}'`
+    local CLI_IP=`echo $line|awk -F":" '{print $4}'`
+    local CLI_OS=`echo $line|awk -F":" '{print $5}'`
+    local CLI_NET=`echo $line|awk -F":" '{print $6}'`
+
+	if [ -z "$(has_jobs_scheduled "$CLI_ID")" ]; then
+		local CLI_HAS_JOBS="False"
+		printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_HAS_JOBS"
+	fi
+
+  done
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function get_count_clients ()

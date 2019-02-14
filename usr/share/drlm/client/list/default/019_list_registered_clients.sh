@@ -3,7 +3,12 @@ if ! exist_client_name "$CLI_NAME"
 then
 	if [ "$CLI_NAME" == "all" ] 
 	then 
-		list_client_all
+		if [ -z "$UNSCHED" ]; then
+			list_client_all
+		else
+			list_client_unsched
+		fi
+
 	else
 		printf '%25s\n' "$(tput bold)$CLI_NAME$(tput sgr0) not found in database!!"	
 	fi
