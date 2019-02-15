@@ -68,6 +68,7 @@ function mod_pxe_link ()
 
 function list_backup_all ()
 {
+  local PRETTY=$1
   printf '%-18s\n' "$(tput bold)"
   printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
@@ -81,9 +82,22 @@ function list_backup_all ()
     local BAC_FILE=`echo $line|awk -F":" '{print $3}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
+
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
+    if [ "$PRETTY" ]; then
+	    BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
+    else
+	    BAC_DURA_DEC="%-15s"
+    fi
+
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"
+    if [ "$PRETTY" ]; then
+	    BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
+    else
+	    BAC_SIZE_DEC="%-15s"
+    fi
+
+    printf '%-20s %-15s %-18s %-15s '$BAC_DURA_DEC' '$BAC_SIZE_DEC'\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -91,6 +105,7 @@ function list_backup_all ()
 function list_backup ()
 {
   local CLI_NAME=$1
+  local PRETTY=$2
   printf '%-18s\n' "$(tput bold)"
   printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
@@ -104,9 +119,22 @@ function list_backup ()
     local BAC_FILE=`echo $line|awk -F":" '{print $3}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
+
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
+    if [ "$PRETTY" ]; then
+	    BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
+    else
+	    BAC_DURA_DEC="%-15s"
+    fi
+
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"; fi
+    if [ "$PRETTY" ]; then
+	    BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
+    else
+	    BAC_SIZE_DEC="%-15s"
+    fi
+
+    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-15s '$BAC_DURA_DEC' '$BAC_SIZE_DEC'\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"; fi
   done
 }
 
@@ -473,3 +501,44 @@ function get_client_used_mb ()
 
     echo -n $total_mb
 }
+
+function check_backup_size_status() {
+    local input_size="$1"
+    size_number="${input_size::-1}"
+
+	if [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
+		echo -n "\\e[0;31m%-15s\\e[0m"
+	elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
+		echo -n "\\e[1;33m%-15s\\e[0m"
+	else
+		echo -n "%-15s"
+	fi
+}
+
+function check_backup_time_status() {
+	local duration="$1"
+
+	if [ "${duration:0:1}" != "-" ]; then
+
+		hours="$(echo $duration | cut -d '.' -f 1)"
+		hours=${hours:0:-1}
+		minutes="$(echo $duration | cut -d '.' -f 2)"
+		minutes=${minutes:0:-1}
+		seconds="$(echo $duration | cut -d '.' -f 3)"
+		seconds=${seconds:0:-1}
+
+		total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
+
+		if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
+			echo -n "\\e[0;31m%-15s\\e[0m"
+		elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
+			echo -n "\\e[1;33m%-15s\\e[0m"
+		else
+			echo -n "%-15s"
+		fi
+
+	else
+		echo -n "%-15s"
+	fi
+}
+

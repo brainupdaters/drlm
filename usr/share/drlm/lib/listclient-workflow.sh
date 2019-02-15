@@ -24,7 +24,7 @@ LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listclient )
 
 if [ "$WORKFLOW" == "listclient" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:Ah" -l "client:,all,help" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:AUh" -l "client:,all,unsched,help" -- "$@")"
 	if (( $? != 0 )); then
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
@@ -47,6 +47,9 @@ if [ "$WORKFLOW" == "listclient" ]; then
 				;;
 			(-A|--all)
 				CLI_NAME="all" 
+				;;
+			(-U|--unsched)
+				UNSCHED="true"
 				;;
 			(-h|--help)
 				listclienthelp
