@@ -80,7 +80,9 @@ DRLM Version 2.3.0 (February 2019) - Release Notes
 
   * Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
 
-  * Added the "listunsched" command to list the clients that have no scheduled jobs.
+  * Added "-U" on list clients to list the clients that have no scheduled jobs.
+
+  * Added a column on list clients that shows if a client has scheduled jobs.
 
   * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 

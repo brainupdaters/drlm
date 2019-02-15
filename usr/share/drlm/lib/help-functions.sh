@@ -187,6 +187,7 @@ function listclienthelp() {
 	printf "$(tput bold)Options:\n$(tput sgr0)"
 	printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client to list"
 	printf '%-25s %-45s\n' "-A|--all" "List all clients"
+	printf '%-25s %-45s\n' "-U|--unsched" "List clients that have no scheduled jobs"
 	printf '%-25s %-45s\n' "-h|--help" "Show this help"
 	printf "\n"
 	printf "$(tput bold)Examples:\n$(tput sgr0)"

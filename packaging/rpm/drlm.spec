@@ -215,16 +215,16 @@ service drlm-stord start
 %endif
 
 %changelog
-* Tue Feb 12 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.0
+* Tue Feb 15 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.0
 - Golang DRLM API replacing Apache2.
 - Listbackup command now shows size and duration of backup.
 - Improved database version control.
 - dpkg purge section added.
 - Improved disable_nfs_fs function.
 - Added "-C" on install workflow to allow configuration of the client without install dependencies.
+- Added "-U" on list clients to list the clients that have no scheduled jobs.
+- Added a column on list clients that shows if a client has scheduled jobs.
 - Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
-- Added the "listunsched" command to list the clients that have no scheduled jobs.
-- Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 
 * Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).

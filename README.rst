@@ -128,7 +128,6 @@ To use Disaster Recovery Linux Manager you always call the main script
    instclient      install client from DRLM
    listbackup      list client backups.
    listclient      list registered clients.
-   listunsched     list clients with no scheduled jobs.
    listjob         list planned jobs.
    listnetwork     list registered networks.
    modclient       modify client properties.
