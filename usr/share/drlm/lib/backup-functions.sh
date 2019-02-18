@@ -504,7 +504,15 @@ function get_client_used_mb ()
 
 function check_backup_size_status() {
     local input_size="$1"
+	
+	size_unit="${input_size:(-1)}"
     size_number="${input_size::-1}"
+
+	if [ "$size_unit" == "G" ]; then
+		size_number="$(awk -v size="$size_number" 'BEGIN{print size * 1024}')"
+		# Remove the decimals
+		size_number="${size_number%.*}"
+	fi
 
 	if [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
 		echo -n "\\e[0;31m%-15s\\e[0m"

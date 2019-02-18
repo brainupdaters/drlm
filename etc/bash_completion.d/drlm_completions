@@ -600,21 +600,24 @@ __drlm_impbackup ()
 
 __drlm_instclient ()
 {
-	local options_s="-c -I -u -U -h"
+	local options_s="-c -I -u -U -C -h"
 	local options_l="--client --id --user --url_rear --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-c -u -U"
-		local options_l="--client --user -url_rear"
+		local options_s="-c -u -U -C"
+		local options_l="--client --user --url_rear --config"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I -u -U"
-		local options_l="--id --user --url_rear"
+		local options_s="-I -u -U -C"
+		local options_l="--id --user --url_rear --config"
+	elif __drlm_exist_option "-C --config" "$workflow"; then
+		local options_s="-C -I -u -U"
+		local options_l="--config --id --user --url_rear"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -I -u -U"
-		local options_l="--client --id --user --url_rear"
+		local options_s="-c -I -u -U -C"
+		local options_l="--client --id --user --url_rear --config"
 	fi
 
 	case "$prev" in
