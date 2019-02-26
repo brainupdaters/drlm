@@ -305,6 +305,27 @@ function ssh_config_sudo () {
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function copy_ssh_id () {
+    if [ "$DISTRO" == "RedHat" ] || [ "$DISTRO" == "CentOS" ]; then
+        echo "-------------------------------------------------------------------------------------"
+        echo "NOTE: enter password: [changeme] for drlm user (It will be locked after installation)"
+        echo "-------------------------------------------------------------------------------------"
+        ssh-copy-id -p ${SSH_PORT} ${DRLM_USER}@${CLI_NAME} &> /dev/null
+    else
+        if [ ! -d "/tmp/drlm" ]; then
+            mkdir -p /tmp/drlm
+        fi
+
+        if [ ! -f "/tmp/drlm/ssh-pass.sh" ]; then
+            echo -e '#!/bin/sh\necho "$PASS"' > /tmp/drlm/ssh-pass.sh
+            chmod +x /tmp/drlm/ssh-pass.sh
+        fi
+
+        # Log in automatically without asking any password
+        PASS="changeme" SSH_ASKPASS="/tmp/drlm/ssh-pass.sh" setsid -w ssh-copy-id -p ${SSH_PORT} ${DRLM_USER}@${CLI_NAME} &> /dev/null
+    fi
+}
+
 function authors () {
     echo "MMMMMMMMMMMMMMMMMMMMMMWXNMMMMMMMMMMMMMMMMMMWXXNMMMMMMMMMMMMMMMMMMMMWXMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
     echo "MMMMMMMMMMMMMMMMMMWMWl'..:OKNMMMMMMMMMMMMMMK..oMMMMMMMMMMMMMMMMMMMW;.kMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"

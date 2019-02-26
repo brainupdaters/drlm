@@ -36,12 +36,7 @@ else
     LogPrint "$PROGRAM:$WORKFLOW: User $DRLM_USER created on $CLI_NAME"
     #Send key for drlm user
     LogPrint "$PROGRAM:$WORKFLOW: Sending ssh key for drlm user ..."
-    # Log in automatically without asking any password
-    mkdir -p /tmp/drlm
-    echo -e '#!/bin/sh\necho "$PASS"' > /tmp/drlm/ssh-pass.sh
-    chmod +x /tmp/drlm/ssh-pass.sh
-    PASS="changeme" SSH_ASKPASS="/tmp/drlm/ssh-pass.sh" setsid -w ssh-copy-id -p ${SSH_PORT} ${DRLM_USER}@${CLI_NAME} &> /dev/null
-
+    copy_ssh_id
     if [ $? -ne 0  ]
     then
         Error "$PROGRAM:$WORKFLOW: Sending key for ${DRLM_USER} Failed!!!"
