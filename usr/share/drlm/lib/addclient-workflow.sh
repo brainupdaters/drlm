@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 
 if [ "$WORKFLOW" == "addclient" ]; then 
         # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:Iu:U:h" -l "client:,ipaddr:,macaddr:,netname:,installclient,user:,url_rear:,help" -- "$@")"
+        OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:ICu:U:h" -l "client:,ipaddr:,macaddr:,netname:,installclient,config,user:,url_rear:,help" -- "$@")"
         if (( $? != 0 )); then
                 echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
                 exit 1
@@ -79,6 +79,9 @@ if [ "$WORKFLOW" == "addclient" ]; then
                                 ;;
                         (-I|--installclient)
                                 INSTALL="Y"
+                                ;;
+                        (-C|--config)
+                                CONFIG_ONLY=true
                                 ;;
                         (-u|--user)
                                 # We need to take the option argument

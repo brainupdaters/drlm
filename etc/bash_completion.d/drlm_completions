@@ -129,8 +129,8 @@ __drlm_addnetwork ()
 
 __drlm_addclient ()
 {
-	local options_s="-i -c -M -n -I -u -U -h"
-	local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --help"
+	local options_s="-i -c -M -n -I -u -U -C -h"
+	local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --config --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
@@ -601,7 +601,7 @@ __drlm_impbackup ()
 __drlm_instclient ()
 {
 	local options_s="-c -I -u -U -C -h"
-	local options_l="--client --id --user --url_rear --help"
+	local options_l="--client --id --user --url_rear --config --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
