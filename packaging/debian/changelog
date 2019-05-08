@@ -6,8 +6,9 @@ drlm (2.3.0) stable release; urgency=high
   * Improved disable_nfs_fs function.
   * Added "-C" on install workflow to allow configuration of the client without install dependencies.
   * Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
+  * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
 
- -- Néfix Estrada <nefix@brainupdaters.net>  Wed, 06 Feb 2019 00:00:00 +0100
+ -- Néfix Estrada <nefix@brainupdaters.net>  Wed, 08 May 2019 00:00:00 +0100
 
 drlm (2.2.1) stable release; urgency=high
   * Updated ssh_install_rear_xxx funcitons to solve (issue #62).

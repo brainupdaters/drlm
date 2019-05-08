@@ -80,6 +80,8 @@ DRLM Version 2.3.0 (November 2018) - Release Notes
 
   * Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
 
+  * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 
