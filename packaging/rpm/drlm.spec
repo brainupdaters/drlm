@@ -221,8 +221,11 @@ service drlm-stord start
 - Improved database version control.
 - dpkg purge section added.
 - Improved disable_nfs_fs function.
-- Added "-C" on install workflow to allow configuration of the client without install dependencies.
+- Added "-C" on install workflow to allow configuration of the client without install dependencies.  
 - Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
+- Added "-U" on list clients to list the clients that have no scheduled jobs.
+- Added a column on list clients that shows if a client has scheduled jobs.
+- Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 - Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
 
 * Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1

@@ -4,8 +4,11 @@ drlm (2.3.0) stable release; urgency=high
   * Improved database version control.
   * dpkg purge section added. 
   * Improved disable_nfs_fs function.
-  * Added "-C" on install workflow to allow configuration of the client without install dependencies.
+  * Added "-C" on install workflow to allow configuration of the client without install dependencies.  
   * Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
+  * Added "-U" on list clients to list the clients that have no scheduled jobs.
+  * Added a column on list clients that shows if a client has scheduled jobs.
+  * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
   * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
 
  -- Néfix Estrada <nefix@brainupdaters.net>  Wed, 08 May 2019 00:00:00 +0100
