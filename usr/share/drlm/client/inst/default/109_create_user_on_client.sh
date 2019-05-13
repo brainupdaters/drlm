@@ -36,7 +36,7 @@ else
     LogPrint "$PROGRAM:$WORKFLOW: User $DRLM_USER created on $CLI_NAME"
     #Send key for drlm user
     LogPrint "$PROGRAM:$WORKFLOW: Sending ssh key for drlm user ..."
-    copy_ssh_id
+    copy_ssh_id ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
     if [ $? -ne 0  ]
     then
         Error "$PROGRAM:$WORKFLOW: Sending key for ${DRLM_USER} Failed!!!"
