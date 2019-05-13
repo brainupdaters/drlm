@@ -86,6 +86,8 @@ DRLM Version 2.3.0 (February 2019) - Release Notes
 
   * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 
+  * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 
