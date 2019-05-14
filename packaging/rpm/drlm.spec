@@ -200,8 +200,10 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-api
 
 %posttrans
+if [ -f /etc/drlm/cert/tmp_drlm.key ]; then
 mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
 mv /etc/drlm/cert/tmp_drlm.crt /etc/drlm/cert/drlm.crt
+fi
 
 %if %(ps -p 1 -o comm=) == "systemd"
 mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
