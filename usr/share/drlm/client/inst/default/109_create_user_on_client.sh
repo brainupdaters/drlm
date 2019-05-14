@@ -36,10 +36,7 @@ else
     LogPrint "$PROGRAM:$WORKFLOW: User $DRLM_USER created on $CLI_NAME"
     #Send key for drlm user
     LogPrint "$PROGRAM:$WORKFLOW: Sending ssh key for drlm user ..."
-    echo "-------------------------------------------------------------------------------------"
-    echo "NOTE: enter password: [changeme] for drlm user (It will be locked after installation)"
-    echo "-------------------------------------------------------------------------------------"
-    ssh-copy-id -p ${SSH_PORT} ${DRLM_USER}@${CLI_NAME} &> /dev/null
+    copy_ssh_id ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
     if [ $? -ne 0  ]
     then
         Error "$PROGRAM:$WORKFLOW: Sending key for ${DRLM_USER} Failed!!!"

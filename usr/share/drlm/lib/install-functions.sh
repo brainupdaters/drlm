@@ -305,6 +305,18 @@ function ssh_config_sudo () {
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function copy_ssh_id () {
+    local USER=$1
+    local CLI_NAME=$2
+    local DRLM_USER=$3
+    local SUDO=$4
+
+    PUBKEY=$(<~/.ssh/id_rsa.pub)
+    DRLM_USER_HOME_DIR=getent passwd "$DRLM_USER" | cut -d: -f6
+
+    ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO mkdir $DRLM_USER_HOME_DIR/.ssh && $SUDO echo '$PUBKEY' >> $DRLM_USER_HOME_DIR/.ssh/authorized_keys"
+}
+
 function authors () {
     echo "MMMMMMMMMMMMMMMMMMMMMMWXNMMMMMMMMMMMMMMMMMMWXXNMMMMMMMMMMMMMMMMMMMMWXMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
     echo "MMMMMMMMMMMMMMMMMMWMWl'..:OKNMMMMMMMMMMMMMMK..oMMMMMMMMMMMMMMMMMMMW;.kMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
