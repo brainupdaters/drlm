@@ -1,5 +1,5 @@
 drlm (2.3.0) stable release; urgency=high
-  * Golang DRLM API replacing Apache2.
+  * Golang DRLM API replacing Apache2 and CGI-BIN.
   * Listbackup command now shows size and duration of backup.
   * Improved database version control.
   * dpkg purge section added. 
@@ -11,7 +11,7 @@ drlm (2.3.0) stable release; urgency=high
   * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
   * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
 
- -- Néfix Estrada <nefix@brainupdaters.net>  Wed, 08 May 2019 00:00:00 +0100
+ -- Néfix Estrada <nefix@brainupdaters.net>  Wed, 15 May 2019 00:00:00 +0100
 
 drlm (2.2.1) stable release; urgency=high
   * Updated ssh_install_rear_xxx funcitons to solve (issue #62).

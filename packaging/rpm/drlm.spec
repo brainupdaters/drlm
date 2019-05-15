@@ -217,8 +217,8 @@ service drlm-stord start
 %endif
 
 %changelog
-* Wed May 08 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.0
-- Golang DRLM API replacing Apache2.
+* Wed May 15 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.0
+- Golang DRLM API replacing Apache2 and CGI-BIN.
 - Listbackup command now shows size and duration of backup.
 - Improved database version control.
 - dpkg purge section added.

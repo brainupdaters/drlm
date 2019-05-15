@@ -113,7 +113,7 @@ case "$1" in
 		if [ ! -d $VAR_DIR/run ]; then
 			mkdir $VAR_DIR/run
 		fi  
-		drlm-api $CGI_PATH &
+		drlm-api &
 		echo $! > $VAR_DIR/run/drlm-api.pid
 
 		case "$OSTYPE" in
