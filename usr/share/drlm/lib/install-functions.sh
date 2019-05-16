@@ -312,9 +312,16 @@ function copy_ssh_id () {
     local SUDO=$4
 
     PUBKEY=$(<~/.ssh/id_rsa.pub)
-    DRLM_USER_HOME_DIR=getent passwd "$DRLM_USER" | cut -d: -f6
 
-    ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO mkdir $DRLM_USER_HOME_DIR/.ssh && $SUDO echo '$PUBKEY' >> $DRLM_USER_HOME_DIR/.ssh/authorized_keys"
+    ssh $SSH_OPTS $USER@$CLI_NAME "DRLM_USER_HOME_DIR=\"\$(getent passwd \"$DRLM_USER\" | cut -d: -f6)\" ;
+        if [ ! -d \"\$DRLM_USER_HOME_DIR/.ssh\" ]; then
+            $SUDO mkdir \"\$DRLM_USER_HOME_DIR/.ssh\" ;
+            $SUDO chown $DRLM_USER:$DRLM_USER \$DRLM_USER_HOME_DIR/.ssh ;
+            $SUDO chmod 700 \$DRLM_USER_HOME_DIR/.ssh
+        fi ;
+        $SUDO echo '$PUBKEY' >> \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
+        $SUDO chown $DRLM_USER:$DRLM_USER \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
+        $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys"
 }
 
 function authors () {
