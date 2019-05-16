@@ -41,7 +41,7 @@ if [ -z "$CONFIG_ONLY" ]; then
                 fi
                 ;;
 
-            10*|buster/sid)
+            10*)
                 if check_apt "$USER" "$CLI_NAME" "$SUDO"; then
                     LogPrint "Installing dependencies and ReaR"
 
