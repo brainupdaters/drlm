@@ -5,7 +5,7 @@ Log "####################################################"
 case "$DISTRO" in
     Debian)
         case "$VERSION" in
-            [6*-10*])
+            [6*-9*]|10*)
                 if ssh_start_services "$USER" "$CLI_NAME" "$(eval echo \$REAR_SERVICES_DEBIAN"$VERSION")" "$DISTRO" "$SUDO"; then 
                     LogPrint "Services have been started succesfully" 
                 else 
