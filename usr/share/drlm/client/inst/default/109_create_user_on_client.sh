@@ -9,14 +9,10 @@ if [ $? -ne 0  ]; then  Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!" ;else Lo
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
-if [ $DISTRO == "Ubuntu" ]; then 
-    VERSION=$(echo $RELEASE|cut -c 1,2)
+if [ "$RELEASE" = "buster/sid" ]; then
+    VERSION="10"
 else
-    if [ "$RELEASE" = "buster/sid" ]; then
-        VERSION="10"
-    else
-        VERSION=$(echo $RELEASE|cut -c 1)
-    fi
+    VERSION=$(echo $RELEASE| cut -d "." -f 1)
 fi
 
 ARCH=$(get_arch $USER $CLI_NAME)
