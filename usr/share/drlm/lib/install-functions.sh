@@ -24,7 +24,7 @@ function get_arch() {
     local USER=$1
     local CLI_NAME=$2
     ARCH=$(echo $( ssh $SSH_OPTS $USER@$CLI_NAME arch ) | tr -dc '[:alnum:][:punct:]')
-    if [ $ARCH == "" ]; then echo noarch; else echo $ARCH ; fi
+    if [ "$ARCH" = "" ]; then echo noarch; else echo $ARCH ; fi
 }
 
 function ssh_get_release() {
@@ -63,7 +63,7 @@ function install_dependencies_apt () {
     local REAR_DEP_DEBIAN="$3"
     local REAR_DEP_UBUNTU="$3"
     local SUDO=$4
-    if [[ $DISTRO -eq "Debian" ]]; then
+    if [ "$DISTRO" = "Debian" ]; then
         ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEP_DEBIAN[@]} &> /dev/null)"
     else
         ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEP_UBUNTU[@]} &> /dev/null)"
@@ -83,8 +83,7 @@ function install_dependencies_yum () {
 function install_rear_yum () {
     $SUDO yum -y remove rear &> /dev/null
     $SUDO wget -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
-    if [ $? -ne 0 ]
-    then
+    if [ $? -ne 0 ]; then
         echo "Error Downloading rear package"
     else
         $SUDO yum --nogpgcheck -y install /tmp/rear.rpm &> /dev/null
@@ -111,14 +110,6 @@ function ssh_install_rear_yum () {
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function install_rear_zypper_repo () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper rm -y rear; $SUDO zypper in -y rear  &>/dev/null )"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
-}
-
 function install_rear_dpkg () {
     $SUDO apt-get -y remove rear &> /dev/null
     $SUDO wget -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
@@ -132,12 +123,28 @@ function install_rear_dpkg () {
     fi
 }
 
+function install_rear_deb_repo () {
+    local USER=$1
+    local CLI_NAME=$2
+    local SUDO=$3
+    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get -y remove rear; $SUDO apt-get -y install rear &>/dev/null )"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function ssh_install_rear_dpkg () {
     local USER=$1
     local CLI_NAME=$2
     local URL_REAR=$3
     local SUDO=$4
     ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_rear_zypper_repo () {
+    local USER=$1
+    local CLI_NAME=$2
+    local SUDO=$3
+    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper rm -y rear; $SUDO zypper in -y rear  &>/dev/null )"
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -169,37 +176,37 @@ function ssh_keygen () {
 }
 
 function send_drlm_managed () {
- local USER=$1
- local CLI_NAME=$2
- local SUDO=$3
- ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\n%s\n%s\n%s\n' "DRLM_MANAGED=y" "DRLM_SERVER=$(hostname -s)" "DRLM_ID=$CLI_NAME" 'DRLM_REST_OPTS=\"$REST_OPTS\"' | ${SUDO} tee /etc/rear/local.conf >/dev/null && ${SUDO} chmod 644 /etc/rear/local.conf )"
- if [ $? -eq 0 ];then return 0; else return 1; fi
+    local USER=$1
+    local CLI_NAME=$2
+    local SUDO=$3
+    ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\n%s\n%s\n%s\n' "DRLM_MANAGED=y" "DRLM_SERVER=$(hostname -s)" "DRLM_ID=$CLI_NAME" 'DRLM_REST_OPTS=\"$REST_OPTS\"' | ${SUDO} tee /etc/rear/local.conf >/dev/null && ${SUDO} chmod 644 /etc/rear/local.conf )"
+    if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function make_ssl_capath () {
- local USER=$1
- local CLI_NAME=$2
- local SUDO=$3
- ssh $SSH_OPTS ${USER}@${CLI_NAME} "( if [ ! -d /etc/rear/cert ]; then ${SUDO} mkdir -p /etc/rear/cert && ${SUDO} chmod 755 /etc/rear/cert; fi )"
- if [ $? -eq 0 ];then return 0; else return 1; fi
+    local USER=$1
+    local CLI_NAME=$2
+    local SUDO=$3
+    ssh $SSH_OPTS ${USER}@${CLI_NAME} "( if [ ! -d /etc/rear/cert ]; then ${SUDO} mkdir -p /etc/rear/cert && ${SUDO} chmod 755 /etc/rear/cert; fi )"
+    if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function send_ssl_cert () {
- local USER=$1
- local CLI_NAME=$2
- local SUDO=$3
- local CERT=$(cat /etc/drlm/cert/drlm.crt)
- ssh $SSH_OPTS ${USER}@${CLI_NAME} "$(declare -p CERT); ( echo \"$CERT\" | ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
- if [ $? -eq 0 ];then return 0; else return 1; fi
+    local USER=$1
+    local CLI_NAME=$2
+    local SUDO=$3
+    local CERT=$(cat /etc/drlm/cert/drlm.crt)
+    ssh $SSH_OPTS ${USER}@${CLI_NAME} "$(declare -p CERT); ( echo \"$CERT\" | ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
+    if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function send_drlm_hostname () {
- local USER=$1
- local CLI_NAME=$2
- local SRV_IP=$3
- local SUDO=$4
- ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )"
- if [ $? -eq 0 ];then return 0; else return 1; fi
+    local USER=$1
+    local CLI_NAME=$2
+    local SRV_IP=$3
+    local SUDO=$4
+    ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )"
+    if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function create_drlm_user () {
@@ -244,11 +251,11 @@ function ssh_remove_authorized_keys () {
 function start_services () {
     for service in ${SERVICES[@]}
     do
-        if [ $(ps -p 1 -o comm=) = "systemd" ]; then
+        if [ "$(ps -p 1 -o comm=)" = "systemd" ]; then
             $SUDO systemctl start $service.service
             $SUDO systemctl enable $service.service
         else
-            if [[ $DISTRO == "Debian" ]] || [[ $DISTRO == "Ubuntu" ]]; then
+            if [ "$DISTRO" = "Debian" ] || [ "$DISTRO" = "Ubuntu" ]; then
                 $SUDO /usr/sbin/service $service start
                 $SUDO /usr/sbin/update-rc.d $service enable
             else
@@ -271,7 +278,7 @@ function ssh_start_services () {
 
 function config_sudo () {
     export PATH="$PATH:/sbin:/usr/sbin"
-    if [ -z $SUDO ]; then SUDO_CMDS_DRLM=( $(which ${SUDO_CMDS_DRLM[@]}) ); else SUDO_CMDS_DRLM=( $($SUDO "PATH=$PATH" which ${SUDO_CMDS_DRLM[@]}) ); fi
+    if [ -z "$SUDO" ]; then SUDO_CMDS_DRLM=( $(which ${SUDO_CMDS_DRLM[@]}) ); else SUDO_CMDS_DRLM=( $($SUDO "PATH=$PATH" which ${SUDO_CMDS_DRLM[@]}) ); fi
     SLen=${#SUDO_CMDS_DRLM[@]}
     for (( i=0; i<$SLen; i++ )); do
         SUDO_COMMANDS+=( , ${SUDO_CMDS_DRLM[$i]} )

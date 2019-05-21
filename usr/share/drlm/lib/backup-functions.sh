@@ -97,7 +97,7 @@ function list_backup_all ()
 	    BAC_SIZE_DEC="%-15s"
     fi
 
-    printf '%-20s %-15s %-18s %-15s '$BAC_DURA_DEC' '$BAC_SIZE_DEC'\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"
+    printf '%-20s %-15s %-18s %-15s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' \n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -134,7 +134,7 @@ function list_backup ()
 	    BAC_SIZE_DEC="%-15s"
     fi
 
-    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-15s '$BAC_DURA_DEC' '$BAC_SIZE_DEC'\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"; fi
+    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-15s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' \n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"; fi
   done
 }
 
