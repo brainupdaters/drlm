@@ -229,6 +229,8 @@ service drlm-stord start
 - Added a column on list clients that shows if a client has scheduled jobs.
 - Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 - Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
+- Debian 10 Support on install client workflow.
+- Added ReaR 2.5 support on Debian 9.
 
 * Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).

@@ -10,6 +10,8 @@ drlm (2.3.0) stable release; urgency=high
   * Added a column on list clients that shows if a client has scheduled jobs.
   * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
   * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
+  * Debian 10 Support on install client workflow.
+  * Added ReaR 2.5 support on Debian 9.
 
  -- Néfix Estrada <nefix@brainupdaters.net>  Wed, 15 May 2019 00:00:00 +0100
 

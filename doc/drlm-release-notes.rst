@@ -88,6 +88,10 @@ DRLM Version 2.3.0 (May 2019) - Release Notes
 
   * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
 
+  * Debian 10 Support on install client workflow.
+
+  * Added ReaR 2.5 support on Debian 9.
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 
