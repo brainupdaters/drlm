@@ -71,7 +71,7 @@ DRLM Version 2.3.0 (May 2019) - Release Notes
   * Listbackup command now shows size and duration of backup.
 
   * Improved database version control.
-  
+
   * dpkg purge section added. 
 
   * Improved disable_nfs_fs function.
@@ -90,7 +90,7 @@ DRLM Version 2.3.0 (May 2019) - Release Notes
 
   * Debian 10 Support on install client workflow.
 
-  * Added ReaR 2.5 support on Debian 9.
+  * Added ReaR 2.5 support on Debian 9, Debian8, Ubuntu 18.
 
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
