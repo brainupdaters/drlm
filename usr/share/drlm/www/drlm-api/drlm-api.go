@@ -17,6 +17,11 @@ func check(e error) {
 	}
 }
 
+func validateHostname(h string) bool {
+	valid, _ := regexp.MatchString(`^[A-z0-9\.\-]+$`, h)
+	return valid
+}
+
 func sendConfigFile(w http.ResponseWriter, file string) {
 	if _, err := os.Stat(file); err == nil {
 		f, err := ioutil.ReadFile(file) // just pass the file name
@@ -32,6 +37,13 @@ func sendConfigFile(w http.ResponseWriter, file string) {
 
 func drlmClientsService(w http.ResponseWriter, r *http.Request) {
 	urlPart := strings.Split(r.URL.Path, "/")
+
+	if !validateHostname(urlPart[2]) {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "invalid hostname")
+		return
+	}
 
 	clientID, err := exec.Command("/bin/bash", "-c", "VAR_DIR=\"/var/lib/drlm\"; source /usr/share/drlm/conf/default.conf; source /etc/drlm/local.conf; source /usr/share/drlm/lib/dbdrv/$DB_BACKEND-driver.sh; source /usr/share/drlm/lib/http-functions.sh; source /usr/share/drlm/lib/client-functions.sh; get_client_id_by_name "+urlPart[2]).Output()
 	check(err)
