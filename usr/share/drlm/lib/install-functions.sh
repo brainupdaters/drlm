@@ -33,6 +33,11 @@ function ssh_get_release() {
     echo $(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -f get_release); get_release") | tr -dc '[:alnum:][:punct:]'
 }
 
+function ssh_get_rear_version() {
+    local CLI_NAME=$1
+    echo $(ssh $SSH_OPTS $DRLM_USER@$CLI_NAME "rear -V") | tr -dc '[:alnum:][:punct:]'
+}
+
 function check_apt () {
     local USER=$1
     local CLI_NAME=$2

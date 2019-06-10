@@ -64,7 +64,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.3.0 (May 2019) - Release Notes
+DRLM Version 2.3.0 (June 2019) - Release Notes
 --------------------------------------------------
   * Golang DRLM API replacing Apache2 and CGI-BIN.
 
@@ -90,7 +90,9 @@ DRLM Version 2.3.0 (May 2019) - Release Notes
 
   * Debian 10 Support on install client workflow.
 
-  * Added ReaR 2.5 support on Debian 9, Debian8, Ubuntu 18.
+  * Added ReaR 2.5 support on Debian 9, Debian8, Ubuntu 18, Ubuntu 16 and Ubuntu 14.
+
+  * Added OS version and ReaR version in listclient.
 
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------

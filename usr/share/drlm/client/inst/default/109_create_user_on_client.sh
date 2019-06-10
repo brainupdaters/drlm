@@ -13,7 +13,13 @@ VERSION=$(echo $RELEASE| cut -d "." -f 1)
 
 ARCH=$(get_arch $USER $CLI_NAME)
 if [ $DISTRO = "" ] || [ $RELEASE = "" ]; then
-   Error "$PROGRAM:$WORKFLOW: Missing Release or Distro!"
+    Error "$PROGRAM:$WORKFLOW: Missing Release or Distro!"
+else
+    if mod_client_os "$CLI_ID" "$DISTRO $RELEASE"; then
+        LogPrint "$PROGRAM:$WORKFLOW: Updating OS version $DISTRO $RELEASE of client $CLI_ID in the database"
+    else
+        LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update OS version of client $CLI_ID in the database"
+    fi
 fi
 
 #Create user on client

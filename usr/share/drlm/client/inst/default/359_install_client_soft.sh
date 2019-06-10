@@ -194,3 +194,11 @@ if [ -z "$CONFIG_ONLY" ]; then
 
     esac
 fi
+
+CLI_REAR="$(ssh_get_rear_version $CLI_NAME)"
+
+if mod_client_rear "$CLI_ID" "$CLI_REAR"; then
+    LogPrint "$PROGRAM:$WORKFLOW: Updating ReaR version $CLI_REAR of client $CLI_ID in the database"
+else
+    LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update ReaR version of client $CLI_ID in the database"
+fi

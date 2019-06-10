@@ -73,6 +73,20 @@ function get_client_net ()
   get_client_net_dbdrv "$CLI_ID"
 }
 
+function get_client_os ()
+{
+  local CLI_ID=$1
+  # Get client os from database and return it
+  get_client_os_dbdrv "$CLI_ID"
+}
+
+function get_client_rear ()
+{
+  local CLI_ID=$1
+  # Get client rear version from database and return it
+  get_client_rear_dbdrv "$CLI_ID"
+}
+
 function check_client_connectivity ()
 {
   local CLI_ID=$1
@@ -98,8 +112,9 @@ function add_client ()
   local CLI_IP=$3
   local CLI_OS=$4
   local CLI_NET=$5
+  local CLI_REAR=$6
 
-  add_client_dbdrv "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET"
+  add_client_dbdrv "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_REAR"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -167,11 +182,28 @@ function mod_client_net ()
  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
+function mod_client_os ()
+{
+ local CLI_ID=$1
+ local CLI_OS=$2
+ mod_client_os_dbdrv "$CLI_ID" "$CLI_OS"
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function mod_client_rear ()
+{
+ local CLI_ID=$1
+ local CLI_REAR=$2
+ mod_client_rear_dbdrv "$CLI_ID" "$CLI_REAR"
+ if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
 function list_client_all ()
 {
   printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Scheduled$(tput sgr0)"
-  for line in $(get_all_clients_dbdrv)
+  printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+  
+  for line in "$(get_all_clients_dbdrv)"
   do
     local CLI_ID=`echo $line|awk -F":" '{print $1}'`
     local CLI_NAME=`echo $line|awk -F":" '{print $2}'`
@@ -179,6 +211,7 @@ function list_client_all ()
     local CLI_IP=`echo $line|awk -F":" '{print $4}'`
     local CLI_OS=`echo $line|awk -F":" '{print $5}'`
     local CLI_NET=`echo $line|awk -F":" '{print $6}'`
+    local CLI_REAR=`echo $line|awk -F":" '{print $7}'`
 
 	if [ -z "$(has_jobs_scheduled "$CLI_ID")" ]; then
 		local CLI_HAS_JOBS="False"
@@ -186,8 +219,9 @@ function list_client_all ()
 		local CLI_HAS_JOBS="True"
 	fi
 
-    printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_HAS_JOBS"
+    printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
   done
+
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -197,9 +231,10 @@ function list_client ()
   local CLI_ID=$(get_client_id_by_name $CLI_NAME)
   local CLI_MAC=$(get_client_mac $CLI_ID)
   local CLI_IP=$(get_client_ip $CLI_ID)
-  local CLI_OS=""
+  local CLI_OS=$(get_client_os $CLI_ID)
   local CLI_NET=$(get_client_net $CLI_ID)
-  printf '%-15s\n' "$(tput bold)"
+  local CLI_REAR=$(get_client_rear $CLI_ID)
+
 
   if [ -z "$(has_jobs_scheduled "$CLI_ID")" ]; then
 	  local CLI_HAS_JOBS="False"
@@ -207,14 +242,15 @@ function list_client ()
 	  local CLI_HAS_JOBS="True"
   fi
 
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Scheduled$(tput sgr0)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_HAS_JOBS"
+  printf '%-15s\n' "$(tput bold)"
+  printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+  printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
 }
 
 function list_client_unsched () {
   printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Network" "Scheduled$(tput sgr0)"
-  for line in $(get_all_clients_dbdrv)
+  printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "Rear Version" "Network" "Scheduled$(tput sgr0)"
+  for line in "$(get_all_clients_dbdrv)"
   do
     local CLI_ID=`echo $line|awk -F":" '{print $1}'`
     local CLI_NAME=`echo $line|awk -F":" '{print $2}'`
@@ -222,10 +258,11 @@ function list_client_unsched () {
     local CLI_IP=`echo $line|awk -F":" '{print $4}'`
     local CLI_OS=`echo $line|awk -F":" '{print $5}'`
     local CLI_NET=`echo $line|awk -F":" '{print $6}'`
+    local CLI_REAR=`echo $line|awk -F":" '{print $7}'`
 
 	if [ -z "$(has_jobs_scheduled "$CLI_ID")" ]; then
 		local CLI_HAS_JOBS="False"
-		printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_HAS_JOBS"
+		printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
 	fi
 
   done
