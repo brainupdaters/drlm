@@ -35,7 +35,7 @@ function ssh_get_release() {
 
 function ssh_get_rear_version() {
     local CLI_NAME=$1
-    echo $(ssh $SSH_OPTS $DRLM_USER@$CLI_NAME "rear -V") | tr -dc '[:alnum:][:punct:]'
+    echo $(ssh $SSH_OPTS $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V") | tr -dc '[:alnum:][:punct:]'
 }
 
 function check_apt () {

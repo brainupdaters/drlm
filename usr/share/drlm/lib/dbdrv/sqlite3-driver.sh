@@ -107,7 +107,7 @@ function get_count_clients_dbdrv ()
 function get_clients_by_network_dbdrv ()
 {
   local NET_NAME=$1
-  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,":",os,":",networks_netname,":",rear,":" from clients where networks_netname="'${NET_NAME}'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients where networks_netname="'${NET_NAME}'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function get_all_client_names_dbdrv ()
