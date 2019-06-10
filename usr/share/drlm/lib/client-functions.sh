@@ -201,13 +201,14 @@ function mod_client_rear ()
 function list_client () {
   local CLI_NAME_PARAM="$1"
   local UNSHED_PARAM=$2
+  local PRETTY_PARAM="$3"
 
   if [ "$CLI_NAME_PARAM" = "all" ]; then 
     CLI_NAME_PARAM=""
   fi
 
   printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+  printf '%-6s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
 
   for client in $(get_all_client_names $CLI_NAME_PARAM); do
     local CLI_NAME=$client
@@ -224,8 +225,16 @@ function list_client () {
       local CLI_HAS_JOBS="True"
     fi
 
-    if [ -z $UNSHED_PARAM ] || { [ ! -z $UNSHED_PARAM ] && [ $CLI_HAS_JOBS = "False" ]; } ; then
-      printf '%-6s %-15s %-15s %-16s %-20s %-40s %-15s %-15s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
+    if [ ! $UNSHED_PARAM ] || { [ $UNSHED_PARAM ] && [ $CLI_HAS_JOBS = "False" ]; } ; then
+      if [ "$PRETTY_PARAM" = "true" ]; then
+        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" = "open" ]; then
+          printf '%-6s '"\\e[0;32m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
+        else
+          printf '%-6s '"\\e[0;31m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
+        fi
+      else  
+          printf '%-6s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
+      fi
     fi
 
   done

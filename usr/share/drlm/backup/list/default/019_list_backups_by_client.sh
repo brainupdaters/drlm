@@ -2,6 +2,8 @@ Log "####################################################"
 Log "# List of Backups : 	                         "
 Log "####################################################"
 
+if [ "$PRETTY" = true ] || [ "$DEF_PRETTY" = true ]; then PRETTY=true; fi
+
 if [ "$CLI_NAME" == "all" ]; then
     list_backup_all "$PRETTY"
 elif  exist_client_name "$CLI_NAME"; then

@@ -94,6 +94,8 @@ DRLM Version 2.3.0 (June 2019) - Release Notes
 
   * Added OS version and ReaR version in listclient.
 
+  * Added "-p" on list clients workflow to mark client status (up/down).
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 

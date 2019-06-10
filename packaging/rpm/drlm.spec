@@ -232,6 +232,7 @@ service drlm-stord start
 - Debian 10 Support on install client workflow.
 - Added ReaR 2.5 support on Debian 9, Debian8, Ubuntu 18, Ubuntu 16 and Ubuntu 14.
 - Added OS version and ReaR version in listclient.
+- Added "-p" on list clients workflow to mark client status (up/down).
 
 * Wed Oct 03 2018 Pau Roura <pau@brainupdaters.net> 2.2.1
 - Updated ssh_install_rear_xxx funcitons (issue #62).
