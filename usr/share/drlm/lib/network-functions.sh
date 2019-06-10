@@ -42,7 +42,7 @@ function ip_to_binary ()
     local binoctet=$(to_binary $octet)
     if [ $count -gt 1 ]
     then
-      binip=$binip.$binoctet 
+      binip=$binip.$binoctet
     else
       binip=$binoctet
     fi
@@ -163,12 +163,24 @@ function exist_network_ip ()
 }
 
 
+valid_client_name () {
+  local CLIENT_NAME="$1"
+  local REGEX="^[a-zA-Z0-9\.\-]+$"
+
+  if [[ $CLIENT_NAME =~ $REGEX ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+
 function valid_ip ()
 {
   local  IP=$1
   local  ERR=1
 
-  if [[ $IP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; 
+  if [[ $IP =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]];
   then
     OIFS=$IFS
     IFS='.'
@@ -177,7 +189,7 @@ function valid_ip ()
     [[ ${IP[0]} -le 255 && ${IP[1]} -le 255 && ${IP[2]} -le 255 && ${IP[3]} -le 255 ]]
     ERR=$?
   fi
-    
+
   return $ERR
 # Return 0 if IP is in correct format
 }
@@ -242,7 +254,7 @@ function check_net_port ()
 function check_ssh_port ()
 {
   local ip=$1
-  return $(check_net_port $ip ${SSH_PORT} &>/dev/null) 
+  return $(check_net_port $ip ${SSH_PORT} &>/dev/null)
 }
 
 function check_icmp()
@@ -292,15 +304,15 @@ function get_network_id_by_name ()
   fi
 }
 
-function get_network_ip () 
+function get_network_ip ()
 {
-  local NET_ID=$1  
+  local NET_ID=$1
   # Get netwok ip from database and return it
   get_network_ip_dbdrv "$NET_ID"
 }
 
 function get_network_name ()
-{  
+{
   local NET_ID=$1
   # Get network name from database and return it
   get_network_name_dbdrv "$NET_ID"
@@ -412,7 +424,7 @@ function mod_network_srv ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function list_network_all () 
+function list_network_all ()
 {
   printf '%-15s\n' "$(tput bold)"
   printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
