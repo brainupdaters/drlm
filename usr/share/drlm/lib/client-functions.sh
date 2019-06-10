@@ -240,7 +240,8 @@ function get_all_clients () {
 }
 
 function get_all_client_names () {
-  get_all_client_names_dbdrv
+  local CLI_NAME=$1
+  get_all_client_names_dbdrv "$CLI_NAME"
 }
 
 function get_clients_by_network () {
