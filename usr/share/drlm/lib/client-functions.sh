@@ -225,7 +225,7 @@ function list_client () {
       local CLI_HAS_JOBS="True"
     fi
 
-    if [ ! $UNSHED_PARAM ] || { [ $UNSHED_PARAM ] && [ $CLI_HAS_JOBS = "False" ]; } ; then
+    if [ "$UNSHED_PARAM" = "false" ] || { [ "$UNSHED_PARAM" = "ture" ] && [ $CLI_HAS_JOBS = "False" ]; } ; then
       if [ "$PRETTY_PARAM" = "true" ]; then
         if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" = "open" ]; then
           printf '%-6s '"\\e[0;32m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
