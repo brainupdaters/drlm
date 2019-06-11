@@ -87,7 +87,7 @@ function install_dependencies_yum () {
 
 function install_rear_yum () {
     $SUDO yum -y remove rear &> /dev/null
-    $SUDO wget -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
+    $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
     if [ $? -ne 0 ]; then
         echo "Error Downloading rear package"
     else
@@ -117,7 +117,7 @@ function ssh_install_rear_yum () {
 
 function install_rear_dpkg () {
     $SUDO apt-get -y remove rear &> /dev/null
-    $SUDO wget -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
+    $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
     if [ $? -ne 0 ]; then
         echo "Error Downloading rear package"
     else
@@ -155,7 +155,7 @@ function install_rear_zypper_repo () {
 
 function install_rear_zypper () {
     $SUDO zypper rm -y rear &> /dev/null
-    $SUDO wget -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
+    $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
     if [ $? -ne 0 ]; then
         echo "Error Downloading rear package"
     else
