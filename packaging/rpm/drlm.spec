@@ -105,7 +105,7 @@ if [ "$1" == "2" ]; then
 drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
 ### Stop drlm-stord
-%if %(ps -p 1 -o comm=) == "systemd"
+%if "%(ps -p 1 -o comm=)" == "systemd"
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
 systemctl daemon-reload
@@ -132,7 +132,7 @@ fi
 ### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
 ### If is SYSTEMD ###############################################################################################
-%if %(ps -p 1 -o comm=) == "systemd"
+%if "%(ps -p 1 -o comm=)" == "systemd"
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
@@ -172,7 +172,7 @@ fi
 
 %preun
 %{__rm} /etc/drlm/cert/drlm.*
-%if %(ps -p 1 -o comm=) == "systemd"
+%if "%(ps -p 1 -o comm=)" == "systemd"
 systemctl stop drlm-stord.service
 systemctl disable drlm-stord.service
 systemctl daemon-reload
@@ -205,7 +205,7 @@ mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
 mv /etc/drlm/cert/tmp_drlm.crt /etc/drlm/cert/drlm.crt
 fi
 
-%if %(ps -p 1 -o comm=) == "systemd"
+%if "%(ps -p 1 -o comm=)" == "systemd"
 mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
 systemctl daemon-reload
 systemctl enable drlm-stord.service
