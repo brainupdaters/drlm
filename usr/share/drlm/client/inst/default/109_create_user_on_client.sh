@@ -4,14 +4,19 @@ Log "####################################################"
 
 LogPrint "$PROGRAM:$WORKFLOW: Installing software with user ${USER}"
 LogPrint "$PROGRAM:$WORKFLOW: Sending Key for user: ${USER}"
-ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
-if [ $? -ne 0  ]; then  Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!" ;else Log "$PROGRAM:$WORKFLOW: Key succesfully copied to $CLI_NAME"; fi
-DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 
+ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
+if [ $? -ne 0  ]; then  
+    Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!"
+else 
+    Log "$PROGRAM:$WORKFLOW: Key succesfully copied to $CLI_NAME" 
+fi
+
+DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
 VERSION=$(echo $RELEASE| cut -d "." -f 1)
-
 ARCH=$(get_arch $USER $CLI_NAME)
+
 if [ $DISTRO = "" ] || [ $RELEASE = "" ]; then
     Error "$PROGRAM:$WORKFLOW: Missing Release or Distro!"
 else
@@ -27,7 +32,7 @@ ssh $SSH_OPTS ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
 if [ $? -eq 0 ]; then
     Log "$PROGRAM:$WORKFLOW: ${DRLM_USER} exists, deleting user ..."
     delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
-    if [ $? -ne 0  ];     then
+    if [ $? -ne 0  ]; then
         Error "$PROGRAM:$WORKFLOW: User ${DRLM_USER} deletion Failed!!!"
     fi
 fi
@@ -41,7 +46,7 @@ else
     #Send key for drlm user
     LogPrint "$PROGRAM:$WORKFLOW: Sending ssh key for drlm user ..."
     copy_ssh_id ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
-    if [ $? -ne 0  ];     then
+    if [ $? -ne 0  ]; then
         Error "$PROGRAM:$WORKFLOW: Sending key for ${DRLM_USER} Failed!!!"
     else
         LogPrint "$PROGRAM:$WORKFLOW: key for $DRLM_USER has been sent on $CLI_NAME"

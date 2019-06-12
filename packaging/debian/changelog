@@ -14,6 +14,7 @@ drlm (2.3.0) stable release; urgency=high
   * Added ReaR 2.5 support on Debian 9, Debian8, Ubuntu 18, Ubuntu 16 and Ubuntu 14.
   * Added OS version and ReaR version in listclient.
   * Added "-p" on list clients workflow to mark client status (up/down).
+  * Installclient workflow install ReaR packages from default.conf by default. Is possible to force to install ReaR from repositories with -r/--repo parameter (issue #114). 
 
  -- Néfix Estrada <nefix@brainupdaters.net>  Mon, 10 Jun 2019 00:00:00 +0100
 

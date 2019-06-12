@@ -96,6 +96,8 @@ DRLM Version 2.3.0 (June 2019) - Release Notes
 
   * Added "-p" on list clients workflow to mark client status (up/down).
 
+  * Installclient workflow install ReaR packages from default.conf by default. Is possible to force to install ReaR from repositories with -r/--repo parameter (issue #114).
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 
