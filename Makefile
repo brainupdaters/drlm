@@ -71,6 +71,7 @@ help:
   dist            - Create tar file\n\
   deb             - Create DEB package\n\
   rpm             - Create RPM package\n\
+  docker          - Create Docker image\n\
 \n\
 DRLM make variables (optional):\n\
 \n\
@@ -81,6 +82,7 @@ DRLM make variables (optional):\n\
 clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
+	rm -f packaging/docker/src/drlm*.deb
 
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
@@ -227,3 +229,10 @@ deb: dist
 	-rm -rf debian/
 	rm $(name)-$(distversion).tar.gz
 	rm build-stamp
+
+docker: dist deb
+	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
+	cp ../drlm*.deb packaging/docker/src/
+	cd packaging/docker; ./setup.sh
+	mkdir ../drlm-docker; mkdir ../drlm-docker/nfs; mkdir ../drlm-docker/tftp
+	cp -r packaging/docker/etc packaging/docker/env.conf packaging/docker/run.sh ../drlm-docker/

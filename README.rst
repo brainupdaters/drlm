@@ -68,6 +68,14 @@ For more information about Disaster Recovery Linux Manager intallation,
 please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
+On a Docker environment you can execute the command:
+::
+
+  $ make docker
+
+Docker engine 17.04+ needs to be installed on the host in order to run the docker container version.
+The docker version builds a debian 10 image with required services baked in.
+
 
 CONFIGURATION
 -------------
@@ -89,12 +97,59 @@ For more information about Disaster Recovery Linux Manager configuration,
 please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
+Docker configurations:
+
+packaging/docker/etc/default = DHCP and NFS default settings
+
+Change the isc-dhcp-server INTERFACESV4 or V6 setting to the running host listening network interface
+
+Tweak the nfs-kernel-server if required (optional)
+
+packaging/docker/env.conf = DOCKER_IMAGE and DOCKER_TAG names and version change (optional)
+
+Host nfs and tftp locations can be changed to new locations i.e. /mnt/nfs or other external storage
+
+NFS_DIR
+TFTP_DIR
+
+Ports for internal container can be customised for each service
+
+Rpcbind
+
+PORT_111_TCP=
+
+Nfs Ports
+
+PORT_2049_TCP
+
+Dhcp
+
+PORT_67
+
+Tftp
+
+PORT_69
+
+Default container name = drlm-server (run.sh)
+
 
 USAGE
 -----
 
 To use Disaster Recovery Linux Manager you always call the main script
 '/usr/sbin/drlm':
+
+or
+
+Docker container start and run drlm command:
+
+cd drlm-docker; ./run.sh - to start the drlm container
+
+To just run commands in the running container:
+
+docker exec -it drlm-server drlm
+
+To stop the container - docker stop drlm-server
 
 ::
 
