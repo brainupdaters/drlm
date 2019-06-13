@@ -2,9 +2,9 @@
 #
 # instclient workflow for Disater Recovery Linux Server
 #
-#    Disater Recovery Linux Server is free software; you can redistribute it 
-#    and/or modify it under the terms of the GNU General Public License as 
-#    published by the Free Software Foundation; either version 2 of the 
+#    Disater Recovery Linux Server is free software; you can redistribute it
+#    and/or modify it under the terms of the GNU General Public License as
+#    published by the Free Software Foundation; either version 2 of the
 #    License, or (at your option) any later version.
 
 #    Disater Recovery Linux Server is distributed in the hope that it will be
@@ -22,7 +22,7 @@ WORKFLOW_instclient_DESCRIPTION="install client from DRLM"
 WORKFLOWS=( ${WORKFLOWS[@]} instclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
-if [ $WORKFLOW == "instclient" ]; then 
+if [ $WORKFLOW == "instclient" ]; then
     # Parse options
     OPT="$(getopt -n $WORKFLOW -o "c:I:u:U:Crh" -l "client:,id:,user:,url_rear:,configk,repo,help,Authors" -- "$@")"
     if (( $? != 0 )); then
@@ -35,23 +35,23 @@ if [ $WORKFLOW == "instclient" ]; then
         case "$1" in
             (-c|--client)
                 # We need to take the option argument
-                if [ -n "$2" ]; then 
+                if [ -n "$2" ]; then
                     CLI_NAME="$2"
                 else
-                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
                     exit 1
                 fi
-                shift 
+                shift
                 ;;
 
             (-I|--id)
                 # We need to take the option argument
-                if [ -n "$2" ]; then 
-                    CLI_ID="$2" 
+                if [ -n "$2" ]; then
+                    CLI_ID="$2"
                 else
-                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
                     exit 1
-                fi 
+                fi
                 shift
                 ;;
 
@@ -66,7 +66,8 @@ if [ $WORKFLOW == "instclient" ]; then
                 shift
                 ;;
 
-            (-U|--url_rear)
+            # The --url_rear parameter is kept to ensure backwards compatibility
+            (-U|--urlrear|--url_rear)
                 # We need to take the option argument
                 if [ -n "$2" ]; then
                     URL_REAR="$2"
@@ -91,12 +92,12 @@ if [ $WORKFLOW == "instclient" ]; then
                 ;;
 
             (--Authors)
-                authors 
+                authors
                 exit 0
                 ;;
 
-            (--) 
-                shift 
+            (--)
+                shift
                 break
                 ;;
 

@@ -2,9 +2,9 @@
 #
 # addclient workflow for Disater Recovery Linux Server
 #
-#    Disater Recovery Linux Server is free software; you can redistribute it 
-#    and/or modify it under the terms of the GNU General Public License as 
-#    published by the Free Software Foundation; either version 2 of the 
+#    Disater Recovery Linux Server is free software; you can redistribute it
+#    and/or modify it under the terms of the GNU General Public License as
+#    published by the Free Software Foundation; either version 2 of the
 #    License, or (at your option) any later version.
 
 #    Disater Recovery Linux Server is distributed in the hope that it will be
@@ -22,7 +22,7 @@ WORKFLOW_addclient_DESCRIPTION="register new client to DB."
 WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addclient )
 
-if [ "$WORKFLOW" == "addclient" ]; then 
+if [ "$WORKFLOW" == "addclient" ]; then
     # Parse options
     OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:ICru:U:h" -l "client:,ipaddr:,macaddr:,netname:,installclient,config,repo,user:,url_rear:,help" -- "$@")"
     if (( $? != 0 )); then
@@ -35,45 +35,45 @@ if [ "$WORKFLOW" == "addclient" ]; then
         case "$1" in
             (-c|--client)
                 # We need to take the option argument
-                if [ -n "$2" ]; then 
+                if [ -n "$2" ]; then
                     CLI_NAME="$2"
                 else
-                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
                     exit 1
                 fi
-                shift 
+                shift
                 ;;
 
             (-i|--ipaddr)
                 # We need to take the option argument
-                if [ -n "$2" ]; then 
-                    CLI_IP="$2" 
+                if [ -n "$2" ]; then
+                    CLI_IP="$2"
                 else
-                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
                     exit 1
-                fi 
+                fi
                 shift
                 ;;
 
             (-M|--macaddr)
                 # We need to take the option argument
-                if [ -n "$2" ]; then 
-                    CLI_MAC="$2" 
+                if [ -n "$2" ]; then
+                    CLI_MAC="$2"
                 else
-                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
                     exit 1
-                fi 
+                fi
                 shift
                 ;;
 
             (-n|--netname)
                 # We need to take the option argument
-                if [ -n "$2" ]; then 
-                    CLI_NET="$2" 
+                if [ -n "$2" ]; then
+                    CLI_NET="$2"
                 else
-                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+                    echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
                     exit 1
-                fi 
+                fi
                 shift
                 ;;
 
@@ -84,7 +84,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
             (-C|--config)
                 CONFIG_ONLY=true
                 ;;
-            
+
             (-r|--repo)
                 REPO_INST=true
                 ;;
@@ -100,7 +100,8 @@ if [ "$WORKFLOW" == "addclient" ]; then
                 shift
                 ;;
 
-            (-U|--url_rear)
+            # The --url_rear parameter is kept to ensure backwards compatibility
+            (-U|--urlrear|--url_rear)
                 # We need to take the option argument
                 if [ -n "$2" ]; then
                     URL_REAR="$2"
@@ -116,8 +117,8 @@ if [ "$WORKFLOW" == "addclient" ]; then
                 exit 0
                 ;;
 
-            (--) 
-                shift 
+            (--)
+                shift
                 break
                 ;;
 
