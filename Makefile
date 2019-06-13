@@ -230,9 +230,6 @@ deb: dist
 	rm $(name)-$(distversion).tar.gz
 	rm build-stamp
 
-docker: dist deb
+docker: dist
 	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
-	cp ../drlm*.deb packaging/docker/src/
 	cd packaging/docker; ./setup.sh
-	mkdir ../drlm-docker; mkdir ../drlm-docker/nfs; mkdir ../drlm-docker/tftp
-	cp -r packaging/docker/etc packaging/docker/env.conf packaging/docker/run.sh ../drlm-docker/

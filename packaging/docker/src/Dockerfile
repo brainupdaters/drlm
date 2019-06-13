@@ -3,6 +3,31 @@ FROM debian:buster-slim
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
+# Add package dependencies to build drlm
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+    git build-essential debhelper golang fakeroot \
+    apt-transport-https ca-certificates && \
+    # Clean rootfs
+    apt-get clean all && \
+    apt-get autoremove -y && \
+    apt-get purge && \
+    rm -rf /var/lib/{apt,dpkg,cache,log} && \
+    update-ca-certificates 
+
+# GIT clone drlm repo
+RUN git clone https://github.com/brainupdaters/drlm -b release/2.3.0 tmp/drlm
+
+# Make Debian DEB for final DRLM image
+RUN cd /tmp/drlm; make deb
+
+# Build final DRLM image with built DEB
+
+FROM debian:buster-slim
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV DEBCONF_NONINTERACTIVE_SEEN true
+
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         isc-dhcp-server \
@@ -22,9 +47,9 @@ RUN apt-get update && \
     mkdir -p /run/sendsigs.omit.d && \
     touch /run/sendsigs.omit.d/rpcbind
 
-COPY drlm*.deb .
+COPY --from=0 /tmp/drlm*.deb .
 
-RUN dpkg -i drlm*.deb
+RUN dpkg -i drlm*.deb; rm -f drlm*.deb
 
 # Export the NFS server ports
 EXPOSE 111/tcp \
