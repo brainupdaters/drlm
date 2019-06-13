@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 
 if [ "$WORKFLOW" == "addclient" ]; then
     # Parse options
-    OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:ICru:U:h" -l "client:,ipaddr:,macaddr:,netname:,installclient,config,repo,user:,url_rear:,help" -- "$@")"
+    OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:ICru:U:h" -l "client:,ipaddr:,macaddr:,netname:,installclient,config,repo,user:,urlrear:,url_rear:,help" -- "$@")"
     if (( $? != 0 )); then
         echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
         exit 1
