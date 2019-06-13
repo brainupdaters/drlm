@@ -3,7 +3,7 @@ function get_distro () {
     if [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;fi
     if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo RedHat;fi
     if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;fi
-    if [ -f /etc/SuSE-release ]; then echo Suse; fi
+    if [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo Suse; fi
 }
 
 function ssh_get_distro() {
@@ -18,6 +18,7 @@ function get_release() {
     if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
     if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
     if [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';fi
+    if [ -f /etc/SUSE-brand ]; then cat /etc/SUSE-brand|grep VERSION| awk '{print $3}';fi
 }
 
 function get_arch() {
@@ -65,14 +66,9 @@ function check_zypper () {
 function install_dependencies_apt () {
     local USER=$1
     local CLI_NAME=$2
-    local REAR_DEP_DEBIAN="$3"
-    local REAR_DEP_UBUNTU="$3"
+    local REAR_DEPENDENCIES="$3"
     local SUDO=$4
-    if [ "$DISTRO" = "Debian" ]; then
-        ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEP_DEBIAN[@]} &> /dev/null)"
-    else
-        ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEP_UBUNTU[@]} &> /dev/null)"
-    fi
+    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)"
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -82,6 +78,15 @@ function install_dependencies_yum () {
     local REAR_DEP_REDHAT="$3"
     local SUDO=$4
     ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum -y install ${REAR_DEP_REDHAT[@]} &>/dev/null )"
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_dependencies_zypper () {
+    local USER=$1
+    local CLI_NAME=$2
+    local REAR_DEP_SUSE="$3"
+    local SUDO=$4
+    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper --no-gpg-checks in -y ${REAR_DEP_SUSE[@]} &>/dev/null )"
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -326,13 +331,14 @@ function copy_ssh_id () {
     PUBKEY=$(<~/.ssh/id_rsa.pub)
 
     ssh $SSH_OPTS $USER@$CLI_NAME "DRLM_USER_HOME_DIR=\"\$(getent passwd \"$DRLM_USER\" | cut -d: -f6)\" ;
+        DRLM_USER_GROUP=\"\$(id -gn root)\" ;
         if [ ! -d \"\$DRLM_USER_HOME_DIR/.ssh\" ]; then
             $SUDO mkdir \"\$DRLM_USER_HOME_DIR/.ssh\" ;
-            $SUDO chown $DRLM_USER:$DRLM_USER \$DRLM_USER_HOME_DIR/.ssh ;
+            $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh ;
             $SUDO chmod 700 \$DRLM_USER_HOME_DIR/.ssh
         fi ;
         $SUDO echo '$PUBKEY' >> \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
-        $SUDO chown $DRLM_USER:$DRLM_USER \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
+        $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
         $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys"
 }
 

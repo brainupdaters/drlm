@@ -200,11 +200,11 @@ if [ -z "$CONFIG_ONLY" ]; then
             # Installing DRLM and ReaR dependencies
             LogPrint "Installing dependencies and ReaR"
             
-            #if install_dependencies_zypper "$USER" "$CLI_NAME" "$SUDO"; then
-            #    Log "Dependencies have been installed"
-            #else
-            #    Error "Error installing dependencies, check logfile"
-            #fi
+            if install_dependencies_zypper "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_SUSE"$VERSION")" "$SUDO"; then
+                Log "Dependencies have been installed"
+            else
+                Error "Error installing dependencies, check logfile"
+            fi
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
             if [ "$REPO_INST" = "true" ]; then

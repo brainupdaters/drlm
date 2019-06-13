@@ -13,7 +13,7 @@ case "$DISTRO" in
                 fi
                 ;;
             *)
-                Error "Debian release not identified!"
+                Error "$DISTRO - $VERSION release not identified or unsupported!"
                 ;;
         esac
         ;;
@@ -28,7 +28,7 @@ case "$DISTRO" in
                 fi
                 ;;
             *)
-                Error "Ubuntu version not identified or unsupported!"
+                Error "$DISTRO - $VERSION release not identified or unsupported!"
                 ;;
         esac
         ;;
@@ -43,23 +43,23 @@ case "$DISTRO" in
                 fi
                 ;;
             *)
-                Error "CentOS / RHEL Release not identified!"
+                Error "$DISTRO - $VERSION release not identified or unsupported!"
                 ;;
         esac
         ;;
 
     Suse)
         case "$VERSION" in
-            [11*-12*-13*-42*])
-                if ssh_start_services "$USER" "$CLI_NAME" "$REAR_SERVICES_SUSE12" "$DISTRO" "$SUDO"; then LogPrint "Services have been started succesfully"; else Error "Problem starting services"; fi
+            1[1-2-3-5]|42)
+                if ssh_start_services "$USER" "$CLI_NAME" "$(eval echo \$REAR_SERVICES_SUSE"$VERSION")" "$DISTRO" "$SUDO"; then LogPrint "Services have been started succesfully"; else Error "Problem starting services"; fi
                 ;;
             *)
-                Error "SUSE Release not identified!"
+                Error "$DISTRO - $VERSION release not identified or unsupported!"
                 ;;
         esac
         ;;
 
     *)
-        Error "GNU/Linux Distribution not identified"
+        Error "$DISTRO - $VERSION is a GNU/Linux Distribution not identified or unsupported by DRLM"
         ;;
 esac
