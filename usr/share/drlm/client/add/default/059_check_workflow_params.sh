@@ -51,9 +51,17 @@ fi
 
 Log "$PROGRAM:$WORKFLOW: Checking if client name: $CLI_NAME is registered in DRLM database ..."
 
-if exist_client_name "$CLI_NAME" ;	
-then
-	Error "$PROGRAM:$WORKFLOW: Client $CLINAME already registered!"
+if valid_client_name "$CLI_NAME"; then
+  Log "$PROGRAM:$WORKFLOW: Client name: $CLI_NAME has a valid format..."
+
+  if exist_client_name "$CLI_NAME" ;
+  then
+    Error "$PROGRAM:$WORKFLOW: Client $CLINAME already registered!"
+  else
+    Log "$PROGRAM:$WORKFLOW: Client name: $CLI_NAME is not in use..."
+  fi
+else
+	Error "$PROGRAM:$WORKFLOW: Client name: $CLI_NAME has wrong format. [ Correct this and try again ]"
 fi
 
 Log "Checking if client IP: ${CLI_IP} is registered in DRLM database ..."
