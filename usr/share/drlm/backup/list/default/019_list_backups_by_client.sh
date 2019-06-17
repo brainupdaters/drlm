@@ -1,15 +1,13 @@
 Log "####################################################"
 Log "# List of Backups : 	                         "
 Log "####################################################"
-CLI_ID=$(get_client_id_by_name $CLI_NAME)
-if ! exist_client_name "$CLI_NAME" 
-then
-	if [ "$CLI_NAME" == "all" ]
-	then
-        	list_backup_all
-	else
-		printf '%25s\n' "$(tput bold)$CLI_NAME$(tput sgr0) not found in database!!"	
-	fi
+
+if [ "$PRETTY" = true ] || [ "$DEF_PRETTY" = true ]; then PRETTY=true; fi
+
+if [ "$CLI_NAME" == "all" ]; then
+    list_backup_all "$PRETTY"
+elif  exist_client_name "$CLI_NAME"; then
+	list_backup "$CLI_NAME" "$PRETTY"
 else
-	list_backup $CLI_NAME
+	printf '%25s\n' "$(tput bold)$CLI_NAME$(tput sgr0) not found in database!!"
 fi

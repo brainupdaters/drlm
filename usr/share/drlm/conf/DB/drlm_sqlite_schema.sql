@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "clients" (
   PRIMARY KEY ("cliname")
   CONSTRAINT "fk_clients_networks" FOREIGN KEY ("networks_netname") REFERENCES "networks" ("netname") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
 CREATE TABLE IF NOT EXISTS "networks" (
   "idnetwork" int(11) NOT NULL ,
   "netip" varchar(15) NOT NULL,
@@ -22,6 +23,7 @@ CREATE TABLE IF NOT EXISTS "networks" (
   "netname" varchar(45) NOT NULL,
   PRIMARY KEY ("netname")
 );
+
 CREATE TABLE IF NOT EXISTS "backups" (
   "idbackup" varchar(14) NOT NULL,
   "clients_id" int(11) NOT NULL,
@@ -63,5 +65,12 @@ CREATE TABLE IF NOT EXISTS "counters" (
     "value" int(11) NOT NULL,
     PRIMARY KEY ("idcounter")
 );
+
+-- 2.3.0 new
+
+ALTER TABLE backups ADD COLUMN "duration" VARCHAR(12);
+ALTER TABLE backups ADD COLUMN "size" VARCHAR(12);
+ALTER TABLE clients ADD COLUMN "os" VARCHAR(45);
+ALTER TABLE clients ADD COLUMN "rear" VARCHAR(45);
 
 COMMIT;

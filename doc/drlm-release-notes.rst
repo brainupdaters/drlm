@@ -64,6 +64,40 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.3.0 (June 2019) - Release Notes
+--------------------------------------------------
+  * Golang DRLM API replacing Apache2 and CGI-BIN.
+
+  * Listbackup command now shows size and duration of backup.
+
+  * Improved database version control.
+
+  * dpkg purge section added. 
+
+  * Improved disable_nfs_fs function.
+
+  * Added "-C" on install workflow to allow configuration of the client without install dependencies.  
+
+  * Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
+
+  * Added "-U" on list clients to list the clients that have no scheduled jobs.
+
+  * Added a column on list clients that shows if a client has scheduled jobs.
+
+  * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
+
+  * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
+
+  * Debian 10 Support on install client workflow.
+
+  * Added ReaR 2.5 support on Debian 10, Debian 9, Debian 8, Ubuntu 18, Ubuntu 16, Ubuntu 14, Centos 6 and Centos 7.
+
+  * Added OS version and ReaR version in listclient.
+
+  * Added "-p" on list clients workflow to mark client status (up/down).
+
+  * Installclient workflow install ReaR packages from default.conf by default. Is possible to force to install ReaR from repositories with -r/--repo parameter (issue #114).
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 

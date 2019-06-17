@@ -129,15 +129,15 @@ __drlm_addnetwork ()
 
 __drlm_addclient ()
 {
-	local options_s="-i -c -M -n -I -u -U -h"
-	local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --help"
+	local options_s="-i -c -M -n -I -u -U -r -C -h"
+	local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --repo --config --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --installclient" "$workflow"; then
-		local options_s="-i -c -M -n -I -u -U"
-		local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear"
+		local options_s="-i -c -M -n -I -u -U -r -C"
+		local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --repo --config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
 		local options_s="-i -c -M -n -I"
 		local options_l="--ipaddr --client --macaddr --netname --installclient"
@@ -431,18 +431,24 @@ __drlm_listnetwork ()
 
 __drlm_listclient ()
 {
-	local options_s="-c -A -h"
-	local options_l="--client --all --help"
+	local options_s="-c -A -U -p -h"
+	local options_l="--client --all --unsched --pretty --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-n"
-		local options_l="--netname"
+		local options_s="-n -p"
+		local options_l="--netname --pretty"
 	elif __drlm_exist_option "-A --all" "$workflow"; then
-		local options_s="-A"
-		local options_l="--all"
+		local options_s="-A -U -p"
+		local options_l="--all --unsched --pretty"
+	elif __drlm_exist_option "-U --unsched" "$workflow"; then
+		local options_s="-U -p -A"
+		local options_l="--unsched --pretty --all"
+	elif __drlm_exist_option "-p --pretty" "$workflow"; then
+		local options_s="-p -U -A"
+		local options_l="--pretty --unsched --all"
 	fi
 
 	case "$prev" in
@@ -461,18 +467,21 @@ __drlm_listclient ()
 
 __drlm_listbackup ()
 {
-	local options_s="-c -A -h"
-	local options_l="--client --all --help"
+	local options_s="-c -A -p -h"
+	local options_l="--client --all --pretty --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-c"
-		local options_l="--client"
+		local options_s="-c -p"
+		local options_l="--client --pretty"
 	elif __drlm_exist_option "-A --all" "$workflow"; then
-		local options_s="-A"
-		local options_l="--all"
+		local options_s="-A -p"
+		local options_l="--all --pretty"
+	elif __drlm_exist_option "-p --pretty" "$workflow"; then
+		local options_s="-p -c -A"
+		local options_l="--pretty --client --all"
 	fi
 
 	case "$prev" in
@@ -551,15 +560,21 @@ __drlm_expbackup ()
 
 __drlm_impbackup ()
 {
-	local options_s="-c -f -h"
-	local options_l="--client --file --help"
+	local options_s="-c -f -I -h"
+	local options_l="--client --file  --id --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
-	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
+	elif __drlm_exist_option "-f --file" "$workflow"; then
 		local options_s="-c -f"
 		local options_l="--client --file"
+	elif __drlm_exist_option "-I --id" "$workflow"; then
+		local options_s="-c -I"
+		local options_l="--client --id"
+	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
+		local options_s="-c -f -I"
+		local options_l="--client --file --id"
 	fi
 
 	case "$prev" in
@@ -573,6 +588,13 @@ __drlm_impbackup ()
 		-f | --file)
 			_filedir
 			;;
+		-I | --id)
+			local i=0
+			query=$(get_all_backup_id_dbdrv "$cur")
+			for result in $query; do
+				COMPREPLY[i++]="$result"
+			done
+			;;
 		*)
 			__drlmcomp3 "$options_s" "$options_l"
 			;;
@@ -581,21 +603,30 @@ __drlm_impbackup ()
 
 __drlm_instclient ()
 {
-	local options_s="-c -I -u -U -h"
-	local options_l="--client --id --user --url_rear --help"
+	local options_s="-c -I -u -U -r -C -h"
+	local options_l="--client --id --user --url_rear --repo --config --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-c -u -U"
-		local options_l="--client --user -url_rear"
+		local options_s="-c -u -U -r -C"
+		local options_l="--client --user --url_rear --repo --config"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I -u -U"
-		local options_l="--id --user --url_rear"
+		local options_s="-I -u -U -r -C"
+		local options_l="--id --user --url_rear --repo --config"
+	elif __drlm_exist_option "-C --config" "$workflow"; then
+		local options_s="-C -c -I -u"
+		local options_l="--config --clinet --id --user"
+	elif __drlm_exist_option "-U --url_rear" "$workflow"; then
+		local options_s="-U -I -u"
+		local options_l="--url_rear --id --user"
+	elif __drlm_exist_option "-r --repo" "$workflow"; then
+		local options_s="-r -I -u"
+		local options_l="--repo --id --user"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -I -u -U"
-		local options_l="--client --id --user --url_rear"
+		local options_s="-c -I -u -U -r -C"
+		local options_l="--client --id --user --url_rear --repo --config"
 	fi
 
 	case "$prev" in

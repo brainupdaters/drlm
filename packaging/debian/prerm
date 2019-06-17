@@ -3,46 +3,46 @@ set -e
 
 case "$1" in
     remove)
-      if [ $(ps -p 1 -o comm=) = "systemd" ]
-      then
-        systemctl stop drlm-stord.service
-        systemctl disable drlm-stord.service
-        rm /etc/systemd/system/drlm-stord.service
-        systemctl daemon-reload
-      else
-        service drlm-stord stop
-        update-rc.d drlm-stord remove
-        rm /etc/init.d/drlm-stord
-      fi
-      mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
-      mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
-      mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
-      mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
-      rm /etc/drlm/cert/drlm.*
-      ;;
+        #Check for systemd or initd
+        if [ $(ps -p 1 -o comm=) = "systemd" ]; then
+            systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+            systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+            [ -f /etc/systemd/system/drlm-stord.service ] && rm /etc/systemd/system/drlm-stord.service
+            systemctl daemon-reload
+        else
+            service drlm-stord stop
+            update-rc.d drlm-stord remove
+            [ -f /etc/init.d/drlm-stord ] && rm /etc/init.d/drlm-stord
+        fi
+
+        #Save the old database
+        [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+        [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
+        rm /etc/drlm/cert/drlm.*
+        ;;
 
     upgrade)
-      if [ $(ps -p 1 -o comm=) = "systemd" ]
-      then
-        systemctl stop drlm-stord.service
-        systemctl disable drlm-stord.service
-        rm /etc/systemd/system/drlm-stord.service
-        systemctl daemon-reload
-      else
-        service drlm-stord stop
-        update-rc.d drlm-stord remove
-        rm /etc/init.d/drlm-stord
-      fi
-      mv /var/lib/drlm/client.data /var/lib/drlm/client.data.save
-      mv /var/lib/drlm/network.data /var/lib/drlm/network.data.save
-      mv /var/lib/drlm/backup.data /var/lib/drlm/backup.data.save
-      mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/drlm.sqlite.save
-      #rm /etc/drlm/cert/drlm.*
-      ;;
+        #Check for systemd or initd
+        if [ $(ps -p 1 -o comm=) = "systemd" ]; then
+            systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+            systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+            [ -f /etc/systemd/system/drlm-stord.service ] && rm /etc/systemd/system/drlm-stord.service
+            systemctl daemon-reload
+        else
+            service drlm-stord stop
+            update-rc.d drlm-stord remove
+            [ -f /etc/init.d/drlm-stord ] && rm /etc/init.d/drlm-stord
+        fi
+
+        #Save the old database
+        [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+        [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
+        ;;
 
     *)
-      exit 0
-      ;;
+        exit 0
+        ;;
+
 esac
 
 exit 0

@@ -11,7 +11,6 @@ fi
 
 
 # Check if ssh client is available over the network 
-
 if check_ssh_port "$CLI_IP";
 then
 	Log "$PROGRAM:$WORKFLOW: Client: $CLI_NAME ssh port is open ..."
