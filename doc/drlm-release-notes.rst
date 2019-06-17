@@ -90,7 +90,7 @@ DRLM Version 2.3.0 (June 2019) - Release Notes
 
   * Debian 10 Support on install client workflow.
 
-  * Added ReaR 2.5 support on Debian 9, Debian8, Ubuntu 18, Ubuntu 16 and Ubuntu 14.
+  * Added ReaR 2.5 support on Debian 10, Debian 9, Debian 8, Ubuntu 18, Ubuntu 16, Ubuntu 14, Centos 6 and Centos 7.
 
   * Added OS version and ReaR version in listclient.
 

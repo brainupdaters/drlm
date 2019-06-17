@@ -230,7 +230,7 @@ service drlm-stord start
 - Added "-p" on list backups workflow to mark the backups that might have failed with colors.
 - Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
 - Debian 10 Support on install client workflow.
-- Added ReaR 2.5 support on Debian 9, Debian8, Ubuntu 18, Ubuntu 16 and Ubuntu 14.
+- Added ReaR 2.5 support on Debian 10, Debian 9, Debian 8, Ubuntu 18, Ubuntu 16, Ubuntu 14, Centos 6 and Centos 7.
 - Added OS version and ReaR version in listclient.
 - Added "-p" on list clients workflow to mark client status (up/down).
 - Installclient workflow install ReaR packages from default.conf by default. Is possible to force to install ReaR from repositories with -r/--repo parameter (issue #114).
