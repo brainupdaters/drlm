@@ -16,7 +16,7 @@ drlm (2.3.0) stable release; urgency=high
   * Added "-p" on list clients workflow to mark client status (up/down).
   * Installclient workflow install ReaR packages from default.conf by default. Is possible to force to install ReaR from repositories with -r/--repo parameter (issue #114). 
 
- -- Néfix Estrada <nefix@brainupdaters.net>  Mon, 10 Jun 2019 00:00:00 +0100
+ -- Néfix Estrada <nefix@brainupdaters.net>  Mon, 17 Jun 2019 00:00:00 +0100
 
 drlm (2.2.1) stable release; urgency=high
   * Updated ssh_install_rear_xxx funcitons to solve (issue #62).
