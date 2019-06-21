@@ -335,11 +335,13 @@ function copy_ssh_id () {
         if [ ! -d \"\$DRLM_USER_HOME_DIR/.ssh\" ]; then
             $SUDO mkdir \"\$DRLM_USER_HOME_DIR/.ssh\" ;
             $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh ;
-            $SUDO chmod 700 \$DRLM_USER_HOME_DIR/.ssh
+            $SUDO chmod 700 \$DRLM_USER_HOME_DIR/.ssh ;
         fi ;
-        $SUDO echo '$PUBKEY' >> \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
+        $SUDO cat \$DRLM_USER_HOME_DIR/.ssh/authorized_keys >> /tmp/authorized_keys ;
+        $SUDO echo '$PUBKEY' >> /tmp/authorized_keys ;
+        $SUDO mv /tmp/authorized_keys \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
         $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
-        $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys"
+        $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;"
 }
 
 function authors () {
