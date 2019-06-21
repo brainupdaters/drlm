@@ -217,6 +217,9 @@ service drlm-stord start
 %endif
 
 %changelog
+* Fry Jun 21 2019 Pau Roura <pau@brainupdaters.net> 2.3.1
+- Issue #118 solved.
+
 * Mon Jun 17 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.0
 - Golang DRLM API replacing Apache2 and CGI-BIN.
 - Listbackup command now shows size and duration of backup.

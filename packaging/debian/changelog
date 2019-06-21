@@ -1,3 +1,6 @@
+drlm (2.3.1) stable release; urgency=high
+  * Issue #118 solved.
+
 drlm (2.3.0) stable release; urgency=high
   * Golang DRLM API replacing Apache2 and CGI-BIN.
   * Listbackup command now shows size and duration of backup.

@@ -64,8 +64,12 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.3.1 (June 2019) - Release Notes
+----------------------------------------------
+  * Issue #118 solved.
+
 DRLM Version 2.3.0 (June 2019) - Release Notes
---------------------------------------------------
+----------------------------------------------
   * Golang DRLM API replacing Apache2 and CGI-BIN.
 
   * Listbackup command now shows size and duration of backup.

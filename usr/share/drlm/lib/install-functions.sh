@@ -331,7 +331,7 @@ function copy_ssh_id () {
     PUBKEY=$(<~/.ssh/id_rsa.pub)
 
     ssh $SSH_OPTS $USER@$CLI_NAME "DRLM_USER_HOME_DIR=\"\$(getent passwd \"$DRLM_USER\" | cut -d: -f6)\" ;
-        DRLM_USER_GROUP=\"\$(id -gn root)\" ;
+        DRLM_USER_GROUP=\"\$(id -gn $DRLM_USER)\" ;
         if [ ! -d \"\$DRLM_USER_HOME_DIR/.ssh\" ]; then
             $SUDO mkdir \"\$DRLM_USER_HOME_DIR/.ssh\" ;
             $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh ;
