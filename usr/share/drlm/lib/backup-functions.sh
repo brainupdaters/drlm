@@ -518,7 +518,9 @@ function check_backup_size_status() {
 		size_number="${size_number%.*}"
 	fi
 
-	if [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
+	if [ "$input_size" = "-" ]; then
+		echo -n "%-15s"
+	elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
 		echo -n "\\e[0;31m%-15s\\e[0m"
 	elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
 		echo -n "\\e[0;33m%-15s\\e[0m"
