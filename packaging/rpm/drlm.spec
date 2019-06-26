@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.3.0
+Version: 2.3.1
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -44,7 +44,7 @@ Requires: sqlite3
 ### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
-Requires: dhcp tftp-server 
+Requires: dhcp tftp-server
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
@@ -119,7 +119,7 @@ fi
 ### Create logs folder
 mkdir -p /var/log/drlm/rear
 chmod 775 /var/log/drlm/rear
-### IF IS INSTALL 
+### IF IS INSTALL
 if [ "$1" == "1" ]; then
 ### create keys
 openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
@@ -226,7 +226,7 @@ service drlm-stord start
 - Improved database version control.
 - dpkg purge section added.
 - Improved disable_nfs_fs function.
-- Added "-C" on install workflow to allow configuration of the client without install dependencies.  
+- Added "-C" on install workflow to allow configuration of the client without install dependencies.
 - Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
 - Added "-U" on list clients to list the clients that have no scheduled jobs.
 - Added a column on list clients that shows if a client has scheduled jobs.
@@ -249,7 +249,7 @@ service drlm-stord start
 - Improve security on HTTP server getting the client config. (issue #76).
 - Delete client related jobs in delclient workflow (issue #82).
 - Updated timeout for drlm-stord.service (issue #74).
-- Modnetwork server ip now modify client.cfg files (issue #77).  
+- Modnetwork server ip now modify client.cfg files (issue #77).
 - In modnetwork if netmask is not specified is taken database saved netmask.
 - In addnetwork if network IP is not specified will be calculated (issue #84).
 - Problem with PXE folder file parsing fixed (issue #86).
