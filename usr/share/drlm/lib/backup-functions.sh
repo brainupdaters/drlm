@@ -503,7 +503,7 @@ function get_client_used_mb ()
 }
 
 function check_backup_size_status() {
-  if [ -z $1 ]; then echo -n "%-15"; fi
+  if [ -z $1 ]; then echo -n "%-15s"; return 0; fi
 
     local input_size="$1"
 
@@ -526,7 +526,7 @@ function check_backup_size_status() {
 }
 
 function check_backup_time_status() {
-  if [ -z $1 ]; then echo -n "%-15"; fi
+  if [ -z $1 ]; then echo -n "%-15s"; return 0; fi
 
 	local duration="$1"
 
