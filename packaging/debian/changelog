@@ -10,8 +10,13 @@ drlm (2.3.0) stable release; urgency=high
   * Added a column on list clients that shows if a client has scheduled jobs.
   * Added "-p" on list backups workflow to mark the backups that might have failed with colors.
   * Added "-C" on addclient workflow to allow the configuration of the client without installing the dependencies.
+  * Debian 10 Support on install client workflow.
+  * Added ReaR 2.5 support on Debian 10, Debian 9, Debian 8, Ubuntu 18, Ubuntu 16, Ubuntu 14, Centos 6 and Centos 7.
+  * Added OS version and ReaR version in listclient.
+  * Added "-p" on list clients workflow to mark client status (up/down).
+  * Installclient workflow install ReaR packages from default.conf by default. Is possible to force to install ReaR from repositories with -r/--repo parameter (issue #114). 
 
- -- Néfix Estrada <nefix@brainupdaters.net>  Wed, 15 May 2019 00:00:00 +0100
+ -- Néfix Estrada <nefix@brainupdaters.net>  Mon, 17 Jun 2019 00:00:00 +0100
 
 drlm (2.2.1) stable release; urgency=high
   * Updated ssh_install_rear_xxx funcitons to solve (issue #62).

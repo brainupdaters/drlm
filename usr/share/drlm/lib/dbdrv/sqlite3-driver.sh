@@ -79,9 +79,23 @@ function get_client_net_dbdrv ()
   echo "$CLI_NET"
 }
 
+function get_client_os_dbdrv ()
+{
+  local CLI_ID=$1
+  CLI_OS=$(echo "select os from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$CLI_OS"
+}
+
+function get_client_rear_dbdrv ()
+{
+  local CLI_ID=$1
+  CLI_REAR=$(echo "select rear from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$CLI_REAR"
+}
+
 function get_all_clients_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,"::",networks_netname,":" from clients;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idclient,":",cliname,":",mac,":",ip,":",os,":",networks_netname,":",rear,":" from clients;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function get_count_clients_dbdrv ()
@@ -114,7 +128,9 @@ function add_client_dbdrv ()
     local CLI_NAME=$1
     local CLI_MAC=$2
     local CLI_IP=$3
+    local CLI_OS=$4
     local CLI_NET=$5
+    local CLI_REAR=$6
 
     #To improve prevention of duplicated id when addclients are done simultaneously
     sleep $(echo 0.$[ $RANDOM % 10 ]$[ $RANDOM % 10 ])
@@ -127,7 +143,7 @@ function add_client_dbdrv ()
         CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     fi
 
-    echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}', '${CLI_OS}', '${CLI_REAR}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     if [ $? -eq 0 ]; then echo "New Client ID: $CLI_ID";else echo "ERRORFILEDB"; fi
 }
 
@@ -167,6 +183,22 @@ function mod_client_net_dbdrv ()
   local CLI_ID=$1
   local CLI_NET=$2
   echo "update clients set networks_netname='$CLI_NET' where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function mod_client_os_dbdrv ()
+{
+  local CLI_ID=$1
+  local CLI_OS=$2
+  echo "update clients set os='$CLI_OS' where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function mod_client_rear_dbdrv ()
+{
+  local CLI_ID=$1
+  local CLI_REAR=$2
+  echo "update clients set rear='$CLI_REAR' where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

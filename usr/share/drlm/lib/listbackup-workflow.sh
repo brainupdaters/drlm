@@ -31,7 +31,7 @@ if [ "$WORKFLOW" == "listbackup" ]; then
 	fi
 
 	CLI_NAME="all"
-
+	
 	eval set -- "$OPT"
 	while true; do
 		case "$1" in

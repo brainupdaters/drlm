@@ -68,7 +68,7 @@ function mod_pxe_link ()
 
 function list_backup_all ()
 {
-  local PRETTY=$1
+  local PRETTY_PARAM=$1
   printf '%-18s\n' "$(tput bold)"
   printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
@@ -84,14 +84,14 @@ function list_backup_all ()
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
 
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
-    if [ "$PRETTY" ]; then
+    if [ "$PRETTY_PARAM" = "true" ]; then
 	    BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
     else
 	    BAC_DURA_DEC="%-15s"
     fi
 
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ "$PRETTY" ]; then
+    if [ "$PRETTY_PARAM" = "true" ]; then
 	    BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
     else
 	    BAC_SIZE_DEC="%-15s"
@@ -517,7 +517,7 @@ function check_backup_size_status() {
 	if [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
 		echo -n "\\e[0;31m%-15s\\e[0m"
 	elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
-		echo -n "\\e[1;33m%-15s\\e[0m"
+		echo -n "\\e[0;33m%-15s\\e[0m"
 	else
 		echo -n "%-15s"
 	fi
@@ -540,7 +540,7 @@ function check_backup_time_status() {
 		if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
 			echo -n "\\e[0;31m%-15s\\e[0m"
 		elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
-			echo -n "\\e[1;33m%-15s\\e[0m"
+			echo -n "\\e[0;33m%-15s\\e[0m"
 		else
 			echo -n "%-15s"
 		fi

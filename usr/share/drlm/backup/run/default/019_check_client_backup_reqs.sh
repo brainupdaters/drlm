@@ -47,3 +47,19 @@ else
 	report_error "$PROGRAM:$WORKFLOW: Client $CLI_NAME SSH Server is not available (SSH) aborting ..."
 	Error "$PROGRAM:$WORKFLOW: Client $CLI_NAME SSH Server is not available (SSH) aborting ..."
 fi
+
+# Update OS version and Rear Version to the database
+DISTRO=$(ssh_get_distro $DRLM_USER $CLI_NAME)
+RELEASE=$(ssh_get_release $DRLM_USER $CLI_NAME)
+if mod_client_os "$CLI_ID" "$DISTRO $RELEASE"; then
+    LogPrint "$PROGRAM:$WORKFLOW: Updating OS version $DISTRO $RELEASE of client $CLI_ID in the database"
+else
+	LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update OS version of client $CLI_ID in the database"
+fi
+
+CLI_REAR="$(ssh_get_rear_version $CLI_NAME)"
+if mod_client_rear "$CLI_ID" "$CLI_REAR"; then
+    LogPrint "$PROGRAM:$WORKFLOW: Updating ReaR version $CLI_REAR of client $CLI_ID in the database"
+else
+    LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update ReaR version of client $CLI_ID in the database"
+fi
