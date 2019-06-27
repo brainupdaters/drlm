@@ -64,7 +64,7 @@ On DEB based systems you can execute the command:
 
   $ make deb
 
-For more information about Disaster Recovery Linux Manager intallation, 
+For more information about Disaster Recovery Linux Manager intallation,
 please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
@@ -87,17 +87,19 @@ but only 'local.conf' are intended for the user configuration.
 TFTP, HTTP are the services to be manually configured. The other sevices are
 automatically configured through DRLM commands.
 
-To configure the TFTP is nedeed deefine the DRLM Store Dir as root and enable
+To configure the TFTP is needed to be defined the DRLM Store Dir as root and enable
 the TFTP service on system startup.
 
-Also is needed increment the loop limit devices in grub config in order to be 
+Also is needed increment the loop limit devices in grub config in order to be
 able reach all DRLM clients.
 
-For more information about Disaster Recovery Linux Manager configuration, 
+For more information about Disaster Recovery Linux Manager configuration,
 please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
 Docker configurations:
+
+Make sure the docker host has the loop limits increased in the /etc/default/grub!
 
 packaging/docker/etc/default = DHCP and NFS default settings
 
@@ -143,7 +145,7 @@ or
 
 Docker container start and run drlm command:
 
-cd drlm-docker; ./run.sh - to start the drlm container
+cd packaging/docker; ./run.sh - to start the drlm container
 
 To just run commands in the running container:
 
@@ -169,7 +171,7 @@ To stop the container - docker stop drlm-server
    -V           version information
 
   List of commands:
- 
+
    addclient       register new client to DB.
    addjob          register new job to DB.
    addnetwork      register new network to DB.
