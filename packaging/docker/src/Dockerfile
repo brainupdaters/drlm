@@ -23,8 +23,6 @@ RUN cd /tmp/drlm; make deb
 
 # Build final DRLM image with built DEB
 
-COPY --from=0 /tmp/drlm*.deb .
-
 FROM debian:buster-slim
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -49,7 +47,7 @@ RUN apt-get update && \
     mkdir -p /run/sendsigs.omit.d && \
     touch /run/sendsigs.omit.d/rpcbind
 
-COPY drlm*.deb .
+COPY --from=0 /tmp/drlm*.deb .
 
 RUN dpkg -i drlm*.deb; rm -f drlm*.deb
 
