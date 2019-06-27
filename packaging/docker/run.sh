@@ -26,6 +26,8 @@ fi
 docker run --name=drlm-server --rm -t -d --privileged \
 ${DOCKER_NETWORK} \
 -v ${TFTP_DIR}:/var/lib/drlm/store \
+-v ${ARCHIVE_DIR}:/var/lib/drlm/arch \
+-v ${DRLM_ROOT_DIR}:/var/lib/drlm \
 -v ${NFS_DIR}:/nfs \
 -v ${PWD}/etc/exports:/etc/exports \
 -v ${PWD}/etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server \

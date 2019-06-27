@@ -16,6 +16,8 @@ stop()
     service tftpd-hpa stop
     echo "DHCP Terminate..."
     service isc-dhcp-server stop
+    echo "DRLM Stord Terminate..."
+    service drlm-stord stop
 
     exit 0
 }
@@ -30,6 +32,7 @@ start()
     service nfs-common start
     service nfs-kernel-server start
     exportfs -rva
+    service drlm-stord start
 
     echo "Started..."
     while true; do sleep 1; done
