@@ -16,12 +16,14 @@ RUN apt-get update && \
     update-ca-certificates 
 
 # GIT clone drlm repo
-RUN git clone https://github.com/brainupdaters/drlm -b release/2.3.0 tmp/drlm
+RUN git clone https://github.com/brainupdaters/drlm -b develop tmp/drlm
 
 # Make Debian DEB for final DRLM image
 RUN cd /tmp/drlm; make deb
 
 # Build final DRLM image with built DEB
+
+COPY --from=0 /tmp/drlm*.deb .
 
 FROM debian:buster-slim
 
@@ -47,7 +49,7 @@ RUN apt-get update && \
     mkdir -p /run/sendsigs.omit.d && \
     touch /run/sendsigs.omit.d/rpcbind
 
-COPY --from=0 /tmp/drlm*.deb .
+COPY drlm*.deb .
 
 RUN dpkg -i drlm*.deb; rm -f drlm*.deb
 
