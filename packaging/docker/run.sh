@@ -29,6 +29,7 @@ ${DOCKER_NETWORK} \
 -v ${ARCHIVE_DIR}:/var/lib/drlm/arch \
 -v ${DRLM_ROOT_DIR}:/var/lib/drlm \
 -v ${NFS_DIR}:/nfs \
+-v ${PWD}/etc/drlm:/etc/drlm \
 -v ${PWD}/etc/exports:/etc/exports \
 -v ${PWD}/etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server \
 -v ${PWD}/etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server \
