@@ -233,4 +233,4 @@ deb: dist
 docker: dist
 	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
 	cd packaging/docker; ./setup.sh;
-    echo "Docker DRLM image built, now start with 'packaging/docker/run.sh'"
+	echo "Docker DRLM image built, now start with 'packaging/docker/run.sh'"
