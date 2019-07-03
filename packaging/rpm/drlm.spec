@@ -217,8 +217,11 @@ service drlm-stord start
 %endif
 
 %changelog
-* Fry Jun 21 2019 Pau Roura <pau@brainupdaters.net> 2.3.1
-- Issue #118 solved.
+* Wed Jul 03 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.1
+- Fixed DRLM user group permissions (issue #118).
+- Fixed copy_ssh_id function with the -u parameter (issue #119).
+- Listbackup in pretty mode without OS version / ReaR version works now (issue #120).
+- Updated the default configuration.
 
 * Mon Jun 17 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.0
 - Golang DRLM API replacing Apache2 and CGI-BIN.
