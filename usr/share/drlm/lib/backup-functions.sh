@@ -503,50 +503,59 @@ function get_client_used_mb ()
 }
 
 function check_backup_size_status() {
-    local input_size="$1"
-	
-	size_unit="${input_size:(-1)}"
+    if [ -z $1 ]; then
+        local input_size="-"
+    else
+        local input_size="$1"
+    fi
+
+    size_unit="${input_size:(-1)}"
     size_number="${input_size::-1}"
 
-	if [ "$size_unit" == "G" ]; then
-		size_number="$(awk -v size="$size_number" 'BEGIN{print size * 1024}')"
-		# Remove the decimals
-		size_number="${size_number%.*}"
-	fi
+    if [ "$size_unit" == "G" ]; then
+	size_number="$(awk -v size="$size_number" 'BEGIN{print size * 1024}')"
+	# Remove the decimals
+	size_number="${size_number%.*}"
+    fi
 
-	if [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
-		echo -n "\\e[0;31m%-15s\\e[0m"
-	elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
-		echo -n "\\e[0;33m%-15s\\e[0m"
-	else
-		echo -n "%-15s"
-	fi
+    if [ "$input_size" = "-" ]; then
+	echo -n "%-15s"
+    elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
+	echo -n "\\e[0;31m%-15s\\e[0m"
+    elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
+	echo -n "\\e[0;33m%-15s\\e[0m"
+    else
+	echo -n "%-15s"
+    fi
 }
 
 function check_backup_time_status() {
-	local duration="$1"
+    if [ -z $1 ]; then
+        local duration="-"
+    else
+        local duration="$1"
+    fi
 
-	if [ "${duration:0:1}" != "-" ]; then
+    if [ "${duration:0:1}" != "-" ]; then
+        hours="$(echo $duration | cut -d '.' -f 1)"
+        hours=${hours:0:-1}
+        minutes="$(echo $duration | cut -d '.' -f 2)"
+        minutes=${minutes:0:-1}
+        seconds="$(echo $duration | cut -d '.' -f 3)"
+        seconds=${seconds:0:-1}
 
-		hours="$(echo $duration | cut -d '.' -f 1)"
-		hours=${hours:0:-1}
-		minutes="$(echo $duration | cut -d '.' -f 2)"
-		minutes=${minutes:0:-1}
-		seconds="$(echo $duration | cut -d '.' -f 3)"
-		seconds=${seconds:0:-1}
+        total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
 
-		total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
+        if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
+            echo -n "\\e[0;31m%-15s\\e[0m"
+        elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
+	    echo -n "\\e[0;33m%-15s\\e[0m"
+        else
+            echo -n "%-15s"
+        fi
 
-		if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
-			echo -n "\\e[0;31m%-15s\\e[0m"
-		elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
-			echo -n "\\e[0;33m%-15s\\e[0m"
-		else
-			echo -n "%-15s"
-		fi
-
-	else
-		echo -n "%-15s"
-	fi
+    else
+        echo -n "%-15s"
+    fi
 }
 

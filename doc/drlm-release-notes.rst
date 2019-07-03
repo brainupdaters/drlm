@@ -64,19 +64,30 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.3.1 (July 2019) - Release Notes
+----------------------------------------------
+  * Fixed DRLM user group permissions (issue #118).
+
+  * Fixed copy_ssh_id function with the -u parameter (issue #119).
+
+  * Listbackup in pretty mode without OS version / ReaR version works now (issue #120).
+
+  * Updated the default configuration.
+
+
 DRLM Version 2.3.0 (June 2019) - Release Notes
---------------------------------------------------
+----------------------------------------------
   * Golang DRLM API replacing Apache2 and CGI-BIN.
 
   * Listbackup command now shows size and duration of backup.
 
   * Improved database version control.
 
-  * dpkg purge section added. 
+  * dpkg purge section added.
 
   * Improved disable_nfs_fs function.
 
-  * Added "-C" on install workflow to allow configuration of the client without install dependencies.  
+  * Added "-C" on install workflow to allow configuration of the client without install dependencies.
 
   * Added "-I" in the import backup workflow to allow importing a backup from within the same DRLM server.
 
@@ -102,7 +113,7 @@ DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 
   * Updated ssh_install_rear_xxx funcitons (issue #62).
-  
+
   * Ubuntu 18.04 support (issue #81).
 
   * Fixed Mac address change not reflected on PXE (issue #65).
@@ -118,10 +129,10 @@ DRLM Version 2.2.1 (October 2018) - Release Notes
   * Improve security on HTTP server getting the client config. (issue #76).
 
   * Delete client related jobs in delclient workflow (issue #82).
-  
+
   * Updated timeout for drlm-stord.service (issue #74).
-  
-  * Modnetwork server ip now modify client.cfg files (issue #77).  
+
+  * Modnetwork server ip now modify client.cfg files (issue #77).
 
   * In modnetwork if netmask is not specified is taken database saved netmask.
 
