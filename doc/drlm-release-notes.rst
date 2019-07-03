@@ -64,10 +64,16 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.3.1 (June 2019) - Release Notes
+DRLM Version 2.3.1 (July 2019) - Release Notes
 ----------------------------------------------
-  * Issue #118 solved.
-  * Issue #120 solved.
+  * Fixed DRLM user group permissions (issue #118).
+
+  * Fixed copy_ssh_id function with the -u parameter (issue #119).
+
+  * Listbackup in pretty mode without OS version / ReaR version works now (issue #120).
+
+  * Updated the default configuration.
+
 
 DRLM Version 2.3.0 (June 2019) - Release Notes
 ----------------------------------------------
