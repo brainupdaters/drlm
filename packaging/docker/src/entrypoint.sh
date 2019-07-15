@@ -1,9 +1,7 @@
 #!/bin/sh
 
-# Check if there is site.conf setup otherwise copy a default setup
-if [ ! -e /etc/drlm/site.conf ];then
-cp -r /etc/drlm-default/* /etc/drlm/
-fi
+# Install drlm DEB on boot use installed config if exists
+dpkg --force-confold -i /drlm*.deb
 
 # Make sure we react to these signals by running stop() when we see them - for clean shutdown
 # And then exiting
@@ -37,7 +35,6 @@ start()
     service nfs-common start
     service nfs-kernel-server start
     exportfs -rva
-    service drlm-stord start
 
     echo "Started..."
     while true; do sleep 1; done
