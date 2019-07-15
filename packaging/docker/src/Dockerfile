@@ -48,12 +48,7 @@ RUN apt-get update && \
     mkdir -p /run/sendsigs.omit.d && \
     touch /run/sendsigs.omit.d/rpcbind
 
-COPY --from=0 /tmp/drlm*.deb .
-
-RUN dpkg -i drlm*.deb; \
-    mkdir /etc/drlm-default; \
-    cp -r /etc/drlm/* /etc/drlm-default; \
-    rm -f drlm*.deb
+COPY --from=0 /tmp/drlm*.deb /
 
 # Export the NFS server ports
 EXPOSE 111/tcp \
