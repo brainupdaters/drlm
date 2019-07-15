@@ -51,7 +51,7 @@ COPY --from=0 /tmp/drlm*.deb .
 
 RUN dpkg -i drlm*.deb; \
     mkdir /etc/drlm-default; \
-    cp -r /etc/drlm /etc/drlm-default; \
+    cp -r /etc/drlm/* /etc/drlm-default; \
     rm -f drlm*.deb
 
 # Export the NFS server ports
