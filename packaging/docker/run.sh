@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source packaging/docker/env.conf
+DOCKER_DIR=packaging/docker
+
+source ${DOCKER_DIR}/env.conf
 
 IS_MODULE=`lsmod | grep -o nfsd`
 if [[ -z "${IS_MODULE}" ]]; then
@@ -29,10 +31,10 @@ ${DOCKER_NETWORK} \
 -v ${ARCHIVE_DIR}:/var/lib/drlm/arch \
 -v ${DRLM_ROOT_DIR}:/var/lib/drlm \
 -v ${NFS_DIR}:/nfs \
--v ${PWD}/etc/drlm:/etc/drlm \
--v ${PWD}/etc/exports:/etc/exports \
--v ${PWD}/etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server \
--v ${PWD}/etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server \
--v ${PWD}/etc/dhcp/dhcpd.conf:/etc/dhcp/dhcpd.conf \
--v ${PWD}/etc/network/interfaces:/etc/network/interfaces \
+-v ${DOCKER_DIR}/etc/drlm:/etc/drlm \
+-v ${DOCKER_DIR}/etc/exports:/etc/exports \
+-v ${DOCKER_DIR}/etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server \
+-v ${DOCKER_DIR}/etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server \
+-v ${DOCKER_DIR}/etc/dhcp/dhcpd-conf:/etc/dhcp/dhcpd.conf \
+-v ${DOCKER_DIR}/etc/network/interfaces:/etc/network/interfaces \
 ${DOCKER_IMAGE}:${DOCKER_TAG}
