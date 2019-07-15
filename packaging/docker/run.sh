@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOCKER_DIR=packaging/docker
+DOCKER_DIR=${PWD}/packaging/docker
 
 source ${DOCKER_DIR}/env.conf
 
