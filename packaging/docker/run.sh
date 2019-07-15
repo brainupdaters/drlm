@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source env.conf
+source packaging/docker/env.conf
 
 IS_MODULE=`lsmod | grep -o nfsd`
 if [[ -z "${IS_MODULE}" ]]; then
