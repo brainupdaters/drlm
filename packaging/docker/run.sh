@@ -31,10 +31,10 @@ ${DOCKER_NETWORK} \
 -v ${ARCHIVE_DIR}:/var/lib/drlm/arch \
 -v ${DRLM_ROOT_DIR}:/var/lib/drlm \
 -v ${NFS_DIR}:/nfs \
--v ${DOCKER_DIR}/etc/drlm:/etc/drlm \
--v ${DOCKER_DIR}/etc/exports:/etc/exports \
--v ${DOCKER_DIR}/etc/default/nfs-kernel-server:/etc/default/nfs-kernel-server \
--v ${DOCKER_DIR}/etc/default/isc-dhcp-server:/etc/default/isc-dhcp-server \
--v ${DOCKER_DIR}/etc/dhcp/dhcpd-conf:/etc/dhcp/dhcpd.conf \
--v ${DOCKER_DIR}/etc/network/interfaces:/etc/network/interfaces \
+-v ${DRLM_CONF_DIR}/drlm:/etc/drlm \
+-v ${DRLM_CONF_DIR}/exports:/etc/exports \
+-v ${DRLM_CONF_DIR}/default/nfs-kernel-server:/etc/default/nfs-kernel-server \
+-v ${DRLM_CONF_DIR}/default/isc-dhcp-server:/etc/default/isc-dhcp-server \
+-v ${DRLM_CONF_DIR}/dhcp/dhcpd-conf:/etc/dhcp/dhcpd.conf \
+-v ${DRLM_CONF_DIR}/network/interfaces:/etc/network/interfaces \
 ${DOCKER_IMAGE}:${DOCKER_TAG}
