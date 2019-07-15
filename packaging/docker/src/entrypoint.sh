@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Check if there is site.conf setup otherwise copy a default setup
+if [ ! -e /etc/drlm/site.conf ];then
+cp -r /etc/drlm-default/* /etc/drlm/
+fi
+
 # Make sure we react to these signals by running stop() when we see them - for clean shutdown
 # And then exiting
 trap "stop; exit 0;" TERM INT
