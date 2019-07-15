@@ -24,6 +24,10 @@ else
     echo "${0}: Using Docker Host network mode."
 fi
 
+# Make directories in HOME and copy default configs
+mkdir -p ${HOME}/drlm/etc ${HOME}/drlm/nfs ${HOME}/drlm/tftp ${HOME}/drlm/arch
+cp -r ${DOCKER_DIR}/etc/* ${HOME}/drlm/etc/
+
 # --name=nfs
 docker run --name=drlm-server --rm -t -d --privileged \
 ${DOCKER_NETWORK} \
