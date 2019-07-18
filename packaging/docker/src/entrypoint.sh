@@ -1,7 +1,12 @@
 #!/bin/sh
 
-# Install drlm DEB on boot use installed config if exists
-dpkg --force-confold -i /drlm*.deb
+# Check if drlm configs exists, if not then extract default
+# from default install
+if [ ! -e /etc/drlm/site.conf ];then
+tar xvf /drlm-etc.tar -C /
+else
+echo "DRLM config exists no need to extract!"
+fi
 
 # Make sure we react to these signals by running stop() when we see them - for clean shutdown
 # And then exiting
