@@ -40,6 +40,8 @@ start()
     service nfs-common start
     service nfs-kernel-server start
     exportfs -rva
+    echo "DRLM Stord Starting..."
+    service drlm-stord start
 
     echo "Started..."
     while true; do sleep 1; done
