@@ -24,9 +24,17 @@ else
     echo "${0}: Using Docker Host network mode."
 fi
 
-# Make directories in HOME and copy default configs
-mkdir -p ${HOME}/drlm/etc ${HOME}/drlm/nfs ${HOME}/drlm/tftp ${HOME}/drlm/arch
-cp -r ${DOCKER_DIR}/etc/* ${HOME}/drlm/etc/
+# Add configs if they do not exist
+if [ ! -e ${DRLM_CONF_DIR}/exports ] && [ ! -e ${DRLM_CONF_DIR}/default/nfs-kernel-server ] \
+   && [ ! -e ${DRLM_CONF_DIR}/default/isc-dhcp-server ] && [ ! -e ${DRLM_CONF_DIR}/dhcp/dhcpd-conf ] \
+   && [ ! -e ${DRLM_CONF_DIR}/network/interfaces ]; then
+   mkdir -p ${DRLM_CONF_DIR}/default ${DRLM_CONF_DIR}/dhcp ${DRLM_CONF_DIR}/network; \
+   cp ${DOCKER_DIR}/etc/exports ${DRLM_CONF_DIR}/exports
+   cp ${DOCKER_DIR}/etc/default/nfs-kernel-server ${DRLM_CONF_DIR}/default/nfs-kernel-server
+   cp ${DOCKER_DIR}/etc/default/isc-dhcp-server ${DRLM_CONF_DIR}/default/isc-dhcp-server
+   cp ${DOCKER_DIR}/etc/dhcp/dhcpd-conf ${DRLM_CONF_DIR}/dhcp/dhcpd-conf
+   cp ${DOCKER_DIR}/etc/network/interfaces ${DRLM_CONF_DIR}/network/interfaces
+fi
 
 # --name=nfs
 docker run --name=drlm-server --rm -t -d --privileged \
