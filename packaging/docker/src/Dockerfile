@@ -49,6 +49,9 @@ RUN apt-get update && \
     touch /run/sendsigs.omit.d/rpcbind
 
 COPY --from=0 /tmp/drlm*.deb /
+RUN dpkg --force-confold -i /drlm*.deb; \
+    tar -cf /drlm-etc.tar /etc/drlm
+
 
 # Export the NFS server ports
 EXPOSE 111/tcp \
@@ -60,9 +63,6 @@ EXPOSE 111/tcp \
        69/udp
 
 WORKDIR /
-
-VOLUME ["/etc/dhcp"]
-VOLUME ["/etc/default"]
 
 COPY entrypoint.sh /entrypoint.sh
     # Set correct entrypoint permission
