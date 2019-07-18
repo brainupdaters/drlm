@@ -49,8 +49,9 @@ RUN apt-get update && \
     touch /run/sendsigs.omit.d/rpcbind
 
 COPY --from=0 /tmp/drlm*.deb /
+# Tar drlm config once installed to use later
 RUN dpkg --force-confold -i /drlm*.deb; \
-    tar -cf /drlm-etc.tar /etc/drlm
+    tar -cf /drlm-etc-drlm.tar /etc/drlm
 
 
 # Export the NFS server ports
