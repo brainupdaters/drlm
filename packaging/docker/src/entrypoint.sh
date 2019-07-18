@@ -3,7 +3,7 @@
 # Check if drlm configs exists, if not then extract default
 # from default install
 if [ ! -e /etc/drlm/site.conf ];then
-tar xvf /drlm-etc.tar -C /
+tar xvf /drlm-etc-drlm.tar -C /
 else
 echo "DRLM config exists no need to extract!"
 fi
