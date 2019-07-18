@@ -8,6 +8,12 @@ else
 echo "DRLM config exists no need to extract!"
 fi
 
+# We need to re-run the cert generation as hostname will be of built container name
+if [ ! -e /etc/drlm/cert/first-install.txt ];then
+openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+touch /etc/drlm/cert/first-install.txt
+fi
+
 # Make sure we react to these signals by running stop() when we see them - for clean shutdown
 # And then exiting
 trap "stop; exit 0;" TERM INT
