@@ -60,6 +60,8 @@ EXPOSE 111/tcp \
        111/udp \
        2049/tcp \
        2049/udp \
+       32765/tcp \
+       32765/udp \
        67/tcp \
        67/udp \
        69/udp

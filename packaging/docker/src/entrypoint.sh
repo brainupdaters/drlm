@@ -26,6 +26,8 @@ stop()
     echo "NFS Terminate..."
     exportfs -uav
     service nfs-kernel-server stop
+    service nfs-common stop
+    /usr/sbin/rpc.nfsd 0
     echo "TFTP Terminate..."
     service tftpd-hpa stop
     echo "DHCP Terminate..."
