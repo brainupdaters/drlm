@@ -154,8 +154,9 @@ Docker container start and run drlm command:
 cd packaging/docker; ./run.sh - to start the drlm container
 
 To just run commands in the running container:
+::
 
-docker exec -it drlm-server drlm
+  $ docker exec -it drlm-server drlm
 
 To stop the container - docker stop drlm-server
 
