@@ -150,8 +150,9 @@ To use Disaster Recovery Linux Manager you always call the main script
 or
 
 Docker container start and run drlm command:
+::
 
-cd packaging/docker; ./run.sh - to start the drlm container
+  $ packaging/docker/run.sh - to start the drlm container from the root of build folder
 
 To just run commands in the running container:
 ::
