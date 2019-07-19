@@ -64,7 +64,7 @@ On DEB based systems you can execute the command:
 
   $ make deb
 
-For more information about Disaster Recovery Linux Manager intallation,
+For more information about Disaster Recovery Linux Manager installation,
 please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
@@ -75,6 +75,12 @@ On a Docker environment you can execute the command:
 
 Docker engine 17.04+ needs to be installed on the host in order to run the docker container version.
 The docker version builds a debian 10 image with required services baked in.
+
+The host running docker engine will require the loops to be increased in:
+
+/etc/default/grub
+::
+  $ GRUB_CMDLINE_LINUX="quiet max_loop=1024" ##UPDATE THIS LINE
 
 
 CONFIGURATION
