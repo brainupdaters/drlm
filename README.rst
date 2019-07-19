@@ -158,7 +158,10 @@ To just run commands in the running container:
 
   $ docker exec -it drlm-server drlm
 
-To stop the container - docker stop drlm-server
+To stop the container:
+::
+
+  $ docker stop drlm-server
 
 ::
 
