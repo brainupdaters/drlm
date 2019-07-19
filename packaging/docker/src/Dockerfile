@@ -51,7 +51,7 @@ RUN apt-get update && \
 COPY --from=0 /tmp/drlm*.deb /
 # Tar drlm config once installed to use later
 RUN dpkg --force-confold -i /drlm*.deb; \
-    sleep 2; 
+    sleep 2; \
     tar -cf /drlm-etc-lib-drlm.tar /etc/drlm /var/lib/drlm
 
 
