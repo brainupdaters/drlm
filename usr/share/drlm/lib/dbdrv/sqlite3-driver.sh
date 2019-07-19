@@ -439,7 +439,7 @@ function get_active_cli_bkp_from_db_dbdrv ()
 
 function get_all_backups_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::", "duration",":", "size" from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function enable_backup_db_dbdrv ()
