@@ -71,6 +71,7 @@ help:
   dist            - Create tar file\n\
   deb             - Create DEB package\n\
   rpm             - Create RPM package\n\
+  docker          - Create Docker image\n\
 \n\
 DRLM make variables (optional):\n\
 \n\
@@ -81,11 +82,12 @@ DRLM make variables (optional):\n\
 clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
+	rm -f packaging/docker/src/drlm*.deb
 
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
-	
-	#Validating BASH Syntax 
+
+	#Validating BASH Syntax
 	find etc/ usr/share/drlm/conf/ -name '*.conf' | xargs bash -n
 	bash -n $(drlmbin)
 	bash -n $(drlm_store_svc)
@@ -125,10 +127,10 @@ restore:
 	mv -f $(specfile).orig $(specfile)
 	mv -f $(dscfile).orig $(dscfile)
 	mv -f $(drlmbin).orig $(drlmbin)
-else	
-rewrite:	
-	@echo "Nothing to do."	
-restore:	
+else
+rewrite:
+	@echo "Nothing to do."
+restore:
 	@echo "Nothing to do."
 endif
 
@@ -144,7 +146,7 @@ install-config:
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
 		install -Dp -m0644 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg ]] && \
-		install -Dp -m0644 etc/drlm/client_local_template.cfg $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg		
+		install -Dp -m0644 etc/drlm/client_local_template.cfg $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
 		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
@@ -211,7 +213,7 @@ $(name)-$(distversion).tar.gz:
 		tar -czf $(name)-$(distversion).tar.gz --transform='s,^,$(name)-$(distversion)/,S' --files-from=-
 
 rpm: dist
-	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"	
+	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
 	rpmbuild -tb --clean \
 		--define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
 		--define "debug_package %{nil}" \
@@ -227,3 +229,8 @@ deb: dist
 	-rm -rf debian/
 	rm $(name)-$(distversion).tar.gz
 	rm build-stamp
+
+docker: dist
+	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
+	packaging/docker/setup.sh
+	echo "Docker DRLM image built, now start with 'packaging/docker/run.sh'"
