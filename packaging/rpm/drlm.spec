@@ -24,7 +24,7 @@ BuildArch: noarch
 
 ### Dependencies on all distributions
 Requires: openssl
-Requires: wget gzip tar
+Requires: gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: rpcbind
