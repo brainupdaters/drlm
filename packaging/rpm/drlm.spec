@@ -171,16 +171,16 @@ fi
 %endif
 
 %preun
-%{__rm} /etc/drlm/cert/drlm.*
+%{__rm} -f /etc/drlm/cert/drlm.*
 %if "%(ps -p 1 -o comm=)" == "systemd"
-systemctl stop drlm-stord.service
-systemctl disable drlm-stord.service
+systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
 systemctl daemon-reload
-%{__rm} /etc/systemd/system/drlm-stord.service
+%{__rm} -f /etc/systemd/system/drlm-stord.service
 %else
 service drlm-stord stop
 chkconfig drlm-stord off
-%{__rm} /etc/init.d/drlm-stord
+%{__rm} -f /etc/init.d/drlm-stord
 %endif
 
 %clean
@@ -207,8 +207,9 @@ fi
 
 %if "%(ps -p 1 -o comm=)" == "systemd"
 mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
+systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl daemon-reload
-systemctl enable drlm-stord.service
+systemctl is-enabled --quiet drlm-stord.service && systemctl enable drlm-stord.service
 systemctl start drlm-stord.service
 %else
 mv /etc/init.d/tmp_drlm-stord /etc/init.d/drlm-stord
