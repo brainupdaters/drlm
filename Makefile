@@ -81,6 +81,7 @@ DRLM make variables (optional):\n\
 clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
+	rm -f usr/sbin/drlm-api
 
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
