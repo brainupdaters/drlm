@@ -64,6 +64,17 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.3.2 (April 2020) - Release Notes
+-----------------------------------------------
+  * Fixed wget package dependency (issue #127)
+
+  * Fixed make clean leave drlm-api binary in place (issue #130)
+
+  * Fixed message errors during drlm version upgrade (issue #131, #132)
+
+  * Fixed NFS_OPTS variable is not honored (issue #138)
+  
+
 DRLM Version 2.3.1 (July 2019) - Release Notes
 ----------------------------------------------
   * Fixed DRLM user group permissions (issue #118).
@@ -109,6 +120,7 @@ DRLM Version 2.3.0 (June 2019) - Release Notes
 
   * Installclient workflow install ReaR packages from default.conf by default. Is possible to force to install ReaR from repositories with -r/--repo parameter (issue #114).
 
+
 DRLM Version 2.2.1 (October 2018) - Release Notes
 -------------------------------------------------
 
@@ -142,6 +154,7 @@ DRLM Version 2.2.1 (October 2018) - Release Notes
 
   * Automatically remove DR files after failed backup (issue #90).
 
+
 DRLM Version 2.2.0 (August 2017) - Release Notes
 ------------------------------------------------
 
@@ -163,6 +176,7 @@ DRLM Version 2.2.0 (August 2017) - Release Notes
 
   * Improved treatment of deleted client backups
 
+
 DRLM Version 2.1.3 (May 2017) - Release Notes
 ---------------------------------------------
 
@@ -171,6 +185,7 @@ DRLM Version 2.1.3 (May 2017) - Release Notes
   * Now "apt-get update" is done before "apt-get install" in instclient debian workflow.
 
   * Set global UMASK value for all DRLM creating files durting execution.
+
 
 DRLM Version 2.1.2 (March 2017) - Release Notes
 -----------------------------------------------
