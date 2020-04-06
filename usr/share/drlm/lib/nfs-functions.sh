@@ -14,7 +14,7 @@ function generate_nfs_exports ()
     local CLI_IP=$(echo $CLIENT | awk -F":" '{print $4}')
     local CLI_OS=$(echo $CLIENT | awk -F":" '{print $5}')
     local CLI_NET=$(echo $CLIENT | awk -F":" '{print $6}')
-    echo "$STORDIR/$CLI_NAME $CLI_NAME(rw,sync,no_root_squash,no_subtree_check)" | tee -a $NFS_FILE > /dev/null
+    echo "$STORDIR/$CLI_NAME $CLI_NAME(${NFS_OPTS})" | tee -a $NFS_FILE > /dev/null
   done
 #Generates the nfs configuration file from CLIDB
 }
@@ -22,8 +22,8 @@ function generate_nfs_exports ()
 function enable_nfs_fs_ro ()
 {
   local CLI_NAME=$1
-
-  exportfs -vo ro,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+  local NFS_OPTS=$( echo ${NFS_OPTS} | sed 's|rw,|ro,|' )
+  exportfs -vo ${NFS_OPTS} ${CLI_NAME}:${STORDIR}/${CLI_NAME}
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -32,7 +32,7 @@ function enable_nfs_fs_rw ()
 {
   local CLI_NAME=$1
 
-  exportfs -vo rw,sync,no_root_squash,no_subtree_check ${CLI_NAME}:${STORDIR}/${CLI_NAME}
+  exportfs -vo ${NFS_OPTS} ${CLI_NAME}:${STORDIR}/${CLI_NAME}
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -68,7 +68,7 @@ function add_nfs_export ()
 	local CLI_NAME=$1
 	local EXIST=$(grep -w ${STORDIR} ${NFS_FILE} | grep -w ${CLI_NAME})
 	if [ -z "${EXIST}" ]; then
-		echo "$STORDIR/$CLI_NAME $CLI_NAME(rw,sync,no_root_squash,no_subtree_check)" | tee -a $NFS_FILE > /dev/null
+		echo "$STORDIR/$CLI_NAME $CLI_NAME(${NFS_OPTS})" | tee -a $NFS_FILE > /dev/null
 		if [ $? -eq 0 ]; then
                     NFSCHECK=$(lsmod | grep nfs)
                     if [[ -z "$NFSCHECK" ]]; then
