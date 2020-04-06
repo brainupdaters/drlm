@@ -1,3 +1,11 @@
+drlm (2.3.2) stable release; urgency=high
+  * Fixed wget package dependency (issue #127)
+  * Fixed make clean leave drlm-api binary in place (issue #130)
+  * Fixed message errors during drlm version upgrade (issue #131, #132)
+  * Fixed NFS_OPTS variable is not honored (issue #138)
+
+ -- Pau Roura <pau@brainupdaters.net>  Mon, 06 Apr 2020 00:00:00 +0100
+
 drlm (2.3.1) stable release; urgency=high
   * Fixed DRLM user group permissions (issue #118).
   * Fixed copy_ssh_id function with the -u parameter (issue #119).

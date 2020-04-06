@@ -5,7 +5,6 @@ Log "$PROGRAM:$WORKFLOW:(ID: ${BKP_ID}):${CLI_NAME}: Enabling DRLM Store for cli
 DR_FILE=$(get_backup_drfile "$BKP_ID")
 
 if [ -n "$DR_FILE" ]; then
-
     if enable_loop_rw ${CLI_ID} ${DR_FILE} ; then
         Log "$PROGRAM:$WORKFLOW:LOOPDEV(${CLI_ID}):ENABLE(ro):DR:${DR_FILE}: .... Success!"
         if do_mount_ext4_ro ${CLI_ID} ${CLI_NAME} ; then

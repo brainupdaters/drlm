@@ -30,8 +30,7 @@ fi
 
 # Format loopdev:
 
-if do_format_ext4 ${CLI_ID} ;
-then
+if do_format_ext4 ${CLI_ID}; then
 	Log "$PROGRAM:$WORKFLOW:genimage:MKFS:ext4:LOOPDEV(${CLI_ID}): .... Success!"
 else
         report_error "ERROR:$PROGRAM:$WORKFLOW:genimage:MKFS:ext4:LOOPDEV(${CLI_ID}): Problem Formating device (ext4)! aborting ..."
@@ -40,16 +39,14 @@ fi
 
 # Mount image:
 
-if do_mount_ext4_rw ${CLI_ID} ${CLI_NAME};
-then
+if do_mount_ext4_rw ${CLI_ID} ${CLI_NAME}; then
 	Log "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
 else
 	report_error "ERROR:$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem (rw)! aborting ..."
 	Error "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem (rw)! aborting ..."
 fi
 
-if enable_nfs_fs_rw ${CLI_NAME} ;
-then
+if enable_nfs_fs_rw ${CLI_NAME}; then
 	Log "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE(rw):$CLI_NAME: .... Success!"
 else
 	report_error "ERROR:$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."

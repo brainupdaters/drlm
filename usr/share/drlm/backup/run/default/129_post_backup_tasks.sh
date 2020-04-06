@@ -47,11 +47,9 @@ Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Fixing PXE permissions for DR im
 
 Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLM Store ..."
 
-	if do_remount ro ${CLI_ID} ${CLI_NAME} ;
-	then
+	if do_remount ro ${CLI_ID} ${CLI_NAME};	then
 		Log "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): ... Success!"
-		if enable_nfs_fs_ro ${CLI_NAME} ;
-		then
+		if enable_nfs_fs_ro ${CLI_NAME}; then
 			Log "$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE(ro):$CLI_NAME: ... Success!"
 		else
 			report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
