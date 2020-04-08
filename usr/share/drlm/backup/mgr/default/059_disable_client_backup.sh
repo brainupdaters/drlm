@@ -24,7 +24,7 @@ if [ -n "$A_BKP_ID_DB" ] ; then
       Error "$PROGRAM:$WORKFLOW:LOOPDEV(${CLI_ID}):DISABLE:$CLI_NAME: Problem disabling Loop Device! aborting ..."
    fi
 
-   #Disable backaup from database
+   #Disable backup from database
    if disable_backup_db ${A_BKP_ID_DB} ; then
       Log "$PROGRAM:$WORKFLOW:MODE:perm:DB:disable:(ID: ${A_BKP_ID}):${CLI_NAME}: .... Success!"
    else
@@ -35,11 +35,11 @@ if [ -n "$A_BKP_ID_DB" ] ; then
 fi
 
 if [ "$DISABLE" == "yes" ]; then
-   if enable_nfs_fs_rw ${CLI_NAME} ; then
-      Log "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: .... Success!"
-   else
-      Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
-   fi
+   #if enable_nfs_fs_rw ${CLI_NAME} ; then
+   #   Log "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: .... Success!"
+   #else
+   #   Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
+   #fi
 
    Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${A_BKP_ID_DB} for client: .... Success!"
    exit 0

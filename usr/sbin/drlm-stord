@@ -35,6 +35,7 @@ source $SHARE_DIR/conf/default.conf
 [ -f /etc/drlm/local.conf ] && source /etc/drlm/local.conf
 source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
 source $SHARE_DIR/lib/backup-functions.sh
+source $SHARE_DIR/lib/nfs-functions.sh
 RETVAL=0
 
 # Only root can start the service
@@ -89,6 +90,15 @@ do_umount_stord() {
 	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
 }
 
+do_configure_nfs(){
+	configure_nfs_exports
+	reload_nfs
+}
+do_unconfigure_nfs(){
+	unconfigure_nfs_exports
+	reload_nfs
+}
+
 case "$OSTYPE" in
 	RedHat)
 		# Source function library.
@@ -133,6 +143,11 @@ case "$1" in
 					rval=$?
 					[ $rval -ne 0 ] && RETVAL=$rval
 				done
+				echo "Configuring NFS exports" 
+				do_configure_nfs
+				rval=$?
+				[ $rval -ne 0 ] && RETVAL=$rval
+
 				[ $RETVAL -ne 0 ] && exit $RETVAL
 				;;
 
@@ -150,6 +165,10 @@ case "$1" in
 					rval=$?
 					[ $rval -ne 0 ] && RETVAL=$rval
 				done
+				action $"Configuring NFS exports" do_configure_nfs
+				rval=$?
+				[ $rval -ne 0 ] && RETVAL=$rval
+				
 				[ $RETVAL -ne 0 ] && exit $RETVAL
 				;;
 				
@@ -171,6 +190,11 @@ case "$1" in
 					[ $rval -ne 0 ] && RETVAL=$rval
 					log_end_msg $rval
 				done
+				log_begin_msg "Configuring NFS exports"
+				do_configure_nfs
+				rval=$?
+				[ $rval -ne 0 ] && RETVAL=$rval
+				log_end_msg $rval
 				log_daemon_msg "Starting $DESC"
 				[ $RETVAL -ne 0 ] && {
 					log_end_msg $RETVAL
@@ -188,6 +212,10 @@ case "$1" in
 		case "$OSTYPE" in
 			SuSE)
 				echo $"Shutting down $DESC: "
+				echo "Unconfiguring NFS exports" 
+				do_unconfigure_nfs
+				rval=$?
+				[ $rval -ne 0 ] && RETVAL=$rval
 				for lo_dev in $(mount -l |egrep "loop|.dr" | grep -w "ro" | awk '{print $1}')
 				do
 					if [ -z "${lo_dev##*.dr*}" ]; then
@@ -209,6 +237,9 @@ case "$1" in
 
 			RedHat)
 				echo $"Shutting down $DESC: "
+				action $"Unconfiguring NFS exports" do_unconfigure_nfs
+				rval=$?
+				[ $rval -ne 0 ] && RETVAL=$rval
 				for lo_dev in $(mount -l |egrep "loop|.dr"| grep -w "ro" | awk '{print $1}')
 				do
 					if [ -z "${lo_dev##*.dr*}" ]; then
@@ -228,6 +259,11 @@ case "$1" in
 
 			Debian)
 				echo "[....] Stopping $DESC:."
+				log_begin_msg "Unconfiguring NFS exports"
+				do_unconfigure_nfs
+				rval=$?
+				[ $rval -ne 0 ] && RETVAL=$rval
+				log_end_msg $rval
 				for lo_dev in $(mount -l |egrep "loop|.dr"| grep -w "ro" | awk '{print $1}')
 				do
 					if [ -z "${lo_dev##*.dr*}" ]; then
