@@ -119,6 +119,7 @@ fi
 ### Create logs folder
 mkdir -p /var/log/drlm/rear
 chmod 775 /var/log/drlm/rear
+[ ! -d /etc/exports.d ] && mkdir -p /etc/exports.d && chmod 755 /etc/exports.d
 ### IF IS INSTALL
 if [ "$1" == "1" ]; then
 ### create keys
