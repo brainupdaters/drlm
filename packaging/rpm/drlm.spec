@@ -24,7 +24,7 @@ BuildArch: noarch
 
 ### Dependencies on all distributions
 Requires: openssl
-Requires: wget gzip tar
+Requires: gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: rpcbind
@@ -172,16 +172,16 @@ fi
 %endif
 
 %preun
-%{__rm} /etc/drlm/cert/drlm.*
+%{__rm} -f /etc/drlm/cert/drlm.*
 %if "%(ps -p 1 -o comm=)" == "systemd"
-systemctl stop drlm-stord.service
-systemctl disable drlm-stord.service
+systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
 systemctl daemon-reload
-%{__rm} /etc/systemd/system/drlm-stord.service
+%{__rm} -f /etc/systemd/system/drlm-stord.service
 %else
 service drlm-stord stop
 chkconfig drlm-stord off
-%{__rm} /etc/init.d/drlm-stord
+%{__rm} -f /etc/init.d/drlm-stord
 %endif
 
 %clean
@@ -208,8 +208,9 @@ fi
 
 %if "%(ps -p 1 -o comm=)" == "systemd"
 mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
+systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl daemon-reload
-systemctl enable drlm-stord.service
+systemctl is-enabled --quiet drlm-stord.service && systemctl enable drlm-stord.service
 systemctl start drlm-stord.service
 %else
 mv /etc/init.d/tmp_drlm-stord /etc/init.d/drlm-stord
@@ -218,6 +219,12 @@ service drlm-stord start
 %endif
 
 %changelog
+* Mon Apr 06 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
+- Fixed wget package dependency (issue #127)
+- Fixed make clean leave drlm-api binary in place (issue #130)
+- Fixed message errors during drlm version upgrade (issue #131, #132)
+- Fixed NFS_OPTS variable is not honored (issue #138)
+
 * Wed Jul 03 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.1
 - Fixed DRLM user group permissions (issue #118).
 - Fixed copy_ssh_id function with the -u parameter (issue #119).

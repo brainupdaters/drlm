@@ -1,4 +1,5 @@
 # bkpmgr workflow
+
 function wf_disable_client_backup(){
    if [ ! -z ${1} ]; then
       local A_BKP_ID_DB=${1}

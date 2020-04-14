@@ -30,6 +30,7 @@ case "$1" in
             if [ $(systemctl --version | head -n 1 | cut -d' ' -f2) -lt 229 ]; then
                 sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
             fi
+            systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
             systemctl daemon-reload
             systemctl enable drlm-stord.service
             systemctl start drlm-stord.service

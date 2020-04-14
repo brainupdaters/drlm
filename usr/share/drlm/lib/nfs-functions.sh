@@ -29,7 +29,6 @@ function unconfigure_nfs_exports ()
     if [ -f ${EXPORT_CLI_NAME} ]; then
       mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
     fi
-    
   done
   
 #Removes the nfs configuration file from CLIDB active backups
@@ -104,7 +103,6 @@ function reload_nfs ()
 
 function add_nfs_export ()
 {
-
   local CLI_NAME=${1}
   local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
   if [ ! -f "${EXPORT_CLI_NAME}" ]; then
