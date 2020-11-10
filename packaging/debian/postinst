@@ -7,6 +7,8 @@ case "$1" in
         [ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
         [ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
         chmod 775 /var/log/drlm/rear
+        #Check if /etc/exports.d directory is present
+        [ ! -d /etc/exports.d ] && mkdir /etc/exports.d && chmod 755 /etc/exports.d
 
         #Check if drlm.key has been generated in older installations.
         if [ ! -f /etc/drlm/cert/drlm.key ]; then

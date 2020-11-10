@@ -49,14 +49,8 @@ else
     mkdir -p $STORDIR/$CLI_NAME
     chmod 755 $STORDIR/$CLI_NAME
 
-    if add_nfs_export $CLI_NAME; then
-
-        if enable_nfs_fs_rw $CLI_NAME; then
-            Log "$PROGRAM:$WORKFLOW: NFS service reconfiguration complete!"
-        else
-            Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."
-        fi
-
+    if add_nfs_export $CLI_NAME ; then
+        Log "$PROGRAM:$WORKFLOW: NFS service reconfiguration complete!"
     else
         Error "$PROGRAM:$WORKFLOW: NFS service reconfiguration failed! See $LOGFILE for details."
     fi
@@ -68,7 +62,7 @@ if config_client_cfg ${CLI_NAME} ${SRV_IP}; then
     LogPrint "$PROGRAM:$WORKFLOW: /etc/drlm/clients/${CLI_NAME}.cfg has been created with default configuration, check ReaR options to change it if needed"
 else
     Error "$PROGRAM:$WORKFLOW: Problem creating configuration file for ${CLI_NAME}"
-fi	
+fi
 
 Log "------------------------------------------------------------------"
 Log "$PROGRAM $WORWFLOW:                                               "
