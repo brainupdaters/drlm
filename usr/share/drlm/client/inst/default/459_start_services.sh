@@ -35,7 +35,7 @@ case "$DISTRO" in
 
     CentOS|RedHat)
         case "$VERSION" in
-            [5*-7*])
+            [5*-8*])
                 if ssh_start_services "$USER" "$CLI_NAME" "$(eval echo \$REAR_SERVICES_REDHAT"$VERSION")" "$DISTRO" "$SUDO"; then 
                     LogPrint "Services have been started succesfully" 
                 else 
