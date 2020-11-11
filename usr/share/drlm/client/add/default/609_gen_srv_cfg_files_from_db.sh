@@ -28,20 +28,20 @@ else
 
     Log "$PROGRAM:$WORKFLOW: Populating $HOSTS_FILE configuration ..."
 
-    if $(hosts_add $CLI_NAME $CLI_IP) ; then
-	Log "$PROGRAM:$WORKFLOW: $CLI_NAME added to $HOSTS_FILE ..."
+    if $(hosts_add $CLI_NAME $CLI_IP); then
+        Log "$PROGRAM:$WORKFLOW: $CLI_NAME added to $HOSTS_FILE ..." 
     else
-	Log "WARNING:$PROGRAM:$WORKFLOW: $CLI_NAME already exists in $HOSTS_FILE !"
+	    Log "WARNING:$PROGRAM:$WORKFLOW: $CLI_NAME already exists in $HOSTS_FILE !"
     fi
 
     Log "$PROGRAM:$WORKFLOW: Populating DHCP configuration ..."
 
     generate_dhcp
 
-    if reload_dhcp ; then
-	Log "$PROGRAM:$WORKFLOW: DHCP service reconfiguration complete!"
+    if reload_dhcp; then
+	    Log "$PROGRAM:$WORKFLOW: DHCP service reconfiguration complete!"
     else
-	Error "$PROGRAM:$WORKFLOW: DHCP service reconfiguration failed! See $LOGFILE for details."
+	    Error "$PROGRAM:$WORKFLOW: DHCP service reconfiguration failed! See $LOGFILE for details."
     fi
 
     Log "$PROGRAM:$WORKFLOW: Populating NFS configuration ..."
