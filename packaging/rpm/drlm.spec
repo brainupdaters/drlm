@@ -225,6 +225,7 @@ service drlm-stord start
 - Fixed make clean leave drlm-api binary in place (issue #130)
 - Fixed message errors during drlm version upgrade (issue #131, #132)
 - Fixed NFS_OPTS variable is not honored (issue #138)
+- RedHat/CenOS 8 support
 
 * Wed Jul 03 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.1
 - Fixed DRLM user group permissions (issue #118).
@@ -284,7 +285,7 @@ service drlm-stord start
 - Set global UMASK value for all DRLM creating files durting execution.
 
 * Fri Mar 10 2017 Ruben Carbonell <ruben@brainupdaters.net> 2.1.2
-- SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo
+- SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo.
 - Automatic creation of /etc/sudoers.d if not exists RedHat/CenOS 5
 - Fixed some errors for dependencies on default.conf.
 - DRLM_USER variable deleted on addclient and help.

@@ -73,6 +73,8 @@ DRLM Version 2.3.2 (April 2020) - Release Notes
   * Fixed message errors during drlm version upgrade (issue #131, #132)
 
   * Fixed NFS_OPTS variable is not honored (issue #138)
+
+  * RedHat/CenOS 8 support
   
 
 DRLM Version 2.3.1 (July 2019) - Release Notes
