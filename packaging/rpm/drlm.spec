@@ -220,12 +220,13 @@ service drlm-stord start
 %endif
 
 %changelog
-* Mon Apr 06 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
+* Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)
 - Fixed make clean leave drlm-api binary in place (issue #130)
 - Fixed message errors during drlm version upgrade (issue #131, #132)
 - Fixed NFS_OPTS variable is not honored (issue #138)
 - RedHat/CenOS 8 support
+- Ubuntu 20.04 support
 
 * Wed Jul 03 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.1
 - Fixed DRLM user group permissions (issue #118).

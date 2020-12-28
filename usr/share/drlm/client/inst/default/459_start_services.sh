@@ -20,7 +20,7 @@ case "$DISTRO" in
 
     Ubuntu)
         case "$VERSION" in
-            1[2-8])
+            1[2-8]|20)
                 if ssh_start_services "$USER" "$CLI_NAME" "$(eval echo \$REAR_SERVICES_UBUNTU"$VERSION")" "$DISTRO" "$SUDO"; then 
                     LogPrint "Services have been started succesfully" 
                 else 

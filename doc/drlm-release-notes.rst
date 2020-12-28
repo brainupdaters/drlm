@@ -64,7 +64,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.3.2 (April 2020) - Release Notes
+DRLM Version 2.3.2 (December 2020) - Release Notes
 -----------------------------------------------
   * Fixed wget package dependency (issue #127)
 
@@ -75,6 +75,8 @@ DRLM Version 2.3.2 (April 2020) - Release Notes
   * Fixed NFS_OPTS variable is not honored (issue #138)
 
   * RedHat/CenOS 8 support
+  
+  * Ubuntu 20.04 support 
   
 
 DRLM Version 2.3.1 (July 2019) - Release Notes
