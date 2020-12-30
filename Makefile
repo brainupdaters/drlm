@@ -83,6 +83,7 @@ clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
 	rm -f packaging/docker/src/drlm*.deb
+	rm -f usr/sbin/drlm-api
 
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
@@ -210,7 +211,8 @@ $(name)-$(distversion).tar.gz:
 	@echo -e "\033[1m== Building archive $(name)-$(distversion) ==\033[0;0m"
 	git checkout $(git_branch)
 	git ls-tree -r --name-only --full-tree $(git_branch) | \
-		tar -czf $(name)-$(distversion).tar.gz --transform='s,^,$(name)-$(distversion)/,S' --files-from=-
+		tar -czf $(name)-$(distversion).tar.gz --transform='s,^,$(name)-$(distversion)/,S' \
+		--files-from=- ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
 
 rpm: dist
 	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
