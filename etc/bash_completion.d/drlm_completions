@@ -168,18 +168,18 @@ __drlm_addclient ()
 
 __drlm_runbackup ()
 {
-	local options_s="-c -I -h"
-	local options_l="--client --id --help"
+	local options_s="-c -C -I -h"
+	local options_l="--client --config --id --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I"
-		local options_l="--id"
+		local options_s="-I -C"
+		local options_l="--id --config"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-c"
-		local options_l="--client"
+		local options_s="-c -C"
+		local options_l="--client --config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
 		local options_s="-c -I"
 		local options_l="--client --id"
@@ -200,6 +200,24 @@ __drlm_runbackup ()
 				COMPREPLY[i++]="$result"
 			done
 			;;
+    -C | --config)
+      local i=0
+			prev3="${COMP_WORDS[COMP_CWORD-3]}"
+			if [ "$prev3" == "-c" ]; then
+				local client="${COMP_WORDS[COMP_CWORD-2]}"
+				query=$(ls -1 /etc/drlm/clients/$client.cfg.d/ | sed -e 's/\.cfg$//')
+				for result in $query; do
+					COMPREPLY[i++]="$result"
+				done
+			elif [ "$prev3" == "-I" ]; then
+        local client_id="${COMP_WORDS[COMP_CWORD-2]}"
+				client=$(get_client_name_dbdrv "$client_id")
+        query=$(ls -1 /etc/drlm/clients/$client.cfg.d/ | sed -e 's/\.cfg$//')
+				for result in $query; do
+					COMPREPLY[i++]="$result"
+				done
+			fi
+			;;
 		"-"*)
 			COMPREPLY=()
 			;;
@@ -211,15 +229,15 @@ __drlm_runbackup ()
 
 __drlm_addjob ()
 {
-	local options_s="-c -s -e -r -h"
-	local options_l="--client --start_date --end_date --repeat --help"
+	local options_s="-c -C -s -e -r -h"
+	local options_l="--client --config --start_date --end_date --repeat --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -s -e -r"
-		local options_l="--client --start_date --end_date --repeat"
+		local options_s="-c -C -s -e -r"
+		local options_l="--client --config --start_date --end_date --repeat"
 	fi
 
 	case "$prev" in
@@ -229,6 +247,22 @@ __drlm_addjob ()
 			for result in $query; do
 				COMPREPLY[i++]="$result"
 			done
+			;;
+    -C | --config)
+      local i=0
+      local j=${#COMP_WORDS[@]}
+      j=$((j-4))
+      while [ "${COMP_WORDS[$j]}" != "-c" ] && [ "$j" -gt "0" ]; do
+        j=$((j-1))
+      done
+      if [ "$j" -gt "0" ]; then
+        j=$((j+1))
+        local client="${COMP_WORDS[$j]}"
+				query=$(ls -1 /etc/drlm/clients/$client.cfg.d/ | sed -e 's/\.cfg$//')
+				for result in $query; do
+					COMPREPLY[i++]="$result"
+				done
+      fi
 			;;
 		-I | --installclient)
 			__drlmcomp3 "$options_s" "$options_l"
@@ -500,8 +534,8 @@ __drlm_listbackup ()
 
 __drlm_listjob ()
 {
-	local options_s="-c -A -h"
-	local options_l="--client --all --help"
+	local options_s="-c -J -A -h"
+	local options_l="--client --job_id --all --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
@@ -509,6 +543,9 @@ __drlm_listjob ()
 	elif __drlm_exist_option "-c --client" "$workflow"; then
 		local options_s="-c"
 		local options_l="--client"
+  elif __drlm_exist_option "-J --job_id" "$workflow"; then
+		local options_s="-J"
+		local options_l="--job_id"  
 	elif __drlm_exist_option "-A --all" "$workflow"; then
 		local options_s="-A"
 		local options_l="--all"
@@ -518,6 +555,13 @@ __drlm_listjob ()
 		-c | --client)
 			local i=0
 			query=$(get_all_client_names_in_jobs_dbdrv "$cur")
+			for result in $query; do
+				COMPREPLY[i++]="$result"
+			done
+			;;
+    -J | --job_id)
+      local i=0
+      query=$(get_all_jobs_id_dbdrv "$cur")
 			for result in $query; do
 				COMPREPLY[i++]="$result"
 			done

@@ -3,7 +3,7 @@ Log "Starting remote DR backup on client: ${CLI_NAME} ..."
 
 BKP_DURATION=$(date +%s)
 
-if OUT=$(run_mkbackup_ssh_remote $CLI_ID); then
+if OUT=$(run_mkbackup_ssh_remote $CLI_ID $CLI_CFG); then
     #Getting the backup duration in seconds 
     BKP_DURATION=$(echo "$(($(date +%s) - $BKP_DURATION))")
     #From seconds to hours:minuts:seconds

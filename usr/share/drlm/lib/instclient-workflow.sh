@@ -20,7 +20,7 @@
 
 WORKFLOW_instclient_DESCRIPTION="install client from DRLM"
 WORKFLOWS=( ${WORKFLOWS[@]} instclient )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} instclient )
 
 if [ $WORKFLOW == "instclient" ]; then
     # Parse options

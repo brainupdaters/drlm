@@ -20,7 +20,7 @@
 
 WORKFLOW_listnetwork_DESCRIPTION="list registered networks."
 WORKFLOWS=( ${WORKFLOWS[@]} listnetwork )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listnetwork )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listnetwork )
 
 if [ "$WORKFLOW" == "listnetwork" ]; then 
 	# Parse options

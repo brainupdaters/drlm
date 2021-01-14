@@ -11,7 +11,6 @@ if [[ ! -f $DRLM_CRON_FILE ]]; then
 fi
 
 if [ "$SCHED_MODE" == "disable" ]; then
-
   if [[ $(grep "sched" $DRLM_CRON_FILE | grep "^#" | wc -l) -eq 0 ]]; then
     sed -i "/sched/s/^/# /g" $DRLM_CRON_FILE
     if [ $? -eq 0 ];then
@@ -23,7 +22,6 @@ if [ "$SCHED_MODE" == "disable" ]; then
     LogPrint "$PROGRAM:$WORKFLOW:drlm job scheduler already disabled!"
   fi
 fi
-
 
 if [ "$SCHED_MODE" == "enable" ]; then
   if [[ $(grep "sched" $DRLM_CRON_FILE | grep "^#" | wc -l) -eq 2 ]]; then
@@ -37,4 +35,3 @@ if [ "$SCHED_MODE" == "enable" ]; then
     LogPrint "$PROGRAM:$WORKFLOW:drlm job scheduler already enabled!"
   fi
 fi
-

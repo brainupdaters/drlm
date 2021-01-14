@@ -1,7 +1,7 @@
 Log "------------------------------------------------------------------"
-Log "$PROGRAM $WORWFLOW:                                               "
+Log "$PROGRAM $WORKFLOW:                                               "
 Log "                                                                  "
-Log " - Registering Job for $CLI_NAME to DRLM                            "
+Log " - Registering Job for $CLI_NAME to DRLM                          "
 Log "                                                                  "
 Log " - Start Date & Time: $DATE                                       "
 Log "------------------------------------------------------------------"
@@ -27,6 +27,11 @@ then
   fi
 else
   Error "$PROGRAM:$WORKFLOW:Job start date: $START_DATE has wrong format. [ Correct this and try again ]"
+fi
+
+# Check for the config file if specified
+if [ "$CLI_CFG" != "default" ] && [ ! -f $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg ] ; then
+  Error "$PROGRAM:$WORKFLOW: Config file $CLI_CFG.cfg not found in $CONFIG_DIR/clients/$CLI_NAME.cfg.d/"
 fi
 
 if [[ -n "$END_DATE" ]];

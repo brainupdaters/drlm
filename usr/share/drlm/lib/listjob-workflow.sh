@@ -20,7 +20,7 @@
 
 WORKFLOW_listjob_DESCRIPTION="list planned jobs."
 WORKFLOWS=( ${WORKFLOWS[@]} listjob )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listjob )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listjob )
 
 if [ "$WORKFLOW" == "listjob" ]; then 
 	# Parse options
@@ -45,6 +45,7 @@ if [ "$WORKFLOW" == "listjob" ]; then
 				fi
 				shift 
 				;;
+
 			(-c|--client)
 				# We need to take the option argument
 				if [ -n "$2" ]; then 
@@ -55,17 +56,21 @@ if [ "$WORKFLOW" == "listjob" ]; then
 				fi
 				shift 
 				;;
+
 			(-A|--all)
 				CLI_NAME="all" 
 				;;
+
 			(-h|--help)
 				listjobhelp
 				exit 0
 				;;
+
 			(--) 
 				shift
 				break
 				;;
+        
 			(-*)
 				echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
 				echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
@@ -75,15 +80,15 @@ if [ "$WORKFLOW" == "listjob" ]; then
 		shift
 	done
 
-       	if [ -z "$CLI_NAME" ] && [ -z "$JOB_ID" ]; then
-       		echo "$PROGRAM $WORKFLOW: there are not all required parameters to run the command."
-       		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-       		exit 1
-       	fi
+  if [ -z "$CLI_NAME" ] && [ -z "$JOB_ID" ]; then
+    echo "$PROGRAM $WORKFLOW: there are not all required parameters to run the command."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
 
 	WORKFLOW_listjob () {
-    	#echo listjob workflow
-    	SourceStage "job/list"
+    #echo listjob workflow
+    SourceStage "job/list"
 	}
 
 fi

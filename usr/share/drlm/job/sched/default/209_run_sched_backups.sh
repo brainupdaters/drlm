@@ -10,6 +10,7 @@ if [ "$SCHED_MODE" == "run" ]; then
     JOB_EDATE=$(echo $line|awk -F"," '{print $4}')
     JOB_REPEAT=$(echo $line|awk -F"," '{print $5}') 
     JOB_ENABLED=$(echo $line|awk -F"," '{print $6}') 
+    CLI_CFG=$(echo $line|awk -F"," '{print $7}') 
 
     Log "$PROGRAM:$WORKFLOW:Schedule of JOB ID: [ $JOB_ID ] for client [ $CLI_ID ] where next date [ $JOB_NDATE ]."
 
@@ -44,7 +45,7 @@ if [ "$SCHED_MODE" == "run" ]; then
           JOB_LDATE=$NOW
           update_job_ldate "$JOB_ID" "$JOB_LDATE"
           Log "$PROGRAM:$WORKFLOW:Setting last date [ $JOB_LDATE ] for JOB ID: [ $JOB_ID ]"
-          sched_job /usr/sbin/drlm runbackup -I $CLI_ID
+          sched_job /usr/sbin/drlm runbackup -I $CLI_ID -C $CLI_CFG
           Log "$PROGRAM:$WORKFLOW:Running JOB ID [ $JOB_ID ] for client [ $CLI_ID ]"
         fi 
       else
@@ -53,7 +54,7 @@ if [ "$SCHED_MODE" == "run" ]; then
             JOB_LDATE=$NOW
             update_job_ldate "$JOB_ID" "$JOB_LDATE"
             Log "$PROGRAM:$WORKFLOW:Setting last date [ $JOB_LDATE ] for JOB ID: [ $JOB_ID ]"
-            sched_job /usr/sbin/drlm runbackup -I $CLI_ID
+            sched_job /usr/sbin/drlm runbackup -I $CLI_ID -C $CLI_CFG
             Log "$PROGRAM:$WORKFLOW:Running JOB ID [ $JOB_ID ] for client [ $CLI_ID ]"
           fi
         fi

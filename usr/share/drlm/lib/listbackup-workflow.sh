@@ -20,7 +20,7 @@
 
 WORKFLOW_listbackup_DESCRIPTION="list client backups."
 WORKFLOWS=( ${WORKFLOWS[@]} listbackup )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listbackup )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listbackup )
 
 if [ "$WORKFLOW" == "listbackup" ]; then 
 	# Parse options

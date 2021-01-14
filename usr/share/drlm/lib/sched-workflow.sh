@@ -20,7 +20,7 @@
 
 WORKFLOW_sched_DESCRIPTION="schedule planned jobs."
 WORKFLOWS=( ${WORKFLOWS[@]} sched )
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} sched )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} sched )
 
 if [ "$WORKFLOW" == "sched" ]; then 
 	# Parse options
@@ -56,11 +56,11 @@ if [ "$WORKFLOW" == "sched" ]; then
 		shift
 	done
 
-       	if [ -z "$SCHED_MODE" ]; then
-       		echo "$PROGRAM $WORKFLOW: there are not the required parameters to run this command."
-       		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-       		exit 1
-       	fi
+  if [ -z "$SCHED_MODE" ]; then
+    echo "$PROGRAM $WORKFLOW: there are not the required parameters to run this command."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
 
 	WORKFLOW_sched () {
     	#echo sched workflow

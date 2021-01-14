@@ -18,7 +18,7 @@
 #
 #
 
-LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} help )
+#LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} help )
 WORKFLOW_help () {
 	cat <<EOF
 Usage: $PROGRAM [-dDsSvV] COMMAND [-- ARGS...]

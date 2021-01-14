@@ -23,67 +23,88 @@ WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
 if [ "$WORKFLOW" == "runbackup" ]; then 
-	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:I:h" -l "client:,id:,help" -- "$@")"
-	if (( $? != 0 )); then
-	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	        exit 1
-	fi
-	
-	eval set -- "$OPT"
-	while true; do
-	        case "$1" in
-	                (-c|--client)
-	                        # We need to take the option argument
-	                        if [ -n "$2" ] && [ "$2" != "-i" ] && [ "$2" != "--id" ]
-				then 
-					CLI_NAME="$2"
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-					exit 1
-				fi
-				shift 
-				;;
-	                (-I|--id)
-				# We need to take the option argument
-	                        if [ -n "$2" ] && [ "$2" != "-c" ] && [ "$2" != "--client" ] 
-				then 
-					CLI_ID="$2" 
-				else
-	                        	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-	               	        	exit 1
-				fi 
-				shift
-				;;
-                        (-h|--help)
-                                runbackuphelp
-				exit 0
-                                ;;
-	                (--) shift; break;;
-	                (-*)
-	                        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	                        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	                        exit 1
-	                        ;;
-	        esac
-	        shift
-	done
-	
-	if [ -n "$CLI_NAME" ] && [ -n "$CLI_ID" ]; then 
-		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
-	        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	        exit 1
-	fi
+  
+  # Parse options
+  OPT="$(getopt -n $WORKFLOW -o "c:C:I:h" -l "client:,config:,id:,help" -- "$@")"
+  if (( $? != 0 )); then
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
 
-	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
-		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-		exit 1
-	fi
+  eval set -- "$OPT"
+  while true; do
+    case "$1" in
+      (-c|--client)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_NAME="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+          exit 1
+        fi
+        shift 
+        ;;
 
-	WORKFLOW_runbackup () {
-	    #echo runbackup workflow
-	    SourceStage "backup/run"
-	}
+      (-C|--config)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_CFG="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+          exit 1
+        fi
+        shift 
+        ;;
+
+      (-I|--id)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_ID="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-h|--help)
+        runbackuphelp
+        exit 0
+        ;;
+      
+      (--) 
+        shift 
+        break
+        ;;
+      
+      (-*)
+        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+        exit 1
+        ;;
+    esac   
+    shift
+  done
+
+  if [ -n "$CLI_NAME" ] && [ -n "$CLI_ID" ]; then 
+    echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --id "
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
+    echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  if [ -z "$CLI_CFG" ]; then
+    CLI_CFG="default"
+  fi
+
+  WORKFLOW_runbackup () {
+    #echo runbackup workflow
+    SourceStage "backup/run"
+  }
 
 fi

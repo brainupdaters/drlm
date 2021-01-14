@@ -64,8 +64,15 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.0 (January 2021) - Release Notes
+--------------------------------------------------
+  * Multiple config support
+
+  * List Unscheduled clients bug fixed
+
+
 DRLM Version 2.3.2 (December 2020) - Release Notes
------------------------------------------------
+--------------------------------------------------
   * Fixed wget package dependency (issue #127)
 
   * Fixed make clean leave drlm-api binary in place (issue #130)

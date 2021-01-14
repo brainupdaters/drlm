@@ -427,7 +427,8 @@ function mod_network_srv ()
 function list_network_all ()
 {
   printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
+  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
+
   for line in $(get_all_networks_dbdrv)
   do
     local NET_ID=`echo $line|awk -F":" '{print $1}'`
