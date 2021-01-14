@@ -23,38 +23,38 @@ WORKFLOWS=( ${WORKFLOWS[@]} sched )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} sched )
 
 if [ "$WORKFLOW" == "sched" ]; then 
-	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "redh" -l "run,enable,disable,help" -- "$@")"
-	if (( $? != 0 )); then
-	    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	    exit 1
-	fi
-	
-	eval set -- "$OPT"
-	while true; do
-		case "$1" in
-			(-r|--run)
-				SCHED_MODE="run"
-				;;
-			(-e|--enable)
-				SCHED_MODE="enable"
-				;;
-			(-d|--disable)
-				SCHED_MODE="disable"
-				;;	
-			(-h|--help)
-				schedjobhelp
-				exit 0
-				;;
-			(--) shift; break;;
-			(-*)
-				echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-				echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-				exit 1
-				;;
-		esac
-		shift
-	done
+  # Parse options
+  OPT="$(getopt -n $WORKFLOW -o "redh" -l "run,enable,disable,help" -- "$@")"
+  if (( $? != 0 )); then
+      echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+      exit 1
+  fi
+  
+  eval set -- "$OPT"
+  while true; do
+    case "$1" in
+      (-r|--run)
+        SCHED_MODE="run"
+        ;;
+      (-e|--enable)
+        SCHED_MODE="enable"
+        ;;
+      (-d|--disable)
+        SCHED_MODE="disable"
+        ;;  
+      (-h|--help)
+        schedjobhelp
+        exit 0
+        ;;
+      (--) shift; break;;
+      (-*)
+        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+        exit 1
+        ;;
+    esac
+    shift
+  done
 
   if [ -z "$SCHED_MODE" ]; then
     echo "$PROGRAM $WORKFLOW: there are not the required parameters to run this command."
@@ -62,9 +62,9 @@ if [ "$WORKFLOW" == "sched" ]; then
     exit 1
   fi
 
-	WORKFLOW_sched () {
-    	#echo sched workflow
-    	SourceStage "job/sched"
-	}
+  WORKFLOW_sched () {
+      #echo sched workflow
+      SourceStage "job/sched"
+  }
 
 fi
