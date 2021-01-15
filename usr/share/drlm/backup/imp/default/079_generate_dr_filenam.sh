@@ -17,11 +17,14 @@ fi
 
 LogPrint "Importing ${BKP_SRC} to ${ARCHDIR}/$DR_FILE"
 
-if [[ ! -d ${ARCHDIR} ]]; then mkdir -p ${ARCHDIR}; fi
+if [[ ! -d ${ARCHDIR} ]]; then 
+  mkdir -p ${ARCHDIR} 
+fi
 
 cp $BKP_SRC ${ARCHDIR}/$DR_FILE >> /dev/null 2>&1
+
 if [ $? -eq 0 ]; then
 	Log "$PROGRAM:$WORKFLOW:gendrfilename: ${BKP_SRC} copied to ${ARCHDIR}/$DR_FILE. Success!"
-else return
+else
 	Error "$PROGRAM:$WORKFLOW:gendrfilename: Problem copying ${BKP_SRC} to ${ARCHDIR}/$DR_FILE ..."
 fi
