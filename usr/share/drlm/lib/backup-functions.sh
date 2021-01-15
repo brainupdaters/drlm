@@ -4,17 +4,22 @@ function run_mkbackup_ssh_remote ()
 {
    #returns stdo of ssh
   local CLI_ID=$1
+  local CLI_CFG=$2
   local CLIENT=$(get_client_name $CLI_ID)
   local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
   local BKPOUT
 
   #Get the global options and generate GLOB_OPT string var to pass it to ReaR
-   if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
-     GLOB_OPT="-"
-     if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
-     if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
-     if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
-   fi
+  if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
+    GLOB_OPT="-"
+    if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
+    if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
+    if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
+  fi
+
+  if [ "$CLI_CFG" != "default" ]; then 
+    GLOB_OPT="$GLOB_OPT -C $CLI_CFG"
+  fi
 
   BKPOUT=$(ssh $SSH_OPTS ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkbackup SERVER=$(hostname -s) REST_OPTS=\"${REST_OPTS}\" ID=${CLIENT} 2>&1)
   if [ $? -ne 0 ]
@@ -70,7 +75,7 @@ function list_backup_all ()
 {
   local PRETTY_PARAM=$1
   printf '%-18s\n' "$(tput bold)"
-  printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size$(tput sgr0)"
+  printf '%-20s %-15s %-18s %-10s %-11s %-6s %-20s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "Configuration$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
   do
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
@@ -87,17 +92,19 @@ function list_backup_all ()
     if [ "$PRETTY_PARAM" = "true" ]; then
 	    BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
     else
-	    BAC_DURA_DEC="%-15s"
+	    BAC_DURA_DEC="%-11s"
     fi
 
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
     if [ "$PRETTY_PARAM" = "true" ]; then
 	    BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
     else
-	    BAC_SIZE_DEC="%-15s"
+	    BAC_SIZE_DEC="%-6s"
     fi
 
-    printf '%-20s %-15s %-18s %-15s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' \n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"
+    local CLI_CFG=`echo $line|awk -F":" '{print $10}'`
+
+    printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-20s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE" "$CLI_CFG"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -107,7 +114,7 @@ function list_backup ()
   local CLI_NAME=$1
   local PRETTY=$2
   printf '%-18s\n' "$(tput bold)"
-  printf '%-20s %-15s %-18s %-15s %-15s %-15s\n' "Backup Id" "Client Name" "Backup Date" "Backup Status" "Duration" "Backup Size$(tput sgr0)"
+  printf '%-20s %-15s %-18s %-10s %-11s %-6s %-20s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "Configuration$(tput sgr0)"
   for line in $(get_all_backups_dbdrv)
   do
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
@@ -124,17 +131,19 @@ function list_backup ()
     if [ "$PRETTY" ]; then
 	    BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
     else
-	    BAC_DURA_DEC="%-15s"
+	    BAC_DURA_DEC="%-11s"
     fi
 
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
     if [ "$PRETTY" ]; then
 	    BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
     else
-	    BAC_SIZE_DEC="%-15s"
+	    BAC_SIZE_DEC="%-6s"
     fi
 
-    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-15s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' \n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE"; fi
+    local CLI_CFG=`echo $line|awk -F":" '{print $10}'`
+
+    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-20s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE" "$CLI_CFG"; fi
   done
 }
 
@@ -364,8 +373,9 @@ function register_backup ()
   local DR_FILE=$4
   local BKP_DURATION=$5
   local BKP_SIZE=$6
+  local CLI_CFG=$7
 
-  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_DURATION" "$BKP_SIZE"
+  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG"
 }
 
 function del_backup ()
@@ -519,13 +529,13 @@ function check_backup_size_status() {
     fi
 
     if [ "$input_size" = "-" ]; then
-	echo -n "%-15s"
+	echo -n "%-6s"
     elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
-	echo -n "\\e[0;31m%-15s\\e[0m"
+	echo -n "\\e[0;31m%-6s\\e[0m"
     elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
-	echo -n "\\e[0;33m%-15s\\e[0m"
+	echo -n "\\e[0;33m%-6s\\e[0m"
     else
-	echo -n "%-15s"
+	echo -n "%-6s"
     fi
 }
 
@@ -547,15 +557,15 @@ function check_backup_time_status() {
         total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
 
         if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
-            echo -n "\\e[0;31m%-15s\\e[0m"
+            echo -n "\\e[0;31m%-11s\\e[0m"
         elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
-	    echo -n "\\e[0;33m%-15s\\e[0m"
+	    echo -n "\\e[0;33m%-11s\\e[0m"
         else
-            echo -n "%-15s"
+            echo -n "%-11s"
         fi
 
     else
-        echo -n "%-15s"
+        echo -n "%-11s"
     fi
 }
 

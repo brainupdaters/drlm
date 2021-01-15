@@ -1,3 +1,9 @@
+drlm (2.4.0) stable release; urgency=high
+  * Multiple config support
+  * List Unscheduled clients bug fixed
+
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 13 Jan 2021 00:00:00 +0100
+
 drlm (2.3.2) stable release; urgency=high
   * Fixed wget package dependency (issue #127)
   * Fixed make clean leave drlm-api binary in place (issue #130)

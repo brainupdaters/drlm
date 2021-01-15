@@ -17,7 +17,7 @@ RUN apt-get update && \
 
 # GIT clone drlm repo and checkout stable release
 RUN git clone https://github.com/brainupdaters/drlm tmp/drlm; \
-    cd /tmp/drlm; git checkout 2.3.1
+    cd /tmp/drlm; git checkout 2.3.2
 
 # Make Debian DEB for final DRLM image
 RUN cd /tmp/drlm; make deb

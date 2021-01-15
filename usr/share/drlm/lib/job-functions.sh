@@ -15,9 +15,10 @@ function add_job ()
   local JOB_SDATE=$2
   local JOB_EDATE=$3
   local JOB_REPEAT=$4
+  local CLI_CFG=$5
   local JOB_ENABLED=1
 
-  add_job_dbdrv "$CLI_ID" "$JOB_SDATE" "$JOB_EDATE" "$JOB_REPEAT" "$JOB_ENABLED"
+  add_job_dbdrv "$CLI_ID" "$JOB_SDATE" "$JOB_EDATE" "$JOB_REPEAT" "$JOB_ENABLED" "$CLI_CFG"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -48,7 +49,7 @@ function del_all_client_job ()
 function list_job_all ()
 {
   printf '%-15s\n' "$(tput bold)"
-  printf '%-5s %-17s %-17s %-17s %-17s %-17s\n' "Id" "Client" "End Date" "Last Date" "Next Date" "Repeat$(tput sgr0)"
+  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
   for line in $(get_all_jobs_dbdrv)
   do
     local JOB_ID=$(echo $line|awk -F"," '{print $1}')
@@ -59,7 +60,10 @@ function list_job_all ()
     local JOB_LDATE=$(echo $line|awk -F"," '{print $5}')
     local JOB_NDATE=$(echo $line|awk -F"," '{print $6}')
     local JOB_REPEAT=$(echo $line|awk -F"," '{print $7}')
-    printf '%-5s %-17s %-17s %-17s %-17s %-17s\n' "$JOB_ID" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT"
+    local JOB_ENABLED=$(echo $line|awk -F"," '{print $8}')
+    local CLI_CFG=$(echo $line|awk -F"," '{print $9}')
+
+    printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -68,18 +72,21 @@ function list_jobs_by_client ()
 {
   local CLI_ID=$1
   printf '%-15s\n' "$(tput bold)"
-  #printf '%-5s %-17s %-17s %-17s %-17s %-17s\n' "Id" "Start Date" "End Date" "Last Date" "Next Date" "Repeat$(tput sgr0)"
-  printf '%-5s %-17s %-17s %-17s %-17s\n' "Id" "End Date" "Last Date" "Next Date" "Repeat$(tput sgr0)"
+  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
   for line in $(get_jobs_by_client_dbdrv "${CLI_ID}")
   do
     local JOB_ID=$(echo $line|awk -F"," '{print $1}')
-    local JOB_SDATE=$(echo $line|awk -F"," '{print $2}')
-    local JOB_EDATE=$(echo $line|awk -F"," '{print $3}')
-    local JOB_LDATE=$(echo $line|awk -F"," '{print $4}')
-    local JOB_NDATE=$(echo $line|awk -F"," '{print $5}')
-    local JOB_REPEAT=$(echo $line|awk -F"," '{print $6}')
-    #printf '%-5s %-17s %-17s %-17s %-17s %-17s\n' "$JOB_ID" "$JOB_SDATE" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT"
-    printf '%-5s %-17s %-17s %-17s %-17s %-17s\n' "$JOB_ID" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT"
+    #local CLI_ID=$(echo $line|awk -F"," '{print $2}')
+    local CLI_NAME=$(get_client_name "${CLI_ID}")
+    local JOB_SDATE=$(echo $line|awk -F"," '{print $3}')
+    local JOB_EDATE=$(echo $line|awk -F"," '{print $4}')
+    local JOB_LDATE=$(echo $line|awk -F"," '{print $5}')
+    local JOB_NDATE=$(echo $line|awk -F"," '{print $6}')
+    local JOB_REPEAT=$(echo $line|awk -F"," '{print $7}')
+    local JOB_ENABLED=$(echo $line|awk -F"," '{print $8}')
+    local CLI_CFG=$(echo $line|awk -F"," '{print $9}')
+    
+    printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -88,17 +95,19 @@ function list_job ()
 {
   local JOB_ID=$1
   local JOB=$(get_job_by_id_dbdrv "${JOB_ID}")
-  local CLI_ID=$(echo $JOB|awk -F"," '{print $1}')
+  local CLI_ID=$(echo $JOB|awk -F"," '{print $2}')
   local CLI_NAME=$(get_client_name "${CLI_ID}")
-  local JOB_SDATE=$(echo $JOB|awk -F"," '{print $2}')
-  local JOB_EDATE=$(echo $JOB|awk -F"," '{print $3}')
-  local JOB_LDATE=$(echo $JOB|awk -F"," '{print $4}')
-  local JOB_NDATE=$(echo $JOB|awk -F"," '{print $5}')
-  local JOB_REPEAT=$(echo $JOB|awk -F"," '{print $6}')
+  local JOB_SDATE=$(echo $JOB|awk -F"," '{print $3}')
+  local JOB_EDATE=$(echo $JOB|awk -F"," '{print $4}')
+  local JOB_LDATE=$(echo $JOB|awk -F"," '{print $5}')
+  local JOB_NDATE=$(echo $JOB|awk -F"," '{print $6}')
+  local JOB_REPEAT=$(echo $JOB|awk -F"," '{print $7}')
+  local JOB_ENABLED=$(echo $JOB|awk -F"," '{print $8}')
+  local CLI_CFG=$(echo $JOB|awk -F"," '{print $9}')
 
   printf '%-15s\n' "$(tput bold)"
-  printf '%-17s %-17s %-17s %-17s %-17s\n' "Client" "End Date" "Last Date" "Next Date" "Repeat$(tput sgr0)"
-  printf '%-17s %-17s %-17s %-17s %-17s\n' "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT"
+  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
+  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 

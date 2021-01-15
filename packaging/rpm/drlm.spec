@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.3.1
+Version: 2.4.0
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -220,6 +220,11 @@ service drlm-stord start
 %endif
 
 %changelog
+
+* Wed Jan 13 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
+- Multiple config support
+- List Unscheduled clients bug fixed
+
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)
 - Fixed make clean leave drlm-api binary in place (issue #130)

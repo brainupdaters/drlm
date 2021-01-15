@@ -23,79 +23,99 @@ WORKFLOWS=( ${WORKFLOWS[@]} addjob )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} addjob )
 
 if [ "$WORKFLOW" == "addjob" ]; then 
-    # Parse options
-    OPT="$(getopt -n $WORKFLOW -o "c:s:e:r:h" -l "client:,start_date:,end_date:,repeat:,help" -- "$@")"
-    if (( $? != 0 )); then
+  # Parse options
+  OPT="$(getopt -n $WORKFLOW -o "c:C:s:e:r:h" -l "client:,config:,start_date:,end_date:,repeat:,help" -- "$@")"
+  if (( $? != 0 )); then
+      echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+      exit 1
+  fi
+  
+  eval set -- "$OPT"
+  while true; do
+    case "$1" in
+      (-c|--client)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_NAME="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+          exit 1
+        fi
+        shift 
+        ;;
+
+      (-C|--config)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_CFG="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+          exit 1
+        fi
+        shift 
+        ;;
+
+      (-s|--start_date)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          START_DATE="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-e|--end_date)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          END_DATE="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+            exit 1
+        fi 
+        shift
+        ;;
+
+      (-r|--repeat)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          REPEAT="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-h|--help)
+        addjobhelp
+        exit 0
+        ;;
+
+      (--) 
+        shift
+        break
+        ;;
+
+      (-*)
+        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
         echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
         exit 1
-    fi
-    
-    eval set -- "$OPT"
-    while true; do
-        case "$1" in
-            (-c|--client)
-                # We need to take the option argument
-                if [ -n "$2" ]
-                then 
-                	CLI_NAME="$2"
-                else
-                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-                	exit 1
-                fi
-                shift 
-                ;;
-            (-s|--start_date)
-                # We need to take the option argument
-                if [ -n "$2" ]
-                then 
-                	START_DATE="$2" 
-                else
-                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-                	exit 1
-                fi 
-                shift
-                ;;
-            (-e|--end_date)
-                # We need to take the option argument
-                if [ -n "$2" ]
-                then 
-                	END_DATE="$2" 
-                else
-                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-                    exit 1
-                fi 
-                shift
-                ;;
-            (-r|--repeat)
-                # We need to take the option argument
-                if [ -n "$2" ]
-                then 
-                	REPEAT="$2" 
-                else
-                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-                	exit 1
-                fi 
-                shift
-                ;;
-            (-h|--help)
-                addjobhelp
-                exit 0
-                ;;
-            (--) shift; break;;
-            (-*)
-                echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-                exit 1
-                ;;
-        esac
-        shift
-    done
+        ;;
+    esac
+    shift
+  done
 
 	if [ -z "$CLI_NAME" ] || [ -z "$START_DATE" ]; then
 		echo "$PROGRAM $WORKFLOW: there are not all required parameters to run the command."
 		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 		exit 1
 	fi
+
+  if [ -z "$CLI_CFG" ]; then
+    CLI_CFG="default"
+  fi
 
 	WORKFLOW_addjob () {
     	#echo addjob workflow

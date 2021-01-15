@@ -46,4 +46,7 @@ else
     if [ $drlm_old_ver -lt 20300 ]; then
         /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/2.3.0_db_update.sql
     fi
+    if [ $drlm_old_ver -lt 20400 ]; then
+        /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/2.4.0_db_update.sql
+    fi
 fi
