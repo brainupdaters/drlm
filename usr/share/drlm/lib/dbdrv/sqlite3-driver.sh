@@ -433,7 +433,13 @@ function del_all_db_client_backup_dbdrv ()
 function get_active_cli_bkp_from_db_dbdrv ()
 {
   local CLI_NAME=$1
-  BKP_ID=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_CFG=$2
+
+  if [ -n "$CLI_CFG" ]; then
+    BKP_ID=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=1 and config='${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  else
+    BKP_ID=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  fi
   echo $BKP_ID
 }
 
@@ -473,14 +479,21 @@ function exist_dr_file_db_dbdrv ()
 function get_count_active_backups_by_client_dbdrv ()
 {
   local CLI_NAME=$1
-  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and active=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_CFG=$2
+  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and active=1 and config = '${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo "$A_BKP"
 }
 
 function get_count_backups_by_client_dbdrv ()
 {
   local CLI_NAME=$1
-  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_CFG=$2
+
+  if [ -n $CLI_CFG ]; then
+    A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and config='$CLI_CFG';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  else
+    A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  fi
   echo "$A_BKP"
 }
 
@@ -496,14 +509,14 @@ function register_backup_dbdrv ()
   local BKP_IS_ACTIVE=1
 
 # MARK LAST ACTIVE BACKUP AS INACTIVE
-  local A_BKP_ID=$(get_active_cli_bkp_from_db_dbdrv "$CLI_NAME")
+  local A_BKP_ID=$(get_active_cli_bkp_from_db_dbdrv $CLI_NAME $CLI_CFG)
   if [ -n "$A_BKP_ID" ]; then
     disable_backup_db_dbdrv "$A_BKP_ID"
     if [ $? -ne 0 ]; then return 1; fi
   fi
 
 # REGISTER BACKUP TO DATABASE
-  local A_BKP=$(get_count_active_backups_by_client_dbdrv "$CLI_NAME")
+  local A_BKP=$(get_count_active_backups_by_client_dbdrv $CLI_NAME $CLI_CFG)
 
   if [ $A_BKP -eq 0 ]; then
     echo "INSERT INTO backups VALUES('${BKP_ID}', ${CLI_ID}, '${DR_FILE}', ${BKP_IS_ACTIVE}, '${BKP_DURATION}', '${BKP_SIZE}', '${CLI_CFG}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
@@ -542,6 +555,13 @@ function get_all_client_names_in_backups_dbdrv()
   echo $ID_LIST
 }
 
+function get_backup_config_by_backup_dbdrv ()
+{
+  local BKP_ID=$1
+  local CLI_CFG=$(echo "select config from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_CFG
+}
+
 function get_client_id_by_backup_id_dbdrv ()
 {
   local BKP_ID=$1
@@ -556,10 +576,15 @@ function get_backup_drfile_dbdrv ()
   echo "$BKP_DR"
 }
 
-function get_older_backup_by_client_dbdrv ()
-{
+function get_older_backup_by_client_dbdrv() {
   local CLI_NAME=$1
-  local OLD_BKP=$(sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=0 order by idbackup asc limit 1")
+  local CLI_CFG=$2
+
+  if [ -n $CLI_CFG ]; then
+    OLD_BKP=$(sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=0 and config='$CLI_CFG' order by idbackup asc limit 1")
+  else
+    OLD_BKP=$(sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=0 order by idbackup asc limit 1")
+  fi
   echo "$OLD_BKP"
 }
 

@@ -10,7 +10,6 @@ else
   if disable_nfs_fs ${CLI_NAME}; then
     Log "$PROGRAM:$WORKFLOW:NFS:DISABLE:$CLI_NAME: .... Success!"
   else
-
     Error "$PROGRAM:$WORKFLOW:NFS:DISABLE:$CLI_NAME: Problem disabling NFS export! aborting ..."
   fi
 

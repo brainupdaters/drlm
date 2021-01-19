@@ -109,6 +109,8 @@ Error() {
 	fi
 	VERBOSE=1
 	LogPrint "ERROR: $*"
+  # Check if error reporting is enabled
+  report_error "ERROR: $*"
 	if has_binary caller; then
 		# Print stack strace on errors in reverse order
 		(
@@ -161,7 +163,7 @@ Debug() {
 }
 
 Print() {
-	test "$VERBOSE" && echo -e "$*" >&7
+	test "$VERBOSE" && echo -e "$(Stamp)$*" >&7
 }
 
 # print if there is an error

@@ -224,6 +224,7 @@ service drlm-stord start
 * Wed Jan 13 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple config support
 - List Unscheduled clients bug fixed
+- DRLM parameters configurable for each client or backup.
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

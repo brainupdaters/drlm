@@ -1,5 +1,5 @@
 Log "------------------------------------------------------------------"
-Log "$PROGRAM $WORWFLOW:                                               "
+Log "$PROGRAM $WORKFLOW:                                               "
 Log "                                                                  "
 Log " - Registering DR Network $NET_NAME to DRLM ...                   "
 Log "                                                                  "

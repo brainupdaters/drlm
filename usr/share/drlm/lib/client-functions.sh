@@ -210,6 +210,8 @@ function list_client () {
   printf '%-15s\n' "$(tput bold)"
   printf '%-6s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
 
+  save_default_pretty_params_list_client
+
   for client in $(get_all_client_names $CLI_NAME_PARAM); do
     local CLI_NAME=$client
     local CLI_ID=$(get_client_id_by_name $CLI_NAME)
@@ -218,6 +220,9 @@ function list_client () {
     local CLI_OS=$(get_client_os $CLI_ID)
     local CLI_NET=$(get_client_net $CLI_ID)
     local CLI_REAR=$(get_client_rear $CLI_ID)
+
+    load_default_pretty_params_list_client
+    load_client_pretty_params_list_client $CLI_NAME
 
     if [ -z "$(has_jobs_scheduled "$CLI_ID")" ]; then
       local CLI_HAS_JOBS="false"
@@ -273,11 +278,27 @@ function config_client_cfg () {
 }
 
 function has_jobs_scheduled() {
-	local CLI_ID="$1"
+  local CLI_ID="$1"
 
-	for line in $(get_all_jobs_dbdrv); do
-		if [ $(echo $line|awk -F"," '{print $2}') == "$CLI_ID" ]; then
-			echo "true"
-		fi
-	done
+  for line in $(get_all_jobs_dbdrv); do
+    if [ $(echo $line|awk -F"," '{print $2}') == "$CLI_ID" ]; then
+      echo "true"
+    fi
+  done
+}
+
+function load_client_pretty_params_list_client() { 
+  local CLI_NAME=$1
+  eval $(grep SSH_PORT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+}
+
+function save_default_pretty_params_list_client() {
+  DEF_SSH_PORT=$SSH_PORT
+  DEF_CLIENT_LIST_TIMEOUT=$CLIENT_LIST_TIMEOUT
+}
+
+function load_default_pretty_params_list_client() {
+  SSH_PORT=$DEF_SSH_PORT
+  CLIENT_LIST_TIMEOUT=$DEF_CLIENT_LIST_TIMEOUT
 }

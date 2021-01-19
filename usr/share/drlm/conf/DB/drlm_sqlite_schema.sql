@@ -76,6 +76,8 @@ ALTER TABLE clients ADD COLUMN "rear" VARCHAR(45);
 -- 2.4.0 new
 
 ALTER TABLE backups ADD COLUMN "config" VARCHAR(45);
+UPDATE TABLE backups SET config='default' WHERE config=''; 
+
 ALTER TABLE jobs ADD COLUMN "config" VARCHAR(45);
 
 COMMIT;

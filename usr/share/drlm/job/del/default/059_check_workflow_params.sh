@@ -1,6 +1,6 @@
 if test -n "$CLI_NAME"; then
   Log "------------------------------------------------------------------"
-  Log "$PROGRAM $WORWFLOW:                                               "
+  Log "$PROGRAM $WORKFLOW:                                               "
   Log "                                                                  "
   Log " - Deleting all Jobs of $CLI_NAME from DRLM                       "
   Log "                                                                  "
@@ -19,7 +19,7 @@ fi
 
 if test -n "$JOB_ID"; then
   Log "------------------------------------------------------------------"
-  Log "$PROGRAM $WORWFLOW:                                               "
+  Log "$PROGRAM $WORKFLOW:                                               "
   Log "                                                                  "
   Log " - Deleting Job [ $JOB_ID ] from DRLM                             "
   Log "                                                                  "

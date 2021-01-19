@@ -70,6 +70,8 @@ DRLM Version 2.4.0 (January 2021) - Release Notes
 
   * List Unscheduled clients bug fixed
 
+  * DRLM parameters configurable for each client or backup.
+
 
 DRLM Version 2.3.2 (December 2020) - Release Notes
 --------------------------------------------------
