@@ -268,13 +268,19 @@ function config_client_cfg () {
   local SRV_IP=$2
 
   cp $CONFIG_DIR/client_local_template.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
-
   sed -i -e "s/%CLI_NAME%/$CLI_NAME/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
   sed -i -e "s/%SRV_IP%/$SRV_IP/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
+  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
 
-  chmod 644 $CONFIG_DIR/clients/${CLI_NAME}.cfg
+  cp $CONFIG_DIR/client_local_template.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
+  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
+
   mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
   chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
+  cp $CONFIG_DIR/client_local_template_data_only.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg.d/HomeBackup.cfg
+  sed -i -e "s/%CLI_NAME%/$CLI_NAME/g" $CONFIG_DIR/clients/$CLI_NAME.cfg.d/HomeBackup.cfg
+  sed -i -e "s/%SRV_IP%/$SRV_IP/g" $CONFIG_DIR/clients/$CLI_NAME.cfg.d/HomeBackup.cfg
+  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg.d/HomeBackup.cfg
 }
 
 function has_jobs_scheduled() {

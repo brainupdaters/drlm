@@ -13,6 +13,7 @@ if OUT=$(run_mkbackup_ssh_remote $CLI_ID $CLI_CFG); then
 else
   report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Problem running remote mkbackup! aborting ...  Error Message: [ $OUT ]"
   Error "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Problem running remote mkbackup! aborting ..."
+
   Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Starting rollback to previous DR ...."
 
   ROLL_ERR=0

@@ -109,8 +109,7 @@ Error() {
 	fi
 	VERBOSE=1
 	LogPrint "ERROR: $*"
-  # Check if error reporting is enabled
-  report_error "ERROR: $*"
+
 	if has_binary caller; then
 		# Print stack strace on errors in reverse order
 		(
@@ -125,6 +124,11 @@ Error() {
 		) >&2
 	fi
 	kill -USR1 $MASTER_PID # make sure that Error exits the master process, even if called from child processes :-)
+}
+
+ErrorReport() {
+  Error $*
+  report_error "ERROR: $*"
 }
 
 StopIfError() {

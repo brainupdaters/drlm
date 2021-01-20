@@ -4,7 +4,7 @@ BKP_ID=$(gen_backup_id ${CLI_ID})
 DR_FILE=$(gen_dr_file_name ${CLI_NAME} ${BKP_ID})
 
 if [ -n "$IMP_BKP_ID" ]; then
-	BKP_SRC=${ARCHDIR}/$(get_backup_drfile "$IMP_BKP_ID")
+	BKP_SRC=${ARCHDIR}/$(get_backup_drfile_by_backup_id "$IMP_BKP_ID")
 else
 	BKP_SRC="$IMP_FILE_NAME"
 fi

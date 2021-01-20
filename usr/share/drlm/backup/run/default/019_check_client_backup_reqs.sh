@@ -37,3 +37,16 @@ if mod_client_rear "$CLI_ID" "$CLI_REAR"; then
 else
   LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update ReaR version of client $CLI_ID in the database"
 fi
+
+if [ "$BACKUP_ONLY_INCLUDE" == "yes" ]; then
+  BKP_TYPE=0
+  ACTIVE_PXE=0
+elif [ "$OUTPUT" == "PXE" ] && [ "$BACKUP_ONLY_INCLUDE" != "yes" ]; then
+  BKP_TYPE=1
+  ACTIVE_PXE=1
+elif [ "$OUTPUT" == "ISO" ] && [ "$BACKUP_ONLY_INCLUDE" != "yes" ]; then
+  BKP_TYPE=2
+  ACTIVE_PXE=0
+else 
+  Error "$PROGRAM:$WORKFLOW: Backup type not supported OUTPUT != PXE and not Data Only Backup"
+fi
