@@ -131,10 +131,6 @@ if [ "$WORKFLOW" == "impbackup" ]; then
     CLI_CFG="default"
   fi
 
-  if [ -z "$BKP_TYPE" ]; then
-    BKP_TYPE="1"
-  fi
-
   WORKFLOW_impbackup () {
     #echo impbackup workflow
     SourceStage "backup/imp"

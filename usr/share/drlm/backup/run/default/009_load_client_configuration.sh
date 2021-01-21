@@ -28,10 +28,10 @@ if [ -f $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg ] ; then
   LogPrint "$PROGRAM:$WORKFLOW: Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.drlm.cfg) ..."
 fi
 
-# Import client backup configration 
+# Import client backup configuration 
 # The configuration is set to "default" when -C parameter is not present. This means that will be loaded 
 # the configuration file /etc/drlm/clients/client_name.cfg 
-# If the -C parameter is set, drlm will load the configuratino files stored in /etc/drlm/clients/client_name.cfg.d/config_file.cfg
+# If the -C parameter is set, drlm will load the configuration files stored in /etc/drlm/clients/client_name.cfg.d/config_file.cfg
 if [ "$CLI_CFG" = "default" ]; then
   if [ -f $CONFIG_DIR/clients/$CLI_NAME.cfg ]; then
     source $CONFIG_DIR/clients/$CLI_NAME.cfg

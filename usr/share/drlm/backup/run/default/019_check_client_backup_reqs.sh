@@ -38,6 +38,7 @@ else
   LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update ReaR version of client $CLI_ID in the database"
 fi
 
+# Check what backup type is
 if [ "$BACKUP_ONLY_INCLUDE" == "yes" ]; then
   BKP_TYPE=0
   ACTIVE_PXE=0

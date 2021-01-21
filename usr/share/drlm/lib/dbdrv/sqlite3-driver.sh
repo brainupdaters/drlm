@@ -527,28 +527,28 @@ function register_backup_dbdrv () {
   local BKP_TYPE=$9
   local BKP_IS_ACTIVE=1
 
-# MARK LAST ACTIVE BACKUP AS INACTIVE
-  local A_BKP_ID=""
+# # MARK LAST ACTIVE BACKUP AS INACTIVE
+#   local A_BKP_ID=""
 
-  if [ "$BKP_TYPE" == "0" ] || [ "$BKP_TYPE" == "2" ]; then
-    A_BKP_ID=$(get_active_cli_bkp_from_db_dbdrv $CLI_ID $CLI_CFG)
-  elif [ "$BKP_TYPE" == "1" ]; then
-    A_BKP_ID=$(get_active_cli_rescue_from_db_dbdrv $CLI_ID)
-  fi
+#   if [ "$BKP_TYPE" == "0" ] || [ "$BKP_TYPE" == "2" ]; then
+#     A_BKP_ID=$(get_active_cli_bkp_from_db_dbdrv $CLI_ID $CLI_CFG)
+#   elif [ "$BKP_TYPE" == "1" ]; then
+#     A_BKP_ID=$(get_active_cli_rescue_from_db_dbdrv $CLI_ID)
+#   fi
 
-  if [ -n "$A_BKP_ID" ]; then
-    disable_backup_db_dbdrv "$A_BKP_ID"
-    if [ $? -ne 0 ]; then return 1; fi
-  fi
+#   if [ -n "$A_BKP_ID" ]; then
+#     disable_backup_db_dbdrv "$A_BKP_ID"
+#     if [ $? -ne 0 ]; then return 1; fi
+#   fi
 
-# MARK LAST PXE ENABLED AS INACTIVE
-  if [ "$BKP_PXE" == "1" ]; then
-    local A_BKP_ID=$(get_active_cli_pxe_from_db_dbdrv $CLI_ID)
-    if [ -n "$A_BKP_ID" ]; then
-      disable_pxe_db_dbdrv "$A_BKP_ID"
-      if [ $? -ne 0 ]; then return 1; fi
-    fi
-  fi
+# # MARK LAST PXE ENABLED AS INACTIVE
+#   if [ "$BKP_PXE" == "1" ]; then
+#     local A_BKP_ID=$(get_active_cli_pxe_from_db_dbdrv $CLI_ID)
+#     if [ -n "$A_BKP_ID" ]; then
+#       disable_pxe_db_dbdrv "$A_BKP_ID"
+#       if [ $? -ne 0 ]; then return 1; fi
+#     fi
+#   fi
 
 # REGISTER BACKUP TO DATABASE
   local A_BKP=$(get_count_active_backups_by_client_dbdrv $CLI_NAME $CLI_CFG)

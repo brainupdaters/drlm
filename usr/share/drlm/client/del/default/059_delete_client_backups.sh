@@ -1,17 +1,12 @@
 # delclient workflow
 
-Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Disabling DR store for client: .... "
-
-if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
-  GLOB_OPT="-"
-  if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
-  if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
-  if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
-fi
+Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Disabling DR stores for client: .... "
 
 # Disable all active backups
-for BKP_ID in $(get_active_cli_bkp_from_db $CLI_NAME); do
-  /usr/sbin/drlm drlm $GLOB_OPT bkpmgr -d -I $BKP_ID
+for BKP_ID in $(get_active_cli_bkp_from_db $CLI_ID); do
+  Log "$PROGRAM:$WORKFLOW:BACKUP:DISABLE:$BKP_ID: ...."
+  disable_backup $BKP_ID
+  Log "$PROGRAM:$WORKFLOW:BACKUP:DISABLE:$BKP_ID: .... Success!"
 done
 
 # Check bakcup persistence before delete them

@@ -143,7 +143,7 @@ function list_backup ()
 
 function enable_loop_ro ()
 {
-  local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
   local DR_FILE=$2
 
   /sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
@@ -672,4 +672,148 @@ function load_default_pretty_params_list_backup() {
   BACKUP_TIME_STATUS_FAILED=$DEF_BACKUP_TIME_STATUS_FAILED
   BACKUP_TIME_STATUS_WARNING=$DEF_BACKUP_TIME_STATUS_WARNING
   CLIENT_LIST_TIMEOUT=$DEF_CLIENT_LIST_TIMEOUT
+}
+
+function disable_backup() {
+  local ENABLED_DB_BKP_ID=$1
+
+  if [ -n "$ENABLED_DB_BKP_ID" ]; then
+
+    ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID)
+    ENABLED_BKP_CLI_ID=$(get_backup_client_id_by_backup_id $ENABLED_DB_BKP_ID)
+    ENABLED_BKP_CLI_NAME=$(get_client_name $ENABLED_BKP_CLI_ID)
+    LOOP_DEVICE=$(losetup --list | grep -w "$ENABLED_DB_BKP_ID" | awk '{print $1}')
+    LOOP_MOUNT_POINT=$(mount -lt ext2,ext4 | grep -w "${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}" | awk '{ print $3 }')
+
+    # Disable NFS
+    if disable_nfs_fs $ENABLED_BKP_CLI_NAME $ENABLED_BKP_CFG; then
+      Log "$PROGRAM:$WORKFLOW:NFS:DISABLE:$ENABLED_BKP_CLI_NAME:CONFIG:$ENABLED_BKP_CFG: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:NFS:DISABLE:$ENABLED_BKP_CLI_NAME:CONFIG:$ENABLED_BKP_CFG: Problem disabling NFS export! aborting ..."
+    fi
+
+    # Umount Loop device
+    if [ -n "$LOOP_MOUNT_POINT" ]; then
+      if do_umount $LOOP_MOUNT_POINT; then
+        Log "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): .... Success!"
+      else
+        Error "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): Problem unmounting Filesystem! Aborting ..."
+      fi
+    fi
+
+    # Detach loop device
+    if [ -n "$LOOP_DEVICE" ]; then
+      if disable_loop $LOOP_DEVICE; then
+        Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$ENABLED_BKP_CLI_NAME: .... Success!"
+      else
+        Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$ENABLED_BKP_CLI_NAME: Problem disabling Loop Device! Aborting ..."
+      fi
+    fi
+
+    # Disable backup from database
+    if disable_backup_db $ENABLED_DB_BKP_ID ; then
+      Log "$PROGRAM:$WORKFLOW:MODE:perm:DB:disable:ID($ENABLED_DB_BKP_ID):$ENABLED_BKP_CLI_NAME: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:MODE:perm:DB:disable:ID($ENABLED_DB_BKP_ID):$ENABLED_BKP_CLI_NAME: Problem disabling backup in database! Aborting ..."
+    fi
+      
+    Log "Finished Deactivating DR store for client: $LOOP_MOUNT_POINT ..."  
+
+  fi
+}
+
+function disable_backup_store() {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+  local LOOP_MOUNT_POINT=$(mount -lt ext2,ext4 | grep -w "${STORDIR}/${CLI_NAME}/${CLI_CFG}" | awk '{ print $3 }')
+  local LOOP_DEVICE=$(losetup --list | grep -w "$DR_FILE" | awk '{print $1}')
+
+  # Disable NFS
+  if disable_nfs_fs $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:NFS:DISABLE:$CLI_NAME:CONFIG:$CLI_CFG: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:NFS:DISABLE:$CLI_NAME:CONFIG:$CLI_CFG: Problem disabling NFS export! aborting ..."
+  fi
+
+  # Umount Loop device
+  if [ -n "$LOOP_MOUNT_POINT" ]; then
+    if do_umount $LOOP_MOUNT_POINT; then
+      Log "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): Problem unmounting Filesystem! Aborting ..."
+    fi
+  fi
+
+  # Detach loop device
+  if [ -n "$LOOP_DEVICE" ]; then
+    if disable_loop $LOOP_DEVICE; then
+      Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$CLI_NAME: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$CLI_NAME: Problem disabling Loop Device! Aborting ..."
+    fi
+  fi
+}
+
+function enable_backup_store_rw() {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+
+  # Create loopdev:
+  # Get next loop device free
+  local LOOP_DEVICE=$(losetup -f)
+
+  if enable_loop_rw $LOOP_DEVICE $DR_FILE; then
+    Log "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: Problem enabling Loop Device (rw)! aborting ..."
+  fi
+
+  # Mount image:
+  if do_mount_ext4_rw $LOOP_DEVICE $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (rw)! aborting ..."
+  fi
+
+  # Enable NFS read/write mode:
+  if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE(rw):$CLI_NAME: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
+  fi
+}
+
+function enable_backup_store_ro() {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+
+  # Create loopdev:
+  # Get next loop device free
+  local LOOP_DEVICE=$(losetup -f)
+
+  if enable_loop_ro $LOOP_DEVICE $DR_FILE; then
+    Log "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: Problem enabling Loop Device (rw)! aborting ..."
+  fi
+
+  # Mount image:
+  if do_mount_ext4_ro $LOOP_DEVICE $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (rw)! aborting ..."
+  fi
+
+  # Enable NFS read/write mode:
+  if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE(rw):$CLI_NAME: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
+  fi
 }

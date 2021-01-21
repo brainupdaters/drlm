@@ -69,19 +69,9 @@ EOF
 fi
 
 # Remount backup in Read Only mode
-Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLM Store ..."
+Log "$PROGRAM:$WORKFLOW:postbackup:$CLI_NAME: Enabling DRLM Store ..."
 
-if do_remount ro $LOOP_DEVICE $CLI_NAME $CLI_CFG; then
-  Log "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): ... Success!"
-  if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE(ro):$CLI_NAME: ... Success!"
-  else
-    report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
-    Error "$PROGRAM:$WORKFLOW:postbackup:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
-  fi
-else
-  report_error "ERROR:$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem!"
-  Error "$PROGRAM:$WORKFLOW:postbackup:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem!"
-fi
+disable_backup_store $DR_FILE $CLI_NAME $CLI_CFG
+enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
 
 Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Enabling DRLM Store .... Success!"
