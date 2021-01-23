@@ -1,9 +1,12 @@
 drlm (2.4.0) stable release; urgency=high
   * Multiple config support
+  * ISO recover image supported 
+  * ReaR mkbackuponly and ReaR restoreonly supported
+  * DRLM parameters configurable for each client or backup
+  * Added drlm-api systemd service 
   * List Unscheduled clients bug fixed
-  * DRLM parameters configurable for each client or backup.
 
- -- Pau Roura <pau@brainupdaters.net>  Wed, 13 Jan 2021 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Sat, 23 Jan 2021 00:00:00 +0100
 
 drlm (2.3.2) stable release; urgency=high
   * Fixed wget package dependency (issue #127)

@@ -5,9 +5,14 @@ case "$1" in
     remove)
         #Check for systemd or initd
         if [ $(ps -p 1 -o comm=) = "systemd" ]; then
+            # Stop, disable and remove drlm-stord.service
             systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
             systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
             [ -f /etc/systemd/system/drlm-stord.service ] && rm /etc/systemd/system/drlm-stord.service
+            # Stop, disable and remove drlm-stord.service
+            systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+            systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+            [ -f /etc/systemd/system/drlm-api.service ] && rm /etc/systemd/system/drlm-api.service
             systemctl daemon-reload
         else
             service drlm-stord stop
@@ -24,9 +29,14 @@ case "$1" in
     upgrade)
         #Check for systemd or initd
         if [ $(ps -p 1 -o comm=) = "systemd" ]; then
+            # Stop, disable and remove drlm-stord.service
             systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
             systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
             [ -f /etc/systemd/system/drlm-stord.service ] && rm /etc/systemd/system/drlm-stord.service
+            # Stop, disable and remove drlm-api.service
+            systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+            systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+            [ -f /etc/systemd/system/drlm-api.service ] && rm /etc/systemd/system/drlm-api.service
             systemctl daemon-reload
         else
             service drlm-stord stop

@@ -68,9 +68,15 @@ DRLM Version 2.4.0 (January 2021) - Release Notes
 --------------------------------------------------
   * Multiple config support
 
-  * List Unscheduled clients bug fixed
+  * ISO recover image supported 
 
-  * DRLM parameters configurable for each client or backup.
+  * ReaR mkbackuponly and ReaR restoreonly supported
+
+  * DRLM parameters configurable for each client or backup
+
+  * Added drlm-api systemd service 
+
+  * List Unscheduled clients bug fixed
 
 
 DRLM Version 2.3.2 (December 2020) - Release Notes

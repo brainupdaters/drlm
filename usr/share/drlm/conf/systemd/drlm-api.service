@@ -1,25 +1,13 @@
 [Unit]
-Description=DRLM Stord Service
-After=nfs-kernel-server.service
+Description=DRLM Api Service
+After=drlm-stord.service
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/sbin/drlm-api start
-ExecStop=/usr/sbin/drlm-api stop
-ExecReload=/usr/sbin/drlm-api reload
-TimeoutSec=infinity
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/sbin/drlm-api
 
 [Install]
 WantedBy=multi-user.target
 
-# START
-# drlm-api &
-# echo $! > $VAR_DIR/run/drlm-api.pid"
-
-# STOP
-# kill $(cat $VAR_DIR/run/drlm-api.pid)
-# rm $VAR_DIR/run/drlm-api.pid
-
-# RESTART RELOAD FORCE-RELOAD
-# echo drlm-apli PID: $(cat $VAR_DIR/run/drlm-api.pid)

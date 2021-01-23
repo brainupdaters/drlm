@@ -30,9 +30,13 @@ case "$1" in
                 sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
             fi
             systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+            cp /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/
+            systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
             systemctl daemon-reload
             systemctl enable drlm-stord.service
             systemctl start drlm-stord.service
+            systemctl enable drlm-api.service
+            systemctl start drlm-api.service
         else
             update-rc.d tftpd-hpa defaults
             update-rc.d nfs-kernel-server defaults

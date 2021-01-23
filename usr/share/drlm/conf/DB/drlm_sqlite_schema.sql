@@ -86,6 +86,7 @@ ALTER TABLE backups ADD COLUMN "type" tinyint(1);
 UPDATE backups SET type=1 where type='';
 -- type 0 = data backup only
 -- type 1 = PXE rescue system
+-- type 1 = ISO rescue system
 
 ALTER TABLE jobs ADD COLUMN "config" VARCHAR(45);
 
