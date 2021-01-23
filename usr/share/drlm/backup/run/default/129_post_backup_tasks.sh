@@ -10,6 +10,13 @@ if [ "$BKP_TYPE" == "1" ]; then
 
   Log "$PROGRAM:$WORKFLOW:postbackup:${CLI_NAME}: Fixing PXE permissions for DR image ..."
 
+  if [ $(stat -c %a ${STORDIR}/${CLI_NAME}) != "755" ]; then
+    chmod 755 ${STORDIR}/${CLI_NAME}
+    if [ $? -ne 0 ]; then
+      Error "chmod 755 ${STORDIR}/${CLI_NAME} failed!"
+    fi
+  fi
+
   if [ $(stat -c %a ${STORDIR}/${CLI_NAME}/${CLI_CFG}) != "755" ]; then
     chmod 755 ${STORDIR}/${CLI_NAME}/${CLI_CFG}
     if [ $? -ne 0 ]; then

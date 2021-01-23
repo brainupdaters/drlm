@@ -644,7 +644,7 @@ function get_older_backup_by_client_dbdrv() {
 
 function get_active_backups_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups where active=1;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::",config,":",type,":" from backups where active=1;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 

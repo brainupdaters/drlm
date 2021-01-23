@@ -20,3 +20,9 @@ else
     report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! aborting ...  Error Message: [ $DR_IMG_SIZE_MB ]"
     Error "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! aborting ..."
 fi
+
+# Check if returned value is a number
+re='^[0-9]+$'
+if ! [[ $DR_IMG_SIZE_MB =~ $re ]] ; then
+   Error "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! DR_IMG_SIZE_MB is not numeric. aborting ..."
+fi

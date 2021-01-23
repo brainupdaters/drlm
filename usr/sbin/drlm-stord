@@ -30,13 +30,19 @@
 # What is this?
 DESC="DRLM Store Service"
 SHARE_DIR="/usr/share/drlm"
+PROGRAM="DRLM-STORED"
+WORKFLOW=""
+
+# Source DRLM configurations and functions
 source $SHARE_DIR/conf/default.conf
 [ -f /etc/drlm/site.conf  ] && source /etc/drlm/site.conf
 [ -f /etc/drlm/local.conf ] && source /etc/drlm/local.conf
 source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
 source $SHARE_DIR/lib/backup-functions.sh
 source $SHARE_DIR/lib/nfs-functions.sh
-RETVAL=0
+
+# Returned value
+RETVAL="0"
 
 # Only root can start the service
 uid=`id | cut -d\( -f1 | cut -d= -f2`
@@ -51,359 +57,110 @@ uid=`id | cut -d\( -f1 | cut -d= -f2`
 # Exit if required files are missing.
 [ -f /var/lib/drlm/drlm.sqlite ] || exit 0
 
-# Get OS type
-[ -f /etc/redhat-release ] && OSTYPE="RedHat"
-[ -f /etc/debian_version ] && OSTYPE="Debian"
-[ -f /etc/SuSE-release   ] && OSTYPE="SuSE"
-
-# Be sure loop module is loaded
-#$(/sbin/modprobe -q loop) || exit 0
-
-function get_err ()
-{
-	if [ $1 -eq 0 ]; then
-	return 0
-	else
-	return 1
-	fi
+# Log and Error functions
+function Stamp() {
+  date +"%Y-%m-%d %H:%M:%S "
 }
 
-disable_loop_stord () {
-	local LO_DEV=$1
-
-	/sbin/losetup -d ${LO_DEV} >> /dev/null 2>&1
-	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+function Error () {
+  echo "$(Stamp) Error: $*"
+  return 1
 }
 
-do_mount_stord() {
-	local FS_DEV="/dev/loop${1}"
-	local CLI=$2
-
-	/bin/mount -o ro ${FS_DEV} ${STORDIR}/${CLI} >> /dev/null 2>&1
-	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+function Log () {
+  echo "$(Stamp)$*"
 }
-
-do_umount_stord() {
-	local FS_DEV=$1
-
-	/bin/umount ${FS_DEV} >> /dev/null 2>&1
-	if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
-}
-
-do_configure_nfs(){
-	configure_nfs_exports
-	reload_nfs
-}
-do_unconfigure_nfs(){
-	unconfigure_nfs_exports
-	reload_nfs
-}
-
-case "$OSTYPE" in
-	RedHat)
-		# Source function library.
-		. /etc/rc.d/init.d/functions
-		;;
-
-	Debian)
-		# Source function library.
-		. /lib/lsb/init-functions
-		;;
-
-	*)
-		log_warning_msg "$DESC not yet suported on this Linux Distribution!"
-		RETVAL=2
-		exit $RETVAL
-		;;
-
-esac
 
 case "$1" in
 	start)
+    WORKFLOW="START"
+
 		if [ ! -d $VAR_DIR/run ]; then
 			mkdir $VAR_DIR/run
 		fi
-		drlm-api &
-		echo $! > $VAR_DIR/run/drlm-api.pid
-
-		case "$OSTYPE" in
-			SuSE)
-				echo $"Starting $DESC: "
-				for line in $(get_active_backups); do
-					cli_id=$(echo ${line} | awk -F":" '{ print $2 }')
-					dr_file=$(echo ${line} | awk -F":" '{ print $3 }')
-					cli_name=$(echo ${dr_file}| cut -d"." -f1)
-					echo "Enabling Loop device: /dev/loop${cli_id}: "
-					enable_loop_ro ${cli_id} ${dr_file}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-					echo "Mounting DR Image: ${dr_file}: "
-					do_mount_stord ${cli_id} ${cli_name}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-				done
-				echo "Configuring NFS exports"
-				do_configure_nfs
-				rval=$?
-				[ $rval -ne 0 ] && RETVAL=$rval
-
-				[ $RETVAL -ne 0 ] && exit $RETVAL
-				;;
-
-			RedHat)
-				echo $"Starting $DESC: "
-				for line in $(get_active_backups)
-				do
-					cli_id=$(echo ${line} | awk -F":" '{ print $2 }')
-					dr_file=$(echo ${line} | awk -F":" '{ print $3 }')
-					cli_name=$(echo ${dr_file}| cut -d"." -f1)
-					action $"Enabling Loop device: /dev/loop${cli_id}: " enable_loop_ro ${cli_id} ${dr_file}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-					action $"Mounting DR Image: ${dr_file}: " do_mount_stord ${cli_id} ${cli_name}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-				done
-				action $"Configuring NFS exports" do_configure_nfs
-				rval=$?
-				[ $rval -ne 0 ] && RETVAL=$rval
-
-				[ $RETVAL -ne 0 ] && exit $RETVAL
-				;;
-
-			Debian)
-				echo "[....] Starting $DESC:."
-				for line in $(get_active_backups)
-				do
-					cli_id=$(echo ${line} | awk -F":" '{ print $2 }')
-					dr_file=$(echo ${line} | awk -F":" '{ print $3 }')
-					cli_name=$(echo ${dr_file}| cut -d"." -f1)
-					log_begin_msg "Enabling Loop device: /dev/loop${cli_id} for $DESC..."
-					enable_loop_ro ${cli_id} ${dr_file}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-					log_end_msg $rval
-					log_begin_msg "Mounting DR Image: ${dr_file} for $DESC..."
-					do_mount_stord ${cli_id} ${cli_name}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-					log_end_msg $rval
-				done
-				log_begin_msg "Configuring NFS exports"
-				do_configure_nfs
-				rval=$?
-				[ $rval -ne 0 ] && RETVAL=$rval
-				log_end_msg $rval
-				log_daemon_msg "Starting $DESC"
-				[ $RETVAL -ne 0 ] && {
-					log_end_msg $RETVAL
-					exit $RETVAL
-				}
-				log_end_msg 0
-				;;
-		esac
-		;;
+    
+    Log "Starting $DESC: "
+    for BACKUPLINE in $(get_active_backups); do
+      DR_FILE=$(echo ${BACKUPLINE} | awk -F":" '{ print $3 }')
+      CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
+      CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
+      enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
+      return_value="$?"
+      if [ "$return_value" -ne "0" ]; then RETVAL="1"; fi
+    done
+    ;;
 
 	stop)
-		kill $(cat $VAR_DIR/run/drlm-api.pid)
-		rm $VAR_DIR/run/drlm-api.pid
+    WORKFLOW="STOP"
+    
+    Log "Shutting down $DESC: "
+    
+		Log "Unconfiguring NFS exports"
+    unconfigure_nfs_exports
+  	reload_nfs
+    if [ "$?" -eq "0" ]; then 
+      Log "$PROGRAM:$WORKFLOW:NFS:RELOAD:EXPORTFS: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:NFS:RELOAD:EXPORTFS: Problem eloading exportfs! ..."
+      RETVAL="1"
+    fi 
 
-		case "$OSTYPE" in
-			SuSE)
-				echo $"Shutting down $DESC: "
-				echo "Unconfiguring NFS exports"
-				do_unconfigure_nfs
-				rval=$?
-				[ $rval -ne 0 ] && RETVAL=$rval
-				for lo_dev in $(mount -l |egrep "loop|.dr" | grep -w "ro" | awk '{print $1}')
-				do
-					if [ -z "${lo_dev##*.dr*}" ]; then
-						LO_DEV=$(losetup -a | grep $lo_dev | awk -F':' '{print $1}')
-					else
-						LO_DEV=$lo_dev
-					fi
-					echo "Umounting DR Images: "
-					do_umount_stord ${LO_DEV}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-					echo "Disabling Loop devices: "
-					disable_loop_stord ${LO_DEV}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-				done
-				[ $RETVAL -ne 0 ] && exit $RETVAL
-				;;
+    Log "Umounting DR Images: "
+    for LOOP_MOUNT_POINT in $(/bin/mount -l | egrep "$STORDIR" | awk '{print $3}');	do
+      do_umount $LOOP_MOUNT_POINT
+      if [ "$?" -eq "0" ]; then 
+        Log "$PROGRAM:$WORKFLOW:FS:UMOUNT:MOUNT_POINT($LOOP_MOUNT_POINT): .... Success!"
+      else
+        Error "$PROGRAM:$WORKFLOW:FS:UMOUNT:MOUNT_POINT($LOOP_MOUNT_POINT): Problem unmounting Filesystem! Aborting ..."
+        RETVAL="1"
+      fi 
+    done
 
-			RedHat)
-				echo $"Shutting down $DESC: "
-				action $"Unconfiguring NFS exports" do_unconfigure_nfs
-				rval=$?
-				[ $rval -ne 0 ] && RETVAL=$rval
-				for lo_dev in $(mount -l |egrep "loop|.dr"| grep -w "ro" | awk '{print $1}')
-				do
-					if [ -z "${lo_dev##*.dr*}" ]; then
-						LO_DEV=$(losetup -a | grep $lo_dev | awk -F':' '{print $1}')
-					else
-						LO_DEV=$lo_dev
-					fi
-					action $"Umounting DR Images: " do_umount_stord ${LO_DEV}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-					action $"Disabling Loop devices: " disable_loop_stord ${LO_DEV}
-					rval=$?
-					[ $rval -ne 0 ] && RETVAL=$rval
-				done
-				[ $RETVAL -ne 0 ] && exit $RETVAL
-				;;
-
-			Debian)
-				echo "[....] Stopping $DESC:."
-				log_begin_msg "Unconfiguring NFS exports"
-				do_unconfigure_nfs
-				rval=$?
-				[ $rval -ne 0 ] && RETVAL=$rval
-				log_end_msg $rval
-				for lo_dev in $(mount -l |egrep "loop|.dr"| grep -w "ro" | awk '{print $1}')
-				do
-					if [ -z "${lo_dev##*.dr*}" ]; then
-						LO_DEV=$(losetup -n -a | grep $lo_dev | awk -F':' '{print $1}')
-					else
-						LO_DEV=$lo_dev
-					fi
-					log_begin_msg "Umounting DR Images for $DESC..."
-					do_umount_stord ${LO_DEV}
-					rval=$?
-					log_end_msg $rval
-					[ $rval -ne 0 ] && RETVAL=$rval
-					log_begin_msg "Disabling Loop devices for $DESC..."
-					disable_loop_stord ${LO_DEV}
-					rval=$?
-					log_end_msg $rval
-					[ $rval -ne 0 ] && RETVAL=$rval
-				done
-				log_daemon_msg "Stopping $DESC"
-				[ $RETVAL -ne 0 ] && {
-					log_end_msg $RETVAL
-					exit $RETVAL
-				}
-				log_end_msg 0
-				;;
-		esac
+    Log "Disabling Loop devices: "
+    for LOOP_DEVICE in $(/sbin/losetup --list | egrep "$ARCHDIR" | awk '{print $1}'); do
+      disable_loop $LOOP_DEVICE
+      if [ "$?" -eq "0" ]; then 
+        Log "$PROGRAM:$WORKFLOW:LOOP_DEVICE:DETACH:LOOPDEV($LOOP_DEVICE): .... Success!"
+      else
+        Error "$PROGRAM:$WORKFLOW:LOOP_DEVICE:DETACH:LOOPDEV($LOOP_DEVICE): Problem disabling Loop Device!"
+        RETVAL="1"
+      fi 
+    done
 		;;
 
 	status)
-		case "$OSTYPE" in
-			SuSE)
-				UP=$(/bin/mount -l|egrep "loop|.dr"|grep iw "ro"|wc -l)
-				if [ $UP -gt 0 ]; then
-					RETVAL=0
-					echo "Getting Status from $DESC: "
-					get_err $RETVAL
-					printf '%-15s\n' "$(tput bold)"
-					printf '%-15s %-10s %-35s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
-					mount -l | egrep "loop|.dr" | grep -w "ro" | while read line;
-					do
-						if [ -z "${line##*loop*}" ]; then
-							LO_DEV=$(echo -e $line | awk '{print $1}')
-							DRFILE=$(losetup $LO_DEV | awk '{print $3}')
-						else
-							DRFILE=$(echo -e $line | awk '{print $1}')
-							LO_DEV=$(losetup -a | grep $DRFILE | awk -F':' '{print $1}')
-						fi
-						MNTDIR=$(echo -e $line | awk '{print $3}')
-						FSTYPE=$(echo -e $line | awk '{print $5}')
-						printf '%-15s %-10s %-35s %-50s\n' $LO_DEV $FSTYPE $MNTDIR $DRFILE
-					done
-				else
-					RETVAL=1
-					echo "Getting Status from $DESC: "
-					get_err $RETVAL
-				fi
-				[ $RETVAL -ne 0 ] && exit $RETVAL
-				;;
+    WORKFLOW="STATUS"
 
-			RedHat)
+    MOUNT_UP=$(/bin/mount -l | egrep "$STORDIR" | wc -l)
+    LOOP_UP=$(/sbin/losetup --list | egrep "$ARCHDIR" |  wc -l)
 
-				UP=$(/bin/mount -l | egrep "loop | .dr" | grep -w "ro" | wc -l)
-				if [ $UP -gt 0 ]; then
-					RETVAL=0
-					action $"Getting Status from $DESC: " get_err $RETVAL
-					printf '%-15s\n' "$(tput bold)"
-					printf '%-15s %-10s %-35s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
-					mount -l | egrep "loop|.dr" | grep -w "ro" | while read line;
-					do
-						if [ -z "${line##*loop*}" ]; then
-							LO_DEV=$(echo -e $line | awk '{print $1}')
-							DRFILE=$(losetup $LO_DEV | awk '{print $3}')
-						else
-							DRFILE=$(echo -e $line | awk '{print $1}')
-							LO_DEV=$(losetup -a | grep $DRFILE | awk -F':' '{print $1}')
-						fi
-						MNTDIR=$(echo -e $line | awk '{print $3}')
-						FSTYPE=$(echo -e $line | awk '{print $5}')
-						printf '%-15s %-10s %-35s %-50s\n' $LO_DEV $FSTYPE $MNTDIR $DRFILE
-					done
-				else
-					RETVAL=1
-					action $"Getting Status from $DESC: " get_err $RETVAL
-				fi
-				[ $RETVAL -ne 0 ] && exit $RETVAL
-				;;
-
-			Debian)
-				log_daemon_msg "Getting Status from $DESC"
-				UP=$(/bin/mount -l | egrep "loop|.dr" | grep -w "ro" | wc -l)
-				if [ $UP -gt 0 ]; then
-					RETVAL=0
-					log_end_msg $RETVAL
-					printf '%-15s\n' "$(tput bold)"
-					printf '%-15s %-10s %-35s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
-					/bin/mount -l | egrep "loop|.dr" | grep -w "ro" | while read line;
-					do
-						if [ -z "${line##*loop*}" ]; then
-							LO_DEV=$(echo -e $line | awk '{print $1}')
-							DRFILE=$(losetup $LO_DEV | awk '{print $3}')
-						else
-							DRFILE=$(echo -e $line | awk '{print $1}')
-							LO_DEV=$(losetup -n -a | grep $DRFILE | awk -F':' '{print $1}')
-						fi
-						MNTDIR=$(echo -e $line | awk '{print $3}')
-						FSTYPE=$(echo -e $line | awk '{print $5}')
-						printf '%-15s %-10s %-35s %-50s\n' $LO_DEV $FSTYPE $MNTDIR $DRFILE
-					done
-				else
-						RETVAL=1
-						log_end_msg $RETVAL
-				fi
-				[ $RETVAL -ne 0 ] && exit $RETVAL
-				;;
-		esac
+    Log "Getting Status from $DESC: "
+    printf '%-12s\n' "$(tput bold)"
+		printf '%-12s %-8s %-45s %-50s\n' "Loop Dev." "FS Type" "DR Store" "DR File$(tput sgr0)"
+    for MOUNT_POINT in $(/bin/mount -l | egrep "$STORDIR" | awk '{print $3}'); do
+      LOOP_DEVICE=$(/bin/mount -l | egrep "$MOUNT_POINT" | awk '{print $1}')
+      if [ -z "${LOOP_DEVICE##*loop*}" ]; then
+        DR_FILE=$(/sbin/losetup $LOOP_DEVICE | awk '{print $3}')
+      else
+        DR_FILE=$(echo -e $LOOP_DEVICE | awk '{print $1}')
+        LOOP_DEVICE=$(/sbin/losetup -a | grep $DR_FILE | awk -F':' '{print $1}')
+      fi
+      FSTYPE=$(/bin/mount -l | egrep "$MOUNT_POINT" | awk '{print $5}')
+      printf '%-12s %-8s %-45s %-50s\n' $LOOP_DEVICE $FSTYPE $MOUNT_POINT $DR_FILE
+    done
 		;;
 
 	restart | reload | force-reload)
-		case "$OSTYPE" in
-			SuSE | RedHat | Debian)
-				$0 stop
-				sleep 1
-				$0 start
-				;;
-		esac
+    WORKFLOW="RESTART"
+		$0 stop
+		sleep 1
+		$0 start
 		;;
 
 	*)
-		case "$OSTYPE" in
-			SuSE | RedHat)
-				echo $"Usage: drlm-stord {start|stop|status|restart|reload|force-reload}"
-				RETVAL=2
-				;;
-
-			Debian)
-				log_success_msg "Usage: drlm-stord {start|stop|status|restart|reload|force-reload}"
-				RETVAL=2
-				;;
-		esac
+    Log "Usage: drlm-stord {start|stop|status|restart|reload|force-reload}"
+		RETVAL=2
 		;;
 
 esac
-
 exit $RETVAL

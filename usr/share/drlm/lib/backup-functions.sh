@@ -767,23 +767,23 @@ function enable_backup_store_rw() {
   local LOOP_DEVICE=$(losetup -f)
 
   if enable_loop_rw $LOOP_DEVICE $DR_FILE; then
-    Log "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: .... Success!"
+    Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: .... Success!"
   else
-    Error "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: Problem enabling Loop Device (rw)! aborting ..."
+    Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: Problem enabling Loop Device (rw)! aborting ..."
   fi
 
   # Mount image:
   if do_mount_ext4_rw $LOOP_DEVICE $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
+    Log "$PROGRAM:$WORKFLOW:FS:MOUNT(rw):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
   else
-    Error "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (rw)! aborting ..."
+    Error "$PROGRAM:$WORKFLOW:FS:MOUNT(rw):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (rw)! aborting ..."
   fi
 
   # Enable NFS read/write mode:
   if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE(rw):$CLI_NAME: .... Success!"
+    Log "$PROGRAM:$WORKFLOW:NFS:ENABLE(rw):$CLI_NAME: .... Success!"
   else
-    Error "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
+    Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
   fi
 }
 
@@ -798,22 +798,22 @@ function enable_backup_store_ro() {
   local LOOP_DEVICE=$(losetup -f)
 
   if enable_loop_ro $LOOP_DEVICE $DR_FILE; then
-    Log "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: .... Success!"
+    Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(ro):DR:$DR_FILE: .... Success!"
   else
-    Error "$PROGRAM:$WORKFLOW:genimage:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: Problem enabling Loop Device (rw)! aborting ..."
+    Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(ro):DR:$DR_FILE: Problem enabling Loop Device (ro)! aborting ..."
   fi
 
   # Mount image:
   if do_mount_ext4_ro $LOOP_DEVICE $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
+    Log "$PROGRAM:$WORKFLOW:FS:MOUNT(ro):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
   else
-    Error "$PROGRAM:$WORKFLOW:genimage:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (rw)! aborting ..."
+    Error "$PROGRAM:$WORKFLOW:FS:MOUNT(ro):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (ro)! aborting ..."
   fi
 
   # Enable NFS read/write mode:
   if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE(rw):$CLI_NAME: .... Success!"
+    Log "$PROGRAM:$WORKFLOW:NFS:ENABLE(ro):$CLI_NAME: .... Success!"
   else
-    Error "$PROGRAM:$WORKFLOW:genimage:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
+    Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
   fi
 }
