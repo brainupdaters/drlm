@@ -30,7 +30,7 @@
 # What is this?
 DESC="DRLM Store Service"
 SHARE_DIR="/usr/share/drlm"
-PROGRAM="DRLM-STORED"
+PROGRAM="DRLM-STORD"
 WORKFLOW=""
 
 # Source DRLM configurations and functions
