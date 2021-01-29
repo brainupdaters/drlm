@@ -238,6 +238,8 @@ service drlm-stord start
 - ReaR mkbackuponly and ReaR restoreonly supported
 - DRLM parameters configurable for each client or backup
 - Added drlm-api systemd service 
+- Loop devices are repaced by NBD (network block devices)
+- DR file format was changed to QCOW2 and snaps of the file can now be made
 - List Unscheduled clients bug fixed
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2

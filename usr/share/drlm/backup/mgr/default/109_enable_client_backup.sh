@@ -1,52 +1,66 @@
 # bkpmgr workflow
 
-if [[ ${ENABLE} = 'yes' ]]; then
-  Log "$PROGRAM:$WORKFLOW:(ID: ${BKP_ID}):${CLI_NAME}: Enabling DRLM Store for client ...."
+if [ "$ENABLE" == "yes" ]; then
+  LogPrint "$PROGRAM:$WORKFLOW: === Enabling DRLM Backup Store of Backup ID $BKP_ID ========"
 
   DR_FILE=$(get_backup_drfile_by_backup_id "$BKP_ID")
 
   if [ -n "$DR_FILE" ]; then
 
-    # Get a free loop device
-    LOOP_DEVICE=$(losetup -f)
+    # Get a free NBD device
+    NBD_DEVICE=$(get_free_nbd)
 
-    # Attach qcow dr file to generated loop device
-    if enable_loop_ro $LOOP_DEVICE $DR_FILE ; then
-      Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(ro):DR:$DR_FILE: .... Success!"
+    # Attach qcow dr file to generated nbd device
+    if enable_nbd_ro $NBD_DEVICE $DR_FILE $SNAP_ID; then
+      LogPrint "$PROGRAM:$WORKFLOW: - Attached DR File $DR_FILE to NBD Device $NBD_DEVICE (read only)"
     else
-      Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(ro):DR:$DR_FILE: Problem enabling Loop Device (ro)!"
+      Error "$PROGRAM:$WORKFLOW: - Problem attaching DR File $DR_FILE to NBD Device $NBD_DEVICE (read only)! Aborting ..."
     fi
 
-    # Mount loop device
-    if do_mount_ext4_ro $LOOP_DEVICE $CLI_NAME $CLI_CFG ; then
-      Log "$PROGRAM:$WORKFLOW:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
+    # Mount NBD device
+    if do_mount_ext4_ro $NBD_DEVICE $CLI_NAME $CLI_CFG ; then
+      LogPrint "$PROGRAM:$WORKFLOW: - Mounted NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
     else
-      Error "$PROGRAM:$WORKFLOW:FS:MOUNT:LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem!"
+      Error "$PROGRAM:$WORKFLOW: - Problem mounting NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)! Aborting ..."
     fi
 
     # Enable NSF
     if enable_nfs_fs_ro $CLI_NAME $CLI_CFG ; then
-      Log "$PROGRAM:$WORKFLOW:NFS:ENABLE(ro):$CLI_NAME: .... Success!"
+      LogPrint "$PROGRAM:$WORKFLOW: - Enabled NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
     else
-      Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
+      Error "$PROGRAM:$WORKFLOW: - Problem enabling NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)! Aborting ..."
     fi
 
     # Set backup as active in the data base
     if enable_backup_db $BKP_ID ; then
-      Log "$PROGRAM:$WORKFLOW:MODE:perm:DB:enable:(ID: $BKP_ID):${CLI_NAME}: .... Success!"
+      LogPrint "$PROGRAM:$WORKFLOW: - Enabled Backup ID $BKP_ID in the database"
     else
-      Error "$PROGRAM:$WORKFLOW:MODE:perm:DB:enable:(ID: $BKP_ID):${CLI_NAME}: Problem enabling backup in database! aborting ..."
+      Error "$PROGRAM:$WORKFLOW: - Problem enabling Backup ID $BKP_ID in the database! Aborting ..."
+    fi
+
+    if [ -n "$SNAP_ID" ]; then
+      if disable_backup_snap_db $BKP_ID ; then
+        LogPrint "$PROGRAM:$WORKFLOW: - Disabled old Snap of Backup ID $BKP_ID in the database"
+      else
+        Error "$PROGRAM:$WORKFLOW: - Problem disabling old Snap of Backup ID $BKP_ID in the database! Aborting ..."
+      fi
+      # Set snap as active in the data base
+      if enable_snap_db $SNAP_ID ; then
+        LogPrint "$PROGRAM:$WORKFLOW: - Enabled Snap ID $SNAP_ID in the database"
+      else
+        Error "$PROGRAM:$WORKFLOW: - Problem enabling Snap ID $SNAP_ID in the database! Aborting ..."
+      fi
     fi
 
     # Check if PXE is a rescue backup and if true enable PXE in the database
     if [ "$BKP_TYPE" == "1" ]; then
       if enable_pxe_db $BKP_ID; then
-        Log "$PROGRAM:$WORKFLOW:MODE:perm:DB:enablePXE:(ID: $BKP_ID):${CLI_NAME}: .... Success!"
+        LogPrint "$PROGRAM:$WORKFLOW: - Enabled PXE boot mode for Backup ID $BKP_ID in the database"
       else
-        Error "$PROGRAM:$WORKFLOW:MODE:perm:DB:enablePXE:(ID: $BKP_ID):${CLI_NAME}: Problem enabling backup in database! aborting ..."
+        Error "$PROGRAM:$WORKFLOW: - Problem enabling PXE boot mode for Backup ID $BKP_ID in the database! Aborting ..."
       fi
     fi
   fi
 
-  Log "$PROGRAM:$WORKFLOW:(ID: ${BKP_ID}):${CLI_NAME}: Enabling DRLM Store for client .... Success!"
+  LogPrint "$PROGRAM:$WORKFLOW: ======================================================================="
 fi

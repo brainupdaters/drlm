@@ -379,7 +379,7 @@ __drlm_delbackup ()
 			prev3="${COMP_WORDS[COMP_CWORD-3]}"
 			if [ "$prev3" == "-c" ]; then
 				local client="${COMP_WORDS[COMP_CWORD-2]}"
-				query=$(get_all_backpu_id_by_client_dbdrv "$client" "$cur")
+				query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
 				for result in $query; do
 					COMPREPLY[i++]="$result"
 				done
@@ -733,7 +733,7 @@ __drlm_bkpmgr ()
 			prev3="${COMP_WORDS[COMP_CWORD-3]}"
 			if [ "$prev3" == "-c" ]; then
 				local client="${COMP_WORDS[COMP_CWORD-2]}"
-				query=$(get_all_backpu_id_by_client_dbdrv "$client" "$cur")
+				query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
 				for result in $query; do
 					COMPREPLY[i++]="$result"
 				done

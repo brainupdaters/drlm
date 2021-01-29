@@ -1,5 +1,24 @@
 # runbackup workflow
 
+# Available VARs
+# ==============
+# CLI_ID            (Client Id) 
+# CLI_NAME          (Client Name)
+# CLI_CFG           (Client Configuration. If not set = "default"
+# CLI_MAC           (Client Mac)
+# CLI_IP            (Client IP)
+# DISTRO            (Client Linux Distribution)
+# RELEASE           (Client Linux Release)
+# CLI_REAR          (Client ReaR Version)
+
+# INCLUDE_LIST_VG   (Include list of Volume Groups in client Configurations)
+# EXCLUDE_LIST_VG   (Exclude list of Volume Groups in client Configurations)
+# EXCLUDE_LIST      (Exclude list of mountpoints and paths in client Configurations)
+# DR_IMG_SIZE_MB    (Backup DR file size)
+
+# BKP_TYPE          (Backup Type. 0 - Data Only, 1 - PXE, 2 - ISO)
+# ACTIVE_PXE        (=1 if backup type = PXE )
+
 if [ ! -d ${STORDIR}/${CLI_NAME}/${CLI_CFG} ]; then
   Log "Making DR store mountpoint for client: $CLI_NAME and $CLI_CFG configuration..."
   mkdir $v -p ${STORDIR}/${CLI_NAME}/${CLI_CFG}
@@ -19,6 +38,6 @@ elif [ "$BKP_TYPE" == "1" ]; then
 fi
 
 # Disable current bakcup if exists
-Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} for client: .... "
+Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... "
 disable_backup $ENABLED_DB_BKP_ID
-Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} for client: .... Success!"
+Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... Success!"

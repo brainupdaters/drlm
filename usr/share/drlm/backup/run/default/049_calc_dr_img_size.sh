@@ -1,5 +1,19 @@
 # runbackup workflow
 
+# Available VARs
+# ==============
+# CLI_ID      (Client Id) 
+# CLI_NAME    (Client Name)
+# CLI_CFG     (Client Configuration. If not set = "default"
+# CLI_MAC     (Client Mac)
+# CLI_IP      (Client IP)
+# DISTRO      (Client Linux Distribution)
+# RELEASE     (Client Linux Release)
+# CLI_REAR    (Client ReaR Version)
+
+# BKP_TYPE    (Backup Type. 0 - Data Only, 1 - PXE, 2 - ISO)
+# ACTIVE_PXE  (=1 if backup type = PXE )
+
 Log "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Collecting DR Image space requirements..."
 
 if [ "$CLI_CFG" = "default" ]; then

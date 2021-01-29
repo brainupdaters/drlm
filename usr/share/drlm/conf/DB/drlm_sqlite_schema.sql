@@ -90,4 +90,14 @@ UPDATE backups SET type=1 where type='';
 
 ALTER TABLE jobs ADD COLUMN "config" VARCHAR(45);
 
+CREATE TABLE IF NOT EXISTS "snaps" (
+  "idbackup" varchar(14) NOT NULL,
+  "idsnap" varchar(14) NOT NULL,
+  "active" tinyint(1) NOT NULL,
+  "duration" VARCHAR(12) DEFAULT NULL,
+  "size" VARCHAR(12) DEFAULT NULL,
+  PRIMARY KEY ("idsnap")
+  CONSTRAINT "fk_backups_clients" FOREIGN KEY ("idbackup") REFERENCES "backups" ("idbackup") ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
 COMMIT;

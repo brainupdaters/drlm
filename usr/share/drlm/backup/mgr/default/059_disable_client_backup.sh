@@ -1,15 +1,14 @@
 # bkpmgr workflow
 
 # In DISABLE mode we only have to disable the backup with idbackup = $BKP_ID
-if [[ ${DISABLE} == 'yes' ]]; then
-  Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Deactivating Backup $ENABLED_DB_BKP_ID for client: .... "
+if [ "$DISABLE" == "yes" ]; then
   disable_backup $BKP_ID
-  Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Deactivating Backup $ENABLED_DB_BKP_ID for client: .... Success!"
-   exit 0
+  LogPrint "$PROGRAM:$WORKFLOW: Succesful workflow execution"
+  exit 0
 fi
 
 # In ENABLE mode we have to check if there are any backup enabled before activate the new one
-if [[ ${ENABLE} == 'yes' ]]; then
+if [ "$ENABLE" == "yes" ]; then
   # If we are enabling a data bakcup we have to disable the backup with the SAME configuration 
   if [ "$BKP_TYPE" == "0" ] || [ "$BKP_TYPE" == "2" ]; then
     ENABLED_DB_BKP_ID=$(get_active_cli_bkp_from_db $CLI_ID $CLI_CFG)
@@ -18,7 +17,5 @@ if [[ ${ENABLE} == 'yes' ]]; then
     ENABLED_DB_BKP_ID=$(get_active_cli_rescue_from_db $CLI_ID)
   fi
 
-  Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Deactivating Backup $ENABLED_DB_BKP_ID for client: .... "
   disable_backup $ENABLED_DB_BKP_ID
-  Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Deactivating Backup $ENABLED_DB_BKP_ID for client: .... Success!"
 fi

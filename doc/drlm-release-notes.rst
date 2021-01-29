@@ -76,6 +76,10 @@ DRLM Version 2.4.0 (January 2021) - Release Notes
 
   * Added drlm-api systemd service 
 
+  * Loop devices are repaced by NBD (network block devices)
+
+  * DR file format was changed to QCOW2 and snaps of the file can now be made
+
   * List Unscheduled clients bug fixed
 
 

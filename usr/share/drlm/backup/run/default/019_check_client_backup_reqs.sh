@@ -1,5 +1,11 @@
 # runbackup workflow
 
+# Available VARs
+# ==============
+# CLI_ID (Client Id) 
+# CLI_NAME (Client Name)
+# CLI_CFG (Client Configuration. If not set = "default"
+
 # Check if the target client for backup is in DRLM client database
 if exist_client_name "$CLI_NAME"; then
   CLI_ID=$(get_client_id_by_name $CLI_NAME)
@@ -38,7 +44,7 @@ else
   LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update ReaR version of client $CLI_ID in the database"
 fi
 
-# Check what backup type is
+# Check what backup rescue type is
 if [ "$BACKUP_ONLY_INCLUDE" == "yes" ]; then
   BKP_TYPE=0
   ACTIVE_PXE=0
