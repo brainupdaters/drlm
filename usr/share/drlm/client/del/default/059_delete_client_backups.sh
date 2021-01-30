@@ -9,7 +9,7 @@ for BKP_ID in $(get_active_cli_bkp_from_db $CLI_ID); do
   Log "$PROGRAM:$WORKFLOW:BACKUP:DISABLE:$BKP_ID: .... Success!"
 done
 
-# Check bakcup persistence before delete them
+# Check backup persistence before delete them
 case $BKP_CLI_PER in
   1)
     if del_all_db_client_backup $CLI_ID; then

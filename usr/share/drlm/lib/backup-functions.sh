@@ -61,18 +61,19 @@ function list_backup () {
 
   for line in $(get_all_backups_dbdrv)
   do
-    local BAC_ID=`echo $line|awk -F":" '{print $1}'`
-    local CLI_BAC_ID=`echo $line|awk -F":" '{print $2}'`
-    local CLI_NAME=$(get_client_name $CLI_BAC_ID)
-    local BAC_NAME=`echo $line|awk -F":" '{print $1}'|awk -F"." '{print $2}'`
-    local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
-    local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
-    local BAC_FILE=`echo $line|awk -F":" '{print $3}'`
-    local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
-    local BAC_STATUS=`echo $line|awk -F":" '{print $5}'`
-    local CLI_CFG=`echo $line|awk -F":" '{print $10}'`
-    local BAC_PXE=`echo $line|awk -F":" '{print $11}'`
-    local BAC_TYPE=`echo $line|awk -F":" '{print $12}'`
+    local BAC_ID="$(echo $line|awk -F":" '{print $1}')"
+    local CLI_BAC_ID="$(echo $line|awk -F":" '{print $2}')"
+    local CLI_NAME="$(get_client_name $CLI_BAC_ID)"
+    local BAC_FILE="$(echo $line|awk -F":" '{print $3}')"
+    local BAC_STATUS="$(echo $line|awk -F":" '{print $5}')"
+    local CLI_CFG="$(echo $line|awk -F":" '{print $10}')"
+    local BAC_PXE="$(echo $line|awk -F":" '{print $11}')"
+    local BAC_TYPE="$(echo $line|awk -F":" '{print $12}')"
+
+    local BAC_DATE="$(echo $line|awk -F":" '{print $13}')"
+    local BAC_DAY="$(echo $BAC_DATE|cut -c1-8)"
+    local BAC_TIME="$(echo $BAC_DATE|cut -c9-12)"
+    local BAC_DATE="$(date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M")"
     
     if [ "$BAC_PXE" == "1" ]; then
       BAC_PXE=" *"
@@ -111,33 +112,35 @@ function list_backup () {
 
     # Check if BAC_ID have snapshots and list them
     if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ]; then
-      line_counter=0
+      # line_counter=0
       found_enabled=0
       SNAP_TYPE="$BAC_TYPE (Snap)"
-      qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | while read snap_line ; do
-        ((line_counter+=1))
-        if [ "$line_counter" -gt "2" ]; then
-          SNAP_ID="$(echo $snap_line | awk '{print $2}')"
-          SNAP_DATE="$(echo $snap_line | awk '{print $4}') $(echo $snap_line | awk '{print $5}' | awk -F':' '{ printf ("%s:%s\n", $1, $2) }')"
-          SNAP_STATUS="$(get_snap_status_by_snap_id $SNAP_ID)"
-          
-          if [ "$BAC_STATUS" == "enabled" ]; then
-            if [ "$SNAP_STATUS" == "1" ]; then
-              SNAP_STATUS="   *"
-              found_enabled=1
-            else
-              [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
-            fi
+      #while....
+      qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | sed -e '1,2d' | sort -r | while read snap_line ; do
+        SNAP_ID="$(echo $snap_line | awk '{print $2}')"
+        # SNAP_DATE="$(echo $snap_line | awk '{print $4}') $(echo $snap_line | awk '{print $5}' | awk -F':' '{ printf ("%s:%s\n", $1, $2) }')"
+        SNAP_DATE="$(get_snap_date_by_snap_id $SNAP_ID)"
+        SNAP_DAY="$(echo $SNAP_DATE|cut -c1-8)"
+        SNAP_TIME="$(echo $SNAP_DATE|cut -c9-12)"
+        SNAP_DATE="$(date --date "$SNAP_DAY $SNAP_TIME" "+%Y-%m-%d %H:%M")"
+        SNAP_STATUS="$(get_snap_status_by_snap_id $SNAP_ID)"
+        
+        if [ "$BAC_STATUS" == "enabled" ]; then
+          if [ "$SNAP_STATUS" == "1" ]; then
+            SNAP_STATUS="   @"
+            found_enabled=1
           else
-            SNAP_STATUS=""
+            [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
           fi
+        else
+          SNAP_STATUS=""
+        fi
 
-          SNAP_DURA="$(get_snap_duration_by_snap_id $SNAP_ID)"
-          SNAP_SIZE="$(get_snap_size_by_snap_id $SNAP_ID)"
-          SNAP_PXE=""
-          
-          printf '%-4s %-31s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" "$SNAP_SIZE" "$SNAP_PXE" "$CLI_CFG" "$SNAP_TYPE";
-        fi 
+        SNAP_DURA="$(get_snap_duration_by_snap_id $SNAP_ID)"
+        SNAP_SIZE="$(get_snap_size_by_snap_id $SNAP_ID)"
+        SNAP_PXE=""
+        
+        printf '%-4s %-31s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" "$SNAP_SIZE" "$SNAP_PXE" "$CLI_CFG" "$SNAP_TYPE";
       done
     fi
 
@@ -390,27 +393,29 @@ function exist_dr_file_fs () {
 }
 
 function register_backup () {
-  local BKP_ID=$1
-  local CLI_ID=$2
-  local CLI_NAME=$3
-  local DR_FILE=$4
-  local BKP_DURATION=$5
-  local BKP_SIZE=$6
-  local CLI_CFG=$7
-  local BKP_PXE=$8
-  local BKP_TYPE=$9
+  local BKP_ID="$1"
+  local BKP_CLI_ID="$2"
+  local BKP_DR_FILE="$3"
+  local BKP_IS_ACTIVE="$4"
+  local BKP_DURATION="$5"
+  local BKP_SIZE="$6"
+  local BKP_CFG="$7"
+  local BKP_PXE="$8"
+  local BKP_TYPE="$9"
+  local BKP_DATE="${10}"
 
-  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$BKP_PXE" "$BKP_TYPE"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_DATE"
 }
 
 function register_snap () {
-  local BKP_ID=$1 
-  local SNAP_ID=$2 
-  local SNAP_IS_ACTIVE=$3
-  local BKP_DURATION=$4
-  local BKP_SIZE=$5
+  local BKP_ID="$1" 
+  local SNAP_ID="$2"
+  local SNAP_IS_ACTIVE="$3"
+  local SNAP_DURATION="$4"
+  local SNAP_SIZE="$5"
+  local SNAP_DATE="$6"
 
-  register_snap_dbdrv "$BKP_ID" "$BKP_ID" "$SNAP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE"
+  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_DATE"
 }
 
 function del_backup () {
@@ -441,6 +446,12 @@ function del_snap () {
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function del_all_snaps_by_backup_id () {
+  local BKP_ID=$1
+  del_all_snaps_by_backup_id_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function del_dr_file () {
   local DR_FILE=$1
 
@@ -451,13 +462,24 @@ function del_dr_file () {
 }
 
 function del_dr_snap () {
-  local SNAP_ID=$1
-  local DR_FILE=$2
+  local SNAP_ID="$1"
+  local DR_FILE="$2"
 
   if [ -n "$ARCHDIR" ] && [ -n "$SNAP_ID" ] && [ -n "$DR_FILE" ]; then
-    qemu-img snapshot -d $SNAP_ID $ARCHDIR/$DR_FILE
+    qemu-img snapshot -d "$SNAP_ID" "$ARCHDIR"/"$DR_FILE" >> /dev/null 2>&1
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   fi
+}
+
+function del_all_dr_snaps () {
+  local DR_FILE="$1"
+  local ERR=0
+
+  for SNAP_IDENT in $(qemu-img snapshot -l "$ARCHDIR"/"$DR_FILE" | sed -e '1,2d' | awk '{print $2}'); do
+    del_dr_snap "$SNAP_IDENT" "$DR_FILE"
+    [ $? -eq 0 ] || ERR=1
+  done
+  if [ $ERR -eq 0 ]; then return 0; else return 1; fi
 }
 
 function del_all_db_client_backup () {
@@ -510,11 +532,11 @@ function clean_backups () {
   if [ $ERR -eq 0 ]; then return 0; else return 1; fi
 }
 
-# Get a list of bakcup id by client name
-function get_backup_id_lst_by_client () {
-  local CLI_NAME=$1
-  local ID_LIST=$(get_backup_id_lst_by_client_dbdrv $CLI_NAME)
-  echo $ID_LIST
+# Get a list of backup id by client Id
+function get_backup_id_list_by_client_id () {
+  local CLI_ID=$1
+  local BKP_ID_LIST=$(get_backup_id_list_by_client_id_dbdrv $CLI_ID)
+  echo $BKP_ID_LIST
   # Return List of ID's or NULL string
 }
 
@@ -567,6 +589,27 @@ function get_backup_type_by_backup_id ()
   echo $BKP_TYPE
 }
 
+function get_backup_date_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_TYPE=$(get_backup_date_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_TYPE
+}
+
+function get_backup_duration_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_TYPE=$(get_backup_duration_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_TYPE
+}
+
+function get_backup_size_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_TYPE=$(get_backup_size_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_TYPE
+}
+
 function get_backup_client_id_by_backup_id ()
 {
   local BKP_ID=$1
@@ -599,6 +642,27 @@ function get_backup_older_snap_id_by_backup_id () {
   echo $SNAP_ID
 }
 
+function set_backup_date_by_backup_id () {
+  local BKP_ID=$1
+  local BKP_DATE=$2
+  set_backup_date_by_backup_id_dbdrv "$BKP_ID" "$BKP_DATE"
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function set_backup_duration_by_backup_id () {
+  local BKP_ID=$1
+  local BKP_DURATION=$2
+  set_backup_duration_by_backup_id_dbdrv "$BKP_ID" "$BKP_DURATION"
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function set_backup_size_by_backup_id () {
+  local BKP_ID=$1
+  local BKP_SIZE=$2
+  set_backup_size_by_backup_id_dbdrv "$BKP_ID" "$BKP_SIZE"
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
 function get_snap_backup_id_by_snap_id ()
 {
   local SNAP_ID=$1
@@ -611,6 +675,13 @@ function get_snap_status_by_snap_id ()
   local SNAP_ID=$1
   local SNAP_STATUS=$(get_snap_status_by_snap_id_dbdrv "$SNAP_ID")
   echo $SNAP_STATUS
+}
+
+function get_snap_date_by_snap_id ()
+{
+  local SNAP_ID=$1
+  local SNAP_DATE=$(get_snap_date_by_snap_id_dbdrv "$SNAP_ID")
+  echo $SNAP_DATE
 }
 
 function get_snap_duration_by_snap_id ()
@@ -833,12 +904,12 @@ function disable_backup () {
       Error "$PROGRAM:$WORKFLOW: - Problem disabling Backup ID $ENABLED_DB_BKP_ID in the database Aborting ..."
     fi
 
-    # # Disable current snap if exists
-    # if disable_backup_snap_db $ENABLED_DB_BKP_ID; then
-    #   Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: .... Success!"
-    # else
-    #   Error "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: Problem disabling backup snap in database! Aborting ..."
-    # fi
+    # Disable current snap if exists
+    if disable_backup_snap_db $ENABLED_DB_BKP_ID; then
+      Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: Problem disabling backup snap in database! Aborting ..."
+    fi
       
     LogPrint "$PROGRAM:$WORKFLOW: ======================================================================="
   fi

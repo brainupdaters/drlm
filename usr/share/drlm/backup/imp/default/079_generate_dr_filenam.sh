@@ -32,10 +32,18 @@ if [ ! -d "$ARCHDIR" ]; then
   mkdir -p "$ARCHDIR" 
 fi
 
+# Copy backup source to DRLM arch directory
 cp $BKP_SRC ${ARCHDIR}/$DR_FILE >> /dev/null 2>&1
-
 if [ $? -eq 0 ]; then
 	Log "$PROGRAM:$WORKFLOW:gendrfilename: ${BKP_SRC} copied to ${ARCHDIR}/$DR_FILE. Success!"
 else
 	Error "$PROGRAM:$WORKFLOW:gendrfilename: Problem copying ${BKP_SRC} to ${ARCHDIR}/$DR_FILE ..."
+fi
+
+# Remove imported file snapshots to avoid SNAP_ID problems
+del_all_dr_snaps $DR_FILE
+if [ $? -eq 0 ]; then
+	Log "$PROGRAM:$WORKFLOW: Removed ${ARCHDIR}/$DR_FILE snapshots"
+else
+	Error "$PROGRAM:$WORKFLOW: Probelm removing ${ARCHDIR}/$DR_FILE snapshots"
 fi

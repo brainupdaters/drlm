@@ -7,8 +7,8 @@
 # CLI_CFG           (Client Configuration. If not set = "default"
 # CLI_MAC           (Client Mac)
 # CLI_IP            (Client IP)
-# DISTRO            (Client Linux Distribution)
-# RELEASE           (Client Linux Release)
+# CLI_DISTO            (Client Linux Distribution)
+# CLI_RELEASE           (Client Linux CLI_RELEASE)
 # CLI_REAR          (Client ReaR Version)
 
 # INCLUDE_LIST_VG   (Include list of Volume Groups in client Configurations)
@@ -37,7 +37,8 @@ elif [ "$BKP_TYPE" == "1" ]; then
   ENABLED_DB_BKP_ID=$(get_active_cli_rescue_from_db $CLI_ID)
 fi
 
-# Disable current bakcup if exists
+# Disable current backup if exists
 Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... "
+ENABLED_DB_BKP_SNAP=$(get_backup_active_snap_by_backup_id $BKP_ID)
 disable_backup $ENABLED_DB_BKP_ID
 Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... Success!"

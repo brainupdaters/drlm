@@ -7,8 +7,8 @@
 # CLI_CFG     (Client Configuration. If not set = "default"
 # CLI_MAC     (Client Mac)
 # CLI_IP      (Client IP)
-# DISTRO      (Client Linux Distribution)
-# RELEASE     (Client Linux Release)
+# CLI_DISTO      (Client Linux Distribution)
+# CLI_RELEASE     (Client Linux CLI_RELEASE)
 # CLI_REAR    (Client ReaR Version)
 
 # BKP_TYPE    (Backup Type. 0 - Data Only, 1 - PXE, 2 - ISO)
