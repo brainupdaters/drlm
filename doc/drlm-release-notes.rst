@@ -66,7 +66,9 @@ The references pointing to fix #nr or issue #nr refer to our issues tracker
 
 DRLM Version 2.4.0 (January 2021) - Release Notes
 --------------------------------------------------
-  * Multiple config support
+  * Multiple configuration supported
+
+  * Incremental backups supported
 
   * ISO recover image supported 
 
@@ -78,7 +80,7 @@ DRLM Version 2.4.0 (January 2021) - Release Notes
 
   * Loop devices are repaced by NBD (network block devices)
 
-  * DR file format was changed to QCOW2 and snaps of the file can now be made
+  * DR file format was changed from RAW to QCOW2
 
   * List Unscheduled clients bug fixed
 

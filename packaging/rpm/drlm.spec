@@ -232,8 +232,9 @@ service drlm-stord start
 
 %changelog
 
-* Sat Jan 23 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
-- Multiple config support
+* San Jan 31 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
+- Multiple configuration supported
+- Incremental backups supported
 - ISO recover image supported 
 - ReaR mkbackuponly and ReaR restoreonly supported
 - DRLM parameters configurable for each client or backup
