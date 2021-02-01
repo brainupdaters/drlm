@@ -44,7 +44,8 @@ Requires: sqlite3
 ### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
-Requires: dhcp tftp-server
+Requires: (dhcp or dhcp-server)
+Requires: tftp-server
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
@@ -232,7 +233,7 @@ service drlm-stord start
 
 %changelog
 
-* San Jan 31 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Sun Jan 31 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
