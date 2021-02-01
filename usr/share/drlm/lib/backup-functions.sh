@@ -410,12 +410,12 @@ function register_backup () {
 function register_snap () {
   local BKP_ID="$1" 
   local SNAP_ID="$2"
-  local SNAP_IS_ACTIVE="$3"
-  local SNAP_DURATION="$4"
-  local SNAP_SIZE="$5"
-  local SNAP_DATE="$6"
+  local SNAP_DATE="$3"
+  local SNAP_IS_ACTIVE="$4"
+  local SNAP_DURATION="$5"
+  local SNAP_SIZE="$6"
 
-  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_DATE"
+  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" 
 }
 
 function del_backup () {

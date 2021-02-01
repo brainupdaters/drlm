@@ -578,12 +578,12 @@ function register_backup_dbdrv () {
 function register_snap_dbdrv (){
   local BKP_ID="$1" 
   local SNAP_ID="$2" 
-  local SNAP_IS_ACTIVE="$3"
-  local SNAP_DURATION="$4"
-  local SNAP_SIZE="$5"
-  local SNAP_DATE="$6"
-
-  echo "INSERT INTO snaps VALUES('$BKP_ID', '$SNAP_ID', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_DATE' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  local SNAP_DATE="$3"
+  local SNAP_IS_ACTIVE="$4"
+  local SNAP_DURATION="$5"
+  local SNAP_SIZE="$6"
+  
+  echo "INSERT INTO snaps VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

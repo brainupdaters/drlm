@@ -86,7 +86,7 @@ else
   SNAP_SIZE="$(get_backup_size_by_backup_id $BKP_BASE_ID)"
   SNAP_DATE="$(get_backup_date_by_backup_id $BKP_BASE_ID)"
 
-  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_DATE"; then
+  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE"; then
     Log "$PROGRAM:$WORKFLOW:DB:insert:Snap:$SNAP_ID:Backup(${BKP_BASE_ID}):${CLI_NAME}: .... Success!"
   else
     Error "$PROGRAM:$WORKFLOW:DB:insert:Snap:$SNAP_ID:Backup(${BKP_BASE_ID}):${CLI_NAME}: Problem registering snap on database! aborting ..."
