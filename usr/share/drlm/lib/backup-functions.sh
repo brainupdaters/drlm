@@ -21,7 +21,13 @@ function run_mkbackup_ssh_remote ()
     GLOB_OPT="$GLOB_OPT -C $CLI_CFG"
   fi
 
-  BKPOUT=$(ssh $SSH_OPTS ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} mkbackup SERVER=$(hostname -s) REST_OPTS=\"${REST_OPTS}\" ID=${CLIENT} 2>&1)
+  if [ "$BACKUP_ONLY_INCLUDE" == "yes" ]; then
+    REAR_RUN="mkbackuponly"
+  else
+    REAR_RUN="mkbackup"
+  fi
+
+  BKPOUT=$(ssh $SSH_OPTS ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} $REAR_RUN SERVER=$(hostname -s) REST_OPTS=\"${REST_OPTS}\" ID=${CLIENT} 2>&1)
   if [ $? -ne 0 ]
   then
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
@@ -71,85 +77,73 @@ function mod_pxe_link ()
   if [ $? -eq 0 ];then return 0; else return 1;fi
 }
 
-function list_backup_all ()
-{
-  local PRETTY_PARAM=$1
-  printf '%-18s\n' "$(tput bold)"
-  printf '%-20s %-15s %-18s %-10s %-11s %-6s %-20s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "Configuration$(tput sgr0)"
-  for line in $(get_all_backups_dbdrv)
-  do
-    local BAC_ID=`echo $line|awk -F":" '{print $1}'`
-    local CLI_ID=`echo $line|awk -F":" '{print $2}'`
-    local CLI_NAME=$(get_client_name $CLI_ID)
-    local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $3}'`
-    local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
-    local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
-    local BAC_FILE=`echo $line|awk -F":" '{print $3}'`
-    local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
-    local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
-
-    local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
-    if [ "$PRETTY_PARAM" = "true" ]; then
-	    BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
-    else
-	    BAC_DURA_DEC="%-11s"
-    fi
-
-    local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ "$PRETTY_PARAM" = "true" ]; then
-	    BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
-    else
-	    BAC_SIZE_DEC="%-6s"
-    fi
-
-    local CLI_CFG=`echo $line|awk -F":" '{print $10}'`
-
-    printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-20s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE" "$CLI_CFG"
-  done
-  if [ $? -eq 0 ];then return 0; else return 1; fi
-}
-
 function list_backup ()
 {
-  local CLI_NAME=$1
-  local PRETTY=$2
+  local CLI_NAME_REC=$1 
+  local PRETTY_PARAM=$2
+  local CLI_ID=$(get_client_id_by_name $CLI_NAME)
+
   printf '%-18s\n' "$(tput bold)"
-  printf '%-20s %-15s %-18s %-10s %-11s %-6s %-20s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "Configuration$(tput sgr0)"
+  printf '%-20s %-15s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
+
+  save_default_pretty_params_list_backup
+
   for line in $(get_all_backups_dbdrv)
   do
     local BAC_ID=`echo $line|awk -F":" '{print $1}'`
     local CLI_BAC_ID=`echo $line|awk -F":" '{print $2}'`
-    local CLI_ID=$(get_client_id_by_name $CLI_NAME)
-    local BAC_NAME=`echo $line|awk -F":" '{print $3}'|awk -F"." '{print $3}'`
+    local CLI_NAME=$(get_client_name $CLI_BAC_ID)
+    local BAC_NAME=`echo $line|awk -F":" '{print $1}'|awk -F"." '{print $2}'`
     local BAC_DAY=`echo $BAC_NAME|cut -c1-8`
     local BAC_TIME=`echo $BAC_NAME|cut -c9-12`
     local BAC_FILE=`echo $line|awk -F":" '{print $3}'`
     local BAC_DATE=`date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M"`
     local BAC_STAT=`echo $line|awk -F":" '{print $5}'`
+    local CLI_CFG=`echo $line|awk -F":" '{print $10}'`
+    local BAC_PXE=`echo $line|awk -F":" '{print $11}'`
+    local BAC_TYPE=`echo $line|awk -F":" '{print $12}'`
+    
+    if [ "$BAC_PXE" == "1" ]; then
+      BAC_PXE=" *"
+    else 
+      BAC_PXE=""
+    fi 
+
+    if [ "$BAC_TYPE" == "0" ]; then
+      BAC_TYPE="Data Only"
+    elif [ "$BAC_TYPE" == "1" ]; then 
+      BAC_TYPE="Recover PXE"
+    elif [ "$BAC_TYPE" == "2" ]; then 
+      BAC_TYPE="Recover ISO"
+    fi 
+
+    load_default_pretty_params_list_backup
+    load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
 
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
-    if [ "$PRETTY" ]; then
-	    BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
+    if [ "$PRETTY_PARAM" = "true" ]; then
+      BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
     else
-	    BAC_DURA_DEC="%-11s"
+      BAC_DURA_DEC="%-11s"
     fi
 
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ "$PRETTY" ]; then
-	    BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
+    if [ "$PRETTY_PARAM" = "true" ]; then
+      BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
     else
-	    BAC_SIZE_DEC="%-6s"
+      BAC_SIZE_DEC="%-6s"
     fi
 
-    local CLI_CFG=`echo $line|awk -F":" '{print $10}'`
-
-    if [ $CLI_ID -eq $CLI_BAC_ID ]; then printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-20s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE" "$CLI_CFG"; fi
+    if [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then 
+      printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STAT" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "$BAC_TYPE"; 
+    fi
   done
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function enable_loop_ro ()
 {
-  local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
   local DR_FILE=$2
 
   /sbin/losetup -r ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
@@ -159,7 +153,7 @@ function enable_loop_ro ()
 
 function enable_loop_rw ()
 {
-  local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
   local DR_FILE=$2
 
   /sbin/losetup ${LO_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
@@ -169,9 +163,9 @@ function enable_loop_rw ()
 
 function disable_loop ()
 {
-  local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
 
-  /sbin/losetup -d ${LO_DEV} >> /dev/null 2>&1
+  /sbin/losetup -d $LO_DEV >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -207,12 +201,13 @@ function do_mount_ext2_rw() {
 
 function do_mount_ext4_ro ()
 {
-  local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
   local CLI_NAME=$2
-  local MNTDIR=$3
+  local CLI_CFG=$3
+  local MNTDIR=$4
 
   if [ -z "$MNTDIR" ]; then
-    MNTDIR=${STORDIR}/${CLI_NAME}
+    MNTDIR=${STORDIR}/${CLI_NAME}/${CLI_CFG}
   fi
 
   /bin/mount -t ext4 -o ro ${LO_DEV} ${MNTDIR} >> /dev/null 2>&1
@@ -221,27 +216,29 @@ function do_mount_ext4_ro ()
 }
 
 function do_mount_ext4_rw() {
-  local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
   local CLI_NAME=$2
-  local MNTDIR=$3
+  local CLI_CFG=$3
+  local MNTDIR=$4
 
   if [ -z "$MNTDIR" ]; then
-    MNTDIR=${STORDIR}/${CLI_NAME}
+    MNTDIR=${STORDIR}/${CLI_NAME}/${CLI_CFG}
   fi
 
-  /bin/mount -t ext4 -o rw ${LO_DEV} ${MNTDIR} >> /dev/null 2>&1
+  /bin/mount -t ext4 -o rw $LO_DEV $MNTDIR >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
 
 function do_remount() {
   local PERM=$1
-  local LO_DEV="/dev/loop${2}"
+  local LO_DEV=$2
   local CLI_NAME=$3
-  local MNTDIR=$4
+  local CLI_CFG=$4
+  local MNTDIR=$5
 
   if [ -z "$MNTDIR" ]; then
-    MNTDIR=${STORDIR}/${CLI_NAME}
+    MNTDIR=${STORDIR}/${CLI_NAME}/${CLI_CFG}
   fi
 
   /bin/mount -o remount,${PERM} ${LO_DEV} ${MNTDIR} >> /dev/null 2>&1
@@ -251,9 +248,9 @@ function do_remount() {
 
 function do_umount ()
 {
-  local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
 
-  /bin/umount ${LO_DEV} >> /dev/null 2>&1
+  /bin/umount $LO_DEV >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -283,10 +280,33 @@ function disable_backup_db ()
   # Return 0 if OK or 1 if NOK
 }
 
+function enable_pxe_db ()
+{
+  local BKP_ID=$1
+  enable_pxe_db_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function disable_pxe_db ()
+{
+  local BKP_ID=$1
+  disable_pxe_db_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function get_active_cli_bkp_from_db ()
 {
-  local CLI_NAME=$1
-  get_active_cli_bkp_from_db_dbdrv "$CLI_NAME"
+  local CLI_ID=$1
+  local CLI_CFG=$2
+
+  get_active_cli_bkp_from_db_dbdrv "$CLI_ID" "$CLI_CFG"
+}
+
+function get_active_cli_rescue_from_db ()
+{
+  local CLI_ID=$1
+
+  get_active_cli_rescue_from_db_dbdrv "$CLI_ID"
 }
 
 function gen_backup_id ()
@@ -300,45 +320,48 @@ function gen_backup_id ()
 
 function gen_dr_file_name ()
 {
-	local CLI_NAME=$1
-	local BKP_ID=$2
-	if [ $? -eq 0 ]; then
-		local DR_NAME="$CLI_NAME.$BKP_ID.dr"
-		echo $DR_NAME
-	else
-		echo ""
-	fi
+  local CLI_NAME=$1
+  local BKP_ID=$2
+  local CLI_CFG=$3
+  if [ $? -eq 0 ]; then
+    local DR_NAME="$CLI_NAME.$CLI_CFG.$BKP_ID.dr"
+    echo $DR_NAME
+  else
+    echo ""
+  fi
 # Return DR File Name or Null string
 }
 
 function make_img ()
 {
-	local TYPE=$1
-	local DR_NAME=$2
-	local DR_SIZE=$3
+  local TYPE=$1
+  local DR_NAME=$2
+  local DR_SIZE=$3
 
-	if [[ ! -d ${ARCHDIR} ]]; then mkdir -p ${ARCHDIR}; fi
+  if [[ ! -d ${ARCHDIR} ]]; then 
+    mkdir -p ${ARCHDIR} 
+  fi
 
-	qemu-img create -f ${TYPE} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+  qemu-img create -f ${TYPE} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M >> /dev/null 2>&1
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
 
 function do_format_ext4 ()
 {
-	local LO_DEV="/dev/loop${1}"
+  local LO_DEV=$1
 
-	mkfs.ext4 -m1 ${LO_DEV}
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+  mkfs.ext4 -m1 $LO_DEV >> /dev/null 2>&1
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
 
 function do_format_ext2 ()
 {
-	local LO_DEV="/dev/loop${1}"
+  local LO_DEV="/dev/loop${1}"
 
-	mkfs.ext2 -m1 ${LO_DEV}
-	if [ $? -eq 0 ]; then return 0; else return 1; fi
+  mkfs.ext2 -m1 ${LO_DEV} >> /dev/null 2>&1
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
 
@@ -374,61 +397,79 @@ function register_backup ()
   local BKP_DURATION=$5
   local BKP_SIZE=$6
   local CLI_CFG=$7
+  local BKP_PXE=$8
+  local BKP_TYPE=$9
 
-  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG"
+  register_backup_dbdrv "$BKP_ID" "$CLI_ID" "$CLI_NAME" "$DR_FILE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$BKP_PXE" "$BKP_TYPE"
 }
 
-function del_backup ()
-{
-    local BKP_ID=$1
-    local DR_FILE=$2
+function del_backup (){
+  local BKP_ID=$1
+  local DR_FILE=$2
 
-    rm -vf $ARCHDIR/$DR_FILE
-    del_backup_dbdrv "$BKP_ID"
+  del_dr_file "$DR_FILE"
+  del_backup_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function del_dr_file () {
+  local DR_FILE=$1
+  if [ -n "$ARCHDIR" ] && [ -n "$DR_FILE" ]; then
+    rm $v -f $ARCHDIR/$DR_FILE
     if [ $? -eq 0 ]; then return 0; else return 1; fi
+  fi
 }
 
 function del_all_db_client_backup ()
 {
-    local CLI_ID=$1
+  local CLI_ID=$1
 
-    del_all_db_client_backup_dbdrv "$CLI_ID"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  del_all_db_client_backup_dbdrv "$CLI_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function clean_old_backups ()
-{
-    local CLI_NAME=$1
+function clean_old_backups() {
+  local CLI_NAME=$1
+  local CLI_CFG=$2
 
-    if clean_backups $CLI_NAME $HISTBKPMAX ; then return 0; else return 1; fi
+  if clean_backups $CLI_NAME $HISTBKPMAX $CLI_CFG; then return 0; else return 1; fi
 }
 
-function clean_backups ()
-{
-    local CLI_NAME=$1
-    local N_BKPTOTAL=$(get_count_backups_by_client_dbdrv $CLI_NAME)
-    local N_BKPSAVE=$2
-    local ERR=0
+# Function used in runbackup and delbackup
+# In run backup to maintain the Max numbers of backups to keep for each client configuration (clean_backups client_name num_backups client_config)
+# In delbackup with parameter -A to delete all backups. (clean_backups client_name 0)
+function clean_backups() {
+  local CLI_NAME=$1
+  local N_BKPSAVE=$2
+  local CLI_CFG=$3
+  local N_BKPTOTAL=$(get_count_backups_by_client_dbdrv $CLI_NAME $CLI_CFG)
+  local ERR=0
 
-    while [[ $N_BKPTOTAL -gt $N_BKPSAVE ]]
-    do
-        BKPID2CLR=$(get_older_backup_by_client_dbdrv $CLI_NAME)
-        DRFILE2CLR=$(get_backup_drfile $BKPID2CLR)
+  while [[ $N_BKPTOTAL -gt $N_BKPSAVE ]]; do
+    BKPID2CLR=$(get_older_backup_by_client_dbdrv $CLI_NAME $CLI_CFG)
+    DRFILE2CLR=$(get_backup_drfile_by_backup_id $BKPID2CLR)
 
-        del_backup $BKPID2CLR $DRFILE2CLR
-        if [ $? -ne 0 ]; then ERR=1; fi
-        (( N_BKPTOTAL-- ))
-    done
+    del_backup $BKPID2CLR $DRFILE2CLR
+    if [ $? -ne 0 ]; then ERR=1; fi
+    (( N_BKPTOTAL-- ))
+  done
 
-    if [ $ERR -eq 0 ]; then return 0; else return 1; fi
+  if [ $ERR -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_backup_id_lst_by_client ()
 {
   local CLI_NAME=$1
-  local ID_LIST=$(get_backup_id_lst_by_client_dbdrv "$CLI_NAME")
+  local ID_LIST=$(get_backup_id_lst_by_client_dbdrv $CLI_NAME)
   echo $ID_LIST
   # Return List of ID's or NULL string
+}
+
+function get_backup_id_by_drfile ()
+{
+  local DR_FILE=$1
+  local BKP_ID=$(get_backup_id_by_drfile_dbdrv $DR_FILE)
+  echo $BKP_ID
 }
 
 function check_backup_state ()
@@ -439,18 +480,39 @@ function check_backup_state ()
   # Return 0 if backup is not in use else return 1.
 }
 
-function get_backup_drfile ()
+function get_backup_drfile_by_backup_id ()
 {
   local BKP_ID=$1
-  local DR_FILE=$(get_backup_drfile_dbdrv "$BKP_ID")
+  local DR_FILE=$(get_backup_drfile_by_backup_id_dbdrv "$BKP_ID")
   echo $DR_FILE
 }
 
-function get_client_id_by_backup_id ()
+function get_backup_config_by_backup_id ()
 {
   local BKP_ID=$1
-  local CLI_ID=$(get_client_id_by_backup_id_dbdrv "$BKP_ID")
+  local CLI_CFG=$(get_backup_config_by_backup_id_dbdrv "$BKP_ID")
+  echo $CLI_CFG
+}
+
+function get_backup_type_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_TYPE=$(get_backup_type_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_TYPE
+}
+
+function get_backup_client_id_by_backup_id ()
+{
+  local BKP_ID=$1
+  local CLI_ID=$(get_backup_client_id_by_backup_id_dbdrv "$BKP_ID")
   echo $CLI_ID
+}
+
+function get_backup_status_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_STATUS=$(get_backup_status_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_STATUS
 }
 
 function get_active_backups ()
@@ -513,59 +575,245 @@ function get_client_used_mb ()
 }
 
 function check_backup_size_status() {
-    if [ -z $1 ]; then
-        local input_size="-"
-    else
-        local input_size="$1"
-    fi
+  if [ -z $1 ]; then
+    local input_size="-"
+  else
+    local input_size="$1"
+  fi
 
-    size_unit="${input_size:(-1)}"
-    size_number="${input_size::-1}"
+  size_unit="${input_size:(-1)}"
+  size_number="${input_size::-1}"
 
-    if [ "$size_unit" == "G" ]; then
-	size_number="$(awk -v size="$size_number" 'BEGIN{print size * 1024}')"
-	# Remove the decimals
-	size_number="${size_number%.*}"
-    fi
+  if [ "$size_unit" == "G" ]; then
+    size_number="$(awk -v size="$size_number" 'BEGIN{print size * 1024}')"
+    # Remove the decimals
+    size_number="${size_number%.*}"
+  fi
 
-    if [ "$input_size" = "-" ]; then
-	echo -n "%-6s"
-    elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
-	echo -n "\\e[0;31m%-6s\\e[0m"
-    elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
-	echo -n "\\e[0;33m%-6s\\e[0m"
-    else
-	echo -n "%-6s"
-    fi
+  if [ "$input_size" = "-" ]; then
+    echo -n "%-6s"
+  elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
+    echo -n "\\e[0;31m%-6s\\e[0m"
+  elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
+    echo -n "\\e[0;33m%-6s\\e[0m"
+  else
+    echo -n "%-6s"
+  fi
 }
 
 function check_backup_time_status() {
-    if [ -z $1 ]; then
-        local duration="-"
+  if [ -z $1 ]; then
+    local duration="-"
+  else
+    local duration="$1"
+  fi
+
+  if [ "${duration:0:1}" != "-" ]; then
+    hours="$(echo $duration | cut -d '.' -f 1)"
+    hours=${hours:0:-1}
+    minutes="$(echo $duration | cut -d '.' -f 2)"
+    minutes=${minutes:0:-1}
+    seconds="$(echo $duration | cut -d '.' -f 3)"
+    seconds=${seconds:0:-1}
+
+    total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
+
+    if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
+      echo -n "\\e[0;31m%-11s\\e[0m"
+    elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
+      echo -n "\\e[0;33m%-11s\\e[0m"
     else
-        local duration="$1"
+      echo -n "%-11s"
     fi
 
-    if [ "${duration:0:1}" != "-" ]; then
-        hours="$(echo $duration | cut -d '.' -f 1)"
-        hours=${hours:0:-1}
-        minutes="$(echo $duration | cut -d '.' -f 2)"
-        minutes=${minutes:0:-1}
-        seconds="$(echo $duration | cut -d '.' -f 3)"
-        seconds=${seconds:0:-1}
-
-        total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
-
-        if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
-            echo -n "\\e[0;31m%-11s\\e[0m"
-        elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
-	    echo -n "\\e[0;33m%-11s\\e[0m"
-        else
-            echo -n "%-11s"
-        fi
-
-    else
-        echo -n "%-11s"
-    fi
+  else
+    echo -n "%-11s"
+  fi
 }
 
+# Function to setup pretty parameters of a client backup configuration
+# Be carefully this function overwites current running values
+function load_client_pretty_params_list_backup() { 
+  local CLI_NAME=$1
+  local CLI_CFG=$2
+
+  eval $(grep BACKUP_SIZE_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  eval $(grep BACKUP_SIZE_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  eval $(grep BACKUP_TIME_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  eval $(grep BACKUP_TIME_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+
+  if [ "$CLI_CFG" = "default" ]; then
+    eval $(grep BACKUP_SIZE_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")
+    eval $(grep BACKUP_SIZE_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")
+    eval $(grep BACKUP_TIME_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")
+    eval $(grep BACKUP_TIME_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")
+    eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")
+  else
+    eval $(grep BACKUP_SIZE_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg | grep "^[^#;]")
+    eval $(grep BACKUP_SIZE_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg | grep "^[^#;]")
+    eval $(grep BACKUP_TIME_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg | grep "^[^#;]")
+    eval $(grep BACKUP_TIME_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg | grep "^[^#;]")
+    eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg | grep "^[^#;]")
+  fi
+}
+
+function save_default_pretty_params_list_backup() {
+  DEF_BACKUP_SIZE_STATUS_FAILED=$BACKUP_SIZE_STATUS_FAILED
+  DEF_BACKUP_SIZE_STATUS_WARNING=$BACKUP_SIZE_STATUS_WARNING
+  DEF_BACKUP_TIME_STATUS_FAILED=$BACKUP_TIME_STATUS_FAILED
+  DEF_BACKUP_TIME_STATUS_WARNING=$BACKUP_TIME_STATUS_WARNING
+  DEF_CLIENT_LIST_TIMEOUT=$CLIENT_LIST_TIMEOUT
+}
+
+function load_default_pretty_params_list_backup() {
+  BACKUP_SIZE_STATUS_FAILED=$DEF_BACKUP_SIZE_STATUS_FAILED
+  BACKUP_SIZE_STATUS_WARNING=$DEF_BACKUP_SIZE_STATUS_WARNING
+  BACKUP_TIME_STATUS_FAILED=$DEF_BACKUP_TIME_STATUS_FAILED
+  BACKUP_TIME_STATUS_WARNING=$DEF_BACKUP_TIME_STATUS_WARNING
+  CLIENT_LIST_TIMEOUT=$DEF_CLIENT_LIST_TIMEOUT
+}
+
+function disable_backup() {
+  local ENABLED_DB_BKP_ID=$1
+
+  if [ -n "$ENABLED_DB_BKP_ID" ]; then
+
+    ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID)
+    ENABLED_BKP_CLI_ID=$(get_backup_client_id_by_backup_id $ENABLED_DB_BKP_ID)
+    ENABLED_BKP_CLI_NAME=$(get_client_name $ENABLED_BKP_CLI_ID)
+    LOOP_DEVICE=$(losetup --list | grep -w "$ENABLED_DB_BKP_ID" | awk '{print $1}')
+    LOOP_MOUNT_POINT=$(mount -lt ext2,ext4 | grep -w "${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}" | awk '{ print $3 }')
+
+    # Disable NFS
+    if disable_nfs_fs $ENABLED_BKP_CLI_NAME $ENABLED_BKP_CFG; then
+      Log "$PROGRAM:$WORKFLOW:NFS:DISABLE:$ENABLED_BKP_CLI_NAME:CONFIG:$ENABLED_BKP_CFG: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:NFS:DISABLE:$ENABLED_BKP_CLI_NAME:CONFIG:$ENABLED_BKP_CFG: Problem disabling NFS export! aborting ..."
+    fi
+
+    # Umount Loop device
+    if [ -n "$LOOP_MOUNT_POINT" ]; then
+      if do_umount $LOOP_MOUNT_POINT; then
+        Log "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): .... Success!"
+      else
+        Error "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): Problem unmounting Filesystem! Aborting ..."
+      fi
+    fi
+
+    # Detach loop device
+    if [ -n "$LOOP_DEVICE" ]; then
+      if disable_loop $LOOP_DEVICE; then
+        Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$ENABLED_BKP_CLI_NAME: .... Success!"
+      else
+        Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$ENABLED_BKP_CLI_NAME: Problem disabling Loop Device! Aborting ..."
+      fi
+    fi
+
+    # Disable backup from database
+    if disable_backup_db $ENABLED_DB_BKP_ID ; then
+      Log "$PROGRAM:$WORKFLOW:MODE:perm:DB:disable:ID($ENABLED_DB_BKP_ID):$ENABLED_BKP_CLI_NAME: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:MODE:perm:DB:disable:ID($ENABLED_DB_BKP_ID):$ENABLED_BKP_CLI_NAME: Problem disabling backup in database! Aborting ..."
+    fi
+      
+    Log "Finished Deactivating DR store for client: $LOOP_MOUNT_POINT ..."  
+
+  fi
+}
+
+function disable_backup_store() {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+  local LOOP_MOUNT_POINT=$(mount -lt ext2,ext4 | grep -w "${STORDIR}/${CLI_NAME}/${CLI_CFG}" | awk '{ print $3 }')
+  local LOOP_DEVICE=$(losetup --list | grep -w "$DR_FILE" | awk '{print $1}')
+
+  # Disable NFS
+  if disable_nfs_fs $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:NFS:DISABLE:$CLI_NAME:CONFIG:$CLI_CFG: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:NFS:DISABLE:$CLI_NAME:CONFIG:$CLI_CFG: Problem disabling NFS export! aborting ..."
+  fi
+
+  # Umount Loop device
+  if [ -n "$LOOP_MOUNT_POINT" ]; then
+    if do_umount $LOOP_MOUNT_POINT; then
+      Log "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:FS:UMOUNT:LOOPDEV($LOOP_DEVICE):MOUNT_POINT($LOOP_MOUNT_POINT): Problem unmounting Filesystem! Aborting ..."
+    fi
+  fi
+
+  # Detach loop device
+  if [ -n "$LOOP_DEVICE" ]; then
+    if disable_loop $LOOP_DEVICE; then
+      Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$CLI_NAME: .... Success!"
+    else
+      Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):DISABLE:$CLI_NAME: Problem disabling Loop Device! Aborting ..."
+    fi
+  fi
+}
+
+function enable_backup_store_rw() {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+
+  # Create loopdev:
+  # Get next loop device free
+  local LOOP_DEVICE=$(losetup -f)
+
+  if enable_loop_rw $LOOP_DEVICE $DR_FILE; then
+    Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(rw):DR:$DR_FILE: Problem enabling Loop Device (rw)! aborting ..."
+  fi
+
+  # Mount image:
+  if do_mount_ext4_rw $LOOP_DEVICE $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:FS:MOUNT(rw):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:FS:MOUNT(rw):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (rw)! aborting ..."
+  fi
+
+  # Enable NFS read/write mode:
+  if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:NFS:ENABLE(rw):$CLI_NAME: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (rw):$CLI_NAME: Problem enabling NFS export (rw)! aborting ..."
+  fi
+}
+
+function enable_backup_store_ro() {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+
+  # Create loopdev:
+  # Get next loop device free
+  local LOOP_DEVICE=$(losetup -f)
+
+  if enable_loop_ro $LOOP_DEVICE $DR_FILE; then
+    Log "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(ro):DR:$DR_FILE: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:LOOPDEV($LOOP_DEVICE):ENABLE(ro):DR:$DR_FILE: Problem enabling Loop Device (ro)! aborting ..."
+  fi
+
+  # Mount image:
+  if do_mount_ext4_ro $LOOP_DEVICE $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:FS:MOUNT(ro):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:FS:MOUNT(ro):LOOPDEV($LOOP_DEVICE):MNT($STORDIR/$CLI_NAME/$CLI_CFG): Problem mounting Filesystem (ro)! aborting ..."
+  fi
+
+  # Enable NFS read/write mode:
+  if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
+    Log "$PROGRAM:$WORKFLOW:NFS:ENABLE(ro):$CLI_NAME: .... Success!"
+  else
+    Error "$PROGRAM:$WORKFLOW:NFS:ENABLE (ro):$CLI_NAME: Problem enabling NFS export (ro)! aborting ..."
+  fi
+}

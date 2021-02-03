@@ -1,24 +1,35 @@
 # impbackup workflow
 
-BKP_ID=$(gen_backup_id ${CLI_ID})
-DR_FILE=$(gen_dr_file_name ${CLI_NAME} ${BKP_ID})
+# Create mountpoint if not exists.
+if [ ! -d "${STORDIR}/${CLI_NAME}/${CLI_CFG}" ]; then
+  Log "Making DR store mountpoint for client: $CLI_NAME and $CLI_CFG configuration..."
+  mkdir $v -p "${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+  chmod 755 "${STORDIR}/${CLI_NAME}"
+  chmod 755 "${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+fi
 
+# Generate the new backup id and backup DR filename
+BKP_ID=$(gen_backup_id $CLI_ID)
+DR_FILE=$(gen_dr_file_name $CLI_NAME $BKP_ID $CLI_CFG)
+
+if [ -z "${DR_FILE}" ]; then
+	Error "$PROGRAM:$WORKFLOW:gendrfilename: Problem generating DR filename! aborting ..."
+else
+	Log "$PROGRAM:$WORKFLOW:gendrfilename: $DR_FILE dr filename generated."
+fi
+
+# Get the backup source from database or filename parameter
 if [ -n "$IMP_BKP_ID" ]; then
-	BKP_SRC=${ARCHDIR}/$(get_backup_drfile "$IMP_BKP_ID")
+	BKP_SRC=${ARCHDIR}/$(get_backup_drfile_by_backup_id "$IMP_BKP_ID")
 else
 	BKP_SRC="$IMP_FILE_NAME"
 fi
 
-if [ -z "${DR_FILE}" ]; then
-	Error "$PROGRAM:$WORKFLOW:gendrfilename: Problem generating DR file name! aborting ..."
-else
-	Log "$PROGRAM:$WORKFLOW:gendrfilename: ${DR_FILE} dr Filename generated."
-fi
-
 LogPrint "Importing ${BKP_SRC} to ${ARCHDIR}/$DR_FILE"
 
-if [[ ! -d ${ARCHDIR} ]]; then 
-  mkdir -p ${ARCHDIR} 
+# Create backup archive directory if does not exists and copy the new backup in
+if [ ! -d "$ARCHDIR" ]; then 
+  mkdir -p "$ARCHDIR" 
 fi
 
 cp $BKP_SRC ${ARCHDIR}/$DR_FILE >> /dev/null 2>&1

@@ -1,6 +1,12 @@
+# runbackup workflow
+
 Log "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Collecting DR Image space requirements..."
 
-eval "$(egrep "EXCLUDE_MOUNTPOINTS|EXCLUDE_VG|INCLUDE_VG|ONLY_INCLUDE_VG|BACKUP_PROG_EXCLUDE" /etc/drlm/clients/$CLI_NAME.cfg | grep -v '#')"
+if [ "$CLI_CFG" = "default" ]; then
+  eval "$(egrep "EXCLUDE_MOUNTPOINTS|EXCLUDE_VG|INCLUDE_VG|ONLY_INCLUDE_VG|BACKUP_PROG_EXCLUDE" /etc/drlm/clients/$CLI_NAME.cfg | grep -v '#')"
+else
+  eval "$(egrep "EXCLUDE_MOUNTPOINTS|EXCLUDE_VG|INCLUDE_VG|ONLY_INCLUDE_VG|BACKUP_PROG_EXCLUDE" /etc/drlm/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg | grep -v '#')"
+fi
 
 INCLUDE_LIST_VG=( ${ONLY_INCLUDE_VG[@]} ${INCLUDE_VG[@]} )
 EXCLUDE_LIST_VG=( ${EXCLUDE_VG[@]} )
@@ -13,4 +19,10 @@ if DR_IMG_SIZE_MB=$(ssh $SSH_OPTS $DRLM_USER@$CLI_NAME "$(declare -p EXCLUDE_LIS
 else
     report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! aborting ...  Error Message: [ $DR_IMG_SIZE_MB ]"
     Error "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! aborting ..."
+fi
+
+# Check if returned value is a number
+re='^[0-9]+$'
+if ! [[ $DR_IMG_SIZE_MB =~ $re ]] ; then
+   Error "$PROGRAM:$WORKFLOW:REMOTE:getspace:DR:$CLI_NAME: Problem collecting remote space! DR_IMG_SIZE_MB is not numeric. aborting ..."
 fi

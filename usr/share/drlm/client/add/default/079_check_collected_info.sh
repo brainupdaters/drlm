@@ -1,6 +1,6 @@
+# addclient workflow
 
 if [ "$ADDCLI_MODE" == "online" ]; then
-
   printf '%-15s\n' "$(tput bold)"
   printf "The following information has been collected over network:"
   printf '%-15s\n' "$(tput bold)"
@@ -12,7 +12,9 @@ if [ "$ADDCLI_MODE" == "online" ]; then
   read -r RESPONSE
   case "$RESPONSE" in
     [yY][eE][sS]|[yY])
-      shift ;;
+      shift 
+      ;;
+
     *)
       printf '\n' ""
       echo "If wrong/none information collected, set it manually."
@@ -20,5 +22,4 @@ if [ "$ADDCLI_MODE" == "online" ]; then
       exit 1
       ;;
   esac
-
 fi

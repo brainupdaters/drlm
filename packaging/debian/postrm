@@ -22,34 +22,24 @@ case "$1" in
         #Check for systemd or initd
         if [ $(ps -p 1 -o comm=) = "systemd" ]
         then
+            # Stop, disable and remove drlm-stord.service
             if [ -f /etc/systemd/system/drlm-stord.service ]; then
                 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
                 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
                 rm /etc/systemd/system/drlm-stord.service
                 systemctl daemon-reload
             fi
-
-            # systemctl stop tftpd-hpa.service
-            # systemctl disable tftpd-hpa.service
-            # systemctl stop nfs-kernel-server.service
-            # systemctl disable nfs-kernel-server.service
-            # systemctl stop rpcbind.service
-            # systemctl disable rpcbind.service
-            # systemctl stop isc-dhcp-server.service
-            # systemctl disable isc-dhcp-server.service
+            # Stop, disable and remove drlm-api.service
+            if [ -f /etc/systemd/system/drlm-api.service ]; then
+                systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+                systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+                rm /etc/systemd/system/drlm-api.service
+                systemctl daemon-reload
+            fi
         else
             service drlm-stord stop
             update-rc.d drlm-stord remove
             [ -f /etc/init.d/drlm-stord ] && rm /etc/init.d/drlm-stord
-
-            # update-rc.d tftpd-hpa stop
-            # update-rc.d tftpd-hpa remove
-            # update-rc.d nfs-kernel-server stop
-            # update-rc.d nfs-kernel-server remove
-            # update-rc.d rpcbind stop
-            # update-rc.d rpcbind remove
-            # update-rc.d isc-dhcp-server stop
-            # update-rc.d isc-dhcp-server remove
         fi
 	    ;;
     *)

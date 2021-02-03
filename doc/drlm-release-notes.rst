@@ -68,6 +68,14 @@ DRLM Version 2.4.0 (January 2021) - Release Notes
 --------------------------------------------------
   * Multiple config support
 
+  * ISO recover image supported 
+
+  * ReaR mkbackuponly and ReaR restoreonly supported
+
+  * DRLM parameters configurable for each client or backup
+
+  * Added drlm-api systemd service 
+
   * List Unscheduled clients bug fixed
 
 
@@ -81,7 +89,7 @@ DRLM Version 2.3.2 (December 2020) - Release Notes
 
   * Fixed NFS_OPTS variable is not honored (issue #138)
 
-  * RedHat/CenOS 8 support
+  * RedHat/CentOS 8 support
 
   * Ubuntu 20.04 support 
 
@@ -203,7 +211,7 @@ DRLM Version 2.1.2 (March 2017) - Release Notes
 
   * SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo commands.
 
-  * Automatic creation of /etc/sudoers.d if not exists on systems RedHat/CenOS 5.
+  * Automatic creation of /etc/sudoers.d if not exists on systems RedHat/CentOS 5.
 
   * Fixed some errors for dependencies on default.conf.
 

@@ -1,5 +1,5 @@
 Log "------------------------------------------------------------------"
-Log "$PROGRAM $WORWFLOW:                                               "
+Log "$PROGRAM $WORKFLOW:                                               "
 Log "                                                                  "
 Log " - Deleting DR Network $NET_ID$NET_NAME from DRLM ...             "
 Log "                                                                  "

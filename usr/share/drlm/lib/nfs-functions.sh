@@ -3,47 +3,58 @@
 # $NFS_FILE is the default.conf variable of nfs configuration file
 # $NFS_OPTS is the default.conf variable of nfs configuration file
 
-#Generates the nfs configuration file from CLIDB active backups
+#Generates the NFS configuration files from Data Base active backups
 function configure_nfs_exports ()
 {
+  # First disable all DRLM nfs exports
+  for FILE_EXPORTS in $( ls ${NFS_DIR}/exports.d/ | grep '\.drlm.exports$'); do 
+    EXPORT_CLI_NAME="${NFS_DIR}/exports.d/$FILE_EXPORTS"
+    EXPORT_CLI_NAME_DISABLED="${NFS_DIR}/exports.d/.$FILE_EXPORTS"
+    mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
+  done
+
+  # Then enable active backups
   for BACKUPLINE in $(get_active_backups) ; do
     local DR_FILE=$(echo ${BACKUPLINE} | awk -F":" '{ print $3 }')
     local CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
+    local CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
     local NFS_OPTS=$( echo ${NFS_OPTS} | sed 's|rw,|ro,|' )
-    local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
-    local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.drlm.exports
+    local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.${CLI_CFG}.drlm.exports
+    local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.${CLI_CFG}.drlm.exports
+
     if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
       mv ${EXPORT_CLI_NAME_DISABLED} ${EXPORT_CLI_NAME}
+      Log "Enabling NFS export: $EXPORT_CLI_NAME"
     else
-      echo "${STORDIR}/${CLI_NAME} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+      echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+      Log "Enabling NFS export: $EXPORT_CLI_NAME"
     fi
   done
 }
 
-#Removes the nfs configuration file from CLIDB active backups
+#Disables the NFS configuration file from $NFS_DIR (Used in drlm-stord)
 function unconfigure_nfs_exports ()
 {
-  for BACKUPLINE in $(get_active_backups) ; do
-    local DR_FILE=$(echo ${BACKUPLINE} | awk -F":" '{ print $3 }')
-    local CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
-    local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
-    local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.drlm.exports
-    if [ -f ${EXPORT_CLI_NAME} ]; then
-      mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
-    fi
+  # Disable all DRLM nfs exports found in $NFS_DIR
+  for FILE_EXPORTS in $( ls ${NFS_DIR}/exports.d/ | grep '\.drlm.exports$'); do 
+    EXPORT_CLI_NAME="${NFS_DIR}/exports.d/$FILE_EXPORTS"
+    EXPORT_CLI_NAME_DISABLED="${NFS_DIR}/exports.d/.$FILE_EXPORTS"
+    Log "Disabling NFS export: $EXPORT_CLI_NAME" 
+    mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
   done
 }
 
 function enable_nfs_fs_ro ()
 {
-  local CLI_NAME=${1}
+  local CLI_NAME=$1
+  local CLI_CFG=$2
   local NFS_OPTS=$( echo ${NFS_OPTS} | sed 's|rw,|ro,|' )
-  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
-  local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.drlm.exports
+  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.${CLI_CFG}.drlm.exports
+  local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.${CLI_CFG}.drlm.exports
   if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
     rm -f ${EXPORT_CLI_NAME_DISABLED}
   fi
-  echo "${STORDIR}/${CLI_NAME} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+  echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
   reload_nfs ${EXPORT_CLI_NAME}
   if [ ${?} -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
@@ -51,13 +62,14 @@ function enable_nfs_fs_ro ()
 
 function enable_nfs_fs_rw ()
 {
-  local CLI_NAME=${1}
-  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
-  local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.drlm.exports
+  local CLI_NAME=$1
+  local CLI_CFG=$2
+  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.${CLI_CFG}.drlm.exports
+  local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.${CLI_CFG}.drlm.exports
   if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
     rm ${EXPORT_CLI_NAME_DISABLED}
   fi
-  echo "${STORDIR}/${CLI_NAME} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+  echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
   reload_nfs ${EXPORT_CLI_NAME}
   if [ ${?} -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
@@ -65,9 +77,10 @@ function enable_nfs_fs_rw ()
 
 function disable_nfs_fs ()
 {
-  local CLI_NAME=${1}
-  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
-  local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.drlm.exports
+  local CLI_NAME=$1
+  local CLI_CFG=$2
+  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.$CLI_CFG.drlm.exports
+  local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.$CLI_CFG.drlm.exports
   if [[ -f ${EXPORT_CLI_NAME} ]]; then
     mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
     reload_nfs
@@ -78,15 +91,24 @@ function disable_nfs_fs ()
   fi
 }
 
+function disable_all_nfs_fs() {
+  local CLI_NAME=$1
+  local rval='0'
+
+  for EXPORT_CLI_FILE in ${NFS_DIR}/exports.d/${CLI_NAME}.*.drlm.exports; do
+    mv $EXPORT_CLI_FILE ${NFS_DIR}/exports.d/.$(basename $EXPORT_CLI_FILE)
+    rval=$(( ${rval} + ${?}))
+  done
+
+  reload_nfs
+  if [ ${?} -eq 0 ]; then sleep 1; exportfs -f; return 0; else return 1; fi
+}
+
 function reload_nfs ()
 {
   if [ -z ${@} ]; then
     exportfs -r
-    if [ ${?} -ne 0 ]; then
-      return 1
-    else
-      return 0
-    fi
+    if [ ${?} -ne 0 ]; then return 1; else return 0; fi
   else
     local NEW_NFS_EXPORT=${1}
     exportfs -r
@@ -128,17 +150,18 @@ function add_nfs_export ()
 function del_nfs_export ()
 {
   local CLI_NAME=${1}
-  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
-  local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.drlm.exports
   local rval='0'
-  if [ -f ${EXPORT_CLI_NAME} ]; then
-    rm -f ${EXPORT_CLI_NAME}
-    rval=$?
-  fi
-  if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
-    rm -f ${EXPORT_CLI_NAME_DISABLED}
+
+  for file in ${NFS_DIR}/exports.d/${CLI_NAME}.*.drlm.exports; do
+    rm -f $file
     rval=$(( ${rval} + ${?}))
-  fi
+  done
+
+  for file in ${NFS_DIR}/exports.d/.${CLI_NAME}.*.drlm.exports; do
+    rm -f $file
+    rval=$(( ${rval} + ${?}))
+  done
+  
   if [ ${rval} -eq 0 ]; then
     return 0
   else

@@ -104,10 +104,12 @@ if [ "$1" == "2" ]; then
 ### Save old data
 drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
-### Stop drlm-stord
+### Stop drlm-stord and drlm-api
 %if "%(ps -p 1 -o comm=)" == "systemd"
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
 systemctl daemon-reload
 %else
 service drlm-stord stop
@@ -153,6 +155,7 @@ systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 fi
 ### Save drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
+%{__cp} /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/tmp_drlm-api.service
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
@@ -177,8 +180,12 @@ fi
 %if "%(ps -p 1 -o comm=)" == "systemd"
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
+%{__rm} -f /etc/systemd/system/drlm-api.service
+
 %else
 service drlm-stord stop
 chkconfig drlm-stord off
@@ -210,9 +217,13 @@ fi
 %if "%(ps -p 1 -o comm=)" == "systemd"
 mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+mv /etc/systemd/system/tmp_drlm-api.service /etc/systemd/system/drlm-api.service
+systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl daemon-reload
-systemctl is-enabled --quiet drlm-stord.service && systemctl enable drlm-stord.service
+systemctl is-enabled --quiet drlm-stord.service || systemctl enable drlm-stord.service
 systemctl start drlm-stord.service
+systemctl is-enabled --quiet drlm-api.service || systemctl enable drlm-api.service
+systemctl start drlm-api.service
 %else
 mv /etc/init.d/tmp_drlm-stord /etc/init.d/drlm-stord
 chkconfig drlm-stord on
@@ -221,8 +232,12 @@ service drlm-stord start
 
 %changelog
 
-* Wed Jan 13 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Sat Jan 23 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple config support
+- ISO recover image supported 
+- ReaR mkbackuponly and ReaR restoreonly supported
+- DRLM parameters configurable for each client or backup
+- Added drlm-api systemd service 
 - List Unscheduled clients bug fixed
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
@@ -230,7 +245,7 @@ service drlm-stord start
 - Fixed make clean leave drlm-api binary in place (issue #130)
 - Fixed message errors during drlm version upgrade (issue #131, #132)
 - Fixed NFS_OPTS variable is not honored (issue #138)
-- RedHat/CenOS 8 support
+- RedHat/CentOS 8 support
 - Ubuntu 20.04 support
 
 * Wed Jul 03 2019 Néfix Estrada <nefix@brainupdaters.net> 2.3.1
@@ -292,7 +307,7 @@ service drlm-stord start
 
 * Fri Mar 10 2017 Ruben Carbonell <ruben@brainupdaters.net> 2.1.2
 - SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo.
-- Automatic creation of /etc/sudoers.d if not exists RedHat/CenOS 5
+- Automatic creation of /etc/sudoers.d if not exists RedHat/CentOS 5
 - Fixed some errors for dependencies on default.conf.
 - DRLM_USER variable deleted on addclient and help.
 - Added sudo for stat to allow check size on File Systems without perms.

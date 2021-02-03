@@ -205,14 +205,14 @@ __drlm_runbackup ()
 			prev3="${COMP_WORDS[COMP_CWORD-3]}"
 			if [ "$prev3" == "-c" ]; then
 				local client="${COMP_WORDS[COMP_CWORD-2]}"
-				query=$(ls -1 /etc/drlm/clients/$client.cfg.d/ | sed -e 's/\.cfg$//')
+				query=$(ls /etc/drlm/clients/$client.cfg.d/"$cur"* 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
 				for result in $query; do
 					COMPREPLY[i++]="$result"
 				done
 			elif [ "$prev3" == "-I" ]; then
         local client_id="${COMP_WORDS[COMP_CWORD-2]}"
 				client=$(get_client_name_dbdrv "$client_id")
-        query=$(ls -1 /etc/drlm/clients/$client.cfg.d/ | sed -e 's/\.cfg$//')
+        query=$(ls -1 /etc/drlm/clients/$client.cfg.d/"$cur"* 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
 				for result in $query; do
 					COMPREPLY[i++]="$result"
 				done
@@ -258,7 +258,7 @@ __drlm_addjob ()
       if [ "$j" -gt "0" ]; then
         j=$((j+1))
         local client="${COMP_WORDS[$j]}"
-				query=$(ls -1 /etc/drlm/clients/$client.cfg.d/ | sed -e 's/\.cfg$//')
+				query=$(ls -1 /etc/drlm/clients/$client.cfg.d/"$cur"* 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
 				for result in $query; do
 					COMPREPLY[i++]="$result"
 				done

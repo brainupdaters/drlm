@@ -9,7 +9,7 @@ if test -n "$JOB_ID"; then
   fi
   
   Log "------------------------------------------------------------------"
-  Log "$PROGRAM $WORWFLOW:                                               "
+  Log "$PROGRAM $WORKFLOW:                                               "
   Log "                                                                  "
   Log " - Deleting Job [ $JOB_ID ] from DRLM                             "
   Log "                                                                  "
@@ -33,7 +33,7 @@ if test -n "$CLI_ID"; then
   Log "$PROGRAM:$WORKFLOW: All Jobs for client [ $CLI_NAME ] have been deleted! Success!" 
 
   Log "------------------------------------------------------------------"
-  Log "$PROGRAM $WORWFLOW:                                               "
+  Log "$PROGRAM $WORKFLOW:                                               "
   Log "                                                                  "
   Log " - Deleting all Jobs of $CLI_NAME from DRLM                       "
   Log "                                                                  "
