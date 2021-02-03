@@ -156,7 +156,6 @@ function get_free_nbd() {
       break
     fi
   done
-  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function enable_nbd_ro () {
@@ -904,11 +903,6 @@ function disable_backup () {
     else
       Error "$PROGRAM:$WORKFLOW: - Problem disabling Backup ID $ENABLED_DB_BKP_ID in the database Aborting ..."
     fi
-      
-    Log "Finished Deactivating DR store for client: $LOOP_MOUNT_POINT ..."  
-
-  fi
-}
 
     # Disable current snap if exists
     if disable_backup_snap_db $ENABLED_DB_BKP_ID; then
