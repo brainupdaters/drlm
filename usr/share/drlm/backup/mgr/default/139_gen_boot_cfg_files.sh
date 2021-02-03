@@ -2,6 +2,8 @@
 
 if [ "$BKP_TYPE" == "1" ]; then
 
+LogPrint "$PROGRAM:$WORKFLOW: === Enabling PXE boot ================================================="
+
   if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
 
   CLI_MAC=$(get_client_mac $CLI_ID)
@@ -23,9 +25,11 @@ initrd (tftp)/${CLI_NAME}/${CLI_CFG}/PXE/${CLI_INITRD_FILE}
 EOF
 
   if [ -f ${STORDIR}/boot/cfg/${F_CLI_MAC} ]; then
-      Log "$PROGRAM:$WORKFLOW:PXE:${CLI_NAME}:Creating MAC Address (GRUB2) boot configuration file ... Success!"
+      LogPrint  "$PROGRAM:$WORKFLOW: - Created MAC Address (GRUB2) boot configuration file for PXE"
   else
-      Error "$PROGRAM:$WORKFLOW:PXE:${CLI_NAME}: Problem Creating MAC Address (GRUB2) boot configuration file! aborting ..."
+      Error "$PROGRAM:$WORKFLOW: - Problem Creating MAC Address (GRUB2) boot configuration file for PXE! Aborting ..."
   fi
+
+  LogPrint "$PROGRAM:$WORKFLOW: ======================================================================="
 
 fi

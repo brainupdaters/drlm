@@ -48,5 +48,11 @@ else
     fi
     if [ $drlm_old_ver -lt 20400 ]; then
         /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/2.4.0_db_update.sql
+        
+        /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite "select * from backups" | while read backup_line; do
+          BKP_ID="$(echo $backup_line | awk -F"|" '{print $1}')"
+          BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )"
+          /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite "update backups set date='$BKP_DATE' where idbackup='$BKP_ID';"
+        done
     fi
 fi

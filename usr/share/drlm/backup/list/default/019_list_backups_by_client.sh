@@ -1,7 +1,7 @@
 # listbackup workflow
 
 Log "####################################################"
-Log "# List of Backups : 	                              #"
+Log "# List of Backups :                                #"
 Log "####################################################"
 
 if [ "$PRETTY" = true ] || [ "$DEF_PRETTY" = true ]; then 

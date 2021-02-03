@@ -1,5 +1,10 @@
 # runbackup workflow
 
+# Available VARs
+# ==============
+# CLI_ID (Client Id) or CLI_NAME (Client Name)
+# CLI_CFG (Client Configuration. If not set = "default")
+
 Log "------------------------------------------------------------------"
 Log "$PROGRAM $WORKFLOW:                                               "
 Log "                                                                  "

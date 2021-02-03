@@ -44,7 +44,8 @@ Requires: sqlite3
 ### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
-Requires: dhcp tftp-server
+Requires: (dhcp or dhcp-server)
+Requires: tftp-server
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
@@ -232,12 +233,15 @@ service drlm-stord start
 
 %changelog
 
-* Sat Jan 23 2020 Pau Roura <pau@brainupdaters.net> 2.4.0
-- Multiple config support
+* Sun Jan 31 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+- Multiple configuration supported
+- Incremental backups supported
 - ISO recover image supported 
 - ReaR mkbackuponly and ReaR restoreonly supported
 - DRLM parameters configurable for each client or backup
 - Added drlm-api systemd service 
+- Loop devices are repaced by NBD (network block devices)
+- DR file format was changed to QCOW2 and snaps of the file can now be made
 - List Unscheduled clients bug fixed
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
