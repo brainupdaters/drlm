@@ -334,12 +334,10 @@ function config_sudo () {
     $SUDO chmod 755 /etc/sudoers.d
     $SUDO sh -c "echo '#includedir /etc/sudoers.d' >> /etc/sudoers"
   fi
-
   $SUDO cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
   Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
   $DRLM_USER    ALL=(root)      NOPASSWD: DRLM
 EOF
-
   if [ -d /etc/sudoers.d/ ]; then
     $SUDO chmod 440 /tmp/etc_sudoers.d_drlm.sudo
     $SUDO chown root:root /tmp/etc_sudoers.d_drlm.sudo
