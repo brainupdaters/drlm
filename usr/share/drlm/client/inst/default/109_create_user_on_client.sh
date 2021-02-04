@@ -16,7 +16,7 @@ fi
 
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
-VERSION=$(echo $RELEASE| cut -d "." -f 1)
+VERSION=$(echo $RELEASE | cut -d "." -f 1)
 ARCH=$(get_arch $USER $CLI_NAME)
 
 if [ $DISTRO = "" ] || [ $RELEASE = "" ]; then
