@@ -28,7 +28,6 @@ Requires: gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: rpcbind
-Requires: xinetd
 
 ### SUSE packages
 %if %{?suse_version:1}0
@@ -51,6 +50,7 @@ Requires: crontabs
 Requires: redhat-lsb-core
 Requires: nfs-utils
 Requires: sqlite
+Requires: xinetd
 %endif
 
 #Obsoletes:

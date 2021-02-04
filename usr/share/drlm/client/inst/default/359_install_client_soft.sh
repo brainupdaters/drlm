@@ -49,6 +49,8 @@ if [ -z "$CONFIG_ONLY" ]; then
                     REP_ARCH="_64"
                 elif [ "$ARCH" = "i686" ]; then
                     REP_ARCH="_32"
+                elif [ "$ARCH" = "ppc64le" ]; then
+                     REP_ARCH="_PPC64"
                 fi
 
                 eval URL_REAR=\$URL_REAR_DEBIAN"$VERSION""$REP_ARCH"
@@ -115,6 +117,8 @@ if [ -z "$CONFIG_ONLY" ]; then
                     REP_ARCH="_64"
                 elif [ "$ARCH" = "i686" ]; then
                     REP_ARCH="_32"
+                elif [ "$ARCH" = "ppc64le" ]; then
+                     REP_ARCH="_PPC64"
                 fi
 
                 eval URL_REAR=\$URL_REAR_UBUNTU"$VERSION""$REP_ARCH"
@@ -175,6 +179,8 @@ if [ -z "$CONFIG_ONLY" ]; then
                     REP_ARCH="_64"
                 elif [ "$ARCH" = "i686" ]; then
                     REP_ARCH="_32"
+                elif [ "$ARCH" = "ppc64le" ]; then
+                     REP_ARCH="_PPC64"
                 fi
 
                 eval URL_REAR=\$URL_REAR_REDHAT"$VERSION""$REP_ARCH"
@@ -243,6 +249,8 @@ if [ -z "$CONFIG_ONLY" ]; then
                     REP_ARCH="_64"
                 elif [ "$ARCH" = "i686" ]; then
                     REP_ARCH="_32"
+                elif [ "$ARCH" = "ppc64le" ]; then
+                     REP_ARCH="_PPC64"
                 fi
 
                 eval URL_REAR=\$URL_REAR_SUSE"$VERSION""$REP_ARCH"
