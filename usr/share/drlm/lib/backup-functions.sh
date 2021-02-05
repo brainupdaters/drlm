@@ -1,11 +1,11 @@
 # file with default backup functions to implement.
 
 function run_mkbackup_ssh_remote () {
-   #returns stdo of ssh
+  #returns stdo of ssh
   local CLI_ID=$1
   local CLI_CFG=$2
   local CLIENT=$(get_client_name $CLI_ID)
-  local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
+  #local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
   local BKPOUT
 
   #Get the global options and generate GLOB_OPT string var to pass it to ReaR
@@ -27,8 +27,7 @@ function run_mkbackup_ssh_remote () {
   fi
 
   BKPOUT=$(ssh $SSH_OPTS ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} $REAR_RUN SERVER=$(hostname -s) REST_OPTS=\"${REST_OPTS}\" ID=${CLIENT} 2>&1)
-  if [ $? -ne 0 ]
-  then
+  if [ $? -ne 0 ]; then
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
     echo "$BKPOUT"
     return 1

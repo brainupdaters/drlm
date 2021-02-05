@@ -146,12 +146,6 @@ install-config:
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
 		install -Dp -m0644 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg ]] && \
-		install -Dp -m0644 etc/drlm/client_local_template.cfg $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/client_local_template.drlm.cfg ]] && \
-		install -Dp -m0644 etc/drlm/client_local_template.drlm.cfg $(DESTDIR)$(sysconfdir)/drlm/client_local_template.drlm.cfg
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/client_local_template_data_only.cfg ]] && \
-		install -Dp -m0644 etc/drlm/client_local_template_data_only.cfg $(DESTDIR)$(sysconfdir)/drlm/client_local_template_data_only.cfg
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
 		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null

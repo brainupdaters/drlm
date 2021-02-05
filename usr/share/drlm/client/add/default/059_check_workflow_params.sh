@@ -81,7 +81,3 @@ Log "$PROGRAM:$WORKFLOW: Checking if Network: $CLI_NET is registered in DRLM dat
 if ! exist_network_name "$CLI_NET"; then
 	Error "$PROGRAM:$WORKFLOW: Network: $CLI_NET not registered! [ Network required before any client addition ]"
 fi
-
-# Get DRLM SERVER IP to configure client.cfg on 609_gen_srv_cfg_files_from_db
-NET_ID=$(get_network_id_by_name ${CLI_NET})
-SRV_IP=$(get_network_srv ${NET_ID})
