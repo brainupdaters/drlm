@@ -183,9 +183,9 @@ func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
 	found := false
 
 	if configName == "default" {
-		configFileName = configDRLM.CliConfigDir+"/"+c.Name+".cfg"
+		configFileName = configDRLM.CliConfigDir + "/" + c.Name + ".cfg"
 	} else {
-		configFileName = configDRLM.CliConfigDir+"/"+c.Name+".cfg.d/"configName+".cfg"
+		configFileName = configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/" + configName + ".cfg"
 	}
 	f, e := os.Open(configFileName)
 	if e != nil {
