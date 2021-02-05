@@ -2,6 +2,9 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -13,6 +16,7 @@ type Client struct {
 	NetworkName string `json:"cli_net"`
 	OS          string `json:"cli_os"`
 	ReaR        string `json:"cli_rear"`
+	Token       string `json:"cli_token"`
 }
 
 func (c *Client) GetAll() ([]Client, error) {
@@ -68,6 +72,14 @@ func (c *Client) GetByName(name string) (Client, error) {
 	)
 	if err != nil {
 		return Client{}, err
+	}
+
+	if c.Name != "" {
+		token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".cfg.d/" + c.Name + ".token")
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.Token = string(token)
 	}
 
 	return *c, nil

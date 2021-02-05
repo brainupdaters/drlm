@@ -199,6 +199,17 @@ function send_drlm_managed () {
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
+function send_drlm_token () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+
+  local TOKEN="$(/bin/cat $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token)"
+  
+  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( echo '$TOKEN' | ${SUDO} tee /etc/rear/drlm.token >/dev/null && ${SUDO} chmod 600 /etc/rear/drlm.token )"
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
 function make_ssl_capath () {
   local USER=$1
   local CLI_NAME=$2

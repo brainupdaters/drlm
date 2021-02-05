@@ -6,6 +6,8 @@ Log "####################################################"
 
 if send_drlm_managed ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "${CLI_NAME} is now managed by DRLM"; else Error "Error sending config, check logfile"; fi
 
+if send_drlm_token ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "${CLI_NAME} DRLM API token send"; else Error "Error sending DRLM API token, check logfile"; fi
+
 if make_ssl_capath ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "$PROGRAM:$WORKFLOW: SSL CApath successfuly created in ${CLI_NAME}"; else Error "Error creating CApath, check logfile"; fi
 
 if send_ssl_cert ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "$PROGRAM:$WORKFLOW: SSL certificate successfuly sent to ${CLI_NAME}"; else Error "Error sending certificate, check logfile"; fi

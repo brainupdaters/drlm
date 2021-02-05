@@ -51,7 +51,7 @@ function mod_pxe_link () {
 function list_backup () {
   local CLI_NAME_REC=$1 
   local PRETTY_PARAM=$2
-  local CLI_ID=$(get_client_id_by_name $CLI_NAME)
+  local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
 
   printf '%-18s\n' "$(tput bold)"
   printf '%-20s %-15s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
@@ -110,7 +110,7 @@ function list_backup () {
     fi
 
     # Check if BAC_ID have snapshots and list them
-    if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ]; then
+    if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ] && [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then
       # line_counter=0
       found_enabled=0
       SNAP_TYPE="$BAC_TYPE (Snap)"

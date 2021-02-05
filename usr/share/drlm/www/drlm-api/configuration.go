@@ -177,7 +177,7 @@ func sendConfigFile(w http.ResponseWriter, file string) {
 }
 
 func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
-	defaultConfig := c.generateDefaultConfig(cofigName)
+	defaultConfig := c.generateDefaultConfig(configName)
 	tmpDefaultConfig := ""
 	configFileName := ""
 	found := false

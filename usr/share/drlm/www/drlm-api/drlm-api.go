@@ -11,8 +11,8 @@ import (
 
 func drlmClientsService(w http.ResponseWriter, r *http.Request) {
 
+	reqToken := r.Header.Get("Authorization")
 	urlPart := strings.Split(r.URL.Path, "/")
-
 	recivedClientName := urlPart[2]
 
 	// Check if the recived Client Name is a valid client name
@@ -26,6 +26,13 @@ func drlmClientsService(w http.ResponseWriter, r *http.Request) {
 	// Load client from database
 	client := new(Client)
 	client.GetByName(recivedClientName)
+
+	if reqToken != client.Token {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusForbidden)
+		fmt.Fprintln(w, "invalid token")
+		return
+	}
 
 	recivedClientip, _, _ := net.SplitHostPort(r.RemoteAddr)
 
@@ -45,7 +52,6 @@ func drlmClientsService(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else if r.Method == "PUT" {
-		fmt.Println(r.URL.Path)
 		if len(urlPart) >= 5 && urlPart[3] == "log" {
 			f, err := os.OpenFile(configDRLM.RearLogDir+"/rear-"+recivedClientName+"."+urlPart[4]+"."+urlPart[5]+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			check(err)

@@ -274,6 +274,9 @@ function config_client_cfg () {
 
   mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
   chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
+
+  # Generate client tocken to improve drlm-api security
+  /usr/bin/tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token
 }
 
 function has_jobs_scheduled() {
