@@ -264,7 +264,7 @@ function get_clients_by_network () {
 }
 
 function config_client_cfg () {
-  local CLI_NAME=$1
+  local CLI_NAME="$1"
   
   cp $SHARE_DIR/conf/samples/client_default.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
   chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
@@ -275,11 +275,17 @@ function config_client_cfg () {
   mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
   chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
 
-  # Generate client tocken to improve drlm-api security
-  /usr/bin/tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token
+  generate_client_token $CLI_NAME
 }
 
-function has_jobs_scheduled() {
+function generate_client_token () {
+  local CLI_NAME="$1"
+  # Generate client token to improve drlm-api security
+  #/usr/bin/tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token
+  /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token
+}
+
+function has_jobs_scheduled () {
   local CLI_ID="$1"
 
   for line in $(get_all_jobs_dbdrv); do
@@ -289,18 +295,29 @@ function has_jobs_scheduled() {
   done
 }
 
-function load_client_pretty_params_list_client() { 
+function load_client_pretty_params_list_client () { 
   local CLI_NAME=$1
   eval $(grep SSH_PORT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
   eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
 }
 
-function save_default_pretty_params_list_client() {
+function save_default_pretty_params_list_client () {
   DEF_SSH_PORT=$SSH_PORT
   DEF_CLIENT_LIST_TIMEOUT=$CLIENT_LIST_TIMEOUT
 }
 
-function load_default_pretty_params_list_client() {
+function load_default_pretty_params_list_client () {
   SSH_PORT=$DEF_SSH_PORT
   CLIENT_LIST_TIMEOUT=$DEF_CLIENT_LIST_TIMEOUT
+}
+
+function ssh_access_enabled () {
+  local USER="$1"
+  local CLI_NAME="$2"
+
+  if ssh $SSH_OPTS -q -o "BatchMode=yes" "$USER"@"$CLI_NAME" exit; then 
+    return 0 
+  else 
+    return 1 
+  fi
 }

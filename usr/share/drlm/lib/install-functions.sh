@@ -200,12 +200,16 @@ function send_drlm_managed () {
 }
 
 function send_drlm_token () {
-  local USER=$1
-  local CLI_NAME=$2
-  local SUDO=$3
+  local USER="$1"
+  local CLI_NAME="$2"
+  local SUDO="$3"
 
-  local TOKEN="$(/bin/cat $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token)"
+  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token ]; then
+    generate_client_token "$CLI_NAME"
+  fi
   
+  local TOKEN="$(/bin/cat $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token)"
+
   ssh $SSH_OPTS ${USER}@${CLI_NAME} "( echo '$TOKEN' | ${SUDO} tee /etc/rear/drlm.token >/dev/null && ${SUDO} chmod 600 /etc/rear/drlm.token )"
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -306,20 +310,36 @@ function ssh_start_services () {
 
 function config_sudo () {
   export PATH="$PATH:/sbin:/usr/sbin"
-  if [ -z "$SUDO" ]; then SUDO_CMDS_DRLM=( $(which ${SUDO_CMDS_DRLM[@]}) ); else SUDO_CMDS_DRLM=( $($SUDO "PATH=$PATH" which ${SUDO_CMDS_DRLM[@]}) ); fi
-  SLen=${#SUDO_CMDS_DRLM[@]}
-  for (( i=0; i<$SLen; i++ )); do
-    SUDO_COMMANDS+=( , ${SUDO_CMDS_DRLM[$i]} )
-  done
+
+  if [ -z "$SUDO" ]; then 
+    for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
+      commands="$(echo "$sudo_element" | awk '{print $1}')"
+      args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
+      if [ -n "$(which $commands)" ]; then
+        SUDO_COMMANDS+=( , "$(which $commands) $args")
+      fi
+    done
+  else 
+    for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
+      commands="$(echo "$sudo_element" | awk '{print $1}')"
+      args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
+      if [ -n "$($SUDO "PATH=$PATH" which $commands)" ]; then
+        SUDO_COMMANDS+=( , "$($SUDO "PATH=$PATH" which $commands) $args")
+      fi
+    done
+  fi
+
   if [ ! -d /etc/sudoers.d/ ]; then
     $SUDO mkdir /etc/sudoers.d
     $SUDO chmod 755 /etc/sudoers.d
     $SUDO sh -c "echo '#includedir /etc/sudoers.d' >> /etc/sudoers"
   fi
+
   $SUDO cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
   Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
   $DRLM_USER    ALL=(root)      NOPASSWD: DRLM
 EOF
+
   if [ -d /etc/sudoers.d/ ]; then
     $SUDO chmod 440 /tmp/etc_sudoers.d_drlm.sudo
     $SUDO chown root:root /tmp/etc_sudoers.d_drlm.sudo

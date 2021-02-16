@@ -27,6 +27,7 @@ func drlmClientsService(w http.ResponseWriter, r *http.Request) {
 	client := new(Client)
 	client.GetByName(recivedClientName)
 
+	// Check if recieved token is a valid token.
 	if reqToken != client.Token {
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusForbidden)

@@ -64,32 +64,30 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.0 (January 2021) - Release Notes
+DRLM Version 2.4.0 (February 2021) - Release Notes
 --------------------------------------------------
   * Multiple configuration supported
-
+ 
   * Incremental backups supported
-
+ 
   * ISO recover image supported 
-
+ 
   * ReaR mkbackuponly and ReaR restoreonly supported
-
+ 
   * DRLM parameters configurable for each client or backup
-
-  * Added drlm-api systemd service 
-
+ 
+  * Added drlm-api systemd service
+ 
+  * Security token added for comunitacions between DRLM server and client
+ 
+  * Improved and simplified client configurations
+ 
   * Loop devices are repaced by NBD (network block devices)
-
-  * DR file format was changed from RAW to QCOW2
-
-  * ISO recover image supported 
-
-  * ReaR mkbackuponly and ReaR restoreonly supported
-
-  * DRLM parameters configurable for each client or backup
-
-  * Added drlm-api systemd service 
-
+ 
+  * DR file format was changed from RAW to QCOW2 
+ 
+  * Improved instclient configuration workflow
+ 
   * List Unscheduled clients bug fixed
 
 

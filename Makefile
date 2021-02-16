@@ -198,7 +198,8 @@ uninstall:
 drlmapi:
 ifneq ($(shell which go),)
 	@echo -e "\033[1m== Building DRLM API ==\033[0;0m"
-	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
+	go get github.com/mattn/go-sqlite3
+	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/
 else
 	@echo -e "No Go binaries detected to build DRLM API, will be copied the builded one"
 endif
