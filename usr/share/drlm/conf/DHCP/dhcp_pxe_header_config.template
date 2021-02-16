@@ -17,6 +17,7 @@ allow bootp;
 #    0000 == IA x86 PC (BIOS boot)
 #    0006 == x86 EFI boot
 #    0007 == x64 EFI boot
+#    else == PPC boot
 ## ==========================================
 
 option arch code 93 = unsigned integer 16;
@@ -27,6 +28,8 @@ if option arch = 00:00 {
   filename "boot/grub/i386-efi/core.efi";
 } elsif  option arch = 00:07 {
   filename "boot/grub/x86_64-efi/core.efi";
+} else {
+  filename "boot/grub/powerpc-ieee1275/core.elf";
 }
 
 

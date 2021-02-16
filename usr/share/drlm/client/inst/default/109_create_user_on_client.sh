@@ -7,11 +7,16 @@ Log "####################################################"
 LogPrint "$PROGRAM:$WORKFLOW: Installing software with user ${USER}"
 LogPrint "$PROGRAM:$WORKFLOW: Sending Key for user: ${USER}"
 
-ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
-if [ $? -ne 0  ]; then  
-    Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!"
-else 
-    Log "$PROGRAM:$WORKFLOW: Key succesfully copied to $CLI_NAME" 
+if ssh_access_enabled "$USER" "$CLI_NAME"; then 
+  REMOVE_SSH_ID="false"
+else
+  ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
+  if [ $? -ne 0  ]; then  
+      Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!"
+  else 
+      Log "$PROGRAM:$WORKFLOW: Key succesfully copied to $CLI_NAME" 
+  fi
+  REMOVE_SSH_ID="true"
 fi
 
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)

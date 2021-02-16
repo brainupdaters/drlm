@@ -233,15 +233,18 @@ service drlm-stord start
 
 %changelog
 
-* Sun Jan 31 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Tue Feb 16 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
 - ReaR mkbackuponly and ReaR restoreonly supported
 - DRLM parameters configurable for each client or backup
-- Added drlm-api systemd service 
+- Added drlm-api systemd service
+- Security token added for comunitacions between DRLM server and client
+- Improved and simplified client configurations
 - Loop devices are repaced by NBD (network block devices)
-- DR file format was changed to QCOW2 and snaps of the file can now be made
+- DR file format was changed from RAW to QCOW2 
+- Improved instclient configuration workflow
 - List Unscheduled clients bug fixed
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2

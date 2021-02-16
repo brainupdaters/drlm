@@ -23,7 +23,7 @@ else
 fi
 
 #Add client config file at DRLM Server
-if config_client_cfg ${CLI_NAME} ${SRV_IP}; then
+if config_client_cfg ${CLI_NAME}; then
   LogPrint "$PROGRAM:$WORKFLOW: /etc/drlm/clients/${CLI_NAME}.cfg has been created with default configuration, check ReaR options to change it if needed"
 else
   Error "$PROGRAM:$WORKFLOW: Problem creating configuration file for ${CLI_NAME}"

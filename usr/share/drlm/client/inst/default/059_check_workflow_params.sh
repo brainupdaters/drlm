@@ -29,7 +29,7 @@ fi
 # Now you can define DRLM options, like SSH options (SSH_OPTS), for each client.
 
 # Import drlm specific client configuration if exists
-if [ -f $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg ] ; then
+if [ -f $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg ]; then
   source $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
   Log "$PROGRAM:$WORKFLOW: Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.drlm.cfg) ..."
 fi

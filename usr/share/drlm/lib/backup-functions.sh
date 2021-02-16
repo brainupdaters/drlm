@@ -1,11 +1,11 @@
 # file with default backup functions to implement.
 
 function run_mkbackup_ssh_remote () {
-   #returns stdo of ssh
+  #returns stdo of ssh
   local CLI_ID=$1
   local CLI_CFG=$2
-  local CLIENT=$(get_client_name $CLI_ID)
-  local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
+  local CLI_NAME=$(get_client_name $CLI_ID)
+  #local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
   local BKPOUT
 
   #Get the global options and generate GLOB_OPT string var to pass it to ReaR
@@ -26,9 +26,8 @@ function run_mkbackup_ssh_remote () {
     REAR_RUN="mkbackup"
   fi
 
-  BKPOUT=$(ssh $SSH_OPTS ${DRLM_USER}@${CLIENT} sudo /usr/sbin/rear ${GLOB_OPT} $REAR_RUN SERVER=$(hostname -s) REST_OPTS=\"${REST_OPTS}\" ID=${CLIENT} 2>&1)
-  if [ $? -ne 0 ]
-  then
+  BKPOUT=$(ssh $SSH_OPTS ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1)
+  if [ $? -ne 0 ]; then
     BKPOUT=$( echo $BKPOUT | tr -d "\r" )
     echo "$BKPOUT"
     return 1
@@ -52,7 +51,7 @@ function mod_pxe_link () {
 function list_backup () {
   local CLI_NAME_REC=$1 
   local PRETTY_PARAM=$2
-  local CLI_ID=$(get_client_id_by_name $CLI_NAME)
+  local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
 
   printf '%-18s\n' "$(tput bold)"
   printf '%-20s %-15s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
@@ -111,7 +110,7 @@ function list_backup () {
     fi
 
     # Check if BAC_ID have snapshots and list them
-    if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ]; then
+    if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ] && [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then
       # line_counter=0
       found_enabled=0
       SNAP_TYPE="$BAC_TYPE (Snap)"
