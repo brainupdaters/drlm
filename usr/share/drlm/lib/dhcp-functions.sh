@@ -4,9 +4,8 @@
 # $DHCP_FIX_CAP is the default.conf variable of the fixed part of the header dhcp configuration file
 # $DHCP_FIX_GRU is the default.conf variable of the fixed part of the group dhcp configuration file
 
-
+# Generates the configuration file with clients and networks database
 function generate_dhcp() {
-  #Generates the configuration file with clients and networks database
   cp $DHCP_FILE $DHCP_DIR/dhcpd.conf.bkp
   cat /dev/null > $DHCP_FILE
 
@@ -58,19 +57,16 @@ function generate_dhcp() {
   done
 }
 
+# Reload de dhcp server dummy
 function reload_dhcp() {
-  #Reload de dhcp server dummy
+  # Check if configuration file is OK
   dhcpd -t -cf $DHCP_FILE
   if [ $? -eq 0 ]; then
     # Reload DHCP (Operating System dependency)
-    if [ $(ps -p 1 -o comm=) = "systemd" ]; then
-      systemctl reload-or-try-restart $DHCP_SVC_NAME.service > /dev/null
-    else
-      service $DHCP_SVC_NAME force-reload > /dev/null
-    fi
+    systemctl reload-or-try-restart $DHCP_SVC_NAME.service > /dev/null
     if [ $? -eq 0 ]; then return 0; else return 2; fi
   else
-    echo "=====> is NOOOOT ok!!"
+    Log "$PROGRAM:$WORKFLOW: Error reloading dhcpd service"
     mv $DHCP_FILE $DHCP_FILE.error
     mv $DHCP_DIR/dhcpd.conf.bkp $DHCP_FILE
     return 1
