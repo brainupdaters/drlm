@@ -745,7 +745,8 @@ function get_client_used_mb () {
     # Get FS list excluding BTRFS filesystems if any.
     FS_LIST=( $(sudo mount -l -t "$(echo $(cat /proc/filesystems | egrep -v 'nodev|btrfs') | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $3}') )
     # Now get reduced list of FS under BTRFS to get correct used space.
-    FS_LIST=( ${FS_LIST[@]} $(sudo mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | egrep "subvolid=5|subvol=/@\)|subvol=/@/.snapshots/" | awk '{print $3}') )
+    ###FS_LIST=( ${FS_LIST[@]} $(sudo mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | egrep "subvolid=5|subvol=/@\)|subvol=/@/.snapshots/" | awk '{print $3}') )
+    for btrfs in $(mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
 
     for fs in ${FS_LIST[@]}
     do
