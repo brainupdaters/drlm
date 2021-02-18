@@ -70,7 +70,7 @@ else
   # Enable backup that was active before doing a runbackup
   if [ -n "$ENABLED_DB_BKP_ID" ]; then
 
-    ENABLED_BKP_DR_FILE=$(get_backpu_drfile_by_backup_id $ENABLED_DB_BKP_ID)
+    ENABLED_BKP_DR_FILE=$(get_backup_drfile_by_backup_id $ENABLED_DB_BKP_ID)
     ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID)
     ENABLED_BKP_TYPE=$(get_backup_type_by_backup_id $BKP_ID)
     
