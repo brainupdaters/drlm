@@ -71,10 +71,12 @@ DRLM Version 2.4.0 (February 2021) - Release Notes
   * Incremental backups supported
  
   * ISO recover image supported 
+
+  * PowerPC architecture supported
  
   * ReaR mkbackuponly and ReaR restoreonly supported
  
-  * DRLM parameters configurable for each client or backup
+  * Configurable DRLM parameters for each client or backup
  
   * Added drlm-api systemd service
  

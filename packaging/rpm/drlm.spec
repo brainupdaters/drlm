@@ -210,8 +210,9 @@ systemctl start drlm-api.service
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
+- PowerPC architecture supported
 - ReaR mkbackuponly and ReaR restoreonly supported
-- DRLM parameters configurable for each client or backup
+- Configurable DRLM parameters for each client or backup
 - Added drlm-api systemd service
 - Security token added for comunitacions between DRLM server and client
 - Improved and simplified client configurations
