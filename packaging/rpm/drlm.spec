@@ -100,22 +100,15 @@ Professional services and support are available.
 %{__make} install DESTDIR="%{buildroot}"
 
 %pre
-### IF IS UPGRADE
+### If --> is upgrade save old data and stop systemd services
 if [ "$1" == "2" ]; then
-### Save old data
 drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
-### Stop drlm-stord and drlm-api
-%if "%(ps -p 1 -o comm=)" == "systemd"
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
 systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
 systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
 systemctl daemon-reload
-%else
-service drlm-stord stop
-chkconfig drlm-stord off
-%endif
 fi
 
 %post
@@ -126,20 +119,20 @@ chmod 775 /var/log/drlm/rear
 [ ! -d /etc/exports.d ] && mkdir -p /etc/exports.d && chmod 755 /etc/exports.d
 ### Unpack GRUB files
 tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
-### IF IS INSTALL
+
+### If --> is install create keys
 if [ "$1" == "1" ]; then
-### create keys
 openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
-### IF IS UPDATE
+### Else --> is update save keys
 else
-### save keys
 mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
 mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
 fi
+
 ### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
-### If is SYSTEMD ###############################################################################################
-%if "%(ps -p 1 -o comm=)" == "systemd"
+
+### Enable systemd services 
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl enable xinetd.service
 systemctl enable rpcbind.service
@@ -163,24 +156,12 @@ fi
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
 %endif
-### If is INITD ##################################################################################################
-%else
-chkconfig xinetd on
-chkconfig rpcbind on
-chkconfig nfs on
-chkconfig dhcpd on
-### If is upgrade from older DRLM versions is important stop https server
-if [ "$1" == "2" ]; then
-chkconfig httpd off
-service httpd stop
-fi
-### Save drlm-stord.service
-%{__cp} /usr/sbin/drlm-stord /etc/init.d/tmp_drlm-stord
-%endif
 
 %preun
+### Remove certificates
 %{__rm} -f /etc/drlm/cert/drlm.*
-%if "%(ps -p 1 -o comm=)" == "systemd"
+
+### Stop and disable systemd services
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
 systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
@@ -188,12 +169,6 @@ systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.serv
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
-
-%else
-service drlm-stord stop
-chkconfig drlm-stord off
-%{__rm} -f /etc/init.d/drlm-stord
-%endif
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -212,12 +187,13 @@ chkconfig drlm-stord off
 %{_sbindir}/drlm-api
 
 %posttrans
+# Rcover certificates post transaction
 if [ -f /etc/drlm/cert/tmp_drlm.key ]; then
 mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
 mv /etc/drlm/cert/tmp_drlm.crt /etc/drlm/cert/drlm.crt
 fi
 
-%if "%(ps -p 1 -o comm=)" == "systemd"
+### Recover and reload services post transaction
 mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 mv /etc/systemd/system/tmp_drlm-api.service /etc/systemd/system/drlm-api.service
@@ -227,15 +203,10 @@ systemctl is-enabled --quiet drlm-stord.service || systemctl enable drlm-stord.s
 systemctl start drlm-stord.service
 systemctl is-enabled --quiet drlm-api.service || systemctl enable drlm-api.service
 systemctl start drlm-api.service
-%else
-mv /etc/init.d/tmp_drlm-stord /etc/init.d/drlm-stord
-chkconfig drlm-stord on
-service drlm-stord start
-%endif
 
 %changelog
 
-* Tue Feb 16 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Thu Feb 18 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -248,6 +219,7 @@ service drlm-stord start
 - DR file format was changed from RAW to QCOW2 
 - Improved instclient configuration workflow
 - List Unscheduled clients bug fixed
+- Removed unsupported SysVinit service management
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

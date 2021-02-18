@@ -2,49 +2,44 @@
 set -e
 
 case "$1" in
-    remove)
-        # do something
-	    ;;
+  remove)
+    # do something
+    ;;
 
-    install)
-        # do something
-        ;;
+  install)
+    # do something
+    ;;
 
-    upgrade)
-        # do something
-	    ;;
-    
-    purge)
-        rm -rf /var/lib/drlm 
-        rm -rf /etc/drlm
-        rm -rf /var/log/drlm
+  upgrade)
+    # do something
+    ;;
+  
+  purge)
+    rm -rf /var/lib/drlm 
+    rm -rf /etc/drlm
+    rm -rf /var/log/drlm
 
-        #Check for systemd or initd
-        if [ $(ps -p 1 -o comm=) = "systemd" ]
-        then
-            # Stop, disable and remove drlm-stord.service
-            if [ -f /etc/systemd/system/drlm-stord.service ]; then
-                systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
-                systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
-                rm /etc/systemd/system/drlm-stord.service
-                systemctl daemon-reload
-            fi
-            # Stop, disable and remove drlm-api.service
-            if [ -f /etc/systemd/system/drlm-api.service ]; then
-                systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
-                systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
-                rm /etc/systemd/system/drlm-api.service
-                systemctl daemon-reload
-            fi
-        else
-            service drlm-stord stop
-            update-rc.d drlm-stord remove
-            [ -f /etc/init.d/drlm-stord ] && rm /etc/init.d/drlm-stord
-        fi
-	    ;;
-    *)
-        exit 0
-        ;;
+    # Stop, disable and remove drlm-stord.service
+    if [ -f /etc/systemd/system/drlm-stord.service ]; then
+      systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+      systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+      rm /etc/systemd/system/drlm-stord.service
+      systemctl daemon-reload
+    fi
+
+    # Stop, disable and remove drlm-api.service
+    if [ -f /etc/systemd/system/drlm-api.service ]; then
+      systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+      systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+      rm /etc/systemd/system/drlm-api.service
+      systemctl daemon-reload
+    fi
+    ;;
+
+  *)
+    exit 0
+    ;;
+
 esac
 
 exit 0

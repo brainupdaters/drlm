@@ -148,10 +148,10 @@ function list_backup () {
 }
 
 function get_free_nbd() {
-  for x in /sys/class/block/nbd*; do
-    S=`cat $x/size`
-    if [ "$S" == "0" ]; then
-      echo "/dev/$(basename $x)"
+  for dev in /sys/class/block/nbd*; do
+    size="$(cat "$dev"/size)"
+    if [ "$size" == "0" ]; then
+      echo "/dev/$(basename $dev)"
       break
     fi
   done
@@ -357,9 +357,9 @@ function make_snap () {
 }
 
 function do_format_ext4 () {
-  local DEVICE=$1
+  local DEVICE="$1"
 
-  mkfs.ext4 -m1 $DEVICE >> /dev/null 2>&1
+  mkfs.ext4 -m1 -E nodiscard "$DEVICE" >> /dev/null 2>&1
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
@@ -870,7 +870,7 @@ function disable_backup () {
     # for example: if I want to find the process that attach one device only filttering by Backup id
     # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
     NBD_DEVICE=$(pgrep -fa $ENABLED_BKP_DR_FILE | grep "qemu-nbd" | awk '{ print $4 }')
-    NBD_MOUNT_POINT=$(mount -lt ext2,ext4 | grep -w "${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}" | awk '{ print $3 }')
+    NBD_MOUNT_POINT=$(mount -lt ext4 | grep -w "${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}" | awk '{ print $3 }')
 
     # Disable NFS
     if disable_nfs_fs $ENABLED_BKP_CLI_NAME $ENABLED_BKP_CFG; then
@@ -920,7 +920,7 @@ function disable_backup_store () {
   local DR_FILE=$1
   local CLI_NAME=$2
   local CLI_CFG=$3
-  local NBD_MOUNT_POINT=$(mount -lt ext2,ext4 | grep -w "${STORDIR}/${CLI_NAME}/${CLI_CFG}" | awk '{ print $3 }')
+  local NBD_MOUNT_POINT=$(mount -lt ext4 | grep -w "${STORDIR}/${CLI_NAME}/${CLI_CFG}" | awk '{ print $3 }')
   # ATTENTION! pgrep has to be used carefully, can return unwanted results if the match pattern is too simple.
   # for example: if I want to find the process that attach one device only filttering by Backup id
   # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable

@@ -132,11 +132,7 @@ function add_nfs_export ()
     if [ $? -eq 0 ]; then
       NFSCHECK=$(lsmod | grep nfs)
       if [[ -z "${NFSCHECK}" ]]; then
-        if [ $(ps -p 1 -o comm=) = "systemd" ]; then
-          systemctl start ${NFS_SVC_NAME}.service > /dev/null
-        else
-          service ${NFS_SVC_NAME} start > /dev/null
-        fi
+        systemctl start ${NFS_SVC_NAME}.service > /dev/null
       fi
       reload_nfs ${EXPORT_CLI_NAME}
       return ${?}
