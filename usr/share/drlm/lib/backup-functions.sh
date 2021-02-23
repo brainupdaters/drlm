@@ -523,6 +523,7 @@ function clean_backups () {
 
   while [[ $N_BKPTOTAL -gt $N_BKPSAVE ]]; do
     BKPID2CLR=$(get_older_backup_by_client_dbdrv $CLI_NAME $CLI_CFG)
+    clean_snaps $BKPID2CLR 0
     del_backup $BKPID2CLR
     if [ $? -ne 0 ]; then ERR=1; fi
     (( N_BKPTOTAL-- ))
