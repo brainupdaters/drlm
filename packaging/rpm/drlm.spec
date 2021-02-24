@@ -206,7 +206,7 @@ systemctl start drlm-api.service
 
 %changelog
 
-* Thu Feb 18 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Tue Feb 23 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -214,6 +214,7 @@ systemctl start drlm-api.service
 - ReaR mkbackuponly and ReaR restoreonly supported
 - Configurable DRLM parameters for each client or backup
 - Added drlm-api systemd service
+- HTTPS GUI base to add future functionalities
 - Security token added for comunitacions between DRLM server and client
 - Improved and simplified client configurations
 - Loop devices are repaced by NBD (network block devices)

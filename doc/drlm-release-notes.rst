@@ -79,6 +79,8 @@ DRLM Version 2.4.0 (February 2021) - Release Notes
   * Configurable DRLM parameters for each client or backup
  
   * Added drlm-api systemd service
+
+  * HTTPS GUI base to add future functionalities
  
   * Security token added for comunitacions between DRLM server and client
  

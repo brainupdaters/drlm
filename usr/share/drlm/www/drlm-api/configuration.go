@@ -1,3 +1,4 @@
+//configuration.go
 package main
 
 import (
@@ -174,58 +175,4 @@ func sendConfigFile(w http.ResponseWriter, file string) {
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusNotFound)
 	}
-}
-
-func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
-	defaultConfig := c.generateDefaultConfig(configName)
-	tmpDefaultConfig := ""
-	configFileName := ""
-	found := false
-
-	if configName == "default" {
-		configFileName = configDRLM.CliConfigDir + "/" + c.Name + ".cfg"
-	} else {
-		configFileName = configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/" + configName + ".cfg"
-	}
-	f, e := os.Open(configFileName)
-	if e != nil {
-		fmt.Println(e.Error())
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	defer f.Close()
-
-	// Splits on newlines by default.
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := strings.TrimSpace(strings.Split(scanner.Text(), "#")[0])
-		if line != "" {
-			// Have a new line from config file get the var name
-			varName := strings.TrimSpace(strings.Split(line, "=")[0])
-
-			scannerDefault := bufio.NewScanner(strings.NewReader(defaultConfig))
-			for scannerDefault.Scan() {
-				defaultVarName := strings.TrimSpace(strings.Split(scannerDefault.Text(), "=")[0])
-				// for line in default config if is diferent from var name attach to temp default config
-				if varName != defaultVarName || varName[len(varName)-1] == '+' {
-					tmpDefaultConfig += scannerDefault.Text() + "\n"
-				} else {
-					tmpDefaultConfig += strings.TrimSpace(scanner.Text()) + "\n"
-					found = true
-				}
-			}
-			// attach var line at the end com temp default config
-			if !found {
-				tmpDefaultConfig += strings.TrimSpace(scanner.Text()) + "\n"
-			}
-			defaultConfig = tmpDefaultConfig
-			tmpDefaultConfig = ""
-			found = false
-		}
-	}
-
-	w.Write([]byte(defaultConfig))
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
 }
