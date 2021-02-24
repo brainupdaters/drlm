@@ -20,7 +20,11 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, filepath.Join("/var/lib/drlm/www", "signin.html"))
+	if r.URL.Path != "/" {
+		http.Redirect(w, r, "/", 302)
+	} else {
+		http.ServeFile(w, r, "/var/lib/drlm/www/signin.html")
+	}
 }
 
 // Serve static content

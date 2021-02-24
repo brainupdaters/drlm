@@ -107,10 +107,10 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 
 	// Send updated expiration time cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session_token",
-		Value:   session.Token,
-		Path:    "/",
-		Expires: time.Now(),
+		Name:   "session_token",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
 	})
 }
 
