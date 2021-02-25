@@ -12,11 +12,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// User is an struct of api user
 type User struct {
 	Username string `json:"user_name"`
 	Password string `json:"user_password"`
 }
 
+// GetAll get all api users from database
 func (u *User) GetAll() ([]User, error) {
 	db := GetConnection()
 	q := "SELECT user_name, user_password	FROM users"
@@ -36,7 +38,8 @@ func (u *User) GetAll() ([]User, error) {
 	return users, nil
 }
 
-func (u *User) GetByName(name string) (User, error) {
+// GetByName gets an api user from database by user name
+func (u *User) GetByName(name string) error {
 	db := GetConnection()
 	q := "SELECT user_name, user_password	FROM users where user_name=?"
 
@@ -45,9 +48,9 @@ func (u *User) GetByName(name string) (User, error) {
 		&u.Password,
 	)
 	if err != nil {
-		return User{}, err
+		return err
 	}
-	return *u, nil
+	return nil
 }
 
 func userSignin(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +63,7 @@ func userSignin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the expected password from our in memory map
+	// Get the expected password from database
 	user := new(User)
 	user.GetByName(creds.Username)
 	expectedPassword := user.Password
@@ -85,6 +88,7 @@ func userSignin(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Remove ser session from sessions slice and send delete cookie
 func userLogout(w http.ResponseWriter, r *http.Request) {
 	// Get Request Cookie "session_token"
 	c, err := r.Cookie("session_token")
@@ -107,13 +111,16 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 
 	// Send updated expiration time cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:    "session_token",
-		Value:   session.Token,
-		Path:    "/",
-		Expires: time.Now(),
+		Name:   "session_token",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
 	})
+
+	login(w, r)
 }
 
+// Get JSON list off all users
 func apiGetUsers(w http.ResponseWriter, r *http.Request) {
 	allUsers, _ := new(User).GetAll()
 	response := ""
@@ -128,4 +135,76 @@ func apiGetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, response)
+}
+
+// Get JSON of selected user
+func apiGetUser(w http.ResponseWriter, r *http.Request) {
+	receivedUserName := getField(r, 0)
+	user := new(User)
+	err := user.GetByName(receivedUserName)
+	check(err)
+
+	b, _ := json.Marshal(user)
+	response := string(b)
+
+	if len(response) > 0 {
+		//response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
+		response = "{\"result\":[" + response + "]}"
+	} else {
+		response = "{\"result\":[]}"
+	}
+
+	fmt.Fprintln(w, response)
+}
+
+func apiUpdateUser(w http.ResponseWriter, r *http.Request) {
+
+	type newCredentials struct {
+		Username    string `json:"username"`
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+
+	var newCreds newCredentials
+
+	// Get the JSON body and decode into credentials
+	err := json.NewDecoder(r.Body).Decode(&newCreds)
+	if err != nil {
+		// If the structure of the body is wrong, return an HTTP error
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userToMod := getField(r, 0)
+
+	dbuser := new(User)
+
+	err = dbuser.GetByName(userToMod)
+	if err != nil {
+		log.Println("Failed user update: " + userToMod)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if dbuser.Password != GetMD5Hash(newCreds.OldPassword) {
+		log.Println("Failed user update: " + dbuser.Username)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if userToMod == newCreds.Username && GetMD5Hash(newCreds.OldPassword) == GetMD5Hash(newCreds.NewPassword) {
+		log.Println("Failed user update: " + dbuser.Username)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	db := GetConnection()
+	// update
+	stmt, err := db.Prepare("update users set user_name=?, user_password=? where user_name=?")
+	check(err)
+
+	_, err = stmt.Exec(newCreds.Username, GetMD5Hash(newCreds.NewPassword), dbuser.Username)
+	check(err)
+
+	log.Println("User " + userToMod + " updated")
 }
