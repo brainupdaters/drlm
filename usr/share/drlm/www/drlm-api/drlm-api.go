@@ -168,10 +168,13 @@ var routes = []route{
 	newRoute("GET", "/api/jobs", middlewareUserToken(apiGetJobs)),
 	newRoute("GET", "/api/snaps", middlewareUserToken(apiGetSnaps)),
 	newRoute("GET", "/api/users", middlewareUserToken(apiGetUsers)),
+	newRoute("GET", "/api/users/([^/]+)", middlewareUserToken(apiGetUser)),
+	newRoute("PUT", "/api/users/([^/]+)", middlewareUserToken(apiUpdateUser)),
 	newRoute("GET", "/api/sessions", middlewareUserToken(apiGetSessions)),
 	// User Control Functions ///////////////////////
 	newRoute("POST", "/signin", userSignin),
 	newRoute("POST", "/logout", userLogout),
+	newRoute("GET", "/logout", userLogout),
 }
 
 func newRoute(method, pattern string, handler http.HandlerFunc) route {

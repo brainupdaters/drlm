@@ -67,7 +67,7 @@ func (c *Client) GetByID(id int) (Client, error) {
 }
 
 // Get client from database by client name
-func (c *Client) GetByName(name string) (Client, error) {
+func (c *Client) GetByName(name string) error {
 	db := GetConnection()
 	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients where cliname=?"
 
@@ -75,7 +75,7 @@ func (c *Client) GetByName(name string) (Client, error) {
 		&c.ID, &c.Name, &c.Mac, &c.IP, &c.NetworkName, &c.OS, &c.ReaR,
 	)
 	if err != nil {
-		return Client{}, err
+		return err
 	}
 
 	if c.Name != "" {
@@ -86,7 +86,7 @@ func (c *Client) GetByName(name string) (Client, error) {
 		c.Token = string(token)
 	}
 
-	return *c, nil
+	return nil
 }
 
 // Get Client Server IP
@@ -217,7 +217,8 @@ func apiGetClientConfig(w http.ResponseWriter, r *http.Request) {
 		receivedConfig = getField(r, 1)
 	}
 
-	client, _ := new(Client).GetByName(receivedClientName)
+	client := new(Client)
+	client.GetByName(receivedClientName)
 
 	if receivedConfig == "/" || receivedConfig == "" {
 		client.sendConfig(w, "default")
