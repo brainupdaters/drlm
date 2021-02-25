@@ -174,7 +174,6 @@ var routes = []route{
 	// User Control Functions ///////////////////////
 	newRoute("POST", "/signin", userSignin),
 	newRoute("POST", "/logout", userLogout),
-	newRoute("GET", "/logout", userLogout),
 }
 
 func newRoute(method, pattern string, handler http.HandlerFunc) route {
