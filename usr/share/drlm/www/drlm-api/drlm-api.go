@@ -20,7 +20,11 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, filepath.Join("/var/lib/drlm/www", "signin.html"))
+	if r.URL.Path != "/" {
+		http.Redirect(w, r, "/", 302)
+	} else {
+		http.ServeFile(w, r, "/var/lib/drlm/www/signin.html")
+	}
 }
 
 // Serve static content
@@ -164,6 +168,8 @@ var routes = []route{
 	newRoute("GET", "/api/jobs", middlewareUserToken(apiGetJobs)),
 	newRoute("GET", "/api/snaps", middlewareUserToken(apiGetSnaps)),
 	newRoute("GET", "/api/users", middlewareUserToken(apiGetUsers)),
+	newRoute("GET", "/api/users/([^/]+)", middlewareUserToken(apiGetUser)),
+	newRoute("PUT", "/api/users/([^/]+)", middlewareUserToken(apiUpdateUser)),
 	newRoute("GET", "/api/sessions", middlewareUserToken(apiGetSessions)),
 	// User Control Functions ///////////////////////
 	newRoute("POST", "/signin", userSignin),
