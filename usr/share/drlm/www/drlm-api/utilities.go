@@ -4,9 +4,12 @@ package main
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"log"
 	"net/http"
+	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 func validateHostname(h string) bool {
@@ -29,6 +32,24 @@ func GetMD5Hash(text string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(text))
 	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func generateJSONResponse(object interface{}) string {
+	b, _ := json.Marshal(object)
+	response := string(b)
+
+	if len(response) > 0 {
+		//response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
+		response = "{\"resultList\":{\"result\":" + string(response) + "}}"
+	} else {
+		response = "{\"resultList\":{\"result\":[]}}"
+	}
+
+	return response
+}
+
+func fileNameWithoutExtension(fileName string) string {
+	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
 }
 
 //////////////// DEBUG BODY /////////////////////////////////////////

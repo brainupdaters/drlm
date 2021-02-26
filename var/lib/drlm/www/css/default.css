@@ -27,3 +27,7 @@
 .btn-primary{
   margin: 20px; 
 }
+
+.modal-backdrop {
+  background-color: grey;
+}

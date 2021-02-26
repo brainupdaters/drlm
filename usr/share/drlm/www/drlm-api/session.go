@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -84,16 +83,6 @@ func (s *Session) Delete() {
 }
 
 func apiGetSessions(w http.ResponseWriter, r *http.Request) {
-	response := ""
-	for _, s := range sessions {
-		b, _ := json.Marshal(s)
-		response += string(b) + ","
-	}
-	if len(response) > 0 {
-		response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
-	} else {
-		response = "{\"resultList\":{\"result\":[]}}"
-	}
-
+	response := generateJSONResponse(sessions)
 	fmt.Fprintln(w, response)
 }

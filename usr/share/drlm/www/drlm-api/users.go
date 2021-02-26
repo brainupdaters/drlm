@@ -123,35 +123,21 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 // Get JSON list off all users
 func apiGetUsers(w http.ResponseWriter, r *http.Request) {
 	allUsers, _ := new(User).GetAll()
-	response := ""
-	for _, c := range allUsers {
-		b, _ := json.Marshal(c)
-		response += string(b) + ","
-	}
-	if len(response) > 0 {
-		response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
-	} else {
-		response = "{\"resultList\":{\"result\":[]}}"
-	}
-
+	response := generateJSONResponse(allUsers)
 	fmt.Fprintln(w, response)
 }
 
 // Get JSON of selected user
 func apiGetUser(w http.ResponseWriter, r *http.Request) {
 	receivedUserName := getField(r, 0)
+	response := ""
+
 	user := new(User)
 	err := user.GetByName(receivedUserName)
-	check(err)
-
-	b, _ := json.Marshal(user)
-	response := string(b)
-
-	if len(response) > 0 {
-		//response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
-		response = "{\"result\":[" + response + "]}"
+	if err == nil {
+		response = generateJSONResponse(user)
 	} else {
-		response = "{\"result\":[]}"
+		response = generateJSONResponse("")
 	}
 
 	fmt.Fprintln(w, response)
