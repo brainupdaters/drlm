@@ -10,7 +10,7 @@ if [ "$BKP_TYPE" == "1" ]; then
     Log "Renaming files into ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/..."
 
     for OLD_FILE in $( ls ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/); do
-      Log "Renaming ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE to $(echo "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" | sed s/$OLD_CLINAME/$CLI_NAME/)"
+      Log "$PROGRAM:$WORKFLOW: Renaming ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE to $(echo "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" | sed s/$OLD_CLINAME/$CLI_NAME/)"
       mv "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" $(echo "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" | sed s/$OLD_CLINAME/$CLI_NAME/)
     done
   fi
