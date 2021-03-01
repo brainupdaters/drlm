@@ -20,13 +20,13 @@
 # ACTIVE_PXE        (=1 if backup type = PXE )
 
 if [ ! -d ${STORDIR}/${CLI_NAME}/${CLI_CFG} ]; then
-  Log "Making DR store mountpoint for client: $CLI_NAME and $CLI_CFG configuration..."
-  mkdir $v -p ${STORDIR}/${CLI_NAME}/${CLI_CFG}
+  Log "$PROGRAM:$WORKFLOW: Making DR store mountpoint for client: $CLI_NAME and $CLI_CFG configuration..."
+  mkdir -p ${STORDIR}/${CLI_NAME}/${CLI_CFG}
   chmod 755 ${STORDIR}/${CLI_NAME}
   chmod 755 ${STORDIR}/${CLI_NAME}/${CLI_CFG}
 fi
 
-Log "Deactivating previous DR store for client: $CLI_NAME and $CLI_CFG configuration..."
+Log "$PROGRAM:$WORKFLOW: Deactivating previous DR store for client: $CLI_NAME and $CLI_CFG configuration..."
 
 # Get the current backup enabled in database
 if [ "$BKP_TYPE" == "0" ] || [ "$BKP_TYPE" == "2" ]; then
@@ -38,7 +38,7 @@ elif [ "$BKP_TYPE" == "1" ]; then
 fi
 
 # Disable current backup if exists
-Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... "
+Log "$PROGRAM:$WORKFLOW: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... "
 ENABLED_DB_BKP_SNAP=$(get_backup_active_snap_by_backup_id $BKP_ID)
 disable_backup $ENABLED_DB_BKP_ID
-Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... Success!"
+Log "$PROGRAM:$WORKFLOW: Deactivating Backup ${ENABLED_DB_BKP_ID}: .... Success!"

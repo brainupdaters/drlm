@@ -24,7 +24,7 @@ else
 fi
 
 if [ -d $STORDIR/$CLI_NAME ] && [ -n "$STORDIR" ] && [ -n $CLI_NAME ] ; then
-  rm $v -r $STORDIR/$CLI_NAME
+  rm -r $STORDIR/$CLI_NAME
 fi
 
 Log "------------------------------------------------------------------"

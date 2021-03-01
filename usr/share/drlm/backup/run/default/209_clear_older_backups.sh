@@ -51,31 +51,20 @@
 # Disable current backup in Read/Write mode 
 disable_backup_store $DR_FILE $CLI_NAME $CLI_CFG
 
-Log "$PROGRAM:$WORKFLOW:ARCHIVE:CLEAN:$CLI_NAME: DR Archive Clean in progress .... "
 
 if clean_backups $CLI_NAME $HISTBKPMAX $CLI_CFG; then
-	Log "$PROGRAM:$WORKFLOW:ARCHIVE:DR:CLEAN:FS:DB:$CLI_NAME: .... Success!"
+	LogPrint "$PROGRAM:$WORKFLOW: Removed oldest $CLI_CFG backup"
 else
-	Error "$PROGRAM:$WORKFLOW:ARCHIVE:DR:CLEAN:FS:DB:$CLI_NAME: Problem removing oldest backup! aborting ..."
+	Error "$PROGRAM:$WORKFLOW: Problem removing oldest backup! aborting ..."
 fi
 
 if [ "$DRLM_INCREMENTAL" == "yes" ]; then
   if clean_snaps $BKP_BASE_ID $DRLM_INCREMENTAL_HIST; then
-    Log "$PROGRAM:$WORKFLOW:INCREMENTAL:DR:CLEAN:SNAPS: .... Success!"
+    LogPrint "$PROGRAM:$WORKFLOW: Removed oldest $CLI_CFG snap"
   else
-    Error "$PROGRAM:$WORKFLOW:INCREMENTAL:DR:CLEAN:SNAPS: Problem removing oldest snap! aborting ..."
+    Error "$PROGRAM:$WORKFLOW: Problem removing oldest snap! aborting ..."
   fi
 fi
 
-Log "$PROGRAM:$WORKFLOW:ARCHIVE:CLEAN:$CLI_NAME: DR Archive Clean in progress .... Success!"
-
 # Disable current backup in Read only mode 
 enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
-
-Log "------------------------------------------------------------------"
-Log "$PROGRAM $WORKFLOW:                                               "
-Log "                                                                  "
-Log " - Finished DR backup operations for Client: $CLI_NAME            "
-Log "                                                                  "
-Log " - End Date & Time: $DATE                                         "
-Log "------------------------------------------------------------------"

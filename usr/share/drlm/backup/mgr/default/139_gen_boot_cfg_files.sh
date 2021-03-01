@@ -2,7 +2,7 @@
 
 if [ "$BKP_TYPE" == "1" ]; then
 
-LogPrint "$PROGRAM:$WORKFLOW: === Enabling PXE boot ================================================="
+LogPrint "$PROGRAM:$WORKFLOW: Enabling PXE boot"
 
   if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
 
@@ -29,7 +29,5 @@ EOF
   else
       Error "$PROGRAM:$WORKFLOW: - Problem Creating MAC Address (GRUB2) boot configuration file for PXE! Aborting ..."
   fi
-
-  LogPrint "$PROGRAM:$WORKFLOW: ======================================================================="
 
 fi

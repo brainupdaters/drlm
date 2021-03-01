@@ -1,6 +1,6 @@
 # bkpmgr workflow
 
-LogPrint "$PROGRAM:$WORKFLOW: === Enabling DRLM Backup Store of Backup ID $BKP_ID ========"
+LogPrint "$PROGRAM:$WORKFLOW: Enabling DRLM Backup Store of Backup ID $BKP_ID"
 
 DR_FILE=$(get_backup_drfile_by_backup_id "$BKP_ID")
 
@@ -68,5 +68,3 @@ if [ -n "$DR_FILE" ]; then
     fi
   fi
 fi
-
-LogPrint "$PROGRAM:$WORKFLOW: ======================================================================="
