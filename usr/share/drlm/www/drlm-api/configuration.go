@@ -15,6 +15,7 @@ type Configuration struct {
 	SqliteFile   string
 	CliConfigDir string
 	RearLogDir   string
+	APIPasswd    string
 	Certificate  string
 	Key          string
 }
@@ -149,6 +150,18 @@ func loadDRLMConfiguration() {
 		configDRLM.RearLogDir = tmpValue
 	}
 	///////////////////////////////////////
+
+	// Find value for API_PASSWD ////////
+	if found, tmpValue := getConfigFileVar("/usr/share/drlm/conf/default.conf", "API_PASSWD"); found {
+		configDRLM.APIPasswd = tmpValue
+	}
+	if found, tmpValue := getConfigFileVar("/etc/drlm/local.conf", "API_PASSWD"); found {
+		configDRLM.APIPasswd = tmpValue
+	}
+	if found, tmpValue := getConfigFileVar("/etc/drlm/site.conf", "API_PASSWD"); found {
+		configDRLM.APIPasswd = tmpValue
+	}
+	///////////////////////////////////////
 }
 
 func printDRLMConfiguration() {
@@ -162,6 +175,16 @@ func printDRLMConfiguration() {
 	fmt.Println("DRLM_CERT=" + configDRLM.Certificate)
 	fmt.Println("DRLM_KEY=" + configDRLM.Key)
 	fmt.Println("")
+}
+
+func updateDefaultAPIUser() {
+	db := GetConnection()
+	// update
+	stmt, err := db.Prepare("update users set user_password=? where user_name='admindrlm'")
+	check(err)
+
+	_, err = stmt.Exec(GetMD5Hash(configDRLM.APIPasswd))
+	check(err)
 }
 
 func sendConfigFile(w http.ResponseWriter, file string) {

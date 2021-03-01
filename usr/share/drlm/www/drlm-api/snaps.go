@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -43,16 +42,6 @@ func (s *Snap) GetAll() ([]Snap, error) {
 
 func apiGetSnaps(w http.ResponseWriter, r *http.Request) {
 	allSnaps, _ := new(Snap).GetAll()
-	response := ""
-	for _, c := range allSnaps {
-		b, _ := json.Marshal(c)
-		response += string(b) + ","
-	}
-	if len(response) > 0 {
-		response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
-	} else {
-		response = "{\"resultList\":{\"result\":[]}}"
-	}
-
+	response := generateJSONResponse(allSnaps)
 	fmt.Fprintln(w, response)
 }
