@@ -1,5 +1,15 @@
+import AppHeader from '/js/components/AppHeader.js'
+import AppBody from '/js/components/AppBody.js'
+import AppFooter from '/js/components/Appfooter.js';
+
+
 const vm = new Vue({
-  el: '#divContent',
+  el: '#app',
+  components: {
+    'app-header': AppHeader,
+    'app-body': AppBody,
+    'app-footer': AppFooter
+  },
   data() {
     return {
       networks: 'loading',
@@ -41,8 +51,6 @@ const vm = new Vue({
   }
 });
 
-document.getElementById("logout-button").onclick = function() {
-  fetch('/logout',{method: 'POST'});
-  location.href = "/";
-  
-};
+$.getScript("/js/AppFunctions.js", function() {
+  console.log("AppFunctions.js loaded.");
+});
