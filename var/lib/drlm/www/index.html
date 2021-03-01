@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-
 <html>
-
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.6">
@@ -9,233 +7,24 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/default.css">
   </head>
-
   <body>
-    <div class="container" id="divContent">
-      <div class="row">
-          <div class="col">
-            <img class="mb-4" src="static/drlm_long.png" alt="" width="250" height="131">
-          </div>
-           <div class="col">
-              <button type="button" class="btn btn-primary float-end" id="logout-button">Logout</button>
-          </div>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <caption>Networks</caption>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>NetworkIP</th>
-              <th>Mask</th>
-              <th>Gateway</th>
-              <th>Broadcast</th>
-              <th>ServerIP</th>
-              <th>Name</th>
-            </tr>
-          </thead>
-          <tbody v-for="network in networks" v-bind:key="network.idnetwork">
-            <tr>
-              <td>{{ network.idnetwork }}</td>
-              <td>{{ network.netip }}</td>
-              <td>{{ network.mask }}</td>
-              <td>{{ network.gw }}</td>
-              <td>{{ network.broadcast }}</td>
-              <td>{{ network.serverip }}</td>
-              <td>{{ network.netname }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover" id="clients-table">
-          <caption>Clients</caption>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>MAC</th>
-              <th>Network</th>
-              <th>OS</th>
-              <th>ReaR</th>
-              <th>Token</th>
-              <th>Configs</th>
-            </tr>
-          </thead>
-          <tbody v-for="client in clients" v-bind:key="client.cli_id">
-            <tr>
-              <td>{{ client.cli_id }}</td>
-              <td>{{ client.cli_name }}</td>
-              <td>{{ client.cli_mac }}</td>
-              <td>{{ client.cli_net }}</td>
-              <td>{{ client.cli_os }}</td>
-              <td>{{ client.cli_rear }}</td>
-              <td>{{ client.cli_token }}</td>
-              <td><ul>
-                <li v-for="config in client.cli_configs" v-bind:key="config.config_name">  
-                  <!-- Rrigger modal -->
-                  <a href="#" data-bs-toggle="modal" :data-bs-target="'#demo' + client.cli_id + config.config_name"> {{ config.config_name }} </a>
-                  <!-- Modal -->
-                  <div class="modal fade" :id="'demo' + client.cli_id + config.config_name" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h6 class="modal-title"><strong>Client:</strong><em> {{ client.cli_name }} </em> | <strong>Backup Configuration:</strong> <em>{{ config.config_name }} </em></h6>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body" style="white-space: pre-line"><code>{{ config.config_content }}</code></div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ul></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <caption>Backups</caption>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Client</th>
-              <th>DR</th>
-              <th>Active</th>
-              <th>Duration</th>
-              <th>Config</th>
-              <th>PXE</th>
-              <th>Type</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody v-for="backup in backups" v-bind:key="backup.idbackup">
-            <tr>
-              <td>{{ backup.idbackup }}</td>
-              <td>{{ backup.clients_id }}</td>
-              <td>{{ backup.drfile }}</td>
-              <td>{{ backup.active }}</td>
-              <td>{{ backup.duration }}</td>
-              <td>{{ backup.config }}</td>
-              <td>{{ backup.PXE }}</td>
-              <td>{{ backup.type }}</td>
-              <td>{{ backup.date }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <caption>Snaps</caption>
-          <thead>
-            <tr>
-              <th>IDBackup</th>
-              <th>IDSnap</th>
-              <th>Date</th>
-              <th>Active</th>
-              <th>Duration</th>
-              <th>Size</th>
-            </tr>
-          </thead>
-          <tbody v-for="snap in snaps" v-bind:key="snap.idsnap">
-            <tr>
-              <td>{{ snap.idbackup }}</td>
-              <td>{{ snap.idsnap }}</td>
-              <td>{{ snap.date }}</td>
-              <td>{{ snap.active }}</td>
-              <td>{{ snap.duration }}</td>
-              <td>{{ snap.size }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <caption>Jobs</caption>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Client ID</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Last Date</th>
-              <th>Next Date</th>
-              <th>Repeat</th>
-              <th>Enabled</th>
-              <th>Config</th>
-            </tr>
-          </thead>
-          <tbody v-for="job in jobs" v-bind:key="job.idjob">
-            <tr>
-              <td>{{ job.idjob }}</td>
-              <td>{{ job.clients_id }}</td>
-              <td>{{ job.start_date }}</td>
-              <td>{{ job.end_date }}</td>
-              <td>{{ job.last_date }}</td>
-              <td>{{ job.next_date }}</td>
-              <td>{{ job.repeat }}</td>
-              <td>{{ job.enabled }}</td>
-              <td>{{ job.config }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="row">
-        <div class="col-lg-5">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <caption>Users</caption>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Password</th>
-                </tr>
-              </thead>
-              <tbody v-for="user in users" v-bind:key="user.user_name">
-                <tr>
-                  <td>{{ user.user_name }}</td>
-                  <td>{{ user.user_password }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="col-lg-7">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <caption>Sessions</caption>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Token</th>
-                  <th>Timestamp</th>
-                </tr>
-              </thead>
-              <tbody v-for="session in sessions" v-bind:key="session.token">
-                <tr>
-                  <td>{{ session.username }}</td>
-                  <td>{{ session.token }}</td>
-                  <td>{{ session.timestamp }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
+    <div class="container" id="app">
+      <app-header></app-header>
+      <app-body
+         v-bind:networks="networks"
+         v-bind:clients="clients"
+         v-bind:backups="backups"
+         v-bind:snaps="snaps"
+         v-bind:jobs="jobs"
+         v-bind:users="users"
+         v-bind:sessions="sessions"
+      ></app-body>
+      <app-footer></app-footer>
     </div>
 
     <script src="js/vue.min.js"></script>    
     <script src="js/jquery-3.5.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="/js/scripts.js"></script>
-
+    <script type="module" src="/js/app.js"></script>
   </body>
 </html>
