@@ -53,8 +53,7 @@ function list_backup () {
   local PRETTY_PARAM=$2
   local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
 
-  printf '%-18s\n' "$(tput bold)"
-  printf '%-20s %-15s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
+  printf '%-24s %-15s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' "$(tput bold)Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
 
   save_default_pretty_params_list_backup
 

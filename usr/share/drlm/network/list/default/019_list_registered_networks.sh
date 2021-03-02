@@ -1,12 +1,7 @@
+# listnetwork workflow
 
-if ! exist_network_name "$NET_NAME" 
-then
-	if [ "$NET_NAME" == "all" ]
-	then
-        	list_network_all
-	else
-		printf '%25s\n' "$(tput bold)$NET_NAME$(tput sgr0) not found in database!!"	
-	fi
+if [ "$NET_NAME" == "all" ] || exist_network_name "$NET_NAME"; then
+  list_network $NET_NAME
 else
-	list_network $NET_NAME
+  Error "$NET_NAME not found in database"
 fi

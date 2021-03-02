@@ -424,12 +424,16 @@ function mod_network_srv ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function list_network_all ()
+function list_network ()
 {
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
+  local NET_NAME_PARAM="$1"
 
-  for line in $(get_all_networks_dbdrv)
+  if [ "$NET_NAME_PARAM" = "all" ]; then 
+    NET_NAME_PARAM=""
+  fi
+
+  printf '%-10s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$(tput bold)Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
+  for line in $(get_all_networks $NET_NAME_PARAM)
   do
     local NET_ID=`echo $line|awk -F":" '{print $1}'`
     local NET_IP=`echo $line|awk -F":" '{print $2}'`
@@ -443,23 +447,9 @@ function list_network_all ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function list_network ()
-{
-  local NET_NAME=$1
-  local NET_ID=$(get_network_id_by_name $NET_NAME)
-  local NET_IP=$(get_network_ip $NET_ID)
-  local NET_MASK=$(get_network_mask $NET_ID)
-  local NET_GW=$(get_network_gw $NET_ID)
-  local NET_BRO=$(get_network_bcast $NET_ID)
-  local NET_SRV=$(get_network_srv $NET_ID)
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
-  printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_BRO" "$NET_SRV" "$NET_NAME"
-}
-
 function get_all_networks ()
 {
-  get_all_networks_dbdrv
+  get_all_networks_dbdrv $NET_NAME_PARAM
 }
 
 function get_network_id_by_netip ()

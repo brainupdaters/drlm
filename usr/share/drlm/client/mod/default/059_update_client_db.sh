@@ -3,7 +3,7 @@
 # Check the vales to change
 if test -n "$CLI_IP"; then
 
-  Log "$CLI_NAME: Setting new IP address for client $CLI_NAME to $CLI_IP ..."
+  LogPrint "$CLI_NAME: Setting new IP address for client $CLI_NAME to $CLI_IP ..."
 
   if valid_ip $CLI_IP ; then
     Log "Client IP: $CLI_IP has valid format ..."
@@ -56,7 +56,7 @@ fi
 
 if test -n "$CLI_MAC"; then
 
-  Log "Modifying MAC address for client $CLI_NAME to $CLI_MAC ..."
+  LogPrint "Modifying MAC address for client $CLI_NAME to $CLI_MAC ..."
 
   CLI_MAC=$(compact_mac $CLI_MAC)
 
@@ -102,7 +102,7 @@ fi
 
 if test -n "$CLI_NET"; then
 
-  Log "Modifying network for client $CLI_NAME to $CLI_NET ..."
+  LogPrint "Modifying network for client $CLI_NAME to $CLI_NET ..."
 
   if ! exist_network_name "$CLI_NET" ; then
     Error "Network: $CLI_NET not registered! [ Network required before any client addition ]"

@@ -1,3 +1,5 @@
+# sched workflow
+
 if [ "$SCHED_MODE" == "run" ]; then
 
   NOW=$( get_format_date now )

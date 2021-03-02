@@ -207,8 +207,7 @@ function list_client () {
     CLI_NAME_PARAM=""
   fi
 
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+  printf '%-10s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "$(tput bold)Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
 
   save_default_pretty_params_list_client
 
