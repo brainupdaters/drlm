@@ -9,9 +9,9 @@
 if [ -n "$CLI_ID" ]; then
   if exist_client_id "$CLI_ID"; then
     CLI_NAME=$(get_client_name $CLI_ID)
-    Log "$PROGRAM:$WORKFLOW: Client $CLI_ID - $CLI_NAME found in database"
+    Log "Client $CLI_ID - $CLI_NAME found in database"
   else
-    Error "$PROGRAM:$WORKFLOW: Client ID $CLI_ID not found!"
+    Error "Client ID $CLI_ID not found!"
   fi
 fi
 
@@ -26,7 +26,7 @@ OUTPUT="PXE"
 # Import drlm specific client configuration if exists
 if [ -f $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg ] ; then
   source $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
-  LogPrint "$PROGRAM:$WORKFLOW: Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.drlm.cfg)"
+  Log "Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.drlm.cfg)"
 fi
 
 
@@ -38,15 +38,15 @@ fi
 if [ "$CLI_CFG" = "default" ]; then
   if [ -f $CONFIG_DIR/clients/$CLI_NAME.cfg ]; then
     source $CONFIG_DIR/clients/$CLI_NAME.cfg
-    LogPrint "$PROGRAM:$WORKFLOW: Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.cfg)"
+    Log "Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.cfg)"
   else
-    LogPrint "$PROGRAM:$WORKFLOW: $CONFIG_DIR/clients/$CLI_NAME.cfg config file not found, running with default values"
+    LogPrint "$CONFIG_DIR/clients/$CLI_NAME.cfg config file not found, running with default values"
   fi
 else
   if [ -f $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg ]; then
     source $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg
-    LogPrint "$PROGRAM:$WORKFLOW: Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg)"
+    Log "Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg)"
   else 
-    Error "$PROGRAM:$WORKFLOW: $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg config file $CLI_CFG.cfg not found. Aborting ..."
+    Error "$CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg config file $CLI_CFG.cfg not found"
   fi
 fi

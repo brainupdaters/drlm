@@ -22,7 +22,7 @@
 # In DISABLE mode we only have to disable the backup with idbackup = $BKP_ID
 if [ "$DISABLE" == "yes" ] && [ -z "$SNAP_ID" ] && [ "$BKP_STATUS" == "1" ]; then
   disable_backup $BKP_ID
-  LogPrint "$PROGRAM:$WORKFLOW: Succesful workflow execution"
+  LogPrint "Succesful workflow execution"
   exit 0
 fi
 

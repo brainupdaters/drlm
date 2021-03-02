@@ -4,18 +4,18 @@ fi
 
 Log "Checking if Network Mask: ${NET_MASK} is valid..."
 if valid_ip $NET_MASK; then
-  Log "$PROGRAM: Network Mask: $NET_MASK is in valid format..."
+  Log "Network Mask: $NET_MASK is in valid format..."
 else
-  Error "$PROGRAM: Network Mask: $NET_MASK is in wrong format. Correct this and try again."
+  Error "Network Mask: $NET_MASK is in wrong format. Correct this and try again."
 fi
 
 Log "Checking if Network GW: ${NET_GW} is valid..."
 if [ -n "$NET_GW" ]; then
 	if valid_ip $NET_GW; then
-    Log "$PROGRAM: Network GW: $NET_GW is in valid format..."
+    Log "Network GW: $NET_GW is in valid format..."
     NET_IP_GW=$(get_netaddress "$NET_GW" "$NET_MASK")
 	else
-    Error "$PROGRAM: Network GW: $NET_GW is in wrong format. Correct this and try again."
+    Error "Network GW: $NET_GW is in wrong format. Correct this and try again."
 	fi
 fi
 
@@ -24,10 +24,10 @@ if [ -n "$NET_SRV" ]; then
 	#getting de old SRV_IP for replacement if needed
 	OLD_SRV_IP=$(get_network_srv $NET_ID)
 	if valid_ip $NET_SRV;	then
-    Log "$PROGRAM: Server IP: $NET_SRV is in valid format..."
+    Log "Server IP: $NET_SRV is in valid format..."
     NET_IP_SRV=$(get_netaddress "$NET_SRV" "$NET_MASK") 
 	else
-    Error "$PROGRAM: Server IP: $NET_SRV is in wrong format. Correct this and try again."
+    Error "Server IP: $NET_SRV is in wrong format. Correct this and try again."
 	fi
 fi
 
@@ -36,7 +36,7 @@ if [ -n "$NET_IP_GW" ] && [ -n "$NET_IP_SRV" ]; then
 	if [ "$NET_IP_GW" == "$NET_IP_SRV" ]; then
 		NET_IP=$NET_IP_GW
 	else
-		Error "$PROGRAM: Server IP: $NET_SRV and Gateway: $NET_GATEWAY need to be in same subnet!"
+		Error "Server IP: $NET_SRV and Gateway: $NET_GATEWAY need to be in same subnet!"
 	fi
 else
 	if [ -n "$NET_IP_GW" ]; then

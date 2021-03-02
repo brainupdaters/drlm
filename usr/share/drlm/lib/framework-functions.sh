@@ -34,8 +34,10 @@ function Source() {
 		else
 			# step-by-step mode or brakepoint if needed
 			[[ "$STEPBYSTEP" || ( "$BREAKPOINT" && "$relname" == @($BREAKPOINT) ) ]] && read -p "Press ENTER to include '$1' ..." 2>&1
-      Log " ======================================================================="
-			Log " ==> Including ${1##$SHARE_DIR/}"
+      Log ""
+      Log "======================================================================="
+			Log "Including ${1##$SHARE_DIR/}"
+      Log "======================================================================="
 			test "$DEBUGSCRIPTS" && set -x
 			. "$1"
 			test "$DEBUGSCRIPTS" && set +x

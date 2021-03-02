@@ -12,14 +12,14 @@
 
 if [ -z "$CLEAN_ALL" ]; then
   # Check if the target backup ID or Sanp ID is in DRLM database
-  Log "$PROGRAM:$WORKFLOW: Checking if Backup ID $BKP_ID is registered in DRLM database ..."
+  Log "Checking if Backup ID $BKP_ID is registered in DRLM database ..."
   if exist_snap_id "$BKP_ID"; then
     SNAP_ID="$BKP_ID"
   elif exist_backup_id "$BKP_ID"; then
     BKP_ID_LIST="$BKP_ID"
-    Log "$PROGRAM:$WORKFLOW: Backup ID ${BKP_ID} found in DRLM database"
+    Log "Backup ID ${BKP_ID} found in DRLM database"
   else
-    Error "$PROGRAM:$WORKFLOW: Backup ID $BKP_ID not found in DRLM database! Aborting ..."
+    Error "Backup ID $BKP_ID not found in DRLM database!"
   fi
 
 else
@@ -28,8 +28,8 @@ else
   if exist_client_name "$CLI_NAME"; then
     CLI_ID=$(get_client_id_by_name $CLI_NAME)
     BKP_ID_LIST=$(get_backup_id_list_by_client_id $CLI_ID)
-    Log "$PROGRAM:$WORKFLOW: Client ${CLI_NAME} found in DRLM database"
+    Log "Client ${CLI_NAME} found in DRLM database"
   else
-    Error "$PROGRAM:$WORKFLOW: Client $CLI_NAME not found in DRLM database! Aborting ..."
+    Error "Client $CLI_NAME not found in DRLM database!"
   fi
 fi

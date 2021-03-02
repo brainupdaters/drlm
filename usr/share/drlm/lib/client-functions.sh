@@ -269,7 +269,7 @@ function config_client_cfg () {
   cp $SHARE_DIR/conf/samples/client_default.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
   chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
 
-  cp $CONFIG_DIR/client_default.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
+  cp $SHARE_DIR/conf/samples/client_default.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
   chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
 
   mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d

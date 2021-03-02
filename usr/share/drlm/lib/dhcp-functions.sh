@@ -60,13 +60,13 @@ function generate_dhcp() {
 # Reload de dhcp server dummy
 function reload_dhcp() {
   # Check if configuration file is OK
-  dhcpd -t -cf $DHCP_FILE
+  dhcpd -t -cf $DHCP_FILE > /dev/null 2>&1
   if [ $? -eq 0 ]; then
     # Reload DHCP (Operating System dependency)
     systemctl reload-or-try-restart $DHCP_SVC_NAME.service > /dev/null
     if [ $? -eq 0 ]; then return 0; else return 2; fi
   else
-    Log "$PROGRAM:$WORKFLOW: Error reloading dhcpd service"
+    Log "Error reloading dhcpd service"
     mv $DHCP_FILE $DHCP_FILE.error
     mv $DHCP_DIR/dhcpd.conf.bkp $DHCP_FILE
     return 1

@@ -4,7 +4,7 @@ if test -n "$NET_SRV"; then
   if mod_network_srv "$NET_ID" "$NET_SRV"; then
     Log "${NET_NAME} server ip modified in the database!"
   else
-    Error "$PROGRAM: $NET_ID ip not modified!"
+    Error "$NET_ID ip not modified!"
   fi
 fi
 
@@ -13,7 +13,7 @@ if test -n "$NET_GW"; then
   if mod_network_gw "$NET_ID" "$NET_GW"; then
     Log "${NET_NAME} gateway modified in the database!"
   else
-    Error "$PROGRAM: $NET_NAME gateway not modified!"
+    Error "$NET_NAME gateway not modified!"
   fi
 fi
 
@@ -22,18 +22,18 @@ if test -n "$NET_MASK"; then
   if mod_network_mask "$NET_ID" "$NET_MASK"; then
     Log "${NET_NAME} netmask modified in the database!"
   else
-    Error "$PROGRAM: $NET_NAME netmask not modified!"
+    Error "$NET_NAME netmask not modified!"
   fi
 fi
 
 if mod_network_bcast "$NET_ID" "$NET_BCAST"; then
   Log "${NET_NAME} broadcast address modified in the database!"
 else
-  Error "$PROGRAM: $NET_NAME broadcast address not modified!"
+  Error "$NET_NAME broadcast address not modified!"
 fi
 
 if mod_network_ip "$NET_ID" "$NET_IP"; then
   Log "${NET_NAME} ip address modified in the database!"
 else
-  Error "$PROGRAM: $NET_NAME ip address not modified!"
+  Error "$NET_NAME ip address not modified!"
 fi

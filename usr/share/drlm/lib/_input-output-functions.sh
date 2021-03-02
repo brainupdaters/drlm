@@ -190,9 +190,9 @@ fi
 
 Log() {
 	if test $# -gt 0 ; then
-		echo "$(Stamp)$*"
+		echo "$(Stamp)$PROGRAM:$WORKFLOW: $*"
 	else
-		echo "$(Stamp)$(cat)"
+		echo "$(Stamp)$PROGRAM:$WORKFLOW: $(cat)"
 	fi >&2
 }
 
@@ -206,7 +206,7 @@ LogIfError() {
 
 LogPrint() {
 	Log "$@"
-	Print "$@"
+	Print "$PROGRAM:$WORKFLOW: $@"
 }
 
 # log/print if there is an error
@@ -225,12 +225,15 @@ QuietAddExitTask "exec 8>&-" # new method, close fd 8 at exit
 ProgressStart() {
 	: ;
 }
+
 ProgressStop() {
 	: ;
 }
+
 ProgressError() {
 	: ;
 }
+
 ProgressStep() {
 	: ;
 }

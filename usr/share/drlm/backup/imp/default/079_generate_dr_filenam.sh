@@ -2,7 +2,7 @@
 
 # Create mountpoint if not exists.
 if [ ! -d "${STORDIR}/${CLI_NAME}/${CLI_CFG}" ]; then
-  Log "$PROGRAM:$WORKFLOW: Making DR store mountpoint for client $CLI_NAME and $CLI_CFG configuration..."
+  Log "Making DR store mountpoint for client $CLI_NAME and $CLI_CFG configuration..."
   mkdir -p "${STORDIR}/${CLI_NAME}/${CLI_CFG}"
   chmod 755 "${STORDIR}/${CLI_NAME}"
   chmod 755 "${STORDIR}/${CLI_NAME}/${CLI_CFG}"
@@ -13,9 +13,9 @@ BKP_ID=$(gen_backup_id $CLI_ID)
 DR_FILE=$(gen_dr_file_name $CLI_NAME $BKP_ID $CLI_CFG)
 
 if [ -z "${DR_FILE}" ]; then
-	Error "$PROGRAM:$WORKFLOW: Problem generating DR filename! Aborting ..."
+	Error "Problem generating DR filename"
 else
-	Log "$PROGRAM:$WORKFLOW: Created DR file $ARCHDIR/$DR_FILE"
+	Log "Created DR file $ARCHDIR/$DR_FILE"
 fi
 
 # Get the backup source from database or filename parameter
@@ -25,7 +25,7 @@ else
 	BKP_SRC="$IMP_FILE_NAME"
 fi
 
-Log "$PROGRAM:$WORKFLOW: Importing ${BKP_SRC} to ${ARCHDIR}/$DR_FILE"
+Log "Importing ${BKP_SRC} to ${ARCHDIR}/$DR_FILE"
 
 # Create backup archive directory if does not exists and copy the new backup in
 if [ ! -d "$ARCHDIR" ]; then 
@@ -35,15 +35,15 @@ fi
 # Copy backup source to DRLM arch directory
 cp $BKP_SRC ${ARCHDIR}/$DR_FILE >> /dev/null 2>&1
 if [ $? -eq 0 ]; then
-	LogPring "$PROGRAM:$WORKFLOW: Copied DR file $BKP_SRC to $ARCHDIR/$DR_FILE."
+	LogPring "Copied DR file $BKP_SRC to $ARCHDIR/$DR_FILE."
 else
-	Error "$PROGRAM:$WORKFLOW: Problem copying DR file $BKP_SRC to $ARCHDIR/$DR_FILE. Aborting ..."
+	Error "Problem copying DR file $BKP_SRC to $ARCHDIR/$DR_FILE"
 fi
 
 # Remove imported file snapshots to avoid SNAP_ID problems
 del_all_dr_snaps $DR_FILE
 if [ $? -eq 0 ]; then
-	Log "$PROGRAM:$WORKFLOW: Removed ${ARCHDIR}/$DR_FILE snapshots"
+	Log "Removed ${ARCHDIR}/$DR_FILE snapshots"
 else
-	Error "$PROGRAM:$WORKFLOW: Probelm removing ${ARCHDIR}/$DR_FILE snapshots. Aborting ..."
+	Error "Probelm removing ${ARCHDIR}/$DR_FILE snapshots"
 fi

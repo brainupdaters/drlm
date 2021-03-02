@@ -3,7 +3,7 @@
 # BKP_TYPE is PXE
 if [ "$BKP_TYPE" == "1" ]; then
 
-  LogPrint "$PROGRAM:$WORKFLOW: Enabling PXE boot"
+  LogPrint "Enabling PXE boot"
 
   CLI_MAC=$(get_client_mac $CLI_ID)
   F_CLI_MAC=$(format_mac ${CLI_MAC} ":")
@@ -14,7 +14,7 @@ if [ "$BKP_TYPE" == "1" ]; then
 
   if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
 
-  LogPrint "$PROGRAM:$WORKFLOW: Creating MAC Address (GRUB2) boot configuration file ..."
+  LogPrint "Creating MAC Address (GRUB2) boot configuration file ..."
 
   cat << EOF > ${STORDIR}/boot/cfg/${F_CLI_MAC}
 
@@ -26,9 +26,9 @@ initrd (tftp)/${CLI_NAME}/${CLI_CFG}/PXE/${CLI_INITRD_FILE}
 EOF
 
   if [ -f ${STORDIR}/boot/cfg/${F_CLI_MAC} ]; then
-      LogPrint "$PROGRAM:$WORKFLOW: - Created MAC Address (GRUB2) boot configuration file for PXE"
+      LogPrint "- Created MAC Address (GRUB2) boot configuration file for PXE"
   else
-      Error "$PROGRAM:$WORKFLOW: - Problem Creating MAC Address (GRUB2) boot configuration file! Aborting ..."
+      Error "- Problem Creating MAC Address (GRUB2) boot configuration file"
   fi
 fi
 
@@ -36,4 +36,4 @@ fi
 disable_backup_store $DR_FILE $CLI_NAME $CLI_CFG
 enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
 
-Log "$PROGRAM:$WORKFLOW: DRLM Store switched from read/write to read only"
+Log "DRLM Store switched from read/write to read only"

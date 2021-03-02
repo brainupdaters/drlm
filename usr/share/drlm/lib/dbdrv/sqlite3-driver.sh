@@ -141,7 +141,12 @@ function add_client_dbdrv ()
     fi
 
     echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}', '${CLI_OS}', '${CLI_REAR}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    if [ $? -eq 0 ]; then echo "New Client ID: $CLI_ID";else echo "ERRORFILEDB"; fi
+    if [ $? -eq 0 ]; then 
+      LogPrint "New Client ID: $CLI_ID"
+      return 0
+    else 
+      echo "ERRORFILEDB" 
+    fi
 }
 
 function del_client_id_dbdrv ()

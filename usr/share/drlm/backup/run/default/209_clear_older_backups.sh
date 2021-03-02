@@ -51,20 +51,21 @@
 # Disable current backup in Read/Write mode 
 disable_backup_store $DR_FILE $CLI_NAME $CLI_CFG
 
-
 if clean_backups $CLI_NAME $HISTBKPMAX $CLI_CFG; then
-	LogPrint "$PROGRAM:$WORKFLOW: Removed oldest $CLI_CFG backup"
+	LogPrint "Removed oldest $CLI_CFG backup"
 else
-	Error "$PROGRAM:$WORKFLOW: Problem removing oldest backup! aborting ..."
+	Error "Problem removing oldest backup"
 fi
 
 if [ "$DRLM_INCREMENTAL" == "yes" ]; then
   if clean_snaps $BKP_BASE_ID $DRLM_INCREMENTAL_HIST; then
-    LogPrint "$PROGRAM:$WORKFLOW: Removed oldest $CLI_CFG snap"
+    LogPrint "Removed oldest $CLI_CFG snap"
   else
-    Error "$PROGRAM:$WORKFLOW: Problem removing oldest snap! aborting ..."
+    Error "Problem removing oldest snap"
   fi
 fi
 
 # Disable current backup in Read only mode 
 enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
+
+LogPrint "DRLM Store switched from read/write to read only"

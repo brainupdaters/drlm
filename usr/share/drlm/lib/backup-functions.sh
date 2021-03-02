@@ -422,7 +422,7 @@ function del_backup () {
   local DR_FILE=$(get_backup_drfile_by_backup_id $BKP_ID)
     
   if ! exist_dr_file_fs $DR_FILE; then
-    Log "WARNING: $PROGRAM:$WORKFLOW:ID($ID):$CLI_NAME: Backup DR file not in FS! Removing backup only from DB .... "
+    Log "WARNING: ID($ID):$CLI_NAME: Backup DR file not in FS! Removing backup only from DB .... "
   else
     del_dr_file "$DR_FILE"
   fi
@@ -436,7 +436,7 @@ function del_snap () {
   local DR_FILE=$(get_backup_drfile_by_snap_id $SNAP_ID)
     
   if ! exist_dr_file_fs $DR_FILE; then
-    Log "WARNING: $PROGRAM:$WORKFLOW:ID($ID):$CLI_NAME: Backup DR file not in FS! Removing snap only from DB .... "
+    Log "WARNING: ID($ID):$CLI_NAME: Backup DR file not in FS! Removing snap only from DB .... "
   else
     del_dr_snap "$SNAP_ID" "$DR_FILE"
   fi
@@ -861,7 +861,7 @@ function disable_backup () {
   local ENABLED_DB_BKP_ID=$1
 
   if [ -n "$ENABLED_DB_BKP_ID" ]; then
-    LogPrint "$PROGRAM:$WORKFLOW: Disabling DR Backup Store of Backup ID $ENABLED_DB_BKP_ID "
+    Log "Disabling DR Backup Store of Backup ID $ENABLED_DB_BKP_ID "
 
     ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID)
     ENABLED_BKP_CLI_ID=$(get_backup_client_id_by_backup_id $ENABLED_DB_BKP_ID)
@@ -875,47 +875,46 @@ function disable_backup () {
 
     # Disable NFS
     if disable_nfs_fs $ENABLED_BKP_CLI_NAME $ENABLED_BKP_CFG; then
-      LogPrint "$PROGRAM:$WORKFLOW: - Disabled NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
+      Log "- Disabled NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
     else
-      Error "$PROGRAM:$WORKFLOW: - Problem disabling NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}! Aborting ..."
+      Error "- Problem disabling NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
     fi
 
     # Umount NBD device
     if [ -n "$NBD_MOUNT_POINT" ]; then
       if do_umount $NBD_MOUNT_POINT; then
-        LogPrint "$PROGRAM:$WORKFLOW: - Umounted NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
+        Log "- Umounted NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
       else
-        Error "$PROGRAM:$WORKFLOW: - Problem NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT! Aborting ..."
+        Error "- Problem NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
       fi
     fi
 
     # Detach NBD device
     if [ -n "$NBD_DEVICE" ]; then
       if disable_nbd $NBD_DEVICE; then
-        LogPrint "$PROGRAM:$WORKFLOW: - Dettached NBD device $NBD_DEVICE"
+        Log "- Dettached NBD device $NBD_DEVICE"
       else
-        Error "$PROGRAM:$WORKFLOW: - Problem dettaching NBD device! Aborting ..."
+        Error "- Problem dettaching NBD device"
       fi
     fi
 
     # Disable backup from database
     if disable_backup_db $ENABLED_DB_BKP_ID; then
-      LogPrint "$PROGRAM:$WORKFLOW: - Disabled Backup ID $ENABLED_DB_BKP_ID in the database"
+      Log "- Disabled Backup ID $ENABLED_DB_BKP_ID in the database"
     else
-      Error "$PROGRAM:$WORKFLOW: - Problem disabling Backup ID $ENABLED_DB_BKP_ID in the database Aborting ..."
+      Error "- Problem disabling Backup ID $ENABLED_DB_BKP_ID in the database"
     fi
 
     # Disable current snap if exists
     if disable_backup_snap_db $ENABLED_DB_BKP_ID; then
-      Log "$PROGRAM:$WORKFLOW: - Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: .... Success!"
+      Log "- Deactivated Backup ${ENABLED_DB_BKP_ID} snaps"
     else
-      Error "$PROGRAM:$WORKFLOW: - Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: Problem disabling backup snap in database! Aborting ..."
+      Error "- Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: Problem disabling backup snap in database"
     fi
   fi
 }
 
-function disable_backup_store () {
-  
+function disable_backup_store () { 
   local DR_FILE=$1
   local CLI_NAME=$2
   local CLI_CFG=$3
@@ -925,28 +924,30 @@ function disable_backup_store () {
   # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
   local NBD_DEVICE=$(pgrep -fa ${DR_FILE} | awk '{print $4}')
 
+  Log "Disabling DR Backup Store $NBD_MOUNT_POINT"
+
   # Disable NFS
   if disable_nfs_fs $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW: - Disabled NFS export"
+    Log "- Disabled NFS export"
   else
-    Error "$PROGRAM:$WORKFLOW: - Problem disabling NFS export! aborting ..."
+    Error "- Problem disabling NFS export"
   fi
 
   # Umount NBD device
   if [ -n "$NBD_MOUNT_POINT" ]; then
     if do_umount $NBD_MOUNT_POINT; then
-      Log "$PROGRAM:$WORKFLOW: - Unmounted Filesystem $NBD_MOUNT_POINT"
+      Log "- Unmounted Filesystem $NBD_MOUNT_POINT"
     else
-      Error "$PROGRAM:$WORKFLOW: - Problem unmounting Filesystem $NBD_MOUNT_POINT! Aborting ..."
+      Error "- Problem unmounting Filesystem $NBD_MOUNT_POINT"
     fi
   fi
 
   # Detach NBD device
   if [ -n "$NBD_DEVICE" ]; then
     if disable_nbd $NBD_DEVICE; then
-      Log "$PROGRAM:$WORKFLOW: - Disabled NBD Device ($NBD_DEVICE)"
+      Log "- Disabled NBD Device ($NBD_DEVICE)"
     else
-      Error "$PROGRAM:$WORKFLOW: - Problem disabling NBD Device ($NBD_DEVICE)! Aborting ..."
+      Error "- Problem disabling NBD Device ($NBD_DEVICE)"
     fi
   fi
 }
@@ -959,26 +960,28 @@ function enable_backup_store_rw () {
 
   # Create nbd:
   # Get next nbd device free
-  local NBD_DEVICE=$(get_free_nbd)
+  local NBD_DEVICE="$(get_free_nbd)"
+
+  Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
 
   if enable_nbd_rw $NBD_DEVICE $DR_FILE; then
-    Log "$PROGRAM:$WORKFLOW: - Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
+    Log "- Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
   else
-    Error "$PROGRAM:$WORKFLOW: - Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)! aborting ..."
+    Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
   fi
 
   # Mount image:
   if do_mount_ext4_rw $NBD_DEVICE $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW: - Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+    Log "- Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
   else
-    Error "$PROGRAM:$WORKFLOW: - Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)! aborting ..."
+    Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
   fi
 
   # Enable NFS read/write mode:
   if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW: - Enabled NFS export (rw)"
+    Log "- Enabled NFS export (rw)"
   else
-    Error "$PROGRAM:$WORKFLOW: - Problem enabling NFS export (rw)! aborting ..."
+    Error "- Problem enabling NFS export (rw)"
   fi
 }
 
@@ -991,25 +994,27 @@ function enable_backup_store_ro () {
 
   # Create nbd:
   # Get next nbd device free
-  local NBD_DEVICE=$(get_free_nbd)
+  local NBD_DEVICE="$(get_free_nbd)"
+
+  Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
 
   if enable_nbd_ro $NBD_DEVICE $DR_FILE $SNAP_ID; then
-    Log "$PROGRAM:$WORKFLOW: - Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (ro)"
+    Log "- Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (ro)"
   else
-    Error "$PROGRAM:$WORKFLOW: - Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (ro)! aborting ..."
+    Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (ro)"
   fi
 
   # Mount image:
   if do_mount_ext4_ro $NBD_DEVICE $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW: - Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
+    Log "- Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
   else
-    Error "$PROGRAM:$WORKFLOW: - Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (ro)! aborting ..."
+    Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
   fi
 
   # Enable NFS read/write mode:
   if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
-    Log "$PROGRAM:$WORKFLOW: - Enabled NFS export (ro)"
+    Log "- Enabled NFS export (ro)"
   else
-    Error "$PROGRAM:$WORKFLOW: - Problem enabling NFS export (ro)! aborting ..."
+    Error "- Problem enabling NFS export (ro)"
   fi
 }

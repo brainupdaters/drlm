@@ -1,10 +1,10 @@
 # delclient workflow
 
-Log "$PROGRAM:$WORKFLOW: Deleting Client $CLI_NAME from DB"
+Log "Deleting Client $CLI_NAME from DB"
 
 if del_client_id $CLI_ID; then
-  Log "$PROGRAM:$WORKFLOW: Client $CLI_NAME has been deleted! Success!"
+  LogPrint "Client $CLI_NAME has been deleted from database"
 else
-  Error "$PROGRAM:$WORKFLOW: Problem deleting client $CLI_NAME from the database! See $LOGFILE for details."
+  Error "Problem deleting client $CLI_NAME from the database"
 fi
 

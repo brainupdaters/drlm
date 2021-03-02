@@ -1,11 +1,4 @@
-Log "------------------------------------------------------------------"
-Log "$PROGRAM $WORKFLOW:                                               "
-Log "                                                                  "
-Log " - Deleting DR Network $NET_ID$NET_NAME from DRLM ...             "
-Log "                                                                  "
-Log " - Start Date & Time: $DATE                                       "
-Log "------------------------------------------------------------------"
-
+# delnetwork workflow
 
 # Check if the network is in DRLM network database
 if test -n "$NET_NAME"; then
@@ -15,8 +8,7 @@ if test -n "$NET_NAME"; then
                 NET_ID=$(get_network_id_by_name $NET_NAME)
                 Log "${NET_NAME} found in DRLM database!"
         else
-                #report_error "$PROGRAM: Network named: $NET_NAME not registered!"
-                Error "$PROGRAM: Network named: $NET_NAME not registered!"
+                Error "Network named: $NET_NAME not registered!"
         fi
 else
         Log "Checking if network ID: ${NET_ID} is registered in DRLM database ..."
@@ -25,8 +17,7 @@ else
                 NET_NAME=$(get_network_name $NET_ID)
                 Log "${NET_ID} found in DRLM database!"
         else
-                #report_error "$PROGRAM: Network with ID: $NET_ID not registered!"
-                Error "$PROGRAM: Network with ID: $NET_ID not registered!"
+                Error "Network with ID: $NET_ID not registered!"
         fi
 
 fi

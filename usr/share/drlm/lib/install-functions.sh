@@ -45,7 +45,7 @@ function check_apt () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-cache search netcat|grep -w netcat &>/dev/null)"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-cache search netcat|grep -w netcat &>/dev/null)" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -53,7 +53,7 @@ function check_yum () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum search netcat| grep -w netcat &> /dev/null )"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum search netcat| grep -w netcat &> /dev/null )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -61,7 +61,7 @@ function check_zypper () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper se netcat| grep -w netcat &> /dev/null )"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper se netcat| grep -w netcat &> /dev/null )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -70,7 +70,7 @@ function install_dependencies_apt () {
   local CLI_NAME=$2
   local REAR_DEPENDENCIES="$3"
   local SUDO=$4
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -80,7 +80,7 @@ function install_dependencies_yum () {
   local REAR_DEP_REDHAT="$3"
   local SUDO=$4
   if [ -n "$REAR_DEP_REDHAT" ]; then
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum -y install $REAR_DEP_REDHAT &>/dev/null )"
+    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum -y install $REAR_DEP_REDHAT &>/dev/null )" &> /dev/null
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   fi
 }
@@ -91,7 +91,7 @@ function install_dependencies_zypper () {
   local REAR_DEP_SUSE="$3"
   local SUDO=$4
   if [ -n "$REAR_DEP_SUSE" ]; then
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper --no-gpg-checks in -y $REAR_DEP_SUSE &>/dev/null )"
+    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper --no-gpg-checks in -y $REAR_DEP_SUSE &>/dev/null )" &> /dev/null
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   fi
 }
@@ -113,7 +113,7 @@ function install_rear_yum_repo () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum -y remove rear; $SUDO yum -y install rear &>/dev/null )"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum -y remove rear; $SUDO yum -y install rear &>/dev/null )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -122,7 +122,7 @@ function ssh_install_rear_yum () {
   local CLI_NAME=$2
   local URL_REAR=$3
   local SUDO=$4
-  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_yum); install_rear_yum"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_yum); install_rear_yum" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -143,7 +143,7 @@ function install_rear_deb_repo () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get -y remove rear; $SUDO apt-get -y install rear &>/dev/null )"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get -y remove rear; $SUDO apt-get -y install rear &>/dev/null )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -152,7 +152,7 @@ function ssh_install_rear_dpkg () {
   local CLI_NAME=$2
   local URL_REAR=$3
   local SUDO=$4
-  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -160,7 +160,7 @@ function install_rear_zypper_repo () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper rm -y rear; $SUDO zypper in -y rear  &>/dev/null )"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper rm -y rear; $SUDO zypper in -y rear  &>/dev/null )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -182,7 +182,7 @@ function ssh_install_rear_zypper () {
   local CLI_NAME=$2
   local URL_REAR=$3
   local SUDO=$4
-  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -195,7 +195,7 @@ function send_drlm_managed () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\n%s\n%s\n%s\n' "DRLM_MANAGED=y" "DRLM_SERVER=$(hostname -s)" "DRLM_ID=$CLI_NAME" 'DRLM_REST_OPTS=\"$REST_OPTS_RESCUE\"' | ${SUDO} tee /etc/rear/local.conf >/dev/null && ${SUDO} chmod 644 /etc/rear/local.conf )"
+  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\n%s\n%s\n%s\n' "DRLM_MANAGED=y" "DRLM_SERVER=$(hostname -s)" "DRLM_ID=$CLI_NAME" 'DRLM_REST_OPTS=\"$REST_OPTS_RESCUE\"' | ${SUDO} tee /etc/rear/local.conf >/dev/null && ${SUDO} chmod 644 /etc/rear/local.conf )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -210,7 +210,7 @@ function send_drlm_token () {
   
   local TOKEN="$(/bin/cat $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token)"
 
-  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( echo '$TOKEN' | ${SUDO} tee /etc/rear/drlm.token >/dev/null && ${SUDO} chmod 600 /etc/rear/drlm.token )"
+  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( echo '$TOKEN' | ${SUDO} tee /etc/rear/drlm.token >/dev/null && ${SUDO} chmod 600 /etc/rear/drlm.token )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -218,7 +218,7 @@ function make_ssl_capath () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( if [ ! -d /etc/rear/cert ]; then ${SUDO} mkdir -p /etc/rear/cert && ${SUDO} chmod 755 /etc/rear/cert; fi )"
+  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( if [ ! -d /etc/rear/cert ]; then ${SUDO} mkdir -p /etc/rear/cert && ${SUDO} chmod 755 /etc/rear/cert; fi )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -229,7 +229,7 @@ function send_ssl_cert () {
   local CERT=$(cat /etc/drlm/cert/drlm.crt)
   ssh $SSH_OPTS ${USER}@${CLI_NAME} "$(declare -p CERT); ( echo \"$CERT\" | ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null \
   && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt \
-  && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`${SUDO} openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
+  && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`${SUDO} openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -238,7 +238,7 @@ function send_drlm_hostname () {
   local CLI_NAME=$2
   local SRV_IP=$3
   local SUDO=$4
-  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )"
+  ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -248,7 +248,7 @@ function create_drlm_user () {
   local DRLM_USER=$3
   local SUDO=$4
   PASS=$(echo -n changeme | openssl passwd -1 -stdin)
-  ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO /usr/sbin/useradd -d /home/$DRLM_USER -c 'DRLM User Agent' -m -s /bin/bash -p '$PASS' $DRLM_USER"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO /usr/sbin/useradd -d /home/$DRLM_USER -c 'DRLM User Agent' -m -s /bin/bash -p '$PASS' $DRLM_USER" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -257,7 +257,7 @@ function delete_drlm_user () {
   local CLI_NAME=$2
   local DRLM_USER=$3
   local SUDO=$4
-  ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -r $DRLM_USER"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -r $DRLM_USER" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -265,7 +265,7 @@ function disable_drlm_user_login () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO chage -I -1 -m 0 -M 99999 -E -1 $DRLM_USER; $SUDO passwd -l $DRLM_USER )"
+  ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO chage -I -1 -m 0 -M 99999 -E -1 $DRLM_USER; $SUDO passwd -l $DRLM_USER )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -277,7 +277,7 @@ function ssh_remove_authorized_keys () {
   local USER=$1
   local CLI_NAME=$2
   local AUTH_KEY=$(cat ~/.ssh/id_rsa.pub|awk '{print $3}')
-  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p AUTH_KEY ; declare -f remove_authorized_keys); remove_authorized_keys"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p AUTH_KEY ; declare -f remove_authorized_keys); remove_authorized_keys" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -304,7 +304,7 @@ function ssh_start_services () {
   local SERVICES="$3"
   local DISTRO=$4
   local SUDO=$5
-  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SERVICES DISTRO SUDO; declare -f start_services); start_services"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SERVICES DISTRO SUDO; declare -f start_services); start_services" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -356,7 +356,7 @@ function ssh_config_sudo () {
   local CLI_NAME=$2
   local DRLM_USER=$3
   local SUDO=$4
-  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO ; declare -f config_sudo); config_sudo"
+  ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO ; declare -f config_sudo); config_sudo" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -379,7 +379,7 @@ function copy_ssh_id () {
       $SUDO echo '$PUBKEY' >> /tmp/authorized_keys ;
       $SUDO mv /tmp/authorized_keys \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
       $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
-      $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;"
+      $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;" &> /dev/null
 }
 
 function authors () {
