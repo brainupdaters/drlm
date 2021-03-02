@@ -207,8 +207,7 @@ function list_client () {
     CLI_NAME_PARAM=""
   fi
 
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+  printf '%-10s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "$(tput bold)Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
 
   save_default_pretty_params_list_client
 
@@ -269,7 +268,7 @@ function config_client_cfg () {
   cp $SHARE_DIR/conf/samples/client_default.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
   chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
 
-  cp $CONFIG_DIR/client_default.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
+  cp $SHARE_DIR/conf/samples/client_default.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
   chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
 
   mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d

@@ -101,9 +101,9 @@ case "$1" in
     unconfigure_nfs_exports
   	reload_nfs
     if [ "$?" -eq "0" ]; then 
-      Log "$PROGRAM:$WORKFLOW:NFS:RELOAD:EXPORTFS: .... Success!"
+      Log "NFS:RELOAD:EXPORTFS: .... Success!"
     else
-      Error "$PROGRAM:$WORKFLOW:NFS:RELOAD:EXPORTFS: Problem eloading exportfs! ..."
+      Error "NFS:RELOAD:EXPORTFS: Problem eloading exportfs! ..."
       RETVAL="1"
     fi 
 
@@ -111,9 +111,9 @@ case "$1" in
     for NBD_MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR" | awk '{print $3}');	do
       do_umount $NBD_MOUNT_POINT
       if [ "$?" -eq "0" ]; then 
-        Log "$PROGRAM:$WORKFLOW:FS:UMOUNT:MOUNT_POINT($NBD_MOUNT_POINT): .... Success!"
+        Log "FS:UMOUNT:MOUNT_POINT($NBD_MOUNT_POINT): .... Success!"
       else
-        Error "$PROGRAM:$WORKFLOW:FS:UMOUNT:MOUNT_POINT($NBD_MOUNT_POINT): Problem unmounting Filesystem! Aborting ..."
+        Error "FS:UMOUNT:MOUNT_POINT($NBD_MOUNT_POINT): Problem unmounting Filesystem!"
         RETVAL="1"
       fi 
     done
@@ -126,9 +126,9 @@ case "$1" in
     for NBD_DEVICE in $(pgrep -fa ${ARCHDIR} | awk '{print $4}'); do
       disable_nbd $NBD_DEVICE
       if [ "$?" -eq "0" ]; then 
-        Log "$PROGRAM:$WORKFLOW:NBD_DEVICE:DETACH:NBD_DEVICE($NBD_DEVICE): .... Success!"
+        Log "NBD_DEVICE:DETACH:NBD_DEVICE($NBD_DEVICE): .... Success!"
       else
-        Error "$PROGRAM:$WORKFLOW:NBD_DEVICE:DETACH:NBD_DEVICE($NBD_DEVICE): Problem disabling NBD Device!"
+        Error "NBD_DEVICE:DETACH:NBD_DEVICE($NBD_DEVICE): Problem disabling NBD Device!"
         RETVAL="1"
       fi 
     done

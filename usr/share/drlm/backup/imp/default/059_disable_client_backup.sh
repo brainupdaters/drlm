@@ -11,6 +11,6 @@ elif [ "$BKP_TYPE" == "1" ]; then
   ENABLED_DB_BKP_ID=$(get_active_cli_rescue_from_db $CLI_ID)
 fi
 
-Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} for client: .... "
+Log "Deactivating Backup ${ENABLED_DB_BKP_ID} for client: .... "
 disable_backup $ENABLED_DB_BKP_ID
-Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${ENABLED_DB_BKP_ID} for client: .... Success!"
+Log "Deactivating Backup ${ENABLED_DB_BKP_ID} for client: .... Success!"

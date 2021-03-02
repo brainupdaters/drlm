@@ -34,8 +34,10 @@ function Source() {
 		else
 			# step-by-step mode or brakepoint if needed
 			[[ "$STEPBYSTEP" || ( "$BREAKPOINT" && "$relname" == @($BREAKPOINT) ) ]] && read -p "Press ENTER to include '$1' ..." 2>&1
-
+      Log ""
+      Log "======================================================================="
 			Log "Including ${1##$SHARE_DIR/}"
+      Log "======================================================================="
 			test "$DEBUGSCRIPTS" && set -x
 			. "$1"
 			test "$DEBUGSCRIPTS" && set +x
@@ -94,17 +96,17 @@ function SourceStage() {
 }
 
 
-function cleanup_build_area_and_end_program() {
-	# Cleanup build area
-	Log "Finished in $((SECONDS-STARTTIME)) seconds"
-	if test "$KEEP_BUILD_DIR" ; then
-		LogPrint "You should also rm -Rf $BUILD_DIR"
-	else
-		Log "Removing build area $BUILD_DIR"
-		rm -Rf $TMP_DIR
-		rm -Rf $ROOTFS_DIR
-		rm -Rf $BUILD_DIR/outputfs
-		rmdir $v $BUILD_DIR >&2
-	fi
-	Log "End of program reached"
-}
+# function cleanup_build_area_and_end_program() {
+# 	# Cleanup build area
+# 	Log "Finished in $((SECONDS-STARTTIME)) seconds"
+# 	if test "$KEEP_BUILD_DIR" ; then
+# 		LogPrint "You should also rm -Rf $BUILD_DIR"
+# 	else
+# 		Log "Removing build area $BUILD_DIR"
+# 		rm -Rf $TMP_DIR
+# 		rm -Rf $ROOTFS_DIR
+# 		rm -Rf $BUILD_DIR/outputfs
+# 		rmdir $BUILD_DIR >&2
+# 	fi
+# 	Log "End of program reached"
+# }

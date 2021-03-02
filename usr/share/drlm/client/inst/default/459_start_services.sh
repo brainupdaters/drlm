@@ -1,9 +1,5 @@
 # instclient workflow
 
-Log "####################################################"
-Log "# Starting Services                                #"
-Log "####################################################"
-
 case "$DISTRO" in
     Debian)
         case "$VERSION" in

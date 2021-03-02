@@ -1,12 +1,12 @@
 # expbackup workflow
 
-LogPrint "Exporting Backup ${BKP_ID} to ${EXP_FILE_NAME}..."
+Log "Exporting Backup ID $BKP_ID to $EXP_FILE_NAME file..."
 
 cp ${ARCHDIR}/$(get_backup_drfile_by_backup_id "$BKP_ID") $EXP_FILE_NAME
 if [ $? -eq 0 ]; then
-  Log "$PROGRAM:$WORKFLOW: ${BKP_ID} exported to ${EXP_FILE_NAME}. Success!"
+  LogPrint "Exported Backup ID $BKP_ID to $EXP_FILE_NAME file."
 else return
-  Error "$PROGRAM:$WORKFLOW: Problem exporting backup ${BKP_ID} to ${EXP_FILE_NAME}."
+  Error "Problem exporting Backup ID $BKP_ID to $EXP_FILE_NAME"
 fi
 
-LogPrint "Export successfully completed!"
+Log "Export successfully completed!"
