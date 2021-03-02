@@ -14,7 +14,7 @@ if [ -f "$EXP_FILE_NAME" ]; then
    Error "filename $EXP_FILE_NAME already exists. Use another filename"
 else
   if [ -w $(dirname "$EXP_FILE_NAME") ]; then
-    Log "$PROGRAM:$WORKFLOW: Export backup to filename ${EXP_FILE_NAME}"
+    Log "Export backup to filename ${EXP_FILE_NAME}"
   else
     Error "You do not have write permissions in this folder: $(dirname "$EXP_FILE_NAME")"
   fi
