@@ -48,14 +48,14 @@ func getVarValue(configLine, varName string) (bool, string) {
 
 func getConfigFileVar(configFile, varName string) (bool, string) {
 
-	f, e := os.Open(configFile)
-	if e != nil {
-		fmt.Println(e.Error())
-	}
-	defer f.Close()
-
 	found := false
 	foundVAR := ""
+
+	f, e := os.Open(configFile)
+	if e != nil {
+		return found, foundVAR
+	}
+	defer f.Close()
 
 	// Splits on newlines by default.
 	scanner := bufio.NewScanner(f)
