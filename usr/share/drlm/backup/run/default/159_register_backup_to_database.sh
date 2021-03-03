@@ -42,42 +42,39 @@
 #     CLI_REAR_PXE_FILE (Client ReaR PXE file)
 #     CLI_KERNEL_OPTS   (Client Kernel options)
 
-if [ "$DRLM_INCREMENTAL" != "yes" ]; then
-  Log "$PROGRAM:$WORKFLOW:DB:Backup(${BKP_ID}):${CLI_NAME}: Registering DR backup to DRLM database .... " 
-  
+if [ "$DRLM_INCREMENTAL" != "yes" ]; then  
   BKP_IS_ACTIVE="1"
   BKP_SIZE=$(du -h $ARCHDIR/$DR_FILE | cut -f1)
   BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )" 
 
   if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$BKP_TYPE" "$BKP_DATE"; then
-    Log "$PROGRAM:$WORKFLOW:DB:insert:Backup(${BKP_ID}):${CLI_NAME}: .... Success!"
+    LogPrint "Registered backup $BKP_ID in the database"
   else
-    Error "$PROGRAM:$WORKFLOW:DB:insert:Backup(${BKP_ID}):${CLI_NAME}: Problem registering backup on database! aborting ..."
+    Error "Problem registering backup $BKP_ID in database"
   fi
-  Log "$PROGRAM:$WORKFLOW:DB:Backup(${BKP_ID}):${CLI_NAME}: Registering DR backup to DRLM database .... Success!"
 else 
 
   # If incremental set backup as active in the data base
   if enable_backup_db $BKP_BASE_ID ; then
-    Log "$PROGRAM:$WORKFLOW:MODE:perm:DB:enable:(ID: $BKP_ID):${CLI_NAME}: .... Success!"
+    Log "Enabled backup $BKP_BASE_ID in the database"
   else
-    Error "$PROGRAM:$WORKFLOW:MODE:perm:DB:enable:(ID: $BKP_ID):${CLI_NAME}: Problem enabling backup in database! aborting ..."
+    Error "Problem enabling backup $BKP_BASE_ID in database"
   fi
 
   # Check if is a PXE rescue backup and if true enable PXE in the database
   if [ "$BKP_TYPE" == "1" ]; then
     if enable_pxe_db $BKP_BASE_ID; then
-      Log "$PROGRAM:$WORKFLOW:MODE:perm:DB:enablePXE:ID($BKP_BASE_ID):$CLI_NAME: .... Success!"
+      Log "Enabled PXE of backup $BKP_BASE_ID in the database"
     else
-      Error "$PROGRAM:$WORKFLOW:MODE:perm:DB:enablePXE:ID($BKP_BASE_ID):$CLI_NAME: Problem enabling backup in database! aborting ..."
+      Error "Problem enabling PXE backup $BKP_BASE_ID in database"
     fi
   fi
 
   # Disable current snap if exists
   if disable_backup_snap_db $BKP_BASE_ID; then
-    Log "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${BKP_BASE_ID} snaps: .... Success!"
+    Log "Deactivated Backup $BKP_BASE_ID snaps"
   else
-    Error "$PROGRAM:$WORKFLOW:${CLI_NAME}: Deactivating Backup ${BKP_BASE_ID} snaps: Problem disabling backup snap in database! Aborting ..."
+    Error "Problem disabling backup $BKP_BASE_ID snap in database"
   fi
 
   # Save snap parameters to database
@@ -87,28 +84,28 @@ else
   SNAP_DATE="$(get_backup_date_by_backup_id $BKP_BASE_ID)"
 
   if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE"; then
-    Log "$PROGRAM:$WORKFLOW:DB:insert:Snap:$SNAP_ID:Backup(${BKP_BASE_ID}):${CLI_NAME}: .... Success!"
+    LogPrint "Registered snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
   else
-    Error "$PROGRAM:$WORKFLOW:DB:insert:Snap:$SNAP_ID:Backup(${BKP_BASE_ID}):${CLI_NAME}: Problem registering snap on database! aborting ..."
+    Error "Problem registering snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
   fi
 
   # Update backup date, duration, syze
   BKP_DATE="$(echo $SNAP_ID | awk -F"." '{print $2}' | cut -c1-12)"
   BKP_SIZE="$(du -h $ARCHDIR/$DR_FILE | cut -f1)"
   if set_backup_date_by_backup_id "$BKP_BASE_ID" "$BKP_DATE"; then
-    Log "$PROGRAM:$WORKFLOW: Updating backup ($BKP_BASE_ID) date to $BKP_DATE"
+    Log "Updating backup ($BKP_BASE_ID) date to $BKP_DATE"
   else
-    Error "$PROGRAM:$WORKFLOW: Problem updating backup ($BKP_BASE_ID) date to $BKP_DATE"
+    Error "Problem updating backup ($BKP_BASE_ID) date to $BKP_DATE"
   fi
   if set_backup_duration_by_backup_id "$BKP_BASE_ID" "$BKP_DURATION"; then
-    Log "$PROGRAM:$WORKFLOW: Updating backup ($BKP_BASE_ID) duration to $BKP_DURATION"
+    Log "Updating backup ($BKP_BASE_ID) duration to $BKP_DURATION"
   else
-    Error "$PROGRAM:$WORKFLOW: Problem updating backup ($BKP_BASE_ID) duration to $BKP_DURATION"
+    Error "Problem updating backup ($BKP_BASE_ID) duration to $BKP_DURATION"
   fi
   if set_backup_size_by_backup_id "$BKP_BASE_ID" "$BKP_SIZE"; then
-    Log "$PROGRAM:$WORKFLOW: Updating backup ($BKP_BASE_ID) duration to $BKP_SIZE"
+    Log "Updating backup ($BKP_BASE_ID) duration to $BKP_SIZE"
   else
-    Error "$PROGRAM:$WORKFLOW: Probelm updating backup ($BKP_BASE_ID) duration to $BKP_SIZE"
+    Error "Probelm updating backup ($BKP_BASE_ID) duration to $BKP_SIZE"
   fi
 
 fi

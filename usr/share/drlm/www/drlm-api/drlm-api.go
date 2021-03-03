@@ -20,7 +20,11 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, filepath.Join("/var/lib/drlm/www", "signin.html"))
+	if r.URL.Path != "/" {
+		http.Redirect(w, r, "/", 302)
+	} else {
+		http.ServeFile(w, r, "/var/lib/drlm/www/signin.html")
+	}
 }
 
 // Serve static content
@@ -154,16 +158,21 @@ var routes = []route{
 	// File server no protected
 	newRoute("GET", "/((images|static|css|js)/[a-zA-Z0-9._/-]+)", staticGet),
 	// Legacy API functions /////////////////////////
-	newRoute("GET", "/clients/([^/]+)/config", middlewareClientToken(apiGetClientConfig)),
-	newRoute("GET", "/clients/([^/]+)/config/([^/]+)", middlewareClientToken(apiGetClientConfig)),
-	newRoute("PUT", "/clients/([^/]+)/log/([^/]+)/([^/]+)", middlewareClientToken(apiPutClientLog)),
+	newRoute("GET", "/clients/([^/]+)/config", middlewareClientToken(apiGetClientConfigLegacy)),
+	newRoute("GET", "/clients/([^/]+)/config/([^/]+)", middlewareClientToken(apiGetClientConfigLegacy)),
+	newRoute("PUT", "/clients/([^/]+)/log/([^/]+)/([^/]+)", middlewareClientToken(apiPutClientLogLegacy)),
 	// API functions ////////////////////////////////
 	newRoute("GET", "/api/networks", middlewareUserToken(apiGetNetworks)),
 	newRoute("GET", "/api/clients", middlewareUserToken(apiGetClients)),
+	newRoute("GET", "/api/clients/([^/]+)", middlewareUserToken(apiGetClient)),
+	newRoute("GET", "/api/clients/([^/]+)/configs", middlewareUserToken(apiGetClientConfigs)),
+	newRoute("GET", "/api/clients/([^/]+)/configs/([^/]+)", middlewareUserToken(apiGetClientConfig)),
 	newRoute("GET", "/api/backups", middlewareUserToken(apiGetBackups)),
 	newRoute("GET", "/api/jobs", middlewareUserToken(apiGetJobs)),
 	newRoute("GET", "/api/snaps", middlewareUserToken(apiGetSnaps)),
 	newRoute("GET", "/api/users", middlewareUserToken(apiGetUsers)),
+	newRoute("GET", "/api/users/([^/]+)", middlewareUserToken(apiGetUser)),
+	newRoute("PUT", "/api/users/([^/]+)", middlewareUserToken(apiUpdateUser)),
 	newRoute("GET", "/api/sessions", middlewareUserToken(apiGetSessions)),
 	// User Control Functions ///////////////////////
 	newRoute("POST", "/signin", userSignin),
@@ -204,6 +213,8 @@ func main() {
 	loadDRLMConfiguration()
 	// Show DRLM configuration files
 	printDRLMConfiguration()
+	// Update API User
+	updateDefaultAPIUser()
 
 	// Run HTTPS server with middlewareLog
 	log.Fatal(http.ListenAndServeTLS(":443", configDRLM.Certificate, configDRLM.Key, http.HandlerFunc(middlewareLog(Serve))))

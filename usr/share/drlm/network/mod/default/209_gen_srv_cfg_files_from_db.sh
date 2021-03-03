@@ -1,18 +1,11 @@
+# modnetwork workflow
 
-Log "$PROGRAM:$WORKFLOW: Populating DHCP configuration ..."
+Log "Populating DHCP configuration ..."
 
 generate_dhcp
 
 if reload_dhcp ; then
-	Log "$PROGRAM:$WORKFLOW: DHCP service reconfiguration complete!"
+  LogPrint "DHCP service reconfiguration done"
 else
-	Error "$PROGRAM:$WORKFLOW: DHCP service reconfiguration failed! See $LOGFILE for details."
+  Error "DHCP service reconfiguration failed"
 fi
-
-Log "------------------------------------------------------------------"
-Log "$PROGRAM $WORKFLOW:                                               "
-Log "                                                                  "
-Log " - Modifying DR Network $NET_NAME from DRLM ... Success!          "
-Log "                                                                  "
-Log " - End Date & Time: $DATE                                         "
-Log "------------------------------------------------------------------"

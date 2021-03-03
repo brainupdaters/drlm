@@ -141,7 +141,12 @@ function add_client_dbdrv ()
     fi
 
     echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}', '${CLI_OS}', '${CLI_REAR}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    if [ $? -eq 0 ]; then echo "New Client ID: $CLI_ID";else echo "ERRORFILEDB"; fi
+    if [ $? -eq 0 ]; then 
+      LogPrint "New Client ID: $CLI_ID"
+      return 0
+    else 
+      echo "ERRORFILEDB" 
+    fi
 }
 
 function del_client_id_dbdrv ()
@@ -236,9 +241,6 @@ function add_network_dbdrv ()
     local NET_SERVIP=$7
     local NET_NAME=$8
 
-    #To improve prevention of duplicated id when addnetwork are done simultaneously
-    sleep $(echo 0.$[ $RANDOM % 10 ]$[ $RANDOM % 10 ])
-
     NET_ID=$(echo "select count(*) from counters where idcounter='networks';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     if [ $NET_ID -eq  0 ]; then
         NET_ID=$(echo "select ifnull(max(idnetwork)+1, 1) from networks;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
@@ -248,7 +250,12 @@ function add_network_dbdrv ()
     fi
 
     echo "INSERT INTO networks (idnetwork, netip, mask, gw, domain, dns, broadcast, serverip, netname) VALUES (${NET_ID}, '${NET_IP}', '${NET_MASK}', '${NET_GW}', '${NET_DOM}', '${NET_DNS}', '${NET_BRO}', '${NET_SERVIP}', '${NET_NAME}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    if [ $? -eq 0 ]; then echo "New Network ID: $NET_ID";else echo "ERRORFILEDB"; fi
+    if [ $? -eq 0 ]; then 
+      LogPrint "New Network ID: $NET_ID";
+      return 0
+    else 
+      echo "ERRORFILEDB"; 
+    fi
 }
 
 function del_network_id_dbdrv ()
@@ -330,7 +337,12 @@ function get_network_srv_dbdrv ()
 
 function get_all_networks_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  local NET_NAME="$1"
+  if [ -n "$NET_NAME" ]; then
+    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks where netname="'$NET_NAME'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  else
+    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  fi
 }
 
 function get_all_network_names_dbdrv ()

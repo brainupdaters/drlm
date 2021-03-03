@@ -3,27 +3,34 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type Client struct {
-	ID          int    `json:"cli_id"`
-	Name        string `json:"cli_name"`
-	Mac         string `json:"cli_mac"`
-	IP          string `json:"cli_ip"`
-	NetworkName string `json:"cli_net"`
-	OS          string `json:"cli_os"`
-	ReaR        string `json:"cli_rear"`
-	Token       string `json:"cli_token"`
+	ID          int            `json:"cli_id"`
+	Name        string         `json:"cli_name"`
+	Mac         string         `json:"cli_mac"`
+	IP          string         `json:"cli_ip"`
+	NetworkName string         `json:"cli_net"`
+	OS          string         `json:"cli_os"`
+	ReaR        string         `json:"cli_rear"`
+	Token       string         `json:"cli_token"`
+	Configs     []ClientConfig `json:"cli_configs"`
+}
+
+type ClientConfig struct {
+	Name    string `json:"config_name"`
+	File    string `json:"config_file"`
+	Content string `json:"config_content"`
 }
 
 // Get slice with all clients from database
@@ -46,13 +53,14 @@ func (c *Client) GetAll() ([]Client, error) {
 			&c.OS,
 			&c.ReaR,
 		)
+		c.getClientToken()
 		clients = append(clients, *c)
 	}
 	return clients, nil
 }
 
 // Get client from database by client id
-func (c *Client) GetByID(id int) (Client, error) {
+func (c *Client) GetByID(id int) error {
 	db := GetConnection()
 	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients where idclient=?"
 
@@ -60,14 +68,19 @@ func (c *Client) GetByID(id int) (Client, error) {
 		&c.ID, &c.Name, &c.Mac, &c.IP, &c.NetworkName, &c.OS, &c.ReaR,
 	)
 	if err != nil {
-		return Client{}, err
+		return err
 	}
 
-	return *c, nil
+	if c.Name != "" {
+		c.getClientToken()
+		c.getClientConfigurations()
+	}
+
+	return nil
 }
 
 // Get client from database by client name
-func (c *Client) GetByName(name string) (Client, error) {
+func (c *Client) GetByName(name string) error {
 	db := GetConnection()
 	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients where cliname=?"
 
@@ -75,18 +88,15 @@ func (c *Client) GetByName(name string) (Client, error) {
 		&c.ID, &c.Name, &c.Mac, &c.IP, &c.NetworkName, &c.OS, &c.ReaR,
 	)
 	if err != nil {
-		return Client{}, err
+		return err
 	}
 
 	if c.Name != "" {
-		token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".cfg.d/" + c.Name + ".token")
-		if err != nil {
-			log.Fatal(err)
-		}
-		c.Token = string(token)
+		c.getClientToken()
+		c.getClientConfigurations()
 	}
 
-	return *c, nil
+	return nil
 }
 
 // Get Client Server IP
@@ -102,6 +112,43 @@ func (c *Client) getClientServerIP() (string, error) {
 		return serverIP, err
 	}
 	return serverIP, nil
+}
+
+func (c *Client) getClientToken() (string, error) {
+	token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".cfg.d/" + c.Name + ".token")
+	if err != nil {
+		log.Println("Error getting token of user ", c.Name, " err: ", err)
+	}
+	c.Token = string(token)
+
+	return string(token), err
+}
+
+func (c *Client) getClientConfigurations() ([]ClientConfig, error) {
+	var configs []ClientConfig
+
+	configName := "default"
+	configFile := configDRLM.CliConfigDir + "/" + c.Name + ".cfg"
+	configContent, _ := c.generateConfiguration("default")
+
+	configs = append(configs, ClientConfig{Name: configName, File: configFile, Content: configContent})
+
+	files, err := ioutil.ReadDir(configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		if filepath.Ext(f.Name()) != ".token" {
+			configName := fileNameWithoutExtension(f.Name())
+			configFile := configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/" + f.Name()
+			configContent, _ := c.generateConfiguration(configName)
+			configs = append(configs, ClientConfig{Name: configName, File: configFile, Content: configContent})
+		}
+	}
+	c.Configs = configs
+
+	return configs, err
 }
 
 // Generate default backup configuration
@@ -125,7 +172,22 @@ func (c *Client) generateDefaultConfig(configName string) string {
 
 // Generate and send client backup configuration
 func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
+
+	configuration, err := c.generateConfiguration(configName)
+	if err != nil {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	w.Write([]byte(configuration))
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (c *Client) generateConfiguration(configName string) (string, error) {
+	// We generate the base configurations
 	defaultConfig := c.generateDefaultConfig(configName)
+
 	tmpDefaultConfig := ""
 	configFileName := ""
 	found := false
@@ -135,12 +197,11 @@ func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
 	} else {
 		configFileName = configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/" + configName + ".cfg"
 	}
-	f, e := os.Open(configFileName)
-	if e != nil {
-		log.Println(e.Error())
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusNotFound)
-		return
+
+	f, err := os.Open(configFileName)
+	if err != nil {
+		log.Println(err.Error())
+		return "", err
 	}
 	defer f.Close()
 
@@ -173,30 +234,25 @@ func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
 		}
 	}
 
-	w.Write([]byte(defaultConfig))
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
+	return defaultConfig, nil
 }
 
 // Return a JSON with all clients
 func apiGetClients(w http.ResponseWriter, r *http.Request) {
-	allClients, _ := new(Client).GetAll()
 	response := ""
-	for _, c := range allClients {
-		b, _ := json.Marshal(c)
-		response += string(b) + ","
-	}
-	if len(response) > 0 {
-		response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
+
+	allClients, err := new(Client).GetAll()
+	if err == nil {
+		response = generateJSONResponse(allClients)
 	} else {
-		response = "{\"resultList\":{\"result\":[]}}"
+		response = generateJSONResponse("")
 	}
 
 	fmt.Fprintln(w, response)
 }
 
 // Client put log Handler
-func apiPutClientLog(w http.ResponseWriter, r *http.Request) {
+func apiPutClientLogLegacy(w http.ResponseWriter, r *http.Request) {
 	receivedClientName := getField(r, 0)
 	receivedWorkflow := getField(r, 1)
 	receivedDate := getField(r, 2)
@@ -210,18 +266,56 @@ func apiPutClientLog(w http.ResponseWriter, r *http.Request) {
 }
 
 // Client get configuration Handler
-func apiGetClientConfig(w http.ResponseWriter, r *http.Request) {
+func apiGetClientConfigLegacy(w http.ResponseWriter, r *http.Request) {
 	receivedClientName := getField(r, 0)
 	receivedConfig := ""
 	if len(r.Context().Value(ctxKey{}).([]string)) > 1 {
 		receivedConfig = getField(r, 1)
 	}
 
-	client, _ := new(Client).GetByName(receivedClientName)
+	client := new(Client)
+	client.GetByName(receivedClientName)
 
 	if receivedConfig == "/" || receivedConfig == "" {
 		client.sendConfig(w, "default")
 	} else {
 		client.sendConfig(w, receivedConfig)
 	}
+}
+
+// Get JSON of selected user
+func apiGetClient(w http.ResponseWriter, r *http.Request) {
+	receivedClientName := getField(r, 0)
+	response := ""
+
+	client := new(Client)
+	err := client.GetByName(receivedClientName)
+	if err == nil {
+		response = generateJSONResponse(client)
+	} else {
+		response = generateJSONResponse("")
+	}
+
+	fmt.Fprintln(w, response)
+}
+
+func apiGetClientConfigs(w http.ResponseWriter, r *http.Request) {
+	receivedClientName := getField(r, 0)
+	client := new(Client)
+	client.GetByName(receivedClientName)
+	fmt.Fprintln(w, generateJSONResponse(client.Configs))
+}
+
+func apiGetClientConfig(w http.ResponseWriter, r *http.Request) {
+	receivedClientName := getField(r, 0)
+	receivedClientConfig := getField(r, 1)
+
+	client := new(Client)
+	client.GetByName(receivedClientName)
+
+	configName := "default"
+	configFile := configDRLM.CliConfigDir + "/" + receivedClientName + ".cfg"
+	configContent, _ := client.generateConfiguration(receivedClientConfig)
+
+	fmt.Fprintln(w, generateJSONResponse(ClientConfig{Name: configName, File: configFile, Content: configContent}))
 }

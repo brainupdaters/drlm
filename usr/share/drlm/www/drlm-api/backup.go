@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -49,16 +48,6 @@ func (b *Backup) GetAll() ([]Backup, error) {
 
 func apiGetBackups(w http.ResponseWriter, r *http.Request) {
 	allBackups, _ := new(Backup).GetAll()
-	response := ""
-	for _, c := range allBackups {
-		b, _ := json.Marshal(c)
-		response += string(b) + ","
-	}
-	if len(response) > 0 {
-		response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
-	} else {
-		response = "{\"resultList\":{\"result\":[]}}"
-	}
-
+	response := generateJSONResponse(allBackups)
 	fmt.Fprintln(w, response)
 }

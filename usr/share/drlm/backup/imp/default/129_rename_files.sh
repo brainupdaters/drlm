@@ -6,7 +6,7 @@ if [ "$BKP_TYPE" == "1" ]; then
   OLD_CLINAME="$(echo $INPUT| cut -d'.' -f 1)"
 
   if [ "${OLD_CLINAME}" != "kernel" ]; then
-    Log "$PROGRAM:$WORKFLOW:rename_dr_file: imported DR file Client is ${OLD_CLINAME}"
+    Log "rename_dr_file: imported DR file Client is ${OLD_CLINAME}"
     Log "Renaming files into ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/..."
 
     for OLD_FILE in $( ls ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/); do

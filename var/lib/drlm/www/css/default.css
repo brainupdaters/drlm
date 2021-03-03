@@ -1,14 +1,3 @@
-/* .demo {
-  font-family: sans-serif;
-  border: 1px solid #eee;
-  border-radius: 2px;
-  padding: 20px 30px;
-  margin-top: 1em;
-  margin-bottom: 40px;
-  user-select: none;
-  overflow-x: auto;
-} */
-
 .table { 
   margin-top: 20px; 
   caption-side: top;
@@ -26,4 +15,8 @@
 
 .btn-primary{
   margin: 20px; 
+}
+
+.modal-backdrop {
+  background-color: grey;
 }

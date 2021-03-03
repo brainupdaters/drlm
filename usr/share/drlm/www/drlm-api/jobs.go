@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -49,16 +48,6 @@ func (j *Job) GetAll() ([]Job, error) {
 
 func apiGetJobs(w http.ResponseWriter, r *http.Request) {
 	allJobs, _ := new(Job).GetAll()
-	response := ""
-	for _, j := range allJobs {
-		b, _ := json.Marshal(j)
-		response += string(b) + ","
-	}
-	if len(response) > 0 {
-		response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
-	} else {
-		response = "{\"resultList\":{\"result\":[]}}"
-	}
-
+	response := generateJSONResponse(allJobs)
 	fmt.Fprintln(w, response)
 }
