@@ -134,7 +134,7 @@ fi
 
 ### Enable systemd services 
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
-systemctl enable xinetd.service
+systemctl --all --type service | grep -q xinetd.service && systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
