@@ -108,6 +108,12 @@ Error() {
 		EXIT_CODE=1
 	fi
 	VERBOSE=1
+
+  # If drlm workflow is launched from scheluder we have to check if error_reporting is enabled
+  if [ "$DRLM_IS_SCHEDULED" == "true" ]; then
+    report_error "$(Stamp)$PROGRAM:$WORKFLOW:ERROR: $*"
+  fi
+
 	LogPrint "ERROR: $*"
 
 	if has_binary caller; then
