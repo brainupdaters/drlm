@@ -2,11 +2,11 @@
 
 if [ -z "$CONFIG_ONLY" ]; then
 
-    if [ "$ARCH" = "x86_64" ]; then
+    if [ "$ARCH" == "x86_64" ]; then
       REP_ARCH="_64"
-    elif [ "$ARCH" = "i686" ]; then
+    elif [ "$ARCH" == "i686" ]; then
       REP_ARCH="_32"
-    elif [ "$ARCH" = "ppc64le" || "$ARCH" = "ppc64" ]; then
+    elif [ "$ARCH" == "ppc64le" ] || [ "$ARCH" == "ppc64" ]; then
       REP_ARCH="_PPC64"
     fi
     
@@ -23,7 +23,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     [6*-9*])
                         Error "$DISTRO $VERSION has not ReaR package available in repositories!"
@@ -80,7 +80,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     1[2-6])
                         Error "$DISTRO $VERSION has not ReaR package available in repositories!"
@@ -140,7 +140,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
             
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     [5*-8*])
                         if install_rear_yum_repo "$USER" "$CLI_NAME" "$SUDO"; then 
@@ -196,7 +196,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     [11*-12*-13*-])
                         Error "$DISTRO $VERSION has not ReaR package available in repositories!"
