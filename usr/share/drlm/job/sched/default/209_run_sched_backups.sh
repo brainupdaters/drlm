@@ -2,6 +2,10 @@
 
 if [ "$SCHED_MODE" == "run" ]; then
 
+  # set and export DRLM_IS_SCHEDULED="true" to let know to the child processes 
+  # that they have been launched from the scheduler
+  export DRLM_IS_SCHEDULED="true"
+
   NOW=$( get_format_date now )
 
   for line in $( get_jobs_by_ndate "$NOW" )

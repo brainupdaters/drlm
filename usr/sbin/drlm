@@ -182,7 +182,10 @@ case "$WORKFLOW" in
 	(help) ;;
 	(*)
 		LogPrint "$PRODUCT $VERSION / $RELEASE_DATE"
-		Log "Command line options: $0 ${CMD_OPTS[@]}"
+    if [ "$DRLM_IS_SCHEDULED" == "true" ]; then  
+		  Log "Running from drlm scheduler - run \"drlm listjobs\" to list scheduled backups"
+    fi
+    Log "Command line options: $0 ${CMD_OPTS[@]}" 
 		if [[ "$VERBOSE" ]]; then
 			LogPrint "Using log file: $LOGFILE"
 		fi

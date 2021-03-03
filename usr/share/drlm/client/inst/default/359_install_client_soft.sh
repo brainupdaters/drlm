@@ -1,6 +1,15 @@
 # instclient workflow
 
 if [ -z "$CONFIG_ONLY" ]; then
+
+    if [ "$ARCH" == "x86_64" ]; then
+      REP_ARCH="_64"
+    elif [ "$ARCH" == "i686" ]; then
+      REP_ARCH="_32"
+    elif [ "$ARCH" == "ppc64le" ] || [ "$ARCH" == "ppc64" ]; then
+      REP_ARCH="_PPC64"
+    fi
+    
     case "$DISTRO" in
     Debian)
         if check_apt "$USER" "$CLI_NAME" "$SUDO"; then
@@ -14,7 +23,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     [6*-9*])
                         Error "$DISTRO $VERSION has not ReaR package available in repositories!"
@@ -41,14 +50,6 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install proposed ReaR package by DRLM
             else
-                if [ "$ARCH" = "x86_64" ]; then
-                    REP_ARCH="_64"
-                elif [ "$ARCH" = "i686" ]; then
-                    REP_ARCH="_32"
-                elif [ "$ARCH" = "ppc64le" ]; then
-                     REP_ARCH="_PPC64"
-                fi
-
                 eval URL_REAR=\$URL_REAR_DEBIAN"$VERSION""$REP_ARCH"
 
                 if [ "$URL_REAR" == "" ]; then 
@@ -79,7 +80,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     1[2-6])
                         Error "$DISTRO $VERSION has not ReaR package available in repositories!"
@@ -109,14 +110,6 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install proposed ReaR package by DRLM    
             else
-                if [ "$ARCH" = "x86_64" ]; then
-                    REP_ARCH="_64"
-                elif [ "$ARCH" = "i686" ]; then
-                    REP_ARCH="_32"
-                elif [ "$ARCH" = "ppc64le" ]; then
-                     REP_ARCH="_PPC64"
-                fi
-
                 eval URL_REAR=\$URL_REAR_UBUNTU"$VERSION""$REP_ARCH"
 
                 if [ "$URL_REAR" == "" ]; then 
@@ -147,7 +140,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
             
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     [5*-8*])
                         if install_rear_yum_repo "$USER" "$CLI_NAME" "$SUDO"; then 
@@ -171,14 +164,6 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install proposed ReaR package by DRLM        
             else
-                if [ "$ARCH" = "x86_64" ]; then
-                    REP_ARCH="_64"
-                elif [ "$ARCH" = "i686" ]; then
-                    REP_ARCH="_32"
-                elif [ "$ARCH" = "ppc64le" ]; then
-                     REP_ARCH="_PPC64"
-                fi
-
                 eval URL_REAR=\$URL_REAR_REDHAT"$VERSION""$REP_ARCH"
 
                 if [ "$URL_REAR" == "" ]; then 
@@ -211,7 +196,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
-            if [ "$REPO_INST" = "true" ]; then
+            if [ "$REPO_INST" == "true" ]; then
                 case "$VERSION" in
                     [11*-12*-13*-])
                         Error "$DISTRO $VERSION has not ReaR package available in repositories!"
@@ -241,14 +226,6 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install proposed ReaR package by DRLM        
             else
-                if [ "$ARCH" = "x86_64" ]; then
-                    REP_ARCH="_64"
-                elif [ "$ARCH" = "i686" ]; then
-                    REP_ARCH="_32"
-                elif [ "$ARCH" = "ppc64le" ]; then
-                     REP_ARCH="_PPC64"
-                fi
-
                 eval URL_REAR=\$URL_REAR_SUSE"$VERSION""$REP_ARCH"
 
                 if [ "$URL_REAR" == "" ]; then 
