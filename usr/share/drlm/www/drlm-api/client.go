@@ -54,6 +54,7 @@ func (c *Client) GetAll() ([]Client, error) {
 			&c.ReaR,
 		)
 		c.getClientToken()
+		c.getClientConfigurations()
 		clients = append(clients, *c)
 	}
 	return clients, nil

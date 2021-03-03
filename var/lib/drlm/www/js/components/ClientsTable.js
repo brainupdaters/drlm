@@ -1,4 +1,4 @@
-import ClientsTableConfigurationsList from './ClientsTableConfigurationsList.js'
+import ClientsTableConfigurationsList from '/js/components/ClientsTableConfigurationsList.js'
 
 var ClientsTable = {
   components:{
