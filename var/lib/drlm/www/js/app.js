@@ -51,6 +51,6 @@ const vm = new Vue({
   }
 });
 
-$.getScript("/js/AppFunctions.js", function() {
+$.getScript("/js/components/AppFunctions.js", function() {
   console.log("AppFunctions.js loaded.");
 });
