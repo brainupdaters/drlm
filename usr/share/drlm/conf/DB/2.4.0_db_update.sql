@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS "snaps" (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-	"user_name" TEXT NOT NULL UNIQUE PRIMARY KEY,
-	"user_password" TEXT NOT NULL
+  "user_name" TEXT NOT NULL UNIQUE PRIMARY KEY,
+  "user_password" TEXT NOT NULL
 );
 
 INSERT INTO users (user_name, user_password)
