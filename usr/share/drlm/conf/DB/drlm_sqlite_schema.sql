@@ -103,4 +103,12 @@ CREATE TABLE IF NOT EXISTS "snaps" (
   CONSTRAINT "fk_backups_clients" FOREIGN KEY ("idbackup") REFERENCES "backups" ("idbackup") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+CREATE TABLE IF NOT EXISTS "users" (
+  "user_name" TEXT NOT NULL UNIQUE PRIMARY KEY,
+  "user_password" TEXT NOT NULL
+);
+
+INSERT INTO users (user_name, user_password)
+VALUES ("admindrlm", "895a8bd10611c7a9297437c8aeebe0bf");
+
 COMMIT;
