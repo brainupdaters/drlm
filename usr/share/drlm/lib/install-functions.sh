@@ -10,7 +10,7 @@ function get_distro () {
 function ssh_get_distro () {
   local USER=$1
   local CLI_NAME=$2
-  echo $(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -f get_distro); get_distro"  2> /dev/null) | tr -dc '[:alnum:][:punct:]'
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -f get_distro); get_distro"  2> /dev/null) | tr -dc '[:alnum:][:punct:]'
 }
 
 function get_release () {
