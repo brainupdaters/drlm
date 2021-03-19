@@ -145,10 +145,10 @@ type route struct {
 
 type ctxKey struct{}
 
-type spaHandler struct {
-	staticPath string
-	indexPath  string
-}
+// type spaHandler struct {
+// 	staticPath string
+// 	indexPath  string
+// }
 
 // Http Routing
 var routes = []route{
