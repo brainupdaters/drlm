@@ -108,7 +108,7 @@ else
   fi
 fi
 
-LogPrint "Enabling new DR store for client $CLI_NAME and defaultrsync $CLI_CFG"
+LogPrint "Enabling new DR store for client $CLI_NAME and $CLI_CFG"
 # Create nbd
 # Get next free nbd
 NBD_DEVICE=$(get_free_nbd)

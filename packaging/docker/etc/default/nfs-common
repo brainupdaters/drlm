@@ -16,4 +16,4 @@ STATDOPTS="--no-notify --port 32765 --outgoing-port 32766"
 NEED_IDMAPD=
 
 # Do you want to start the gssd daemon? It is required for Kerberos mounts.
-NEED_GSSD= 
+NEED_GSSD=
