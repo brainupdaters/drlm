@@ -22,7 +22,7 @@ else
 fi
 
 # DRLM 2.4.0 - Imports client configurations
-# Now you can define DRLM options, like SSH options (SSH_OPTS), for each client.
+# Now you can define DRLM options, like SSH options (SSH_OPTS, SSH_PORT, ...), for each client.
 
 # Import drlm specific client configuration if exists
 if [ -f $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg ]; then

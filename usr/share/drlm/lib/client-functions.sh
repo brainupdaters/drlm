@@ -314,7 +314,7 @@ function ssh_access_enabled () {
   local USER="$1"
   local CLI_NAME="$2"
 
-  if ssh $SSH_OPTS -q -o "BatchMode=yes" "$USER"@"$CLI_NAME" exit; then 
+  if ssh $SSH_OPTS -p $SSH_PORT -q -o "BatchMode=yes" "$USER"@"$CLI_NAME" exit; then 
     return 0 
   else 
     return 1 
