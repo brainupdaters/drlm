@@ -16,14 +16,14 @@ import (
 
 // Home handled
 func homePage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, filepath.Join("/var/lib/drlm/www", "index.html"))
+	http.ServeFile(w, r, filepath.Join(configDRLM.VarDir+"/www", "index.html"))
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Redirect(w, r, "/", 302)
 	} else {
-		http.ServeFile(w, r, "/var/lib/drlm/www/signin.html")
+		http.ServeFile(w, r, configDRLM.VarDir+"/www/signin.html")
 	}
 }
 
@@ -36,7 +36,7 @@ func staticGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// prepend the path with the path to the static directory
-	path = filepath.Join("/var/lib/drlm/www", path)
+	path = filepath.Join(configDRLM.VarDir+"/www", path)
 	// check whether a file exists at the given path
 	_, err = os.Stat(path)
 	if err != nil {
@@ -45,7 +45,7 @@ func staticGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// otherwise, use http.FileServer to serve the static dir
-	http.FileServer(http.Dir("/var/lib/drlm/www")).ServeHTTP(w, r)
+	http.FileServer(http.Dir(configDRLM.VarDir+"/www")).ServeHTTP(w, r)
 }
 
 // Middleware to log requests

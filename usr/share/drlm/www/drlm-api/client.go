@@ -162,10 +162,10 @@ func (c *Client) generateDefaultConfig(configName string) string {
 	clientConfig += "OUTPUT=PXE\n"
 	clientConfig += "OUTPUT_PREFIX=$OUTPUT\n"
 	clientConfig += "OUTPUT_PREFIX_PXE=$CLI_NAME/" + configName + "/$OUTPUT\n"
-	clientConfig += "OUTPUT_URL=nfs://$SRV_NET_IP/var/lib/drlm/store/$CLI_NAME/" + configName + "\n"
+	clientConfig += "OUTPUT_URL=nfs://$SRV_NET_IP" + configDRLM.StoreDir + "/$CLI_NAME/" + configName + "\n"
 	clientConfig += "BACKUP=NETFS\n"
 	clientConfig += "NETFS_PREFIX=BKP\n"
-	clientConfig += "BACKUP_URL=nfs://$SRV_NET_IP/var/lib/drlm/store/$CLI_NAME/" + configName + "\n"
+	clientConfig += "BACKUP_URL=nfs://$SRV_NET_IP" + configDRLM.StoreDir + "/$CLI_NAME/" + configName + "\n"
 	clientConfig += "SSH_ROOT_PASSWORD=drlm\n"
 
 	return clientConfig

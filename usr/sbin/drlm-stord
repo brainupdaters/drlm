@@ -145,7 +145,7 @@ case "$1" in
     
     Log "Getting Status from $DESC: "
     printf '%-12s\n' "$(tput bold)"
-		printf '%-12s %-9s %-8s %-45s %-50s\n' "NBD Device" "IMG Type" "FS Type" "DR Store" "DR File$(tput sgr0)"
+		printf '%-12s %-45s %-50s\n' "NBD Device" "DR Store" "DR File$(tput sgr0)"
     for MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR" | awk '{print $3}'); do
       NBD_DEVICE=$(/bin/mount -l | grep -w "$MOUNT_POINT" | awk '{print $1}')
       # ATTENTION! pgrep has to be used carefully, can return unwanted results if the match pattern is too simple.
@@ -154,9 +154,7 @@ case "$1" in
       # PGREP_RESULT intermediate step to avoid unwanted results of grep and pgrep combo
       PGREP_RESULT="$(pgrep -fa $NBD_DEVICE)"
       DR_FILE=$(echo "$PGREP_RESULT" | grep -w "$NBD_DEVICE" | awk '{print $5}')
-      FSTYPE=$(/bin/mount -l | grep "$MOUNT_POINT" | awk '{print $5}')
-      IMG_TYPE=$(qemu-img info $DR_FILE | grep "file format" | awk '{ print $3}')
-      printf '%-12s %-9s %-8s %-45s %-50s\n' $NBD_DEVICE $IMG_TYPE $FSTYPE $MOUNT_POINT $DR_FILE
+      printf '%-12s %-45s %-50s\n' $NBD_DEVICE $MOUNT_POINT $DR_FILE
     done
 		;;
 
