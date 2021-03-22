@@ -206,7 +206,7 @@ systemctl start drlm-api.service
 
 %changelog
 
-* Tue Feb 23 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Fri Mar 19 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -222,6 +222,7 @@ systemctl start drlm-api.service
 - Improved instclient configuration workflow
 - List Unscheduled clients bug fixed
 - Removed unsupported SysVinit service management
+- SSH_PORT variable independent of SSH_OPTS
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

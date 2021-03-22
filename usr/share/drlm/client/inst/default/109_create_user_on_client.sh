@@ -31,7 +31,7 @@ else
 fi
 
 #Create user on client
-ssh $SSH_OPTS ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER} &> /dev/null
+ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER} &> /dev/null
 if [ $? -eq 0 ]; then
     Log "${DRLM_USER} exists, deleting user ..."
     delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
