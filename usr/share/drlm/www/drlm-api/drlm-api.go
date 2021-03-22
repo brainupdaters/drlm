@@ -14,16 +14,44 @@ import (
 	"time"
 )
 
-// Home handled
-func homePage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, filepath.Join(configDRLM.VarDir+"/www", "index.html"))
-}
+func signin(w http.ResponseWriter, r *http.Request) {
 
-func login(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.Redirect(w, r, "/", 302)
+	// Check if user have an active session else serve signin.html
+	if r.URL.Path != "/signin" {
+		http.Redirect(w, r, "/signin", http.StatusFound)
 	} else {
-		http.ServeFile(w, r, configDRLM.VarDir+"/www/signin.html")
+		c, err := r.Cookie("session_token")
+		if err != nil {
+			// If no exist token redirec to login
+			http.ServeFile(w, r, configDRLM.VarDir+"/www/signin.html")
+			return
+		}
+
+		// First clean old sessions
+		new(Session).CleanSessions()
+
+		// Get the session from sessions whit the token value
+		session := Session{"", c.Value, 0}
+		session, err = session.Get()
+		if err != nil {
+			// If there is an error fetching from sessions, redirect to login
+			http.ServeFile(w, r, configDRLM.VarDir+"/www/signin.html")
+			return
+		}
+
+		session.Timestamp = time.Now().Unix()
+		session.Update()
+
+		// Send updated expiration time cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:    "session_token",
+			Value:   session.Token,
+			Path:    "/",
+			Expires: time.Now().Add(600 * time.Second),
+			Secure:  true,
+		})
+
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }
 
@@ -65,7 +93,7 @@ func middlewareUserToken(next http.HandlerFunc) http.HandlerFunc {
 		c, err := r.Cookie("session_token")
 		if err != nil {
 			// If no exist token redirec to login
-			login(w, r)
+			signin(w, r)
 			return
 		}
 
@@ -77,7 +105,7 @@ func middlewareUserToken(next http.HandlerFunc) http.HandlerFunc {
 		session, err = session.Get()
 		if err != nil {
 			// If there is an error fetching from sessions, redirect to login
-			login(w, r)
+			signin(w, r)
 			return
 		}
 
@@ -90,6 +118,7 @@ func middlewareUserToken(next http.HandlerFunc) http.HandlerFunc {
 			Value:   session.Token,
 			Path:    "/",
 			Expires: time.Now().Add(600 * time.Second),
+			Secure:  true,
 		})
 
 		next.ServeHTTP(w, r)
@@ -154,7 +183,6 @@ type ctxKey struct{}
 var routes = []route{
 	// File server token protected
 	newRoute("GET", "/", middlewareUserToken(staticGet)),
-	newRoute("GET", "/index.html", middlewareUserToken(staticGet)),
 	// File server no protected
 	newRoute("GET", "/((images|static|css|js)/[a-zA-Z0-9._/-]+)", staticGet),
 	// Legacy API functions /////////////////////////
@@ -176,7 +204,8 @@ var routes = []route{
 	newRoute("GET", "/api/sessions", middlewareUserToken(apiGetSessions)),
 	// User Control Functions ///////////////////////
 	newRoute("POST", "/signin", userSignin),
-	newRoute("POST", "/logout", userLogout),
+	newRoute("GET", "/signin", signin),
+	newRoute("POST", "/logout", middlewareUserToken(userLogout)),
 }
 
 func newRoute(method, pattern string, handler http.HandlerFunc) route {

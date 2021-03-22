@@ -49,12 +49,13 @@
               $("#error").hide();
               $("#success").show();
               $('#success').html('Loggin OK !');
-              location.href = "/index.html";	
+              location.href = "/";
             },
 
             error: function () {
               $("#error").show();
               $('#error').html('Invalid Username or Password !');
+              document.getElementById('inputPassword').value="";
             }
           })
 
