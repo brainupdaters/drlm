@@ -165,10 +165,10 @@ function enable_nbd_ro () {
   # when we are trying to get the NBD or DR_FILE from a grep if there the 
   # paremeters are in diferent order we can not obtain correctly them.
   if [ -n "$SNAP_ID" ]; then
-    qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r -l $SNAP_ID >> /dev/null 2>&1
+    qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native -l $SNAP_ID >> /dev/null 2>&1
     if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   else 
-    qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r >> /dev/null 2>&1
+    qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native >> /dev/null 2>&1
     if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   fi
   # Return 0 if OK or 1 if NOK
@@ -181,7 +181,7 @@ function enable_nbd_rw () {
   # It is important to put de parameters in this oder.
   # when we are trying to get the NBD or DR_FILE from a grep if there the 
   # paremeters are in diferent order we can not obtain correctly them.
-  qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
+  qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }

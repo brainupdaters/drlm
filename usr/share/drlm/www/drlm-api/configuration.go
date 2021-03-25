@@ -12,6 +12,7 @@ import (
 
 type Configuration struct {
 	VarDir       string
+	StoreDir     string
 	SqliteFile   string
 	CliConfigDir string
 	RearLogDir   string
@@ -110,6 +111,19 @@ func loadDRLMConfiguration() {
 	configDRLM.VarDir = strings.Replace(configDRLM.VarDir, "$DRLM_DIR_PREFIX", "", -1)
 	///////////////////////////////////////
 
+	// Find value for STORDIR ////////
+	if found, tmpValue := getConfigFileVar("/usr/share/drlm/conf/default.conf", "STORDIR"); found {
+		configDRLM.StoreDir = tmpValue
+	}
+	if found, tmpValue := getConfigFileVar("/etc/drlm/local.conf", "STORDIR"); found {
+		configDRLM.StoreDir = tmpValue
+	}
+	if found, tmpValue := getConfigFileVar("/etc/drlm/site.conf", "STORDIR"); found {
+		configDRLM.StoreDir = tmpValue
+	}
+	configDRLM.StoreDir = strings.Replace(configDRLM.StoreDir, "$VAR_DIR", configDRLM.VarDir, -1)
+	///////////////////////////////////////
+
 	// Find value for DB_PATH //////
 	if found, tmpValue := getConfigFileVar("/usr/share/drlm/conf/default.conf", "DB_PATH"); found {
 		configDRLM.SqliteFile = tmpValue
@@ -169,6 +183,7 @@ func printDRLMConfiguration() {
 	fmt.Println("=== DRLM API CONFIGURATION ===")
 	fmt.Println("==============================")
 	fmt.Println("VAR_DIR=" + configDRLM.VarDir)
+	fmt.Println("STORDIR=" + configDRLM.StoreDir)
 	fmt.Println("DB_PATH=" + configDRLM.SqliteFile)
 	fmt.Println("CLI_CONF_DIR=" + configDRLM.CliConfigDir)
 	fmt.Println("REAR_LOG_DIR=" + configDRLM.RearLogDir)

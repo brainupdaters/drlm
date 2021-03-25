@@ -204,11 +204,11 @@ function send_drlm_token () {
   local CLI_NAME="$2"
   local SUDO="$3"
 
-  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token ]; then
+  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.token ]; then
     generate_client_token "$CLI_NAME"
   fi
   
-  local TOKEN="$(/bin/cat $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token)"
+  local TOKEN="$(/bin/cat $CONFIG_DIR/clients/${CLI_NAME}.token)"
 
   ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( echo '$TOKEN' | ${SUDO} tee /etc/rear/drlm.token >/dev/null && ${SUDO} chmod 600 /etc/rear/drlm.token )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi

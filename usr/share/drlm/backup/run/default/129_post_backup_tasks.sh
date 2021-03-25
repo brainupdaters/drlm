@@ -43,7 +43,7 @@ if [ "$BKP_TYPE" == "1" ]; then
   F_CLI_MAC=$(format_mac ${CLI_MAC} ":")
   CLI_KERNEL_FILE=$(ls ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/*kernel | xargs -n 1 basename)
   CLI_INITRD_FILE=$(ls ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/*initrd* | xargs -n 1 basename)
-  CLI_REAR_PXE_FILE=$(grep -w append ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/rear* | awk -F':' '{print $1}' | xargs -n 1 basename)
+  CLI_REAR_PXE_FILE=$(grep -l -w append ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/rear* | xargs -n 1 basename)
   CLI_KERNEL_OPTS=$(grep -h -w append ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/${CLI_REAR_PXE_FILE} | awk '{print substr($0, index($0,$3))}' | sed 's/vga/gfxpayload=vga/')
 
   if [ $(stat -c %a ${STORDIR}/${CLI_NAME}) != "755" ]; then

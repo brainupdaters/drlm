@@ -85,6 +85,7 @@ func userSignin(w http.ResponseWriter, r *http.Request) {
 		Value:   sessionToken,
 		Path:    "/",
 		Expires: time.Now().Add(600 * time.Second),
+		Secure:  true,
 	})
 }
 
@@ -94,7 +95,7 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("session_token")
 	if err != nil {
 		// If no exist token redirec to login
-		login(w, r)
+		signin(w, r)
 		return
 	}
 
@@ -103,7 +104,7 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 	session, err = session.Get()
 	if err != nil {
 		// If there is an error fetching from sessions, redirect to login
-		login(w, r)
+		signin(w, r)
 		return
 	}
 
@@ -117,7 +118,6 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 		MaxAge: -1,
 	})
 
-	login(w, r)
 }
 
 // Get JSON list off all users
