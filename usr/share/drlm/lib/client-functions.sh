@@ -280,8 +280,7 @@ function config_client_cfg () {
 function generate_client_token () {
   local CLI_NAME="$1"
   # Generate client token to improve drlm-api security
-  #/usr/bin/tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token
-  /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.cfg.d/${CLI_NAME}.token
+  /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.token
 }
 
 function has_jobs_scheduled () {

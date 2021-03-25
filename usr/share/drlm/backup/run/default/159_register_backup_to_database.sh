@@ -89,7 +89,7 @@ else
     Error "Problem registering snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
   fi
 
-  # Update backup date, duration, syze
+  # Update backup date, duration, size
   BKP_DATE="$(echo $SNAP_ID | awk -F"." '{print $2}' | cut -c1-12)"
   BKP_SIZE="$(du -h $ARCHDIR/$DR_FILE | cut -f1)"
   if set_backup_date_by_backup_id "$BKP_BASE_ID" "$BKP_DATE"; then

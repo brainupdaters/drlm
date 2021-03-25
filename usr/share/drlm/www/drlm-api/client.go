@@ -116,7 +116,7 @@ func (c *Client) getClientServerIP() (string, error) {
 }
 
 func (c *Client) getClientToken() (string, error) {
-	token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".cfg.d/" + c.Name + ".token")
+	token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".token")
 	if err != nil {
 		log.Println("Error getting token of user ", c.Name, " err: ", err)
 	}
@@ -140,7 +140,7 @@ func (c *Client) getClientConfigurations() ([]ClientConfig, error) {
 	}
 
 	for _, f := range files {
-		if filepath.Ext(f.Name()) != ".token" {
+		if filepath.Ext(f.Name()) == ".cfg" {
 			configName := fileNameWithoutExtension(f.Name())
 			configFile := configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/" + f.Name()
 			configContent, _ := c.generateConfiguration(configName)
