@@ -34,6 +34,14 @@ case "$1" in
       rm /etc/systemd/system/drlm-api.service
       systemctl daemon-reload
     fi
+
+    # Stop, disable and remove rsync service
+    if [ -f "/var/run/rsyncd.pid" ]; then
+      kill $(cat /var/run/rsyncd.pid)
+    fi
+    rm -f /etc/rsyncd.conf
+    rm -f /etc/rsyncd.motd
+
     ;;
 
   *)

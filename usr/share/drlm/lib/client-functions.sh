@@ -275,12 +275,28 @@ function config_client_cfg () {
   chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
 
   generate_client_token $CLI_NAME
+
 }
 
 function generate_client_token () {
   local CLI_NAME="$1"
   # Generate client token to improve drlm-api security
   /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.token
+  chmod 600 $CONFIG_DIR/clients/${CLI_NAME}.token
+}
+
+function generate_client_secrets () {
+  local CLI_NAME="$1"
+
+  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.token ]; then
+    generate_client_token "$CLI_NAME"
+  fi
+
+  # Generate client token to improve drlm-api security
+  echo "${CLI_NAME}:$(cat $CONFIG_DIR/clients/${CLI_NAME}.token)" > $CONFIG_DIR/clients/${CLI_NAME}.secrets
+
+  # RSYNCD needs to have user and group read/write restrictions to secrets file
+  chmod 600 $CONFIG_DIR/clients/${CLI_NAME}.secrets
 }
 
 function has_jobs_scheduled () {
@@ -318,4 +334,19 @@ function ssh_access_enabled () {
   else 
     return 1 
   fi
+}
+
+function mount_remote_tmp_nfs () {
+  local CLI_NAME=$1
+  local NFS_EXPORT=$2
+  local TMP_MOUNT_POINT=$3
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /usr/bin/rm -rf /tmp/drlm; sudo /usr/bin/mkdir /tmp/drlm; sudo /usr/bin/mount -t nfs $(hostname -s):$NFS_EXPORT $TMP_MOUNT_POINT;" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function umount_remote_tmp_nfs () {
+  local CLI_NAME=$1
+  local TMP_MOUNT_POINT=$2
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /usr/bin/umount $TMP_MOUNT_POINT; sudo /usr/bin/rm -rf /tmp/drlm;" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }

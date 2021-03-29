@@ -2,17 +2,18 @@
 
 # Available VARs
 # ==============
-# CLI_ID      (Client Id) 
-# CLI_NAME    (Client Name)
-# CLI_CFG     (Client Configuration. If not set = "default"
-# CLI_MAC     (Client Mac)
-# CLI_IP      (Client IP)
+# CLI_ID         (Client Id) 
+# CLI_NAME       (Client Name)
+# CLI_CFG        (Client Configuration. If not set = "default"
+# CLI_MAC        (Client Mac)
+# CLI_IP         (Client IP)
 # CLI_DISTO      (Client Linux Distribution)
-# CLI_RELEASE     (Client Linux CLI_RELEASE)
-# CLI_REAR    (Client ReaR Version)
+# CLI_RELEASE    (Client Linux CLI_RELEASE)
+# CLI_REAR       (Client ReaR Version)
 
-# BKP_TYPE    (Backup Type. 0 - Data Only, 1 - PXE, 2 - ISO)
-# ACTIVE_PXE  (=1 if backup type = PXE )
+# DRLM_BKP_TYPE  (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ] 
+# DRLM_BKP_PROT  (Backup protocol) [ RSYNC | NETFS ]
+# DRLM_BKP_PROG  (Backup program)  [ RSYNC | TAR ]
 
 # In order to prevent concurrent backups of the same client at the same time
 # DRLM creates a flag for drlm client process running in /var/lib/drlm/run

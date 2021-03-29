@@ -27,20 +27,3 @@ if  [ -n "$IMP_BKP_ID" ]; then
     Error "Backup ID: $IMP_BKP_ID not registered"
   fi
 fi
-
-# Check what backup type is
-if [ "$BACKUP_ONLY_INCLUDE" == "yes" ]; then
-  BKP_TYPE=0
-  ACTIVE_PXE=0
-  LogPrint "Importing a Data Only backup"
-elif [ "$OUTPUT" == "PXE" ] && [ "$BACKUP_ONLY_INCLUDE" != "yes" ]; then
-  BKP_TYPE=1
-  ACTIVE_PXE=1
-  LogPrint "Importing a Recover PXE backup"
-elif [ "$OUTPUT" == "ISO" ] && [ "$BACKUP_ONLY_INCLUDE" != "yes" ]; then
-  BKP_TYPE=2
-  ACTIVE_PXE=0
-  LogPrint "Importing a Recover ISO backup"
-else 
-  Error "Backup type not supported OUTPUT != PXE and not Data Only Backup"
-fi

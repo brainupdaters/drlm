@@ -12,6 +12,7 @@ var BackupsTable = {
             <th>Status</th>
             <th>DR</th>
             <th>Duration</th>
+            <th>Size</th>
             <th>PXE</th>
             <th>Config</th>
             <th>Type</th>
@@ -26,12 +27,15 @@ var BackupsTable = {
             <td v-else>disabled</td>
             <td>{{ backup.drfile }}</td>
             <td>{{ backup.duration }}</td>
+            <td>{{ backup.size }}</td>
             <td v-if="backup.PXE == 1">*</td>
             <td v-else> </td>
             <td>{{ backup.config }}</td>
             <td v-if="backup.type == 0">Data</td>
             <td v-else-if="backup.type == 1">PXE</td>
             <td v-else-if="backup.type == 2">ISO</td>
+            <td v-else-if="backup.type == 3">ISO_FULL</td>
+            <td v-else-if="backup.type == 4">ISO_FULL</td>
           </tr>
         </tbody>
       </table>

@@ -25,7 +25,7 @@ if [ "$CLI_CFG" = "default" ]; then
   else
     LogPrint "$CONFIG_DIR/clients/$CLI_NAME.cfg config file not found, running with default values"
   fi
-else
+elif [ -n "$CLI_CFG" ]; then
   if [ -f $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg ]; then
     source $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg
     LogPrint "Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg)"

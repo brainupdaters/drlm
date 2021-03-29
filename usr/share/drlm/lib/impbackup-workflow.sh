@@ -23,7 +23,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} impbackup )
 
 if [ "$WORKFLOW" == "impbackup" ]; then
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "f:c:C:t:I:h" -l "file:,client:,config:,type:,id:,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "f:c:C:iI:h" -l "file:,client:,import-config,type:,id:,help" -- "$@")"
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
@@ -66,15 +66,8 @@ if [ "$WORKFLOW" == "impbackup" ]; then
         shift 
         ;;
 
-      (-t|--type)
-        # We need to take the option argument
-        if [ -n "$2" ]; then 
-          BKP_TYPE="$2"
-        else
-          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-          exit 1
-        fi
-        shift 
+      (-i|--import-config)
+        IMPORT_CONFIGURATION="Y"
         ;;
 
       (-I|--id)
@@ -127,9 +120,9 @@ if [ "$WORKFLOW" == "impbackup" ]; then
     exit 1
   fi
 
-  if [ -z "$CLI_CFG" ]; then
-    CLI_CFG="default"
-  fi
+  # if [ -z "$CLI_CFG" ]; then
+  #   CLI_CFG="default"
+  # fi
 
   WORKFLOW_impbackup () {
     #echo impbackup workflow

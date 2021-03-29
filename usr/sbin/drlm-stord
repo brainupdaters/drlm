@@ -32,6 +32,7 @@ DESC="DRLM Store Service"
 SHARE_DIR="/usr/share/drlm"
 PROGRAM="DRLM-STORD"
 WORKFLOW=""
+CONFIG_DIR="/etc/drlm"
 
 # Source DRLM configurations and functions
 source $SHARE_DIR/conf/default.conf
@@ -40,7 +41,9 @@ source $SHARE_DIR/conf/default.conf
 
 source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
 source $SHARE_DIR/lib/backup-functions.sh
+source $SHARE_DIR/lib/client-functions.sh
 source $SHARE_DIR/lib/nfs-functions.sh
+source $SHARE_DIR/lib/rsync-functions.sh
 
 # Returned value
 RETVAL="0"
@@ -97,13 +100,22 @@ case "$1" in
     
     Log "Shutting down $DESC: "
     
+    Log "Removing rsync modules"
+    unconfigure_rsync_modules
+    if [ "$?" -eq "0" ]; then 
+      Log "RSYNC:MODULES:REMOVE: .... Success!"
+    else
+      Error "RSYNC:MODULES:REMOVE: Problem removing rsyncd.d modules ..."
+      RETVAL="1"
+    fi 
+
 		Log "Unconfiguring NFS exports"
     unconfigure_nfs_exports
   	reload_nfs
     if [ "$?" -eq "0" ]; then 
       Log "NFS:RELOAD:EXPORTFS: .... Success!"
     else
-      Error "NFS:RELOAD:EXPORTFS: Problem eloading exportfs! ..."
+      Error "NFS:RELOAD:EXPORTFS: Problem reloading exportfs! ..."
       RETVAL="1"
     fi 
 

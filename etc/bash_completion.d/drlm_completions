@@ -604,21 +604,21 @@ __drlm_expbackup ()
 
 __drlm_impbackup ()
 {
-	local options_s="-c -f -I -h -C -t"
-	local options_l="--client --file  --id --help --config --type"
+	local options_s="-c -f -I -h -C -i"
+	local options_l="--client --file  --id --help --config --import-config"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-f --file" "$workflow"; then
-		local options_s="-c -f -C -t"
-		local options_l="--client --file --config --type"
+		local options_s="-c -f -C -i"
+		local options_l="--client --file --config --import-config"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-c -I -C -t"
-		local options_l="--client --id --config --type"
+		local options_s="-c -I -C -i"
+		local options_l="--client --id --config --import-config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -f -I -C -t"
-		local options_l="--client --file --id --config --type"
+		local options_s="-c -f -I -C -i"
+		local options_l="--client --file --id --config --import-config"
 	fi
 
 	case "$prev" in
@@ -654,11 +654,6 @@ __drlm_impbackup ()
 				done
       fi
 			;;
-
-    -t | --type)
-      ### Configurations types onlye can be this values
-      COMPREPLY=( '0' '1' '2' )
-      ;;
 		-f | --file)
 			_filedir
 			;;

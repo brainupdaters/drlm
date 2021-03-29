@@ -112,11 +112,20 @@ systemctl daemon-reload
 fi
 
 %post
-### Create logs folder
-mkdir -p /var/log/drlm/rear
+### Create client config directory
+[ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
+[ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
+
+### Create directory for rear client logs
+[ ! -d /var/log/drlm/rear ] && mkdir -p /var/log/drlm/rear
 chmod 775 /var/log/drlm/rear
-### Create nfs exports directory folder
+
+### Check if /etc/exports.d directory is present
 [ ! -d /etc/exports.d ] && mkdir -p /etc/exports.d && chmod 755 /etc/exports.d
+
+### Check if /etc/rsyncd.d directory is present
+[ ! -d /etc/rsyncd.d ] && mkdir /etc/rsyncd.d && chmod 755 /etc/rsyncd.d
+
 ### Unpack GRUB files
 tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
 
@@ -132,12 +141,27 @@ fi
 ### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
 
+### Save rsynd.conf if exists 
+if [ -f /etc/rsyncd.conf ]; then
+mv /etc/rsyncd.conf /etc/rsyncd.conf.$(date +"%Y%m%d%H%M%S").drlm.save
+fi
+### Save rsynd.conf if exists 
+if [ -f /etc/rsyncd.motd ]; then
+mv /etc/rsyncd.motd /etc/rsyncd.motd.$(date +"%Y%m%d%H%M%S").drlm.save
+fi
+
+### Add rsyncd.conf file
+cp /usr/share/drlm/conf/rsyncd/rsyncd.conf /etc/rsyncd.conf
+### Add rsyncd.motd file
+cp /usr/share/drlm/conf/rsyncd/rsyncd.motd /etc/rsyncd.motd
+
 ### Enable systemd services 
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
 systemctl --all --type service | grep -q xinetd.service && systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
+
 ### If is upgrade from older DRLM versions is important stop https server
 if [ "$1" == "2" ]; then
 %if %{?suse_version:1}0
@@ -149,9 +173,11 @@ systemctl is-active --quiet httpd.service && systemctl stop httpd.service
 systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 %endif
 fi
+
 ### Save drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/tmp_drlm-api.service
+
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
@@ -169,6 +195,12 @@ systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.serv
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
+### Stop Rsync daemon
+if [ -f "/var/run/rsyncd.pid" ]; then
+kill $(cat /var/run/rsyncd.pid)
+fi
+%{__rm} -f /etc/rsyncd.conf
+%{__rm} -f /etc/rsyncd.motd
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -187,7 +219,7 @@ systemctl daemon-reload
 %{_sbindir}/drlm-api
 
 %posttrans
-# Rcover certificates post transaction
+### Rcover certificates post transaction
 if [ -f /etc/drlm/cert/tmp_drlm.key ]; then
 mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
 mv /etc/drlm/cert/tmp_drlm.crt /etc/drlm/cert/drlm.crt
@@ -204,9 +236,15 @@ systemctl start drlm-stord.service
 systemctl is-enabled --quiet drlm-api.service || systemctl enable drlm-api.service
 systemctl start drlm-api.service
 
+### Reload RSYNC daemon
+if [ -f "/var/run/rsyncd.pid" ]; then
+kill $(cat /var/run/rsyncd.pid)
+fi
+rsync --daemon
+
 %changelog
 
-* Fri Mar 19 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Mon Mar 29 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -223,6 +261,7 @@ systemctl start drlm-api.service
 - List Unscheduled clients bug fixed
 - Removed unsupported SysVinit service management
 - SSH_PORT variable independent of SSH_OPTS
+- RSYNC protocol supported
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

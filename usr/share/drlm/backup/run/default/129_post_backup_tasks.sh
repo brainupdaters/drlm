@@ -7,19 +7,23 @@
 # CLI_CFG               (Client Configuration. If not set = "default"
 # CLI_MAC               (Client Mac)
 # CLI_IP                (Client IP)
-# CLI_DISTO                (Client Linux Distribution)
-# CLI_RELEASE               (Client Linux CLI_RELEASE)
+# CLI_DISTO             (Client Linux Distribution)
+# CLI_RELEASE           (Client Linux CLI_RELEASE)
 # CLI_REAR              (Client ReaR Version)
-    
+
+# DRLM_BKP_TYPE         (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ] 
+# DRLM_BKP_PROT         (Backup protocol) [ RSYNC | NETFS ]
+# DRLM_BKP_PROG         (Backup program)  [ RSYNC | TAR ]
+
 # INCLUDE_LIST_VG       (Include list of Volume Groups in client Configurations)
 # EXCLUDE_LIST_VG       (Exclude list of Volume Groups in client Configurations)
 # EXCLUDE_LIST          (Exclude list of mountpoints and paths in client Configurations)
 # DR_IMG_SIZE_MB        (Backup DR file size)
     
-# BKP_TYPE              (Backup Type. 0 - Data Only, 1 - PXE, 2 - ISO)
-# ACTIVE_PXE            (=1 if backup type = PXE )
-# ENABLED_DB_BKP_ID     (Backup ID of enabled backup before do runbackup)
-# ENABLED_DB_BKP_SNAP   (SNAP ID of ENABLED_DB_BKP_ID)
+# ENABLED_DB_BKP_ID_PXE     (Backup ID of enabled backup before do runbackup)
+# ENABLED_DB_BKP_SNAP_PXE   (SNAP ID of ENABLED_DB_BKP_ID_PXE)
+# ENABLED_DB_BKP_ID_CFG     (Backup ID of enabled backup before do runbackup)
+# ENABLED_DB_BKP_SNAP_CFG   (SNAP ID of ENABLED_DB_BKP_ID_CFG)
 # DR_FILE               (DR file)
 # NBD_DEVICE            (NBD Device)
 # INHERITED_DR_FILE     (yes=backup inherited from old backup,no=new empty dr file)
@@ -35,8 +39,8 @@
 # if DRLM_INCREMENTAL = "no" (when incremental = "no" or is the first Backup of an incremental)
 #     BKP_ID            (Backup ID)
 
-# BKP_TYPE is PXE
-if [ "$BKP_TYPE" == "1" ]; then
+# DRLM_BKP_TYPE is PXE
+if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
 
   LogPrint "Enabling PXE boot"
 
@@ -107,6 +111,13 @@ EOF
     Error "- Problem Creating MAC Address (GRUB2) boot configuration file for PXE"
   fi
 
+fi
+
+# Include backup configuration to dr file
+if [ "$CLI_CFG" = "default" ]; then
+  grep -o '^[^#]*' $CONFIG_DIR/clients/$CLI_NAME.cfg > ${STORDIR}/${CLI_NAME}/${CLI_CFG}/${CLI_NAME}.${CLI_CFG}.drlm.cfg
+else
+  grep -o '^[^#]*' $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg > ${STORDIR}/${CLI_NAME}/${CLI_CFG}/${CLI_NAME}.${CLI_CFG}.drlm.cfg
 fi
 
 # Remount DRLM Store in Read Only have been moved to 209_clear_older_backups

@@ -1,6 +1,6 @@
 # bkpmgr workflow
 
-if [ "$BKP_TYPE" == "1" ]; then
+if [ "$BKP_TYPE" == "PXE" ]; then
 
 LogPrint "Enabling PXE boot"
 

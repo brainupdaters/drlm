@@ -67,7 +67,7 @@ function enable_nfs_fs_rw ()
   local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.${CLI_CFG}.drlm.exports
   local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.${CLI_CFG}.drlm.exports
   if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
-    rm ${EXPORT_CLI_NAME_DISABLED}
+    rm -f ${EXPORT_CLI_NAME_DISABLED}
   fi
   echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
   reload_nfs ${EXPORT_CLI_NAME}
@@ -91,18 +91,18 @@ function disable_nfs_fs ()
   fi
 }
 
-function disable_all_nfs_fs() {
-  local CLI_NAME=$1
-  local rval='0'
+# function disable_all_nfs_fs() {
+#   local CLI_NAME=$1
+#   local rval='0'
 
-  for EXPORT_CLI_FILE in ${NFS_DIR}/exports.d/${CLI_NAME}.*.drlm.exports; do
-    mv $EXPORT_CLI_FILE ${NFS_DIR}/exports.d/.$(basename $EXPORT_CLI_FILE)
-    rval=$(( ${rval} + ${?}))
-  done
+#   for EXPORT_CLI_FILE in ${NFS_DIR}/exports.d/${CLI_NAME}.*.drlm.exports; do
+#     mv $EXPORT_CLI_FILE ${NFS_DIR}/exports.d/.$(basename $EXPORT_CLI_FILE)
+#     rval=$(( ${rval} + ${?}))
+#   done
 
-  reload_nfs
-  if [ ${?} -eq 0 ]; then sleep 1; exportfs -f; return 0; else return 1; fi
-}
+#   reload_nfs
+#   if [ ${?} -eq 0 ]; then sleep 1; exportfs -f; return 0; else return 1; fi
+# }
 
 function reload_nfs ()
 {
@@ -123,25 +123,25 @@ function reload_nfs ()
   fi
 }
 
-function add_nfs_export ()
-{
-  local CLI_NAME=${1}
-  local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
-  if [ ! -f "${EXPORT_CLI_NAME}" ]; then
-    echo "${STORDIR}/${CLI_NAME} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
-    if [ $? -eq 0 ]; then
-      NFSCHECK=$(lsmod | grep nfs)
-      if [[ -z "${NFSCHECK}" ]]; then
-        systemctl start ${NFS_SVC_NAME}.service > /dev/null
-      fi
-      reload_nfs ${EXPORT_CLI_NAME}
-      return ${?}
-    else
-      return 1
-    fi
-  fi
-# Return 0 if OK or 1 if NOK
-}
+# function add_nfs_export ()
+# {
+#   local CLI_NAME=${1}
+#   local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.drlm.exports
+#   if [ ! -f "${EXPORT_CLI_NAME}" ]; then
+#     echo "${STORDIR}/${CLI_NAME} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+#     if [ $? -eq 0 ]; then
+#       NFSCHECK=$(lsmod | grep nfs)
+#       if [[ -z "${NFSCHECK}" ]]; then
+#         systemctl start ${NFS_SVC_NAME}.service > /dev/null
+#       fi
+#       reload_nfs ${EXPORT_CLI_NAME}
+#       return ${?}
+#     else
+#       return 1
+#     fi
+#   fi
+# # Return 0 if OK or 1 if NOK
+# }
 
 function del_nfs_export ()
 {

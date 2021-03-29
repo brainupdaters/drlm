@@ -238,7 +238,7 @@ function send_drlm_hostname () {
   local CLI_NAME=$2
   local SRV_IP=$3
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( echo \$(grep "$SRV_IP" /etc/hosts) | grep -w "$(hostname -s)" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -380,6 +380,26 @@ function copy_ssh_id () {
       $SUDO mv /tmp/authorized_keys \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
       $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
       $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;" &> /dev/null
+}
+
+function config_public_keys () {
+  # Generate key and public key if does not exists
+  $SUDO [ ! -f /root/.ssh/id_rsa ] && $SUDO /usr/bin/ssh-keygen -q -t rsa -N '' -f /root/.ssh/id_rsa <<<y &> /dev/null
+  
+  # Add drlm server to known_host if does not exists
+  $SUDO /usr/bin/ssh-keygen -R $DRLM_SERVER &> /dev/null  
+  $SUDO /usr/bin/ssh-keyscan -H $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+
+  # return de public key to add and authorize the client in drlm server  
+  $SUDO cat /root/.ssh/id_rsa.pub
+}
+
+function ssh_config_public_keys () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  local DRLM_SERVER="$(hostname -s)"
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO DRLM_SERVER ; declare -f config_public_keys); config_public_keys")
 }
 
 function authors () {
