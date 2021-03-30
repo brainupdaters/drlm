@@ -388,7 +388,10 @@ function config_public_keys () {
   
   # Add drlm server to known_host if does not exists
   $SUDO /usr/bin/ssh-keygen -R $DRLM_SERVER &> /dev/null  
-  $SUDO /usr/bin/ssh-keyscan -H $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+
+  # Is better to add add the hosts hashed but -H parameter does not work on centos 8
+  # $SUDO /usr/bin/ssh-keyscan -H $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+  $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
 
   # return de public key to add and authorize the client in drlm server  
   $SUDO cat /root/.ssh/id_rsa.pub

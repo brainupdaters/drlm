@@ -138,14 +138,11 @@ endif
 install-config:
 	@echo -e "\033[1m== Installing configuration ==\033[0;0m"
 	install -d -m0700 $(DESTDIR)$(sysconfdir)/drlm/
-	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
-	install -Dp -m0600 etc/drlm/cert/README.rst $(DESTDIR)$(sysconfdir)/drlm/cert/README.rst
+	cp -a etc/drlm/. $(DESTDIR)$(sysconfdir)/drlm/
 	install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
 	install -Dp -m0600 etc/bash_completion.d/drlm_completions $(DESTDIR)$(sysconfdir)/bash_completion.d/drlm_completions
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
-		install -Dp -m0644 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
 		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
