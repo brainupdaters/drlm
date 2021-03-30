@@ -124,7 +124,7 @@ chmod 775 /var/log/drlm/rear
 [ ! -d /etc/exports.d ] && mkdir -p /etc/exports.d && chmod 755 /etc/exports.d
 
 ### Check if /etc/rsyncd.d directory is present
-[ ! -d /etc/rsyncd.d ] && mkdir /etc/rsyncd.d && chmod 755 /etc/rsyncd.d
+[ ! -d /etc/drlm/rsyncd/rsyncd.d ] && mkdir /etc/drlm/rsyncd/rsyncd.d && chmod 755 /etc/drlm/rsyncd/rsyncd.d
 
 ### Unpack GRUB files
 tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
@@ -140,20 +140,6 @@ fi
 
 ### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
-
-### Save rsynd.conf if exists 
-if [ -f /etc/rsyncd.conf ]; then
-mv /etc/rsyncd.conf /etc/rsyncd.conf.$(date +"%Y%m%d%H%M%S").drlm.save
-fi
-### Save rsynd.conf if exists 
-if [ -f /etc/rsyncd.motd ]; then
-mv /etc/rsyncd.motd /etc/rsyncd.motd.$(date +"%Y%m%d%H%M%S").drlm.save
-fi
-
-### Add rsyncd.conf file
-cp /usr/share/drlm/conf/rsyncd/rsyncd.conf /etc/rsyncd.conf
-### Add rsyncd.motd file
-cp /usr/share/drlm/conf/rsyncd/rsyncd.motd /etc/rsyncd.motd
 
 ### Enable systemd services 
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
@@ -177,6 +163,7 @@ fi
 ### Save drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/tmp_drlm-api.service
+%{__cp} /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/tmp_drlm-rsyncd.service
 
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
@@ -192,15 +179,12 @@ systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.serv
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
 systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
 systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
-### Stop Rsync daemon
-if [ -f "/var/run/rsyncd.pid" ]; then
-kill $(cat /var/run/rsyncd.pid)
-fi
-%{__rm} -f /etc/rsyncd.conf
-%{__rm} -f /etc/rsyncd.motd
+%{__rm} -f /etc/systemd/system/drlm-rsyncd.service
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -229,18 +213,18 @@ fi
 mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 mv /etc/systemd/system/tmp_drlm-api.service /etc/systemd/system/drlm-api.service
-systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+mv /etc/systemd/system/tmp_drlm-rsyncd.service /etc/systemd/system/drlm-rsyncd.service
+systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+
 systemctl daemon-reload
+
 systemctl is-enabled --quiet drlm-stord.service || systemctl enable drlm-stord.service
 systemctl start drlm-stord.service
 systemctl is-enabled --quiet drlm-api.service || systemctl enable drlm-api.service
 systemctl start drlm-api.service
-
-### Reload RSYNC daemon
-if [ -f "/var/run/rsyncd.pid" ]; then
-kill $(cat /var/run/rsyncd.pid)
-fi
-rsync --daemon
+systemctl is-enabled --quiet drlm-rsyncd.service || systemctl enable drlm-rsyncd.service
+systemctl start drlm-rsyncd.service
 
 %changelog
 

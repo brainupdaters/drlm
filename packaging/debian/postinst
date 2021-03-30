@@ -15,7 +15,7 @@ case "$1" in
     [ ! -d /etc/exports.d ] && mkdir /etc/exports.d && chmod 755 /etc/exports.d
 
     # Check if /etc/rsyncd.d directory is present
-    [ ! -d /etc/rsyncd.d ] && mkdir /etc/rsyncd.d && chmod 755 /etc/rsyncd.d
+    [ ! -d /etc/drlm/rsyncd/rsyncd.d ] && mkdir /etc/drlm/rsyncd/rsyncd.d && chmod 755 /etc/drlm/rsyncd/rsyncd.d
 
     # Unpack GRUB files
     tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
@@ -28,26 +28,10 @@ case "$1" in
     # Update old database or create new one running drlm_db_version script.
     /usr/share/drlm/conf/DB/drlm_db_version.sh
 
-    # Save rsynd.conf if exists 
-    if [ -f /etc/rsyncd.conf ]; then
-      mv /etc/rsyncd.conf /etc/rsyncd.conf.$(date +"%Y%m%d%H%M%S").drlm.save
-    fi
-    # Save rsyncd.motd if exists 
-    if [ -f /etc/rsyncd.motd ]; then
-      mv /etc/rsyncd.motd /etc/rsyncd.motd.$(date +"%Y%m%d%H%M%S").drlm.save
-    fi
-
-    # Add rsyncd.conf file
-    cp /usr/share/drlm/conf/rsyncd/rsyncd.conf /etc/rsyncd.conf
-    # Add rsyncd.motd file
-    cp /usr/share/drlm/conf/rsyncd/rsyncd.motd /etc/rsyncd.motd
-
     # Stop previos drlm services if exists
     systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
-    if [ -f "/var/run/rsyncd.pid" ]; then
-      kill $(cat /var/run/rsyncd.pid)
-    fi
+    systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
 
     # Add systemd drlm services
     cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
@@ -55,6 +39,7 @@ case "$1" in
         sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
     fi
     cp /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/
 
     # Reload systemd services
     systemctl daemon-reload
@@ -66,6 +51,7 @@ case "$1" in
     systemctl enable isc-dhcp-server.service
     systemctl enable drlm-stord.service
     systemctl enable drlm-api.service
+    systemctl enable drlm-rsyncd.service
 
     # Start drlm services
     systemctl start drlm-stord.service

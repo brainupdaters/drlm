@@ -90,12 +90,12 @@ function del_rsync_modules ()
 function reload_rsync ()
 {
   # Check if RSYNC daemon is running and if true kill it
-  if [ -f "/var/run/rsyncd.pid" ]; then
-    kill $(cat /var/run/rsyncd.pid)
+  if [ -f "/var/run/drlm-rsyncd.pid" ]; then
+    kill $(cat /var/run/drlm-rsyncd.pid)
   fi
 
   # Wait for process to run down
-  while [ -f "/var/run/rsyncd.pid" ]; do 
+  while [ -f "/var/run/drlm-rsyncd.pid" ]; do 
     sleep 0.2
   done
 

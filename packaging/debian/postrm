@@ -36,11 +36,12 @@ case "$1" in
     fi
 
     # Stop, disable and remove rsync service
-    if [ -f "/var/run/rsyncd.pid" ]; then
-      kill $(cat /var/run/rsyncd.pid)
+    if [ -f /etc/systemd/system/drlm-rsyncd.service ]; then
+      systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+      systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
+      rm /etc/systemd/system/drlm-rsyncd.service
+      systemctl daemon-reload
     fi
-    rm -f /etc/rsyncd.conf
-    rm -f /etc/rsyncd.motd
 
     ;;
 
