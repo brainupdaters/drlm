@@ -89,7 +89,7 @@ validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
 
 	#Validating BASH Syntax
-	find etc/ usr/share/drlm/conf/ -name '*.conf' | xargs bash -n
+	find etc/ usr/share/drlm/conf/ -name '*.conf' ! -path etc/drlm/rsyncd/rsyncd.conf | xargs bash -n
 	bash -n $(drlmbin)
 	bash -n $(drlm_store_svc)
 	find . -name '*.sh' | xargs bash -n
