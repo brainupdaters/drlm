@@ -31,11 +31,7 @@ var BackupsTable = {
             <td v-if="backup.PXE == 1">*</td>
             <td v-else> </td>
             <td>{{ backup.config }}</td>
-            <td v-if="backup.type == 0">Data</td>
-            <td v-else-if="backup.type == 1">PXE</td>
-            <td v-else-if="backup.type == 2">ISO</td>
-            <td v-else-if="backup.type == 3">ISO_FULL</td>
-            <td v-else-if="backup.type == 4">ISO_FULL</td>
+            <td>{{ backup.type }}-{{ backup.protocol }}</td>
           </tr>
         </tbody>
       </table>
