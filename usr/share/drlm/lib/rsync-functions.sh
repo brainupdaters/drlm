@@ -100,8 +100,8 @@ function reload_rsync ()
   done
 
   # Wakeup RSYNC in daemon mode
-  rsync --daemon
-
+  rsync --daemon --config=/etc/drlm/rsyncd/rsyncd.conf
+  
   # Return 0 if OK or 1 if NOK
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
