@@ -286,12 +286,12 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		/////////////
 	} else if drlmBkpType == "DATA" || drlmBkpType == "\"DATA\"" {
 		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
-			clientConfig = "OUTPUT=ISO\n"
+			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
+			clientConfig += "OUTPUT=ISO\n"
 			clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
-			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --password-file=/etc/rear/drlm.token )\n"
 			clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
