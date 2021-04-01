@@ -1,0 +1,12 @@
+[Unit]
+Description=DRLM TFTPD Service
+After=drlm-api.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/sbin/in.tftpd --foreground --user tftp --address 0.0.0.0:69 --secure /var/lib/drlm/store
+
+[Install]
+WantedBy=multi-user.target

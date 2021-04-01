@@ -22,7 +22,7 @@ else
   Error "DHCP service reconfiguration failed! See $LOGFILE for details."
 fi
 
-#Add client config file at DRLM Server
+# Add client config file at DRLM Server
 if config_client_cfg ${CLI_NAME}; then
   LogPrint "/etc/drlm/clients/${CLI_NAME}.cfg has been created with default configuration"
 else

@@ -467,7 +467,7 @@ function get_active_cli_bkp_from_db_dbdrv ()
 
 function get_active_cli_rescue_from_db_dbdrv () {
   local CLI_ID=$1
-  echo $(echo "select idbackup from backups where clients_id='${CLI_ID}' and active=1 and type=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $(echo "select idbackup from backups where clients_id='${CLI_ID}' and active=1 and type='PXE';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
 function get_active_cli_pxe_from_db_dbdrv () {
@@ -476,7 +476,7 @@ function get_active_cli_pxe_from_db_dbdrv () {
 }
 
 function get_all_backups_dbdrv () {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", date from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function enable_backup_db_dbdrv ()
@@ -581,9 +581,10 @@ function register_backup_dbdrv () {
   local BKP_CFG="$7"
   local BKP_PXE="$8"
   local BKP_TYPE="$9"
-  local BKP_DATE="${10}"
+  local BKP_PROTO="${10}"
+  local BKP_DATE="${11}"
 
-  echo "INSERT INTO backups VALUES('${BKP_ID}', ${BKP_CLI_ID}, '${BKP_DR_FILE}', ${BKP_IS_ACTIVE}, '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', ${BKP_TYPE}, ${BKP_DATE} );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO backups VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -674,6 +675,12 @@ function get_backup_type_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local BKP_TYPE=$(echo "select type from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $BKP_TYPE
+}
+
+function get_backup_protocol_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_PROTO=$(echo "select protocol from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_PROTO
 }
 
 function get_backup_date_by_backup_id_dbdrv () {

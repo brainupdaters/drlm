@@ -20,7 +20,7 @@ function run_mkbackup_ssh_remote () {
     GLOB_OPT="$GLOB_OPT -C $CLI_CFG"
   fi
 
-  if [ "$BACKUP_ONLY_INCLUDE" == "yes" ]; then
+  if [ "$DRLM_BKP_TYPE" == "DATA" ]; then
     REAR_RUN="mkbackuponly"
   else
     REAR_RUN="mkbackup"
@@ -67,8 +67,9 @@ function list_backup () {
     local CLI_CFG="$(echo $line|awk -F":" '{print $10}')"
     local BAC_PXE="$(echo $line|awk -F":" '{print $11}')"
     local BAC_TYPE="$(echo $line|awk -F":" '{print $12}')"
+    local BAC_PROT="$(echo $line|awk -F":" '{print $13}')"
 
-    local BAC_DATE="$(echo $line|awk -F":" '{print $13}')"
+    local BAC_DATE="$(echo $line|awk -F":" '{print $14}')"
     local BAC_DAY="$(echo $BAC_DATE|cut -c1-8)"
     local BAC_TIME="$(echo $BAC_DATE|cut -c9-12)"
     local BAC_DATE="$(date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M")"
@@ -80,11 +81,16 @@ function list_backup () {
     fi 
 
     if [ "$BAC_TYPE" == "0" ]; then
-      BAC_TYPE="Data Only"
+      BAC_TYPE="DATA"
     elif [ "$BAC_TYPE" == "1" ]; then 
-      BAC_TYPE="Recover PXE"
+      BAC_TYPE="PXE"
     elif [ "$BAC_TYPE" == "2" ]; then 
-      BAC_TYPE="Recover ISO"
+      BAC_TYPE="ISO"
+    elif [ "$BAC_TYPE" == "3" ]; then 
+      BAC_TYPE="ISO_FULL"
+    elif [ "$BAC_TYPE" == "4" ]; then 
+      BAC_TYPE="ISO_FULL"
+        
     fi 
 
     load_default_pretty_params_list_backup
@@ -105,7 +111,7 @@ function list_backup () {
     fi
 
     if [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then 
-      printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "$BAC_TYPE"; 
+      printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "$BAC_TYPE-$BAC_PROT"; 
     fi
 
     # Check if BAC_ID have snapshots and list them
@@ -400,9 +406,10 @@ function register_backup () {
   local BKP_CFG="$7"
   local BKP_PXE="$8"
   local BKP_TYPE="$9"
-  local BKP_DATE="${10}"
+  local BKP_PROTO="${10}"
+  local BKP_DATE="${11}"
 
-  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_DATE"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE"
 }
 
 function register_snap () {
@@ -586,6 +593,13 @@ function get_backup_type_by_backup_id ()
   local BKP_ID=$1
   local BKP_TYPE=$(get_backup_type_by_backup_id_dbdrv "$BKP_ID")
   echo $BKP_TYPE
+}
+
+function get_backup_protocol_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_PROTO=$(get_backup_protocol_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_PROTO
 }
 
 function get_backup_date_by_backup_id ()
@@ -879,6 +893,13 @@ function disable_backup () {
       Error "- Problem disabling NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
     fi
 
+    # Disable RSYNC
+    if disable_rsync_fs $ENABLED_BKP_CLI_NAME $ENABLED_BKP_CFG; then
+      Log "- Disabled RSYNC module ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
+    else
+      Error "- Problem disabling RSYNC module ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
+    fi
+
     # Umount NBD device
     if [ -n "$NBD_MOUNT_POINT" ]; then
       if do_umount $NBD_MOUNT_POINT; then
@@ -891,9 +912,9 @@ function disable_backup () {
     # Detach NBD device
     if [ -n "$NBD_DEVICE" ]; then
       if disable_nbd $NBD_DEVICE; then
-        Log "- Dettached NBD device $NBD_DEVICE"
+        Log "- Dettached NBD device ($NBD_DEVICE)"
       else
-        Error "- Problem dettaching NBD device"
+        Error "- Problem dettaching NBD device ($NBD_DEVICE)"
       fi
     fi
 
@@ -927,11 +948,18 @@ function disable_backup_store () {
 
   # Disable NFS
   if disable_nfs_fs $CLI_NAME $CLI_CFG; then
-    Log "- Disabled NFS export"
+    Log "- Disabled NFS export ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
   else
-    Error "- Problem disabling NFS export"
+    Error "- Problem disabling NFS export ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
   fi
 
+  # Disable RSYNC
+  if disable_rsync_fs $CLI_NAME $CLI_CFG; then
+    Log "- Disabled RSYNC module ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+  else
+    Error "- Problem disabling RSYNC module ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+  fi
+  
   # Umount NBD device
   if [ -n "$NBD_MOUNT_POINT" ]; then
     if do_umount $NBD_MOUNT_POINT; then
@@ -951,38 +979,38 @@ function disable_backup_store () {
   fi
 }
 
-function enable_backup_store_rw () {
+# function enable_backup_store_rw () {
   
-  local DR_FILE=$1
-  local CLI_NAME=$2
-  local CLI_CFG=$3
+#   local DR_FILE=$1
+#   local CLI_NAME=$2
+#   local CLI_CFG=$3
 
-  # Create nbd:
-  # Get next nbd device free
-  local NBD_DEVICE="$(get_free_nbd)"
+#   # Create nbd:
+#   # Get next nbd device free
+#   local NBD_DEVICE="$(get_free_nbd)"
 
-  Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+#   Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
 
-  if enable_nbd_rw $NBD_DEVICE $DR_FILE; then
-    Log "- Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
-  else
-    Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
-  fi
+#   if enable_nbd_rw $NBD_DEVICE $DR_FILE; then
+#     Log "- Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
+#   else
+#     Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
+#   fi
 
-  # Mount image:
-  if do_mount_ext4_rw $NBD_DEVICE $CLI_NAME $CLI_CFG; then
-    Log "- Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
-  else
-    Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
-  fi
+#   # Mount image:
+#   if do_mount_ext4_rw $NBD_DEVICE $CLI_NAME $CLI_CFG; then
+#     Log "- Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+#   else
+#     Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+#   fi
 
-  # Enable NFS read/write mode:
-  if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
-    Log "- Enabled NFS export (rw)"
-  else
-    Error "- Problem enabling NFS export (rw)"
-  fi
-}
+#   # # Enable NFS read/write mode:
+#   # if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
+#   #   Log "- Enabled NFS export (rw)"
+#   # else
+#   #   Error "- Problem enabling NFS export (rw)"
+#   # fi
+# }
 
 function enable_backup_store_ro () {
   
@@ -994,6 +1022,9 @@ function enable_backup_store_ro () {
   # Create nbd:
   # Get next nbd device free
   local NBD_DEVICE="$(get_free_nbd)"
+
+  local BKP_ID="$(get_backup_id_by_drfile $DR_FILE)"
+  local BKP_PROTO="$(get_backup_protocol_by_backup_id $BKP_ID)"
 
   Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
 
@@ -1010,10 +1041,20 @@ function enable_backup_store_ro () {
     Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
   fi
 
-  # Enable NFS read/write mode:
-  if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
-    Log "- Enabled NFS export (ro)"
-  else
-    Error "- Problem enabling NFS export (ro)"
+  if [ "$BKP_PROTO" == "NETFS" ]; then
+    # Enable NFS read only mode:
+    if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
+      Log "- Enabled NFS export (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    else
+      Error "- Problem enabling NFS export (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    fi
+  elif [ "$BKP_PROTO" == "RSYNC" ]; then
+    # Enable RSYNC read only mode:
+    if enable_rsync_fs_ro $CLI_NAME $CLI_CFG; then
+      Log "- Enabled RSYNC module (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    else
+      Error "- Enabled RSYNC module (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    fi
   fi
+  
 }

@@ -155,25 +155,173 @@ func (c *Client) getClientConfigurations() ([]ClientConfig, error) {
 // Generate default backup configuration
 func (c *Client) generateDefaultConfig(configName string) string {
 
+	// Generate configFileName to get the backup type, protocol and program
+	configFileName := ""
+	if configName == "default" {
+		configFileName = configDRLM.CliConfigDir + "/" + c.Name + ".cfg"
+	} else {
+		configFileName = configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/" + configName + ".cfg"
+	}
+
+	configFile, err := os.Open(configFileName)
+	if err != nil {
+		log.Println(err.Error())
+		// TODO what to do if returned error?
+		return ""
+	}
+	defer configFile.Close()
+
+	drlmBkpType := ""
+	drlmBkpProt := ""
+	drlmBkpProg := ""
+
+	// Splits on newlines by default.
+	scanner := bufio.NewScanner(configFile)
+	for scanner.Scan() {
+		line := strings.TrimSpace(strings.Split(scanner.Text(), "#")[0])
+		if line != "" {
+			// Have a new line from config file get the var name
+			varName := strings.TrimSpace(strings.Split(line, "=")[0])
+			// And get var value if exist
+			varValue := ""
+			if len(strings.Split(line, "=")) > 1 {
+				varValue = strings.TrimSpace(strings.Split(line, "=")[1])
+			}
+			// if varName is like DRLM_BKP_* get its value
+			if varName == "DRLM_BKP_TYPE" {
+				drlmBkpType = varValue
+			} else if varName == "DRLM_BKP_PROT" {
+				drlmBkpProt = varValue
+			} else if varName == "DRLM_BKP_PROG" {
+				drlmBkpProg = varValue
+			}
+		}
+	}
+
 	serverIP, _ := c.getClientServerIP()
 
-	clientConfig := "CLI_NAME=" + c.Name + "\n"
-	clientConfig += "SRV_NET_IP=" + serverIP + "\n"
-	clientConfig += "OUTPUT=PXE\n"
-	clientConfig += "OUTPUT_PREFIX=$OUTPUT\n"
-	clientConfig += "OUTPUT_PREFIX_PXE=$CLI_NAME/" + configName + "/$OUTPUT\n"
-	clientConfig += "OUTPUT_URL=nfs://$SRV_NET_IP" + configDRLM.StoreDir + "/$CLI_NAME/" + configName + "\n"
-	clientConfig += "BACKUP=NETFS\n"
-	clientConfig += "NETFS_PREFIX=BKP\n"
-	clientConfig += "BACKUP_URL=nfs://$SRV_NET_IP" + configDRLM.StoreDir + "/$CLI_NAME/" + configName + "\n"
-	clientConfig += "SSH_ROOT_PASSWORD=drlm\n"
+	clientConfig := ""
+	/////////////
+	// ISO
+	/////////////
+	if drlmBkpType == "ISO" || drlmBkpType == "\"ISO\"" || drlmBkpType == "" {
+		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
+			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
+			clientConfig += "OUTPUT=ISO\n"
+			clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+			clientConfig += "BACKUP=RSYNC\n"
+			clientConfig += "RSYNC_PREFIX=\n"
+			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
+		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
+			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
+				clientConfig = "OUTPUT=ISO\n"
+				clientConfig += "OUTPUT_PREFIX=\n"
+				clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "NETFS_PREFIX=backup\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+			} else if drlmBkpProg == "RSYNC" || drlmBkpProg == "\"RSYNC\"" {
+				clientConfig = "OUTPUT=ISO\n"
+				clientConfig += "OUTPUT_PREFIX=\n"
+				clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "BACKUP_PROG=rsync\n"
+				clientConfig += "NETFS_PREFIX=\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+			}
+		}
+		////////////////
+		// ISO _FULL
+		////////////////
+	} else if drlmBkpType == "ISO_FULL" || drlmBkpType == "\"ISO_FULL\"" {
+		clientConfig = "OUTPUT=ISO\n"
+		clientConfig += "OUTPUT_PREFIX=\n"
+		clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+		clientConfig += "OUTPUT_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+		clientConfig += "BACKUP=NETFS\n"
+		clientConfig += "BACKUP_URL=iso://backup\n"
+		//////////////////
+		// ISO_FULL_TMP
+		//////////////////
+	} else if drlmBkpType == "ISO_FULL_TMP" || drlmBkpType == "\"ISO_FULL_TMP\"" {
+		clientConfig = "export TMPDIR=/tmp/drlm\n"
+		clientConfig += "OUTPUT=ISO\n"
+		clientConfig += "OUTPUT_PREFIX=\n"
+		clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+		clientConfig += "OUTPUT_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+		clientConfig += "BACKUP=NETFS\n"
+		clientConfig += "BACKUP_URL=iso://backup\n"
+		/////////////
+		// PXE
+		/////////////
+	} else if drlmBkpType == "PXE" || drlmBkpType == "\"PXE\"" {
+		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
+			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
+			clientConfig += "OUTPUT=PXE\n"
+			clientConfig += "OUTPUT_PREFIX_PXE=\"" + c.Name + "/" + configName + "/PXE\"\n"
+			clientConfig += "OUTPUT_URL=\"rsync://" + c.Name + "@" + serverIP + "/" + c.Name + "_" + configName + "/PXE/\"\n"
+			clientConfig += "BACKUP=RSYNC\n"
+			clientConfig += "RSYNC_PREFIX=\n"
+			clientConfig += "BACKUP_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\"\n"
+		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
+			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
+				clientConfig = "OUTPUT=PXE\n"
+				clientConfig += "OUTPUT_PREFIX=PXE\n"
+				clientConfig += "OUTPUT_PREFIX_PXE=" + c.Name + "/" + configName + "/PXE\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "NETFS_PREFIX=backup\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+			} else if drlmBkpProg == "RSYNC" || drlmBkpProg == "\"RSYNC\"" {
+				clientConfig = "OUTPUT=PXE\n"
+				clientConfig += "OUTPUT_PREFIX=PXE\n"
+				clientConfig += "OUTPUT_PREFIX_PXE=" + c.Name + "/" + configName + "/PXE\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "BACKUP_PROG=rsync\n"
+				clientConfig += "NETFS_PREFIX=\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+			}
+		}
+		/////////////
+		// DATA
+		/////////////
+	} else if drlmBkpType == "DATA" || drlmBkpType == "\"DATA\"" {
+		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
+			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
+			clientConfig += "OUTPUT=ISO\n"
+			clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+			clientConfig += "BACKUP=RSYNC\n"
+			clientConfig += "RSYNC_PREFIX=\n"
+			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
+			clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
+		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
+			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
+				clientConfig = "OUTPUT=ISO\n"
+				clientConfig += "OUTPUT_PREFIX=\n"
+				clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "NETFS_PREFIX=backup\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+				clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
+			} else if drlmBkpProg == "RSYNC" || drlmBkpProg == "\"RSYNC\"" {
+				clientConfig = "OUTPUT=ISO\n"
+				clientConfig += "OUTPUT_PREFIX=\n"
+				clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "BACKUP_PROG=rsync\n"
+				clientConfig += "NETFS_PREFIX=\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+				clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
+			}
+		}
+	}
+
+	clientConfig += "SSH_ROOT_PASSWORD='drlm'\n"
 
 	return clientConfig
 }
 
 // Generate and send client backup configuration
 func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
-
 	configuration, err := c.generateConfiguration(configName)
 	if err != nil {
 		w.Header().Set("Content-Type", "text/html")

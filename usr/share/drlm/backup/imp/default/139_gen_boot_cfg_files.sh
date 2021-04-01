@@ -1,7 +1,7 @@
 # impbackup workflow
 
 # BKP_TYPE is PXE
-if [ "$BKP_TYPE" == "1" ]; then
+if [ "$IMP_BKP_TYPE" == "PXE" ]; then
 
   LogPrint "Enabling PXE boot"
 
@@ -32,8 +32,7 @@ EOF
   fi
 fi
 
-# Remount backup in Read Only mode
+# Umount backup in Read/Write mode
 disable_backup_store $DR_FILE $CLI_NAME $CLI_CFG
-enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
 
-Log "DRLM Store switched from read/write to read only"
+Log "DRLM Store in read/write mode disabled"

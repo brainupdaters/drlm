@@ -7,19 +7,23 @@
 # CLI_CFG               (Client Configuration. If not set = "default"
 # CLI_MAC               (Client Mac)
 # CLI_IP                (Client IP)
-# CLI_DISTO                (Client Linux Distribution)
-# CLI_RELEASE               (Client Linux CLI_RELEASE)
+# CLI_DISTO             (Client Linux Distribution)
+# CLI_RELEASE           (Client Linux CLI_RELEASE)
 # CLI_REAR              (Client ReaR Version)
+
+# DRLM_BKP_TYPE         (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ] 
+# DRLM_BKP_PROT         (Backup protocol) [ RSYNC | NETFS ]
+# DRLM_BKP_PROG         (Backup program)  [ RSYNC | TAR ]
 
 # INCLUDE_LIST_VG       (Include list of Volume Groups in client Configurations)
 # EXCLUDE_LIST_VG       (Exclude list of Volume Groups in client Configurations)
 # EXCLUDE_LIST          (Exclude list of mountpoints and paths in client Configurations)
 # DR_IMG_SIZE_MB        (Backup DR file size)
 
-# BKP_TYPE              (Backup Type. 0 - Data Only, 1 - PXE, 2 - ISO)
-# ACTIVE_PXE            (=1 if backup type = PXE )
-# ENABLED_DB_BKP_ID     (Backup ID of enabled backup before do runbackup)
-# ENABLED_DB_BKP_SNAP   (SNAP ID of ENABLED_DB_BKP_ID)
+# ENABLED_DB_BKP_ID_PXE     (Backup ID of enabled backup before do runbackup)
+# ENABLED_DB_BKP_SNAP_PXE   (SNAP ID of ENABLED_DB_BKP_ID_PXE)
+# ENABLED_DB_BKP_ID_CFG     (Backup ID of enabled backup before do runbackup)
+# ENABLED_DB_BKP_SNAP_CFG   (SNAP ID of ENABLED_DB_BKP_ID_CFG)
 # DR_FILE               (DR file)
 # NBD_DEVICE            (NBD Device)
 # INHERITED_DR_FILE     (yes=backup inherited from old backup,no=new empty dr file)
@@ -35,7 +39,7 @@
 # if DRLM_INCREMENTAL = "no" (when incremental = "no" or is the first Backup of an incremental)
 #     BKP_ID            (Backup ID)
 #
-# if BKP_TYPE = "1"
+# if DRLM_BKP_TYPE = "PXE"
 #     F_CLI_MAC         (Client Formated MAC address)
 #     CLI_KERNEL_FILE   (Client Kernel file)
 #     CLI_INITRD_FILE   (Client Initrd file)
@@ -47,7 +51,13 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   BKP_SIZE=$(du -h $ARCHDIR/$DR_FILE | cut -f1)
   BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )" 
 
-  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$BKP_TYPE" "$BKP_DATE"; then
+  if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
+    ACTIVE_PXE=1
+  else 
+    ACTIVE_PXE=0
+  fi
+
+  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE"; then
     LogPrint "Registered backup $BKP_ID in the database"
   else
     Error "Problem registering backup $BKP_ID in database"
@@ -62,7 +72,7 @@ else
   fi
 
   # Check if is a PXE rescue backup and if true enable PXE in the database
-  if [ "$BKP_TYPE" == "1" ]; then
+  if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
     if enable_pxe_db $BKP_BASE_ID; then
       Log "Enabled PXE of backup $BKP_BASE_ID in the database"
     else

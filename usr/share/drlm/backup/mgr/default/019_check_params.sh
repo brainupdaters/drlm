@@ -42,6 +42,7 @@ if exist_backup_id "$BKP_ID" ; then
   CLI_NAME=$(get_client_name $CLI_ID)
   CLI_CFG=$(get_backup_config_by_backup_id $BKP_ID)
   BKP_TYPE=$(get_backup_type_by_backup_id $BKP_ID)
+  BKP_PROTO=$(get_backup_protocol_by_backup_id $BKP_ID)
   BKP_STATUS=$(get_backup_status_by_backup_id $BKP_ID)
   BKP_ENABLED_SNAP=$(get_backup_active_snap_by_backup_id $BKP_ID)
   

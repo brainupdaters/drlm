@@ -7,10 +7,19 @@ case "$1" in
     systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
     systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
     [ -f /etc/systemd/system/drlm-stord.service ] && rm /etc/systemd/system/drlm-stord.service
-    # Stop, disable and remove drlm-stord.service
+    # Stop, disable and remove drlm-api.service
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
     systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
     [ -f /etc/systemd/system/drlm-api.service ] && rm /etc/systemd/system/drlm-api.service
+    # Stop, disable and remove drlm-rsyncd.service
+    systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+    systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
+    [ -f /etc/systemd/system/drlm-rsyncd.service ] && rm /etc/systemd/system/drlm-rsyncd.service
+    # Stop, disable and remove drlm-tftpd.service
+    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+    systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
+    [ -f /etc/systemd/system/drlm-tftpd.service ] && rm /etc/systemd/system/drlm-tftpd.service
+
     systemctl daemon-reload
 
     #Save the old database
@@ -28,11 +37,25 @@ case "$1" in
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
     systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
     [ -f /etc/systemd/system/drlm-api.service ] && rm /etc/systemd/system/drlm-api.service
+    # Stop, disable and remove drlm-rsyncd.service
+    systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+    systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
+    [ -f /etc/systemd/system/drlm-rsyncd.service ] && rm /etc/systemd/system/drlm-rsyncd.service
+    # Stop, disable and remove drlm-tftpd.service
+    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+    systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
+    [ -f /etc/systemd/system/drlm-tftpd.service ] && rm /etc/systemd/system/drlm-tftpd.service
+
     systemctl daemon-reload
 
     #Save the old database
     [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
     [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
+    ;;
+
+  purge)
+    # Uncongigure nbd
+    /usr/share/drlm/conf/nbd/config-nbd.sh remove
     ;;
 
   *)

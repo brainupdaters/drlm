@@ -16,6 +16,13 @@ else
   Log "WARNING: Problem deleting $CLI_NAME from NFS !"
 fi
 
+Log "Deleting RSYNC client configuration ..."
+if del_rsync_modules $CLI_NAME; then
+  Log "Client RSYNC configuration deletion complete!"
+else
+  Log "WARNING: Problem deleting $CLI_NAME from RSYNC !"
+fi
+
 Log "Updating $HOSTS_FILE configuration ..."
 if $(hosts_del $CLI_NAME $CLI_IP); then
   Log "Client $CLI_NAME successfully deleted from $HOSTS_FILE !"

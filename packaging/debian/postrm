@@ -15,16 +15,11 @@ case "$1" in
     ;;
   
   purge)
-    rm -rf /var/lib/drlm 
-    rm -rf /etc/drlm
-    rm -rf /var/log/drlm
-
     # Stop, disable and remove drlm-stord.service
     if [ -f /etc/systemd/system/drlm-stord.service ]; then
       systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
       systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
       rm /etc/systemd/system/drlm-stord.service
-      systemctl daemon-reload
     fi
 
     # Stop, disable and remove drlm-api.service
@@ -32,8 +27,33 @@ case "$1" in
       systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
       systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
       rm /etc/systemd/system/drlm-api.service
-      systemctl daemon-reload
     fi
+
+    # Stop, disable and remove rsync service
+    if [ -f /etc/systemd/system/drlm-rsyncd.service ]; then
+      systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+      systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
+      rm /etc/systemd/system/drlm-rsyncd.service
+    fi
+
+    # Stop, disable and remove tftpd service
+    if [ -f /etc/systemd/system/drlm-tftpd.service ]; then
+      systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+      systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
+      rm /etc/systemd/system/drlm-tftpd.service 
+    fi
+
+    systemctl daemon-reload
+
+    # Remove all backups stored and archived
+    rm -rf /var/lib/drlm 
+
+    # Remove all client configurations
+    rm -rf /etc/drlm
+
+    # Remove all log files
+    rm -rf /var/log/drlm
+
     ;;
 
   *)

@@ -8,9 +8,9 @@ if ssh_access_enabled "$USER" "$CLI_NAME"; then
 else
   ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
   if [ $? -ne 0  ]; then  
-      Error "ssh-copy-id failed!"
+    Error "ssh-copy-id failed!"
   else 
-      Log "Key succesfully copied to $CLI_NAME" 
+    Log "Key succesfully copied to $CLI_NAME" 
   fi
   REMOVE_SSH_ID="true"
 fi
@@ -21,43 +21,43 @@ VERSION=$(echo $RELEASE | cut -d "." -f 1)
 ARCH=$(get_arch $USER $CLI_NAME)
 
 if [ $DISTRO = "" ] || [ $RELEASE = "" ]; then
-    Error "Missing Release or Distro!"
+  Error "Missing Release or Distro!"
 else
-    if mod_client_os "$CLI_ID" "$DISTRO $RELEASE"; then
-        LogPrint "Updating OS version $DISTRO $RELEASE of client $CLI_ID in the database"
-    else
-        LogPrint "Warning: Can not update OS version of client $CLI_ID in the database"
-    fi
+  if mod_client_os "$CLI_ID" "$DISTRO $RELEASE"; then
+    LogPrint "Updating OS version $DISTRO $RELEASE of client $CLI_ID in the database"
+  else
+    LogPrint "Warning: Can not update OS version of client $CLI_ID in the database"
+  fi
 fi
 
 #Create user on client
 ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER} &> /dev/null
 if [ $? -eq 0 ]; then
-    Log "${DRLM_USER} exists, deleting user ..."
-    delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
-    if [ $? -ne 0  ]; then
-        Error "User ${DRLM_USER} deletion Failed!!!"
-    fi
+  Log "${DRLM_USER} exists, deleting user ..."
+  delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
+  if [ $? -ne 0  ]; then
+    Error "User ${DRLM_USER} deletion Failed!!!"
+  fi
 fi
 
 Log "Creating DRLM user: ${DRLM_USER} ..."
 create_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
 if [ $? -ne 0  ]; then
-    Error "User ${DRLM_USER} creation Failed!!!"
+  Error "User ${DRLM_USER} creation Failed!!!"
 else
-    LogPrint "User $DRLM_USER created on $CLI_NAME"
-    #Send key for drlm user
-    LogPrint "Sending ssh key for drlm user ..."
-    copy_ssh_id ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
-    if [ $? -ne 0  ]; then
-        Error "Sending key for ${DRLM_USER} Failed!!!"
-    else
-        LogPrint "key for $DRLM_USER has been sent on $CLI_NAME"
-        #Disable password aging for drlm userdd
-        if disable_drlm_user_login ${USER} ${CLI_NAME} ${SUDO}; then 
-            LogPrint "User ${DRLM_USER} has been blocked using password" 
-        else 
-            Error "Problem blocking ${DRLM_USER} User!!!" 
-        fi
+  LogPrint "User $DRLM_USER created on $CLI_NAME"
+  #Send key for drlm user
+  LogPrint "Sending ssh key for drlm user ..."
+  copy_ssh_id ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
+  if [ $? -ne 0  ]; then
+    Error "Sending key for ${DRLM_USER} Failed!!!"
+  else
+    LogPrint "key for $DRLM_USER has been sent on $CLI_NAME"
+    #Disable password aging for drlm userdd
+    if disable_drlm_user_login ${USER} ${CLI_NAME} ${SUDO}; then 
+      LogPrint "User ${DRLM_USER} has been blocked using password" 
+    else 
+      Error "Problem blocking ${DRLM_USER} User!!!" 
     fi
+  fi
 fi

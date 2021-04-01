@@ -1,0 +1,13 @@
+[Unit]
+Description=DRLM RSYNC Service
+After=drlm-api.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/rsync --daemon --config=/etc/drlm/rsyncd/rsyncd.conf --no-detach
+
+[Install]
+WantedBy=multi-user.target
+

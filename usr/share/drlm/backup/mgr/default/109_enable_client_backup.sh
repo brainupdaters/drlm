@@ -29,11 +29,21 @@ if [ -n "$DR_FILE" ]; then
     Error "- Problem mounting NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
   fi
 
-  # Enable NSF
-  if enable_nfs_fs_ro $CLI_NAME $CLI_CFG ; then
-    LogPrint "- Enabled NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
-  else
-    Error "- Problem enabling NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+  
+  if [ "$BKP_PROTO" == "NETFS" ]; then
+    # Enable NSF
+    if enable_nfs_fs_ro $CLI_NAME $CLI_CFG ; then
+      LogPrint "- Enabled NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    else
+      Error "- Problem enabling NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    fi
+  elif [ "$BKP_PROTO" == "RSYNC" ]; then
+    # Enable RSYNC read only mode:
+    if enable_rsync_fs_ro $CLI_NAME $CLI_CFG; then
+      Log "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    else
+      Error "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    fi
   fi
 
   # Set backup as active in the data base
@@ -60,7 +70,8 @@ if [ -n "$DR_FILE" ]; then
   fi
 
   # Check if PXE is a rescue backup and if true enable PXE in the database
-  if [ "$BKP_TYPE" == "1" ]; then
+  if [ "$BKP_TYPE" == "PXE" ]; then
+    # Then enable the new PXE backup 
     if enable_pxe_db $BKP_ID; then
       LogPrint "- Enabled PXE boot mode for Backup ID $BKP_ID in the database"
     else

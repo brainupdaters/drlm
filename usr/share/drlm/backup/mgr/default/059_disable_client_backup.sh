@@ -27,12 +27,11 @@ if [ "$DISABLE" == "yes" ] && [ -z "$SNAP_ID" ] && [ "$BKP_STATUS" == "1" ]; the
 fi
 
 # In ENABLE mode we have to check if there are any backup enabled before activate the new one
-# If we are enabling a data backup we have to disable the backup with the SAME configuration 
-if [ "$BKP_TYPE" == "0" ] || [ "$BKP_TYPE" == "2" ]; then
-  ENABLED_DB_BKP_ID=$(get_active_cli_bkp_from_db $CLI_ID $CLI_CFG)
-# But if we are enabling a PXE rescue backup we have to disable ANY RESCUE backup of the client  
-elif [ "$BKP_TYPE" == "1" ]; then
-  ENABLED_DB_BKP_ID=$(get_active_cli_rescue_from_db $CLI_ID)
-fi
-
+ENABLED_DB_BKP_ID=$(get_active_cli_bkp_from_db $CLI_ID $CLI_CFG)
 disable_backup $ENABLED_DB_BKP_ID
+
+# If we are enabling a PXE rescue backup we have to disable ANY RESCUE backup of the client  
+if [ "$BKP_TYPE" == "PXE" ]; then
+  ENABLED_DB_BKP_ID=$(get_active_cli_rescue_from_db $CLI_ID)
+  disable_backup $ENABLED_DB_BKP_ID
+fi
