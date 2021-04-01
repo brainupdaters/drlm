@@ -176,21 +176,10 @@ systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 fi
 
 ### Save drlm-stord.service
-if [ -f /etc/systemd/system/tmp_drlm-stord.service ]; then
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
-fi
-
-if [ -f /etc/systemd/system/tmp_drlm-api.service ]; then
 %{__cp} /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/tmp_drlm-api.service
-fi
-
-if [ -f /etc/systemd/system/tmp_drlm-rsyncd.service ]; then
 %{__cp} /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/tmp_drlm-rsyncd.service
-fi
-
-if [ -f /etc/systemd/system/tmp_drlm-tftpd.service ]; then
 %{__cp} /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/tmp_drlm-tftpd.service
-fi
 
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
