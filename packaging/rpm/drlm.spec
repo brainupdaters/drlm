@@ -272,7 +272,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Mon Mar 29 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Thu Apr 01 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -290,6 +290,7 @@ systemctl start drlm-tftpd.service
 - Removed unsupported SysVinit service management
 - SSH_PORT variable independent of SSH_OPTS
 - RSYNC protocol supported
+- Improved DRLM installation
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)
