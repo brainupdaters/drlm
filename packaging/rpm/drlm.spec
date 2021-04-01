@@ -28,14 +28,12 @@ Requires: gzip tar
 Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: rpcbind
+Requires: rsync
 
 ### SUSE packages
 %if %{?suse_version:1}0
 Requires: openssh
 Requires: qemu-tools
-Requires: tftp
-Requires: dhcp-server
-Requires: nfs-kernel-server
 Requires: lsb-release
 Requires: sqlite3
 %endif
@@ -43,14 +41,10 @@ Requires: sqlite3
 ### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
-Requires: (dhcp or dhcp-server)
-Requires: tftp-server
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
-Requires: nfs-utils
 Requires: sqlite
-Requires: xinetd
 %endif
 
 #Obsoletes:
@@ -102,12 +96,22 @@ Professional services and support are available.
 %pre
 ### If --> is upgrade save old data and stop systemd services
 if [ "$1" == "2" ]; then
+
 drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
+
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+
 systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
 systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+
+systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
+
+systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
+
 systemctl daemon-reload
 fi
 
@@ -134,16 +138,27 @@ if [ "$1" == "1" ]; then
 openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
 ### Else --> is update save keys
 else
-mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
-mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
+  if [ -f /etc/drlm/cert/drlm.key ]; then
+    mv /etc/drlm/cert/drlm.key /etc/drlm/cert/tmp_drlm.key
+  fi
+  if [ -f /etc/drlm/cert/drlm.crt ]; then
+    mv /etc/drlm/cert/drlm.crt /etc/drlm/cert/tmp_drlm.crt
+  fi
+fi
+
+### Create tftp user
+if ! getent passwd tftp > /dev/null 2>&1; then 
+  adduser --system --home-dir /var/lib/drlm/store --no-create-home --comment 'tftp daemon' --user-group tftp
 fi
 
 ### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
 
+# Configure nbd
+/usr/share/drlm/conf/nbd/config-nbd.sh install
+
 ### Enable systemd services 
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
-systemctl --all --type service | grep -q xinetd.service && systemctl enable xinetd.service
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
@@ -161,9 +176,21 @@ systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 fi
 
 ### Save drlm-stord.service
+if [ -f /etc/systemd/system/tmp_drlm-stord.service ]; then
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-api.service ]; then
 %{__cp} /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/tmp_drlm-api.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-rsyncd.service ]; then
 %{__cp} /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/tmp_drlm-rsyncd.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-tftpd.service ]; then
+%{__cp} /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/tmp_drlm-tftpd.service
+fi
 
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
@@ -177,14 +204,24 @@ fi
 ### Stop and disable systemd services
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
 systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+
 systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
 systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+
 systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
 systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
+
+systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
+
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
 %{__rm} -f /etc/systemd/system/drlm-rsyncd.service
+%{__rm} -f /etc/systemd/system/drlm-tftpd.service
+
+# Unconfigure nbd
+/usr/share/drlm/conf/nbd/config-nbd.sh remove
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -205,26 +242,44 @@ systemctl daemon-reload
 %posttrans
 ### Rcover certificates post transaction
 if [ -f /etc/drlm/cert/tmp_drlm.key ]; then
-mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
-mv /etc/drlm/cert/tmp_drlm.crt /etc/drlm/cert/drlm.crt
+  mv /etc/drlm/cert/tmp_drlm.key /etc/drlm/cert/drlm.key
+  mv /etc/drlm/cert/tmp_drlm.crt /etc/drlm/cert/drlm.crt
 fi
 
 ### Recover and reload services post transaction
-mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
-systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
-mv /etc/systemd/system/tmp_drlm-api.service /etc/systemd/system/drlm-api.service
-systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
-mv /etc/systemd/system/tmp_drlm-rsyncd.service /etc/systemd/system/drlm-rsyncd.service
-systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+if [ -f /etc/systemd/system/tmp_drlm-stord.service ]; then
+  mv /etc/systemd/system/tmp_drlm-stord.service /etc/systemd/system/drlm-stord.service
+  systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-api.service ]; then
+  mv /etc/systemd/system/tmp_drlm-api.service /etc/systemd/system/drlm-api.service
+  systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-rsyncd.service ]; then
+  mv /etc/systemd/system/tmp_drlm-rsyncd.service /etc/systemd/system/drlm-rsyncd.service
+  systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-tftpd.service ]; then
+  mv /etc/systemd/system/tmp_drlm-tftpd.service /etc/systemd/system/drlm-tftpd.service
+  systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+fi
 
 systemctl daemon-reload
 
 systemctl is-enabled --quiet drlm-stord.service || systemctl enable drlm-stord.service
 systemctl start drlm-stord.service
+
 systemctl is-enabled --quiet drlm-api.service || systemctl enable drlm-api.service
 systemctl start drlm-api.service
+
 systemctl is-enabled --quiet drlm-rsyncd.service || systemctl enable drlm-rsyncd.service
 systemctl start drlm-rsyncd.service
+
+systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.service
+systemctl start drlm-tftpd.service
 
 %changelog
 

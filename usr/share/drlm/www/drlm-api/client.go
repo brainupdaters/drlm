@@ -315,6 +315,8 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		}
 	}
 
+	clientConfig += "SSH_ROOT_PASSWORD='drlm'\n"
+
 	return clientConfig
 }
 

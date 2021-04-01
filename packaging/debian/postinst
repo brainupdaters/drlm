@@ -28,10 +28,23 @@ case "$1" in
     # Update old database or create new one running drlm_db_version script.
     /usr/share/drlm/conf/DB/drlm_db_version.sh
 
+    # Configure nbd
+    /usr/share/drlm/conf/nbd/config-nbd.sh install
+
+    ###########
+    # Systemd #
+    ###########
+
+    # Create user tftp if does not exists
+    if ! getent passwd tftp2 > /dev/null 2>&1; then
+      adduser --system --home /var/lib/drlm/store --no-create-home --quiet --gecos 'tftp daemon' --group tftp2
+    fi
+
     # Stop previos drlm services if exists
     systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
     systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-rsyncd.service
 
     # Add systemd drlm services
     cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
@@ -40,23 +53,32 @@ case "$1" in
     fi
     cp /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/
     cp /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/
 
     # Reload systemd services
     systemctl daemon-reload
 
     # Enable systemd services
-    systemctl enable tftpd-hpa.service
     systemctl enable nfs-kernel-server.service
     systemctl enable rpcbind.service
     systemctl enable isc-dhcp-server.service
+
+    # Enable drlm systemd services
     systemctl enable drlm-stord.service
     systemctl enable drlm-api.service
     systemctl enable drlm-rsyncd.service
+    systemctl enable drlm-tftpd.service
+
 
     # Start drlm services
     systemctl start drlm-stord.service
     systemctl start drlm-api.service
-    systemctl start drlm-rsyncd.service    
+    systemctl start drlm-rsyncd.service  
+    systemctl start drlm-tftpd.service  
+
+    #################
+    # DRLM services #
+    #################
 
     # Set debian like DHCP an NFS service names
     [ -f /etc/drlm/local.conf ] && echo "DHCP_SVC_NAME=\"isc-dhcp-server\"" >> /etc/drlm/local.conf
