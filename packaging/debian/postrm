@@ -54,9 +54,6 @@ case "$1" in
     # Remove all log files
     rm -rf /var/log/drlm
 
-    # Uncongigure nbd
-    /usr/share/drlm/conf/nbd/config-nbd.sh remove
-
     ;;
 
   *)

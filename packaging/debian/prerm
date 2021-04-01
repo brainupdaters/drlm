@@ -53,6 +53,10 @@ case "$1" in
     [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
     ;;
 
+  purge)
+    # Uncongigure nbd
+    /usr/share/drlm/conf/nbd/config-nbd.sh remove
+
   *)
     exit 0
     ;;
