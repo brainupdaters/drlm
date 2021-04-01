@@ -35,6 +35,10 @@ case "$1" in
     # Systemd #
     ###########
 
+    # Disable current tftpd-hpa.service
+    systemctl is-enabled --quiet tftpd-hpa.service && systemctl disable tftpd-hpa.service
+    systemctl is-active --quiet tftpd-hpa.service && systemctl stop tftpd-hpa.service
+
     # Create user tftp if does not exists
     if ! getent passwd tftp2 > /dev/null 2>&1; then
       adduser --system --home /var/lib/drlm/store --no-create-home --quiet --gecos 'tftp daemon' --group tftp2
