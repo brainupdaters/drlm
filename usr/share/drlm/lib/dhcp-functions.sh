@@ -25,17 +25,17 @@ function generate_dhcp() {
     echo "subnet $XARXA_NET_IP netmask $XARXA_MASK {" >> $DHCP_FILE
 
     if [ -z "\$XARXA_DOMAIN" ]; then
-        echo "   option domain-name \"${XARXA_DOMAIN}\";" >> $DHCP_FILE
+      echo "   option domain-name \"${XARXA_DOMAIN}\";" >> $DHCP_FILE
     fi
 
-    echo	"   option subnet-mask $XARXA_MASK;" >> $DHCP_FILE
+    echo "   option subnet-mask $XARXA_MASK;" >> $DHCP_FILE
     echo "   option broadcast-address $XARXA_BROAD;" >> $DHCP_FILE
 
     if [ -z "\$XARXA_DNS" ]; then
-        echo "   option domain-name-servers ${XARXA_DNS};" >> $DHCP_FILE
+      echo "   option domain-name-servers ${XARXA_DNS};" >> $DHCP_FILE
     fi
 
-    echo	"   option routers $XARXA_GW;" >> $DHCP_FILE
+    echo "   option routers $XARXA_GW;" >> $DHCP_FILE
     echo "   next-server $XARXA_SER_IP;" >> $DHCP_FILE
     echo "}" >> $DHCP_FILE
 
@@ -44,13 +44,13 @@ function generate_dhcp() {
     echo " " >> $DHCP_FILE
 
     for CLIENT in $(get_clients_by_network "$XARXA_NAME") ; do
-        CLIENT_HOST=`echo $CLIENT | awk -F":" '{print $2}'`
-        CLIENT_MAC=$(format_mac $(echo $CLIENT | awk -F":" '{print $3}') ":")
-        CLIENT_IP=`echo $CLIENT | awk -F":" '{print $4}'`
-        echo "   host $CLIENT_HOST {" >> $DHCP_FILE
-        echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE
-        echo "      fixed-address $CLIENT_IP;" >> $DHCP_FILE
-        echo "   }" >> $DHCP_FILE
+      CLIENT_HOST=`echo $CLIENT | awk -F":" '{print $2}'`
+      CLIENT_MAC=$(format_mac $(echo $CLIENT | awk -F":" '{print $3}') ":")
+      CLIENT_IP=`echo $CLIENT | awk -F":" '{print $4}'`
+      echo "   host $CLIENT_HOST {" >> $DHCP_FILE
+      echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE
+      echo "      fixed-address $CLIENT_IP;" >> $DHCP_FILE
+      echo "   }" >> $DHCP_FILE
     done
 
     echo "}" >> $DHCP_FILE

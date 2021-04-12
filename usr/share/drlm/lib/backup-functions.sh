@@ -115,7 +115,7 @@ function list_backup () {
     fi
 
     # Check if BAC_ID have snapshots and list them
-    if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ] && [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then
+    if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ] && [ "$CLI_NAME_REC" == "all" ] || [ "$CLI_ID" == "$CLI_BAC_ID" ]; then
       # line_counter=0
       found_enabled=0
       SNAP_TYPE="$BAC_TYPE (Snap)"

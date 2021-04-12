@@ -34,6 +34,9 @@ Requires: rsync
 %if %{?suse_version:1}0
 Requires: openssh
 Requires: qemu-tools
+Requires: tftp		
+Requires: dhcp-server		
+Requires: nfs-kernel-server
 Requires: lsb-release
 Requires: sqlite3
 %endif
@@ -41,9 +44,12 @@ Requires: sqlite3
 ### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
+Requires: (dhcp or dhcp-server)
+Requires: tftp-server
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
+Requires: nfs-utils
 Requires: sqlite
 %endif
 
