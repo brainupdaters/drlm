@@ -124,20 +124,16 @@ function get_all_client_id_dbdrv ()
 
 function add_client_dbdrv ()
 {
-    local CLI_ID=0
-    local CLI_NAME=$1
-    local CLI_MAC=$2
-    local CLI_IP=$3
-    local CLI_OS=$4
-    local CLI_NET=$5
-    local CLI_REAR=$6
+    local CLI_ID="$1"
+    local CLI_NAME="$2"
+    local CLI_MAC="$3"
+    local CLI_IP="$4"
+    local CLI_OS="$5"
+    local CLI_NET="$6"
+    local CLI_REAR="$7"
 
-    CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-    if [ $CLI_ID -eq  0 ]; then
-        CLI_ID=$(echo "select ifnull(max(idclient)+1, 100) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-        echo "INSERT INTO counters (idcounter, value) VALUES ('clients', $CLI_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    else
-        CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    if [ -z "$CLI_ID" ]; then 
+      CLI_ID=$(generate_client_id_dbdrv)
     fi
 
     echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}', '${CLI_OS}', '${CLI_REAR}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
@@ -147,6 +143,18 @@ function add_client_dbdrv ()
     else 
       echo "ERRORFILEDB" 
     fi
+}
+
+function generate_client_id_dbdrv () {
+    local CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    if [ $CLI_ID -eq  0 ]; then
+        CLI_ID=$(echo "select ifnull(max(idclient)+1, 100) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+        echo "INSERT INTO counters (idcounter, value) VALUES ('clients', $CLI_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    else
+        CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    fi
+
+    echo $CLI_ID
 }
 
 function del_client_id_dbdrv ()
@@ -227,6 +235,18 @@ function exist_network_ip_dbdrv ()
   local NET_IP=$1
   COUNT=$(echo "select count(*) from networks where netip='${NET_IP}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function exist_server_ip_dbdrv ()
+{
+  local NET_SRV=$1
+  COUNT=$(echo "select count(*) from networks where serverip='${NET_SRV}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function count_networks_dbdrv () {
+  local COUNT=$(echo "select count(*) from networks;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT
 }
 
 function add_network_dbdrv ()

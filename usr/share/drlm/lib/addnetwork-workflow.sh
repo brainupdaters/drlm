@@ -106,15 +106,15 @@ if [ "$WORKFLOW" == "addnetwork" ]; then
     shift
   done
 
-  if [ -z "$NET_NAME" ] || [ -z "$NET_GW" ] || [ -z "$NET_MASK" ] || [ -z "$NET_SRV" ]; then
+  if [ -z "$NET_IP" ] && [ -z "$NET_SRV" ]; then
     echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
   fi
 
-  if [ -z "$NET_IP" ]; then
-    NET_IP=$(get_netaddress "$NET_SRV" "$NET_MASK")
-  fi
+  # if [ -z "$NET_IP" ]; then
+  #   NET_IP=$(get_netaddress "$NET_SRV" "$NET_MASK")
+  # fi
 
   WORKFLOW_addnetwork () {
     #echo addnetwork workflow

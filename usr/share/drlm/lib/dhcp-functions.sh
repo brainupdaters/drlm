@@ -24,18 +24,20 @@ function generate_dhcp() {
 
     echo "subnet $XARXA_NET_IP netmask $XARXA_MASK {" >> $DHCP_FILE
 
-    if [ -z "\$XARXA_DOMAIN" ]; then
+    if [ -n "$XARXA_DOMAIN" ]; then
       echo "   option domain-name \"${XARXA_DOMAIN}\";" >> $DHCP_FILE
     fi
 
     echo "   option subnet-mask $XARXA_MASK;" >> $DHCP_FILE
     echo "   option broadcast-address $XARXA_BROAD;" >> $DHCP_FILE
 
-    if [ -z "\$XARXA_DNS" ]; then
+    if [ -n "$XARXA_DNS" ]; then
       echo "   option domain-name-servers ${XARXA_DNS};" >> $DHCP_FILE
     fi
 
-    echo "   option routers $XARXA_GW;" >> $DHCP_FILE
+    if [ -n "$XARXA_GW" ]; then
+      echo "   option routers $XARXA_GW;" >> $DHCP_FILE
+    fi
     echo "   next-server $XARXA_SER_IP;" >> $DHCP_FILE
     echo "}" >> $DHCP_FILE
 
@@ -44,13 +46,16 @@ function generate_dhcp() {
     echo " " >> $DHCP_FILE
 
     for CLIENT in $(get_clients_by_network "$XARXA_NAME") ; do
-      CLIENT_HOST=`echo $CLIENT | awk -F":" '{print $2}'`
-      CLIENT_MAC=$(format_mac $(echo $CLIENT | awk -F":" '{print $3}') ":")
-      CLIENT_IP=`echo $CLIENT | awk -F":" '{print $4}'`
-      echo "   host $CLIENT_HOST {" >> $DHCP_FILE
-      echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE
-      echo "      fixed-address $CLIENT_IP;" >> $DHCP_FILE
-      echo "   }" >> $DHCP_FILE
+      CLIENT_HOST=$(echo $CLIENT | awk -F":" '{print $2}')
+      CLIENT_MAC=$(echo $CLIENT | awk -F":" '{print $3}')
+      CLIENT_IP=$(echo $CLIENT | awk -F":" '{print $4}')
+      if [ -n "$CLIENT_MAC" ]; then
+        CLIENT_MAC=$(format_mac "$CLIENT_MAC" ":")
+        echo "   host $CLIENT_HOST {" >> $DHCP_FILE
+        echo "      hardware ethernet $CLIENT_MAC;" >> $DHCP_FILE
+        echo "      fixed-address $CLIENT_IP;" >> $DHCP_FILE
+        echo "   }" >> $DHCP_FILE
+      fi
     done
 
     echo "}" >> $DHCP_FILE
@@ -59,16 +64,28 @@ function generate_dhcp() {
 
 # Reload de dhcp server dummy
 function reload_dhcp() {
-  # Check if configuration file is OK
-  dhcpd -t -cf $DHCP_FILE > /dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    # Reload DHCP (Operating System dependency)
-    systemctl reload-or-try-restart $DHCP_SVC_NAME.service > /dev/null
-    if [ $? -eq 0 ]; then return 0; else return 2; fi
+
+  # If there ara no networks, disable dhcp server
+  if [ "$(count_networks)" == "0" ]; then
+    systemctl is-active --quiet $DHCP_SVC_NAME.service && systemctl stop $DHCP_SVC_NAME.service > /dev/null
+    return 0
   else
-    Log "Error reloading dhcpd service"
-    mv $DHCP_FILE $DHCP_FILE.error
-    mv $DHCP_DIR/dhcpd.conf.bkp $DHCP_FILE
-    return 1
+    # Check if configuration file is OK
+    dhcpd -t -cf $DHCP_FILE > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+      # Reload DHCP (Operating System dependency)
+      if systemctl is-active --quiet $DHCP_SVC_NAME.service; then
+        systemctl reload-or-try-restart $DHCP_SVC_NAME.service > /dev/null
+        if [ $? -eq 0 ]; then return 0; else return 2; fi
+      else
+        systemctl start $DHCP_SVC_NAME.service > /dev/null
+        if [ $? -eq 0 ]; then return 0; else return 2; fi
+      fi
+    else
+      Log "Error reloading dhcpd service"
+      mv $DHCP_FILE $DHCP_FILE.error
+      mv $DHCP_DIR/dhcpd.conf.bkp $DHCP_FILE
+      return 1
+    fi
   fi
 }

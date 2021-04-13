@@ -22,7 +22,7 @@ if test -n "$CLI_IP"; then
       OLD_CLI_IP=$(get_client_ip $CLI_ID)
 
       # Check if client is available over the network and match MAC address
-      if check_client_mac "$CLI_NAME" "$CLI_IP" "$CLI_MAC_L" ; then
+      if check_client_mac "$CLI_IP" "$CLI_MAC_L" ; then
         Log "Client $CLI_NAME is available over network ..."
       else
         Log "WARNING: Client $CLI_NAME is not available over network!" 
@@ -75,7 +75,7 @@ if test -n "$CLI_MAC"; then
       OLD_CLI_MAC=$(get_client_mac $CLI_ID)
 
       # Check if client is available over the network and match MAC address
-      if check_client_mac "$CLI_NAME" "$CLI_IP" "$CLI_MAC" ; then
+      if check_client_mac "$CLI_IP" "$CLI_MAC" ; then
         Log "Client $CLI_NAME is available over network ..."
       else
         Log "WARNING: Client $CLI_NAME is not available over network!" 

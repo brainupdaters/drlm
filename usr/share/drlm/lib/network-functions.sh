@@ -159,9 +159,20 @@ function exist_network_ip ()
   local NET_IP=$1
   exist_network_ip_dbdrv "$NET_IP"
   if [ $? -eq 0 ];then return 0; else return 1; fi
-# Check if parameter $1 is ok and if exists network with this ip in database. Return 0 for ok , return 1 not ok.
+# Check if parameter $1 is ok and if exists network with this network ip in database. Return 0 for ok , return 1 not ok.
 }
 
+function exist_server_ip ()
+{
+  local NET_SRV=$1
+  exist_server_ip_dbdrv "$NET_SRV"
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+# Check if parameter $1 is ok and if exists network with this server ip in database. Return 0 for ok , return 1 not ok.
+}
+
+function count_networks () {
+  echo $(count_networks_dbdrv)
+}
 
 valid_client_name () {
   local CLIENT_NAME="$1"
@@ -296,8 +307,7 @@ function get_network_id_by_name ()
   local NET_NAME=$1
   # Check if parameter $1 is ok
   exist_network_name "$NET_NAME"
-  if [ $? -eq 0 ];
-  then
+  if [ $? -eq 0 ]; then
     # Get network id from database and return it
     get_network_id_by_name_dbdrv "$NET_NAME"
     return 0
@@ -463,4 +473,43 @@ function get_network_id_by_netip ()
     get_network_id_by_netip_dbdrv "$NET_IP"
     return 0
   fi
+}
+
+# check_client_network is used in addclient workflow.
+# this functions checks if new client ip matches some server network and if exists in drlm database
+# if found network and not exists create it and return the Net Name
+# if exists return the net name that machs withs client ip
+function check_client_network () {
+  local CLI_IP="$1"
+  local NET_NAME="$(ip -o route get $CLI_IP | grep -vE 'via|cache' | awk '{print $3}')"
+  local NET_SERVER_IP="$(ip -o route get $CLI_IP | grep -vE 'via|cache' | awk '{print $5}')"
+  
+  if [ -n "$NET_SERVER_IP" ]; then
+    local NET_TMP="$(ip -o -f inet addr show | grep $NET_SERVER_IP | awk '/scope global/ {print $2 " " $4 " " $6}')"
+    local NET_CIDR="$(echo $NET_TMP | awk '{print $2}' | awk -F'/' '{print $2}')"
+    local NET_BROADCAST="$(echo $NET_TMP | awk '{print $3}')"
+  fi
+
+  if [ -n "$NET_CIDR" ]; then
+    local NET_MASK="$(cidr_to_netmask $NET_CIDR)"
+    local NET_IP="$(get_netaddress $CLI_IP $NET_MASK)"
+  fi
+
+  local NET_ID=$(get_network_id_by_netip $NET_IP)
+  if [ -z $NET_ID ]; then
+    if [ -n "$NET_NAME" ] && [ -n "$NET_SERVER_IP" ]  && [ -n "$NET_IP" ] && [ -n "$NET_MASK" ] && [ -n "$NET_BROADCAST" ]; then
+      Log "Adding Network $NET_NAME to DB"
+
+      if add_network "$NET_IP" "$NET_MASK" "$NET_GATEWAY" "$NET_DOMAIN" "$NET_DNS" "$NET_BROADCAST" "$NET_SERVER_IP" "$NET_NAME"; then
+        Log  "Network $NET_NAME registation Success!"
+      else
+        Error "Problem registering network $NET_NAME to database! See $LOGFILE for details."
+      fi
+    fi
+
+  else 
+    NET_NAME=$(get_network_name $NET_ID)
+  fi
+
+  echo "$NET_NAME"
 }

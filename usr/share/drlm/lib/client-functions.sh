@@ -106,16 +106,20 @@ function check_client_connectivity ()
 
 function add_client ()
 {
-  local CLI_ID=""
-  local CLI_NAME=$1
-  local CLI_MAC=$2
-  local CLI_IP=$3
-  local CLI_OS=$4
-  local CLI_NET=$5
-  local CLI_REAR=$6
+  local CLI_ID="$1"
+  local CLI_NAME="$2"
+  local CLI_MAC="$3"
+  local CLI_IP="$4"
+  local CLI_OS="$5"
+  local CLI_NET="$6"
+  local CLI_REAR="$7"
 
-  add_client_dbdrv "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_REAR"
+  add_client_dbdrv "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_REAR"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function generate_client_id () {
+  echo "$(generate_client_id_dbdrv)"
 }
 
 function del_client_id ()
@@ -133,16 +137,13 @@ function del_client_id ()
 
 function check_client_mac ()
 {
-  local CLI_NAME=$1
-  local CLI_IP=$2
-  local CLI_MAC=$3
+  local CLI_IP=$1
+  local CLI_MAC=$2
 
   ping  -c 1 -t 2 $CLI_IP &>/dev/null
-  if [ $? -eq 0 ];
-  then
+  if [ $? -eq 0 ]; then
     local REAL_MAC=$(ip n | grep -w $CLI_IP | awk '{print $5}' | tr -d ":" | tr \[A-Z\] \[a-z\])
-    if [ "${REAL_MAC}" == "${CLI_MAC}" ]
-    then
+    if [ "${REAL_MAC}" == "${CLI_MAC}" ]; then
       return 0;
     else
       return 1;

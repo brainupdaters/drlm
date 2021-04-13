@@ -393,6 +393,10 @@ function config_public_keys () {
   # $SUDO /usr/bin/ssh-keyscan -H $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
   $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
 
+  if [ -n "$DRLM_SERVER_IP" ]; then
+    $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER_IP 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+  fi
+
   # return de public key to add and authorize the client in drlm server  
   $SUDO cat /root/.ssh/id_rsa.pub
 }
@@ -400,9 +404,11 @@ function config_public_keys () {
 function ssh_config_public_keys () {
   local USER=$1
   local CLI_NAME=$2
-  local SUDO=$3
+  local DRLM_SERVER_IP=$3
+  local SUDO=$4
   local DRLM_SERVER="$(hostname -s)"
-  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO DRLM_SERVER ; declare -f config_public_keys); config_public_keys")
+  
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO DRLM_SERVER DRLM_SERVER_IP ; declare -f config_public_keys); config_public_keys")
 }
 
 function authors () {
