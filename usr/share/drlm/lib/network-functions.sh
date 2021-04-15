@@ -479,17 +479,16 @@ function list_network ()
   fi
 
   printf '%-10s %-15s %-8s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$(tput bold)Id" "Name" "Status" "Server IP" "Mask" "Network Ip" "Broadcast" "Gateway" "Interface$(tput sgr0)"
-  for line in $(get_all_networks $NET_NAME_PARAM)
-  do
-    local NET_ID=`echo $line|awk -F":" '{print $1}'`
-    local NET_IP=`echo $line|awk -F":" '{print $2}'`
-    local NET_MASK=`echo $line|awk -F":" '{print $3}'`
-    local NET_GW=`echo $line|awk -F":" '{print $4}'`
-    local NET_BRO=`echo $line|awk -F":" '{print $7}'`
-    local NET_SRV=`echo $line|awk -F":" '{print $8}'`
-    local NET_NAME=`echo $line|awk -F":" '{print $9}'`
-    local NET_ACTIVE=`echo $line|awk -F":" '{print $10}'`
-    local NET_IFACE=`echo $line|awk -F":" '{print $11}'`
+  for line in $(get_all_networks $NET_NAME_PARAM); do
+    local NET_ID=$(echo $line|awk -F":" '{print $1}')
+    local NET_IP=$(echo $line|awk -F":" '{print $2}')
+    local NET_MASK=$(echo $line|awk -F":" '{print $3}')
+    local NET_GW=$(echo $line|awk -F":" '{print $4}')
+    local NET_BRO=$(echo $line|awk -F":" '{print $7}')
+    local NET_SRV=$(echo $line|awk -F":" '{print $8}')
+    local NET_NAME=$(echo $line|awk -F":" '{print $9}')
+    local NET_ACTIVE=$(echo $line|awk -F":" '{print $10}')
+    local NET_IFACE=$(echo $line|awk -F":" '{print $11}')
 
     # if Pretty mode is enabled show in green enabled backups and in red disabled backups
     NET_ACTIVE_DEC="%-8s"

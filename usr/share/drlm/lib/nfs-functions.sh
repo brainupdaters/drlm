@@ -106,6 +106,10 @@ function disable_nfs_fs ()
 
 function reload_nfs ()
 {
+  # Check if NFS server is active
+  systemctl is-active --quiet $NFS_SVC_NAME.service || systemctl restart $NFS_SVC_NAME.service > /dev/null
+  systemctl is-failed --quiet $NFS_SVC_NAME.service && systemctl restart $NFS_SVC_NAME.service > /dev/null
+
   if [ -z ${@} ]; then
     exportfs -r
     if [ ${?} -ne 0 ]; then return 1; else return 0; fi
