@@ -14,7 +14,7 @@ fi
 
 PUBLIC_KEY=$(ssh_config_public_keys "${USER}" "${CLI_NAME}" "${SRV_IP}" "${SUDO}" )
 if [ "$PUBLIC_KEY" == "" ]; then
-  Error "Error getting de root client public key"
+  Error "Error getting the root client public key"
 fi
 
 # Send sudo config

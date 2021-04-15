@@ -809,6 +809,13 @@ __drlm_modclient ()
 				COMPREPLY[i++]="$result"
 			done
 			;;
+    -n | --netname)
+			local i=0
+			query=$(get_all_network_names_dbdrv "$cur")
+			for result in $query; do
+				COMPREPLY[i++]="$result"
+			done
+			;;
 		"-"*)
 			COMPREPLY=()
 			;;
@@ -820,21 +827,21 @@ __drlm_modclient ()
 
 __drlm_modnetwork ()
 {
-	local options_s="-n -I -i -g -m -s -h"
-	local options_l="--netname --id --ip --gateway --mask --server --help"
+	local options_s="-n -I -g -m -s -h -e -d"
+	local options_l="--netname --id --gateway --mask --server --help --enable --disable"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
-	elif __drlm_exist_option "-n --netname" "$workflow"; then
-		local options_s="-n -i -g -m -s"
-		local options_l="--netname --ip --gateway --mask --server"
-	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I -i -g -m -s"
-		local options_l="--id --ip --gateway --mask --server"
+	elif __drlm_exist_option "-e --enable" "$workflow"; then
+		local options_s="-I -n -g -m -s"
+		local options_l="--id --netname --gateway --mask --server"
+	elif __drlm_exist_option "-d --disable" "$workflow"; then
+		local options_s="-n -I -g -m -s"
+		local options_l="--name --id --gateway --mask --server"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-n -I -i -g -m -s"
-		local options_l="--netname --id --ip --gateway --mask --server"
+		local options_s="-n -I -g -m -s -e -d"
+		local options_l="--netname --id --gateway --mask --server --enable --disable"
 	fi
 
 	case "$prev" in
@@ -852,6 +859,9 @@ __drlm_modnetwork ()
 				COMPREPLY[i++]="$result"
 			done
 			;;
+    -e | -d | --enable | --disable)
+      __drlmcomp3 "$options_s" "$options_l"
+      ;;
 		"-"*)
 			COMPREPLY=()
 			;;

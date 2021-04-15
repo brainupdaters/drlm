@@ -397,7 +397,7 @@ function config_public_keys () {
     $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER_IP 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
   fi
 
-  # return de public key to add and authorize the client in drlm server  
+  # return the public key to add and authorize the client in drlm server  
   $SUDO cat /root/.ssh/id_rsa.pub
 }
 

@@ -45,6 +45,9 @@ fi
 
 if [ "$MOD_NET_GW" == "true" ]; then
   Log "Modifying gateway address of network $NET_ID - $NET_NAME from $TMP_NET_GW to $NET_GW"
+  if [[ "$NET_GW" =~ ^(empty|null|blank|false|no)$ ]]; then
+    NET_GW="";
+  fi
   if mod_network_gw "$NET_ID" "$NET_GW"; then
     LogPrint "Network $NET_ID - $NET_NAME gateway modified in the database"
   else

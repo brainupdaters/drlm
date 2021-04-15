@@ -75,10 +75,12 @@ if [ "$WORKFLOW" == "modnetwork" ]; then
       
       (-e|--enable)
         NET_STATUS="enable"
+        ENABLE="true"
         ;;
       
       (-d|--disable)
         NET_STATUS="disable"
+        DISABLE="true"
         ;; 
 
       (-h|--help)
@@ -104,6 +106,13 @@ if [ "$WORKFLOW" == "modnetwork" ]; then
   # Is possible to modify a network by his ID or his NAME
   if [ -z "$NET_NAME" ] && [ -z "$NET_ID" ]; then
     echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  # There can not be enable or disable in the same command
+  if [ -n "$ENABLE" ] && [ -n "$DISABLE" ]; then
+    echo "$PROGRAM $WORKFLOW: impossible to -e/--enable and -d/--disable the network at same time, select only one status."
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
   fi

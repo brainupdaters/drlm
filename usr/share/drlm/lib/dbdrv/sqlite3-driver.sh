@@ -256,6 +256,11 @@ function count_networks_dbdrv () {
   echo $COUNT
 }
 
+function count_active_networks_dbdrv () {
+  local COUNT=$(echo "select count(*) from networks where active='1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT
+}
+
 function add_network_dbdrv ()
 {
     local NET_ID=0

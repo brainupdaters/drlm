@@ -69,10 +69,10 @@ function generate_dhcp() {
   done
 }
 
-# Reload de dhcp server dummy
+# Reload the dhcp server dummy
 function reload_dhcp() {
   # If there ara no networks, disable dhcp server
-  if [ "$(count_networks)" == "0" ]; then
+  if [ "$(count_active_networks)" == "0" ]; then
     systemctl is-active --quiet $DHCP_SVC_NAME.service && systemctl stop $DHCP_SVC_NAME.service > /dev/null
     return 0
   else

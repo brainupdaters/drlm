@@ -178,7 +178,7 @@ function enable_nbd_ro () {
   local DR_FILE=$2
   local SNAP_ID=$3
 
-  # It is important to put de parameters in this oder, with -r or -l at the end.
+  # It is important to put the parameters in this oder, with -r or -l at the end.
   # when we are trying to get the NBD or DR_FILE from a grep if there the 
   # paremeters are in diferent order we can not obtain correctly them.
   if [ -n "$SNAP_ID" ]; then
@@ -195,7 +195,7 @@ function enable_nbd_rw () {
   local NBD_DEV=$1
   local DR_FILE=$2
 
-  # It is important to put de parameters in this oder.
+  # It is important to put the parameters in this oder.
   # when we are trying to get the NBD or DR_FILE from a grep if there the 
   # paremeters are in diferent order we can not obtain correctly them.
   qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
@@ -206,7 +206,7 @@ function enable_nbd_rw () {
 function disable_nbd () {
   local NBD_DEV=$1
 
-  # It is important to put de parameters in this oder.
+  # It is important to put the parameters in this oder.
   # when we are trying to get the NBD or DR_FILE from a grep if there the 
   # paremeters are in diferent order we can not obtain correctly them.
   qemu-nbd -d ${NBD_DEV} >> /dev/null 2>&1

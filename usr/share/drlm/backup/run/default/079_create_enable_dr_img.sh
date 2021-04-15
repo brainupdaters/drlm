@@ -74,7 +74,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
     Error "Problem generating DR file name"
   fi
 
-  # if is an inherited DR file we copy de file from where to inherit and remove ols the snaps
+  # if is an inherited DR file we copy the file from where to inherit and remove ols the snaps
   if [ "$INHERITED_DR_FILE" == "yes" ]; then
     BKP_BASE_DR_FILE="$(get_backup_drfile_by_backup_id $BKP_BASE_ID)"
     cp $ARCHDIR/$BKP_BASE_DR_FILE $ARCHDIR/$DR_FILE
@@ -95,7 +95,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
     fi
   fi
 else
-  # if backup is incremental create a snap id, get de original DR file and create and snap
+  # if backup is incremental create a snap id, get the original DR file and create and snap
   SNAP_ID=$(gen_backup_id $CLI_ID)
   DR_FILE=$(get_backup_drfile_by_backup_id $BKP_BASE_ID)
 

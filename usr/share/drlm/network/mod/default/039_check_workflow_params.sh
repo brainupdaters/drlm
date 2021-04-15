@@ -55,7 +55,11 @@ if [ -n "$NET_GW" ]; then
   fi
 else
   NET_GW=$(get_network_gw "$NET_ID")
-  TMP_NET_GW_IP=$(get_netaddress "$NET_GW" "$NET_MASK")
+  if [ -n "$NET_GW" ]; then
+    TMP_NET_GW_IP=$(get_netaddress "$NET_GW" "$NET_MASK")
+  else
+    TMP_NET_GW_IP=""
+  fi
 fi
 
 # Check Network IP

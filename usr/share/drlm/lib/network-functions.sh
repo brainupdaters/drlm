@@ -182,6 +182,10 @@ function count_networks () {
   echo $(count_networks_dbdrv)
 }
 
+function count_active_networks () {
+  echo $(count_active_networks_dbdrv)
+}
+
 valid_client_name () {
   local CLIENT_NAME="$1"
   local REGEX="^[a-zA-Z0-9\.\-]+$"

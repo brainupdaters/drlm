@@ -21,7 +21,7 @@ fi
 Log "Registering DR backup to DRLM database .... Success!"
 
 # Finaly enable backup in read only mode
-# To use de function "enable_backup_store_ro" is necessary that the backup is registered in the database
+# To use the function "enable_backup_store_ro" is necessary that the backup is registered in the database
 enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
 
 Log "DRLM Store enabled in read only mode"
