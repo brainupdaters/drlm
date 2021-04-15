@@ -84,7 +84,7 @@ fi
 
 # Check if network for client exists, else create it.
 if [ -z "$CLI_NET" ]; then
-  CLI_NET="$(check_client_network "$CLI_IP")"
+  CLI_NET=$(check_client_network "$CLI_IP")
 elif ! exist_network_name "$CLI_NET"; then
 	Error "Network: $CLI_NET not registered! [ Network required before any client addition ]"
 fi

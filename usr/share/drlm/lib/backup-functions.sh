@@ -97,21 +97,32 @@ function list_backup () {
     load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
 
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
-    if [ "$PRETTY_PARAM" = "true" ]; then
+    if [ "$PRETTY_PARAM" == "true" ]; then
       BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
     else
       BAC_DURA_DEC="%-11s"
     fi
 
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ "$PRETTY_PARAM" = "true" ]; then
+    if [ "$PRETTY_PARAM" == "true" ]; then
       BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
     else
       BAC_SIZE_DEC="%-6s"
     fi
 
+    # if Pretty mode is enabled show in green enabled backups and in red disabled backups
+    if [ "$PRETTY_PARAM" == "true" ]; then
+      if [ "$BAC_STATUS" == "enabled" ]; then 
+        BAC_STATUS_DEC="\\e[0;32m%-10s\\e[0m"
+      else
+        BAC_STATUS_DEC="\\e[0;31m%-10s\\e[0m"
+      fi
+    else
+      BAC_STATUS_DEC="%-10s"
+    fi
+
     if [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then 
-      printf '%-20s %-15s %-18s %-10s '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "$BAC_TYPE-$BAC_PROT"; 
+      printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "$BAC_TYPE-$BAC_PROT"; 
     fi
 
     # Check if BAC_ID have snapshots and list them
@@ -786,7 +797,7 @@ function check_backup_size_status () {
     size_number="${size_number%.*}"
   fi
 
-  if [ "$input_size" = "-" ]; then
+  if [ "$input_size" == "-" ]; then
     echo -n "%-6s"
   elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
     echo -n "\\e[0;31m%-6s\\e[0m"
@@ -839,7 +850,7 @@ function load_client_pretty_params_list_backup () {
   eval $(grep BACKUP_TIME_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
   eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
 
-  if [ "$CLI_CFG" = "default" ]; then
+  if [ "$CLI_CFG" == "default" ]; then
     eval $(grep BACKUP_SIZE_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")
     eval $(grep BACKUP_SIZE_STATUS_WARNING $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")
     eval $(grep BACKUP_TIME_STATUS_FAILED $CONFIG_DIR/clients/$CLI_NAME.cfg | grep "^[^#;]")

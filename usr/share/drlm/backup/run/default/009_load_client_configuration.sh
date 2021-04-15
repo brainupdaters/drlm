@@ -36,7 +36,7 @@ fi
 # The configuration is set to "default" when -C parameter is not present. This means that will be loaded 
 # the configuration file /etc/drlm/clients/client_name.cfg 
 # If the -C parameter is set, drlm will load the configuration files stored in /etc/drlm/clients/client_name.cfg.d/config_file.cfg
-if [ "$CLI_CFG" = "default" ]; then
+if [ "$CLI_CFG" == "default" ]; then
   if [ -f $CONFIG_DIR/clients/$CLI_NAME.cfg ]; then
     source $CONFIG_DIR/clients/$CLI_NAME.cfg
     Log "Sourcing ${CLI_NAME} client configuration ($CONFIG_DIR/clients/$CLI_NAME.cfg)"

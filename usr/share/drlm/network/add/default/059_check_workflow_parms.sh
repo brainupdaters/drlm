@@ -8,7 +8,7 @@ if [ -n "$NET_SRV" ]; then
       Error "DRLM Server IP: $NET_SRV already registered in DB!"
     else
       Log "Network IP: $NET_SRV is not in use in DRLM DB..."
-      TMP_NET_NAME="$(ip -o -f inet addr show | grep $NET_SRV | awk '/scope global/ {print $2}')"
+      TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $NET_SRV | awk '/scope global/ {print $2}')"
       TMP_NET_DATA="$(ip -o -f inet addr show | grep $NET_SRV | awk '/scope global/ {print $2 " " $4 " " $6}')"
       TMP_NET_CIDR="$(echo $TMP_NET_DATA | awk '{print $2}' | awk -F'/' '{print $2}')"
       TMP_NET_BROADCAST="$(echo $TMP_NET_DATA | awk '{print $3}')"
@@ -30,8 +30,8 @@ if [ -n "$NET_IP" ]; then
       Error "Network IP: $NET_IP already registered in DB!"
     else
       Log "Network IP: $NET_IP is not in use in DRLM DB..."
-      TMP_NET_SRV=$(ip -o route list | grep "$NET_IP" | awk '{print $9}')
-      TMP_NET_NAME="$(ip -o -f inet addr show | grep $TMP_NET_SRV | awk '/scope global/ {print $2}')"
+      TMP_NET_SRV=$(ip route list | grep "$NET_IP" | awk '{print $9}')
+      TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $TMP_NET_SRV | awk '/scope global/ {print $2}')"
       TMP_NET_DATA="$(ip -o -f inet addr show | grep $TMP_NET_SRV | awk '/scope global/ {print $2 " " $4 " " $6}')"
       TMP_NET_CIDR="$(echo $TMP_NET_DATA | awk '{print $2}' | awk -F'/' '{print $2}')"
       TMP_NET_BROADCAST="$(echo $TMP_NET_DATA | awk '{print $3}')"
@@ -46,8 +46,9 @@ fi
 
 # Apply the value of the variables with the information taken from the network 
 # NET_SRV and NET_IP must be set in order to perform the next checks
-if [ -z "$NET_SRV" ]; then NET_SRV=$TMP_NET_SRV fi
-if [ -z "$NET_IP" ]; then NET_IP=$TMP_NET_IP fi
+if [ -z "$NET_SRV" ]; then NET_SRV="$TMP_NET_SRV"; fi
+if [ -z "$NET_IP" ]; then NET_IP="$TMP_NET_IP"; fi
+if [ -z "$NET_INTERFACE" ]; then NET_INTERFACE=$TMP_NET_INTERFACE; fi
 
 # Check if the network name is in DRLM database
 if [ -n "$NET_NAME" ]; then
@@ -57,7 +58,7 @@ if [ -n "$NET_NAME" ]; then
     Error "Network named: $NETNAME already registered in DB!"
   fi
 else
-  NET_NAME="$TMP_NET_NAME"
+  NET_NAME="$TMP_NET_INTERFACE"
 fi
 
 # Check the Netmask if especified
@@ -66,7 +67,7 @@ if [ -n "$NET_MASK" ]; then
 
   if valid_ip $NET_MASK; then
     Log "Network Mask: $NET_MASK is in valid format..."
-    if [ "$NET_IP" != $(get_netaddress "$NET_GW" "$NET_MASK") ]; then
+    if [ "$NET_IP" != $(get_netaddress "$NET_GW" "$NET_MASK") ]; then  
       Error "Network Mask: $NET_MASK is not correct for this net $NET_IP"
     else
       Log "Network Mask: $NET_MASK is valid for net $NET_IP"
@@ -104,6 +105,8 @@ elif [ -z "$NET_IP" ]; then
   Error "Network IP can not be found automatically. Especify it with -i NETWORK_IP option."
 elif [ -z "$NET_MASK" ]; then
   Error "Network Netmask can not be found automatically. Especify it with -m NETWORK_MASK option."
-elif [ -z "$NET_NAME"]; then
+elif [ -z "$NET_NAME" ]; then
   Error "Network Name can not be found automatically. Especify it with -n NETWORK_NAME option."
+elif [ -z "$NET_INTERFACE" ]; then
+  Error "Network interface can not be found automatically. Especify it with -f NETWORK_INTERFACE_NAME option."
 fi

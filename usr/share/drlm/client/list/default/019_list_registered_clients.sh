@@ -5,6 +5,6 @@ if [ "$CLI_NAME" != "all" ]; then
   fi
 fi
 
-if [ "$PRETTY" = true ] || [ "$DEF_PRETTY" = true ]; then PRETTY=true; fi
+if [ "$PRETTY" == "true" ] || [ "$DEF_PRETTY" == "true" ]; then PRETTY=true; fi
 
-list_client "$CLI_NAME" $UNSCHED $PRETTY
+list_client "$CLI_NAME" "$UNSCHED" "$PRETTY"

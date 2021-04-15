@@ -27,7 +27,7 @@ function get_arch () {
   local USER=$1
   local CLI_NAME=$2
   ARCH=$(echo $( ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "arch"  2> /dev/null) | tr -dc '[:alnum:][:punct:]')
-  if [ "$ARCH" = "" ]; then echo noarch; else echo $ARCH ; fi
+  if [ "$ARCH" == "" ]; then echo noarch; else echo $ARCH ; fi
 }
 
 function ssh_get_release () {
@@ -283,11 +283,11 @@ function ssh_remove_authorized_keys () {
 
 function start_services () {
   for service in ${SERVICES[@]}; do
-    if [ "$(ps -p 1 -o comm=)" = "systemd" ]; then
+    if [ "$(ps -p 1 -o comm=)" == "systemd" ]; then
       $SUDO systemctl start $service.service
       $SUDO systemctl enable $service.service
     else
-      if [ "$DISTRO" = "Debian" ] || [ "$DISTRO" = "Ubuntu" ]; then
+      if [ "$DISTRO" == "Debian" ] || [ "$DISTRO" == "Ubuntu" ]; then
         $SUDO /usr/sbin/service $service start
         $SUDO /usr/sbin/update-rc.d $service enable
       else

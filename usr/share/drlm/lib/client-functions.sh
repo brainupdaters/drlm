@@ -204,7 +204,7 @@ function list_client () {
   local UNSHED_PARAM=$2
   local PRETTY_PARAM="$3"
 
-  if [ "$CLI_NAME_PARAM" = "all" ]; then 
+  if [ "$CLI_NAME_PARAM" == "all" ]; then 
     CLI_NAME_PARAM=""
   fi
 
@@ -230,9 +230,9 @@ function list_client () {
       local CLI_HAS_JOBS="true"
     fi
 
-    if [ "$UNSHED_PARAM" = "false" ] || { [ "$UNSHED_PARAM" = "true" ] && [ "$CLI_HAS_JOBS" = "false" ]; } ; then
-      if [ "$PRETTY_PARAM" = "true" ]; then
-        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" = "open" ]; then
+    if [ "$UNSHED_PARAM" == "false" ] || { [ "$UNSHED_PARAM" == "true" ] && [ "$CLI_HAS_JOBS" == "false" ]; } ; then
+      if [ "$PRETTY_PARAM" == "true" ]; then
+        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" == "open" ]; then
           printf '%-6s '"\\e[0;32m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
         else
           printf '%-6s '"\\e[0;31m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"

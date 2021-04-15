@@ -114,7 +114,7 @@ EOF
 fi
 
 # Include backup configuration to dr file
-if [ "$CLI_CFG" = "default" ]; then
+if [ "$CLI_CFG" == "default" ]; then
   grep -o '^[^#]*' $CONFIG_DIR/clients/$CLI_NAME.cfg > ${STORDIR}/${CLI_NAME}/${CLI_CFG}/${CLI_NAME}.${CLI_CFG}.drlm.cfg
 else
   grep -o '^[^#]*' $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg > ${STORDIR}/${CLI_NAME}/${CLI_CFG}/${CLI_NAME}.${CLI_CFG}.drlm.cfg

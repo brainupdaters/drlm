@@ -18,11 +18,13 @@ type Network struct {
 	Broadcast string `json:"broadcast"`
 	ServerIP  string `json:"serverip"`
 	Name      string `json:"netname"`
+	Status    string `json:"active"`
+	Interface string `json:"interface"`
 }
 
 func (n *Network) GetAll() ([]Network, error) {
 	db := GetConnection()
-	q := "SELECT idnetwork, netip, mask, gw, domain, dns, broadcast, serverip, netname FROM networks"
+	q := "SELECT idnetwork, netip, mask, gw, domain, dns, broadcast, serverip, netname, active, interface FROM networks"
 	rows, err := db.Query(q)
 	if err != nil {
 		return []Network{}, err
@@ -40,6 +42,8 @@ func (n *Network) GetAll() ([]Network, error) {
 			&n.Broadcast,
 			&n.ServerIP,
 			&n.Name,
+			&n.Status,
+			&n.Interface,
 		)
 		networks = append(networks, *n)
 	}

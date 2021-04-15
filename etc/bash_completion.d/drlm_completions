@@ -889,7 +889,7 @@ __drlm_find_on_cmdline ()
 	while [ $c -lt $COMP_CWORD ]; do
 		word="${COMP_WORDS[c]}"
 		for workflow in $1; do
-			if [ "$workflow" = "$word" ]; then
+			if [ "$workflow" == "$word" ]; then
 				echo "$workflow"
 				return
 			fi
