@@ -102,6 +102,16 @@ DRLM Version 2.4.0 (April 2021) - Release Notes
 
   * Improved DRLM installation
 
+  * Added drlm-tftpd systemd service
+
+  * Added drlm-rsyncd systemd service
+
+  * Addnetwork, modnetwork and addclient simplified
+
+  * Addnetwork is done automatically when you run addclient
+
+  * DHCP server is managed automatically
+
 
 DRLM Version 2.3.2 (December 2020) - Release Notes
 --------------------------------------------------
