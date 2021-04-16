@@ -1,6 +1,10 @@
 # delnetwork workflow
 
-### TODO Check if any client has the network assigned
-# If exists stop deleting and output message "first remove net from clients"?
-# And maybe add a -f (force) parameter to remove even some client has assigned it
-# Is important if the client have a PXE config to no delete the network
+for NET_CLIENT in $(get_clients_by_network "$NET_NAME"); do
+  CLI_NAME=$(echo $NET_CLIENT | awk -F':' '{print $2}')
+  HAS_CLIENTS=$(echo "$HAS_CLIENTS $CLI_NAME")
+done
+
+if [ -n "$HAS_CLIENTS" ]; then
+  Error "Network $NET_ID - $NET_NAME has clients assigned ($HAS_CLIENTS ). Remove it and try again."
+fi

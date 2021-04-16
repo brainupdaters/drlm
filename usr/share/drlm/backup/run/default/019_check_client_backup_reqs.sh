@@ -45,7 +45,7 @@ else
   LogPrint "Warning: Can not update ReaR version of client $CLI_ID in the database"
 fi
 
-# Check the backup configuration and Logprint what type of backup will be done
+# Check the backup configuration and LogPrint what type of backup will be done
 #######
 # ISO #
 #######

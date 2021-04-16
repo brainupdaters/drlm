@@ -94,6 +94,12 @@ if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
 
   Log "- Fixed PXE permissions for DR image"
 
+  # Unpack GRUB files if do not exist 
+  if [[ ! -d ${STORDIR}/boot/grub ]]; then
+    mkdir -p ${STORDIR}/boot/grub
+    tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C ${STORDIR}/boot/grub
+  fi
+
   if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
 
   cat << EOF > ${STORDIR}/boot/cfg/${F_CLI_MAC}

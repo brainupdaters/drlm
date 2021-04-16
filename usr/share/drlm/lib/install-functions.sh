@@ -234,11 +234,25 @@ function send_ssl_cert () {
 }
 
 function send_drlm_hostname () {
+
+  # Coment lines with same hostname as SRV_NAME and diferent SRV_IP
+  if [ -n "$SRV_NAME" ] && [ -n "$SRV_IP" ];then
+    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_NAME" | grep -v "$SRV_IP" | awk -F':' '{print $1}'); do
+      $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
+    done
+
+    # If no exists "$SRV_IP" "$SRV_NAME" line in /etc/hosts attach it
+    grep -o '^[^#]*' /etc/hosts | grep "^$SRV_IP" | grep -w "$SRV_NAME" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$SRV_NAME" | $SUDO tee --append /etc/hosts >/dev/null
+  fi
+}
+
+function ssh_send_drlm_hostname () {
   local USER=$1
   local CLI_NAME=$2
   local SRV_IP=$3
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( echo \$(grep "$SRV_IP" /etc/hosts) | grep -w "$(hostname -s)" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )" &> /dev/null
+  local SRV_NAME=$(hostname -s)
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SRV_NAME SRV_IP SUDO; declare -f send_drlm_hostname); send_drlm_hostname" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 

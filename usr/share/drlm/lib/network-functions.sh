@@ -270,7 +270,7 @@ function check_net_port ()
 {
   local ip=$1
   local port=$2
-  exec 3> /dev/tcp/"$ip"/"$port"
+  timeout 5 bash -c "exec 3> /dev/tcp/$ip/$port"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

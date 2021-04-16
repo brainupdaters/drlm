@@ -141,7 +141,7 @@ function add_client_dbdrv ()
       LogPrint "New Client ID: $CLI_ID"
       return 0
     else 
-      echo "ERRORFILEDB" 
+      return 1 
     fi
 }
 
@@ -288,7 +288,7 @@ function add_network_dbdrv ()
       LogPrint "New Network ID: $NET_ID";
       return 0
     else 
-      echo "ERRORFILEDB"; 
+      return 1 
     fi
 }
 

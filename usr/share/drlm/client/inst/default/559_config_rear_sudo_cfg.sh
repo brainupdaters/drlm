@@ -9,7 +9,7 @@ if make_ssl_capath ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "SSL CApath succes
 if send_ssl_cert ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "SSL certificate successfuly sent to ${CLI_NAME}"; else Error "Error sending certificate, check logfile"; fi
 
 if [ -n "$SRV_IP" ]; then
-  if send_drlm_hostname ${USER} ${CLI_NAME} ${SRV_IP} ${SUDO}; then LogPrint "Success to update DRLM hostname info to ${CLI_NAME}"; else Error "Error updating DRLM hostname information, check logfile"; fi
+  if ssh_send_drlm_hostname ${USER} ${CLI_NAME} ${SRV_IP} ${SUDO}; then LogPrint "Success to update DRLM hostname info to ${CLI_NAME}"; else Error "Error updating DRLM hostname information, check logfile"; fi
 fi
 
 PUBLIC_KEY=$(ssh_config_public_keys "${USER}" "${CLI_NAME}" "${SRV_IP}" "${SUDO}" )

@@ -67,7 +67,7 @@ if [ -n "$NET_MASK" ]; then
 
   if valid_ip $NET_MASK; then
     Log "Network Mask: $NET_MASK is in valid format..."
-    if [ "$NET_IP" != $(get_netaddress "$NET_GW" "$NET_MASK") ]; then  
+    if [ "$NET_IP" != $(get_netaddress "$NET_SRV" "$NET_MASK") ]; then  
       Error "Network Mask: $NET_MASK is not correct for this net $NET_IP"
     else
       Log "Network Mask: $NET_MASK is valid for net $NET_IP"
@@ -107,6 +107,6 @@ elif [ -z "$NET_MASK" ]; then
   Error "Network Netmask can not be found automatically. Especify it with -m NETWORK_MASK option."
 elif [ -z "$NET_NAME" ]; then
   Error "Network Name can not be found automatically. Especify it with -n NETWORK_NAME option."
-elif [ -z "$NET_INTERFACE" ]; then
-  Error "Network interface can not be found automatically. Especify it with -f NETWORK_INTERFACE_NAME option."
+# elif [ -z "$NET_INTERFACE" ]; then
+#   Error "Network interface can not be found automatically. Especify it with -f NETWORK_INTERFACE_NAME option."
 fi

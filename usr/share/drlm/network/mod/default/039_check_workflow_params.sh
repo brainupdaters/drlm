@@ -116,6 +116,6 @@ if [ -n "$NET_IFACE" ]; then
     fi
   fi
 else
-  Error "Network not reachable"
+  LogPrint "Network interface not found"
 fi
 

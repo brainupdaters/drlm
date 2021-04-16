@@ -89,7 +89,11 @@ case "$1" in
       DR_FILE=$(echo ${BACKUPLINE} | awk -F":" '{ print $3 }')
       CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
       CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
-      enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+      if ! pgrep -fa $DR_FILE &> /dev/null; then
+        enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+      else
+        echo "Backup $BKP_ID of client $CLI_NAME already enabled"
+      fi
       return_value="$?"
       if [ "$return_value" -ne "0" ]; then RETVAL="1"; fi
     done

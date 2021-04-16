@@ -12,6 +12,12 @@ if [ "$IMP_BKP_TYPE" == "PXE" ]; then
   CLI_REAR_PXE_FILE=$(grep -w append ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/rear* | awk -F':' '{print $1}' | xargs -n 1 basename)
   CLI_KERNEL_OPTS=$(grep -h -w append ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/${CLI_REAR_PXE_FILE} | awk '{print substr($0, index($0,$3))}' | sed 's/vga/gfxpayload=vga/')
 
+  # Unpack GRUB files if do not exist 
+  if [[ ! -d ${STORDIR}/boot/grub ]]; then
+    mkdir -p ${STORDIR}/boot/grub
+    tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C ${STORDIR}/boot/grub
+  fi
+
   if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
 
   LogPrint "Creating MAC Address (GRUB2) boot configuration file ..."

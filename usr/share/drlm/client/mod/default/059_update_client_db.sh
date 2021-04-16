@@ -103,16 +103,18 @@ fi
 if test -n "$CLI_NET"; then
 
   LogPrint "Modifying network for client $CLI_NAME to $CLI_NET ..."
-
-  if ! exist_network_name "$CLI_NET" ; then
+  if [[ "$CLI_NET" =~ ^(null)$ ]]; then
+    CLI_NET="";
+  elif ! exist_network_name "$CLI_NET" ; then
     Error "Network: $CLI_NET not registered! [ Network required before any client addition ]"
-  else
-    OLD_CLI_NET=$(get_client_net $CLI_ID)
-
-    if mod_client_net "$CLI_ID" "$CLI_NET" ; then
-      Log "Network update for $CLI_NAME Success!"
-    else
-      Error "Problem updating Network for $CLI_NAME! See $LOGFILE for details."
-    fi
   fi
+  
+  OLD_CLI_NET=$(get_client_net $CLI_ID)
+
+  if mod_client_net "$CLI_ID" "$CLI_NET" ; then
+    Log "Network update for $CLI_NAME Success!"
+  else
+    Error "Problem updating Network for $CLI_NAME! See $LOGFILE for details."
+  fi
+  
 fi
