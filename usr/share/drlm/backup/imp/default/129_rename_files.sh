@@ -20,7 +20,7 @@ fi
 # Since DRLM v2.4.0 backup configuration files are stored inside DR file,
 # for that is possible to import the backup file and its configuration.
 if [ "$IMPORT_CONFIGURATION" == "Y" ]; then 
-  if [ "$CLI_CFG" = "default" ]; then
+  if [ "$CLI_CFG" == "default" ]; then
       # Save default existent configuration if exists
       if [ -f $CONFIG_DIR/clients/$CLI_NAME.cfg ]; then
         mv $CONFIG_DIR/clients/$CLI_NAME.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg.save

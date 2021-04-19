@@ -228,6 +228,7 @@ deb: dist
 	-rm -rf debian/
 	rm $(name)-$(distversion).tar.gz
 	rm build-stamp
+	rm usr/sbin/drlm-api
 
 docker: dist
 	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"

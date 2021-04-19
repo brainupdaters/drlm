@@ -3,6 +3,13 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 
+-- Update table networks
+ALTER TABLE networks ADD COLUMN "active" tinyint(1);
+UPDATE networks SET active=1 WHERE active='';
+
+ALTER TABLE networks ADD COLUMN "iface" varchar(45);
+
+-- Update table backups
 ALTER TABLE backups ADD COLUMN "config" varchar(45);
 UPDATE backups SET config='default' WHERE config='';
 
@@ -18,8 +25,10 @@ UPDATE backups SET protocol='NETFS' where protocol='';
 
 ALTER TABLE backups ADD COLUMN "date" varchar(16);
 
+-- Update table jobs
 ALTER TABLE jobs ADD COLUMN "config" varchar(45);
 
+-- Create new table snaps
 CREATE TABLE IF NOT EXISTS "snaps" (
   "idbackup" varchar(14) NOT NULL,
   "idsnap" varchar(14) NOT NULL,
@@ -31,6 +40,7 @@ CREATE TABLE IF NOT EXISTS "snaps" (
   CONSTRAINT "fk_backups_clients" FOREIGN KEY ("idbackup") REFERENCES "backups" ("idbackup") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
+-- Create new table users
 CREATE TABLE IF NOT EXISTS "users" (
   "user_name" TEXT NOT NULL UNIQUE PRIMARY KEY,
   "user_password" TEXT NOT NULL

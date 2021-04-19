@@ -27,7 +27,7 @@ function get_arch () {
   local USER=$1
   local CLI_NAME=$2
   ARCH=$(echo $( ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "arch"  2> /dev/null) | tr -dc '[:alnum:][:punct:]')
-  if [ "$ARCH" = "" ]; then echo noarch; else echo $ARCH ; fi
+  if [ "$ARCH" == "" ]; then echo noarch; else echo $ARCH ; fi
 }
 
 function ssh_get_release () {
@@ -234,11 +234,25 @@ function send_ssl_cert () {
 }
 
 function send_drlm_hostname () {
+
+  # Coment lines with same hostname as SRV_NAME and diferent SRV_IP
+  if [ -n "$SRV_NAME" ] && [ -n "$SRV_IP" ];then
+    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_NAME" | grep -v "$SRV_IP" | awk -F':' '{print $1}'); do
+      $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
+    done
+
+    # If no exists "$SRV_IP" "$SRV_NAME" line in /etc/hosts attach it
+    grep -o '^[^#]*' /etc/hosts | grep "^$SRV_IP" | grep -w "$SRV_NAME" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$SRV_NAME" | $SUDO tee --append /etc/hosts >/dev/null
+  fi
+}
+
+function ssh_send_drlm_hostname () {
   local USER=$1
   local CLI_NAME=$2
   local SRV_IP=$3
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( echo \$(grep "$SRV_IP" /etc/hosts) | grep -w "$(hostname -s)" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )" &> /dev/null
+  local SRV_NAME=$(hostname -s)
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SRV_NAME SRV_IP SUDO; declare -f send_drlm_hostname); send_drlm_hostname" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -283,11 +297,11 @@ function ssh_remove_authorized_keys () {
 
 function start_services () {
   for service in ${SERVICES[@]}; do
-    if [ "$(ps -p 1 -o comm=)" = "systemd" ]; then
+    if [ "$(ps -p 1 -o comm=)" == "systemd" ]; then
       $SUDO systemctl start $service.service
       $SUDO systemctl enable $service.service
     else
-      if [ "$DISTRO" = "Debian" ] || [ "$DISTRO" = "Ubuntu" ]; then
+      if [ "$DISTRO" == "Debian" ] || [ "$DISTRO" == "Ubuntu" ]; then
         $SUDO /usr/sbin/service $service start
         $SUDO /usr/sbin/update-rc.d $service enable
       else
@@ -393,16 +407,22 @@ function config_public_keys () {
   # $SUDO /usr/bin/ssh-keyscan -H $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
   $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
 
-  # return de public key to add and authorize the client in drlm server  
+  if [ -n "$DRLM_SERVER_IP" ]; then
+    $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER_IP 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+  fi
+
+  # return the public key to add and authorize the client in drlm server  
   $SUDO cat /root/.ssh/id_rsa.pub
 }
 
 function ssh_config_public_keys () {
   local USER=$1
   local CLI_NAME=$2
-  local SUDO=$3
+  local DRLM_SERVER_IP=$3
+  local SUDO=$4
   local DRLM_SERVER="$(hostname -s)"
-  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO DRLM_SERVER ; declare -f config_public_keys); config_public_keys")
+  
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO DRLM_SERVER DRLM_SERVER_IP ; declare -f config_public_keys); config_public_keys")
 }
 
 function authors () {

@@ -19,7 +19,7 @@ case "$1" in
 
     # Unpack GRUB files
     tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
-
+    
     # Check if drlm.key has been generated in older installations.
     if [ ! -f /etc/drlm/cert/drlm.key ]; then
         openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt

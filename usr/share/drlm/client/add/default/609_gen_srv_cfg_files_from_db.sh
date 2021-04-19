@@ -10,16 +10,10 @@ fi
 Log "Updating DHCP configuration ..."
 generate_dhcp
 
-# Cherck if services are enabled and ok else restart them
-systemctl is-active --quiet $DHCP_SVC_NAME.service || systemctl restart $DHCP_SVC_NAME.service > /dev/null
-systemctl is-failed --quiet $DHCP_SVC_NAME.service && systemctl restart $DHCP_SVC_NAME.service > /dev/null
-systemctl is-active --quiet $NFS_SVC_NAME.service || systemctl restart $NFS_SVC_NAME.service > /dev/null
-systemctl is-failed --quiet $NFS_SVC_NAME.service && systemctl restart $NFS_SVC_NAME.service > /dev/null
-
 if reload_dhcp; then
   Log "DHCP service reconfiguration complete!"
 else
-  Error "DHCP service reconfiguration failed! See $LOGFILE for details."
+  Error "DHCP service reconfiguration failed!"
 fi
 
 # Add client config file at DRLM Server

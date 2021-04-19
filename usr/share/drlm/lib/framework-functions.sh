@@ -1,6 +1,6 @@
-# shell-script-functions.sh
+# framework-functions.sh
 #
-# shell script functions for Disaster Recovery Linux Manager
+# framework functions for Disaster Recovery Linux Manager
 #
 #    Disaster Recovery Linux Manager is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

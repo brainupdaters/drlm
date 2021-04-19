@@ -2,9 +2,17 @@
 
 if [ "$BKP_TYPE" == "PXE" ]; then
 
-LogPrint "Enabling PXE boot"
+  LogPrint "Enabling PXE boot"
 
-  if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
+  # Unpack GRUB files if do not exist 
+  if [[ ! -d ${STORDIR}/boot/grub ]]; then
+    mkdir -p ${STORDIR}/boot/grub
+    cp -r /var/lib/drlm/store/boot/grub ${STORDIR}/boot
+  fi
+
+  if [[ ! -d ${STORDIR}/boot/cfg ]]; then 
+    mkdir -p ${STORDIR}/boot/cfg 
+  fi
 
   CLI_MAC=$(get_client_mac $CLI_ID)
   F_CLI_MAC=$(format_mac ${CLI_MAC} ":")

@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 
 if [ "$WORKFLOW" == "addclient" ]; then
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:i:M:n:ICru:U:h" -l "client:,ipaddr:,macaddr:,netname:,installclient,config,repo,user:,urlrear:,url_rear:,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:i:M:ICru:U:h" -l "client:,ipaddr:,macaddr:,installclient,config,repo,user:,urlrear:,url_rear:,help" -- "$@")"
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
@@ -59,17 +59,6 @@ if [ "$WORKFLOW" == "addclient" ]; then
         # We need to take the option argument
         if [ -n "$2" ] && [[ "$2" != -* ]]; then
           CLI_MAC="$2"
-        else
-          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
-          exit 1
-        fi
-        shift
-        ;;
-
-      (-n|--netname)
-        # We need to take the option argument
-        if [ -n "$2" ] && [[ "$2" != -* ]]; then
-          CLI_NET="$2"
         else
           echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
           exit 1
@@ -132,11 +121,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
     shift
   done
 
-  if [ -z "$CLI_NAME" ] || [ -z "$CLI_IP" ] || [ -z "$CLI_MAC" ] || [ -z "$CLI_NET" ]; then
-    ADDCLI_MODE=online
-  fi
-
-  if [ -z "$CLI_IP" ]; then
+  if [ -z "$CLI_IP" ] && [ -z "$CLI_NAME" ]; then
     echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1

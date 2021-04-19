@@ -1,6 +1,6 @@
 # listbackup workflow
 
-if [ "$PRETTY" = true ] || [ "$DEF_PRETTY" = true ]; then 
+if [ "$PRETTY" == "true" ] || [ "$DEF_PRETTY" == "true" ]; then 
   PRETTY=true; 
 fi
 

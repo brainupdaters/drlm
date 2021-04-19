@@ -124,20 +124,16 @@ function get_all_client_id_dbdrv ()
 
 function add_client_dbdrv ()
 {
-    local CLI_ID=0
-    local CLI_NAME=$1
-    local CLI_MAC=$2
-    local CLI_IP=$3
-    local CLI_OS=$4
-    local CLI_NET=$5
-    local CLI_REAR=$6
+    local CLI_ID="$1"
+    local CLI_NAME="$2"
+    local CLI_MAC="$3"
+    local CLI_IP="$4"
+    local CLI_OS="$5"
+    local CLI_NET="$6"
+    local CLI_REAR="$7"
 
-    CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-    if [ $CLI_ID -eq  0 ]; then
-        CLI_ID=$(echo "select ifnull(max(idclient)+1, 100) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-        echo "INSERT INTO counters (idcounter, value) VALUES ('clients', $CLI_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    else
-        CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    if [ -z "$CLI_ID" ]; then 
+      CLI_ID=$(generate_client_id_dbdrv)
     fi
 
     echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}', '${CLI_OS}', '${CLI_REAR}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
@@ -145,8 +141,20 @@ function add_client_dbdrv ()
       LogPrint "New Client ID: $CLI_ID"
       return 0
     else 
-      echo "ERRORFILEDB" 
+      return 1 
     fi
+}
+
+function generate_client_id_dbdrv () {
+    local CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    if [ $CLI_ID -eq  0 ]; then
+        CLI_ID=$(echo "select ifnull(max(idclient)+1, 100) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+        echo "INSERT INTO counters (idcounter, value) VALUES ('clients', $CLI_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    else
+        CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    fi
+
+    echo $CLI_ID
 }
 
 function del_client_id_dbdrv ()
@@ -229,6 +237,30 @@ function exist_network_ip_dbdrv ()
   if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
 }
 
+function exist_server_ip_dbdrv ()
+{
+  local NET_SRV=$1
+  COUNT=$(echo "select count(*) from networks where serverip='${NET_SRV}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function exist_network_interface_dbdrv ()
+{
+  local NET_IFACE=$1
+  COUNT=$(echo "select count(*) from networks where interface='${NET_IFACE}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function count_networks_dbdrv () {
+  local COUNT=$(echo "select count(*) from networks;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT
+}
+
+function count_active_networks_dbdrv () {
+  local COUNT=$(echo "select count(*) from networks where active='1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT
+}
+
 function add_network_dbdrv ()
 {
     local NET_ID=0
@@ -240,6 +272,8 @@ function add_network_dbdrv ()
     local NET_BRO=$6
     local NET_SERVIP=$7
     local NET_NAME=$8
+    local NET_ACTIVE=$9
+    local NET_IFACE=${10}
 
     NET_ID=$(echo "select count(*) from counters where idcounter='networks';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     if [ $NET_ID -eq  0 ]; then
@@ -249,12 +283,12 @@ function add_network_dbdrv ()
         NET_ID=$(echo "select value+1 from counters where idcounter='networks'; UPDATE counters set value=(value+1) where idcounter='networks';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     fi
 
-    echo "INSERT INTO networks (idnetwork, netip, mask, gw, domain, dns, broadcast, serverip, netname) VALUES (${NET_ID}, '${NET_IP}', '${NET_MASK}', '${NET_GW}', '${NET_DOM}', '${NET_DNS}', '${NET_BRO}', '${NET_SERVIP}', '${NET_NAME}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    echo "INSERT INTO networks (idnetwork, netip, mask, gw, domain, dns, broadcast, serverip, netname, active, interface) VALUES (${NET_ID}, '${NET_IP}', '${NET_MASK}', '${NET_GW}', '${NET_DOM}', '${NET_DNS}', '${NET_BRO}', '${NET_SERVIP}', '${NET_NAME}', '${NET_ACTIVE}', '${NET_IFACE}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     if [ $? -eq 0 ]; then 
       LogPrint "New Network ID: $NET_ID";
       return 0
     else 
-      echo "ERRORFILEDB"; 
+      return 1 
     fi
 }
 
@@ -335,13 +369,27 @@ function get_network_srv_dbdrv ()
   echo "$NET_SRV"
 }
 
+function get_network_status_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_STATUS=$(echo "select active from networks where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$NET_STATUS"
+}
+
+function get_network_interface_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_IFACE=$(echo "select interface from networks where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$NET_IFACE"
+}
+
 function get_all_networks_dbdrv ()
 {
   local NET_NAME="$1"
   if [ -n "$NET_NAME" ]; then
-    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks where netname="'$NET_NAME'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":",active,":",interface,":" from networks where netname="'$NET_NAME'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   else
-    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":",active,":",interface,":" from networks;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   fi
 }
 
@@ -418,6 +466,22 @@ function mod_network_srv_dbdrv ()
   local NET_ID=$1
   local NET_SRV=$2
   echo "update networks set serverip='$NET_SRV' where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function mod_network_status_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_STATUS=$2
+  echo "update networks set active='$NET_STATUS' where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function mod_network_interface_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_INTERFACE=$2
+  echo "update networks set interface='$NET_INTERFACE' where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

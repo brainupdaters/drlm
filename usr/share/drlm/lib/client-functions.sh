@@ -106,16 +106,20 @@ function check_client_connectivity ()
 
 function add_client ()
 {
-  local CLI_ID=""
-  local CLI_NAME=$1
-  local CLI_MAC=$2
-  local CLI_IP=$3
-  local CLI_OS=$4
-  local CLI_NET=$5
-  local CLI_REAR=$6
+  local CLI_ID="$1"
+  local CLI_NAME="$2"
+  local CLI_MAC="$3"
+  local CLI_IP="$4"
+  local CLI_OS="$5"
+  local CLI_NET="$6"
+  local CLI_REAR="$7"
 
-  add_client_dbdrv "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_REAR"
+  add_client_dbdrv "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_REAR"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function generate_client_id () {
+  echo "$(generate_client_id_dbdrv)"
 }
 
 function del_client_id ()
@@ -133,16 +137,13 @@ function del_client_id ()
 
 function check_client_mac ()
 {
-  local CLI_NAME=$1
-  local CLI_IP=$2
-  local CLI_MAC=$3
+  local CLI_IP=$1
+  local CLI_MAC=$2
 
   ping  -c 1 -t 2 $CLI_IP &>/dev/null
-  if [ $? -eq 0 ];
-  then
+  if [ $? -eq 0 ]; then
     local REAL_MAC=$(ip n | grep -w $CLI_IP | awk '{print $5}' | tr -d ":" | tr \[A-Z\] \[a-z\])
-    if [ "${REAL_MAC}" == "${CLI_MAC}" ]
-    then
+    if [ "${REAL_MAC}" == "${CLI_MAC}" ]; then
       return 0;
     else
       return 1;
@@ -203,7 +204,7 @@ function list_client () {
   local UNSHED_PARAM=$2
   local PRETTY_PARAM="$3"
 
-  if [ "$CLI_NAME_PARAM" = "all" ]; then 
+  if [ "$CLI_NAME_PARAM" == "all" ]; then 
     CLI_NAME_PARAM=""
   fi
 
@@ -229,9 +230,9 @@ function list_client () {
       local CLI_HAS_JOBS="true"
     fi
 
-    if [ "$UNSHED_PARAM" = "false" ] || { [ "$UNSHED_PARAM" = "true" ] && [ "$CLI_HAS_JOBS" = "false" ]; } ; then
-      if [ "$PRETTY_PARAM" = "true" ]; then
-        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" = "open" ]; then
+    if [ "$UNSHED_PARAM" == "false" ] || { [ "$UNSHED_PARAM" == "true" ] && [ "$CLI_HAS_JOBS" == "false" ]; } ; then
+      if [ "$PRETTY_PARAM" == "true" ]; then
+        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" == "open" ]; then
           printf '%-6s '"\\e[0;32m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
         else
           printf '%-6s '"\\e[0;31m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"

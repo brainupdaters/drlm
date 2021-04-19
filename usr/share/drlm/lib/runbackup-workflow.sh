@@ -22,6 +22,9 @@ WORKFLOW_runbackup_DESCRIPTION="run backup and register to DB."
 WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
+# Check that required services are running before do a runbackup
+check_drlm_services
+
 if [ "$WORKFLOW" == "runbackup" ]; then 
   
   # Parse options

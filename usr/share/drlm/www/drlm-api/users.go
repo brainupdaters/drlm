@@ -99,7 +99,7 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the session from sessions whit the token value
+	// Get the session from sessions with the token value
 	session := Session{"", c.Value, 0}
 	session, err = session.Get()
 	if err != nil {

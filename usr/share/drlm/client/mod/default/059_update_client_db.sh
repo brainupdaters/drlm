@@ -22,7 +22,7 @@ if test -n "$CLI_IP"; then
       OLD_CLI_IP=$(get_client_ip $CLI_ID)
 
       # Check if client is available over the network and match MAC address
-      if check_client_mac "$CLI_NAME" "$CLI_IP" "$CLI_MAC_L" ; then
+      if check_client_mac "$CLI_IP" "$CLI_MAC_L" ; then
         Log "Client $CLI_NAME is available over network ..."
       else
         Log "WARNING: Client $CLI_NAME is not available over network!" 
@@ -75,7 +75,7 @@ if test -n "$CLI_MAC"; then
       OLD_CLI_MAC=$(get_client_mac $CLI_ID)
 
       # Check if client is available over the network and match MAC address
-      if check_client_mac "$CLI_NAME" "$CLI_IP" "$CLI_MAC" ; then
+      if check_client_mac "$CLI_IP" "$CLI_MAC" ; then
         Log "Client $CLI_NAME is available over network ..."
       else
         Log "WARNING: Client $CLI_NAME is not available over network!" 
@@ -103,16 +103,18 @@ fi
 if test -n "$CLI_NET"; then
 
   LogPrint "Modifying network for client $CLI_NAME to $CLI_NET ..."
-
-  if ! exist_network_name "$CLI_NET" ; then
+  if [[ "$CLI_NET" =~ ^(null)$ ]]; then
+    CLI_NET="";
+  elif ! exist_network_name "$CLI_NET" ; then
     Error "Network: $CLI_NET not registered! [ Network required before any client addition ]"
-  else
-    OLD_CLI_NET=$(get_client_net $CLI_ID)
-
-    if mod_client_net "$CLI_ID" "$CLI_NET" ; then
-      Log "Network update for $CLI_NAME Success!"
-    else
-      Error "Problem updating Network for $CLI_NAME! See $LOGFILE for details."
-    fi
   fi
+  
+  OLD_CLI_NET=$(get_client_net $CLI_ID)
+
+  if mod_client_net "$CLI_ID" "$CLI_NET" ; then
+    Log "Network update for $CLI_NAME Success!"
+  else
+    Error "Problem updating Network for $CLI_NAME! See $LOGFILE for details."
+  fi
+  
 fi

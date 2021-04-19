@@ -15,7 +15,7 @@
 # DRLM_BKP_PROT  (Backup protocol) [ RSYNC | NETFS ]
 # DRLM_BKP_PROG  (Backup program)  [ RSYNC | TAR ]
 
-if [ "$CLI_CFG" = "default" ]; then
+if [ "$CLI_CFG" == "default" ]; then
   eval "$(egrep "EXCLUDE_MOUNTPOINTS|EXCLUDE_VG|INCLUDE_VG|ONLY_INCLUDE_VG|BACKUP_PROG_EXCLUDE" /etc/drlm/clients/$CLI_NAME.cfg | grep -v '#')"
 else
   eval "$(egrep "EXCLUDE_MOUNTPOINTS|EXCLUDE_VG|INCLUDE_VG|ONLY_INCLUDE_VG|BACKUP_PROG_EXCLUDE" /etc/drlm/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg | grep -v '#')"

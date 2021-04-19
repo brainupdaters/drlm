@@ -94,7 +94,15 @@ if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
 
   Log "- Fixed PXE permissions for DR image"
 
-  if [[ ! -d ${STORDIR}/boot/cfg ]]; then mkdir -p ${STORDIR}/boot/cfg; fi
+  # Unpack GRUB files if do not exist 
+  if [[ ! -d ${STORDIR}/boot/grub ]]; then
+    mkdir -p ${STORDIR}/boot/grub
+    cp -r /var/lib/drlm/store/boot/grub ${STORDIR}/boot
+  fi
+
+  if [[ ! -d ${STORDIR}/boot/cfg ]]; then 
+    mkdir -p ${STORDIR}/boot/cfg 
+  fi
 
   cat << EOF > ${STORDIR}/boot/cfg/${F_CLI_MAC}
         
@@ -114,7 +122,7 @@ EOF
 fi
 
 # Include backup configuration to dr file
-if [ "$CLI_CFG" = "default" ]; then
+if [ "$CLI_CFG" == "default" ]; then
   grep -o '^[^#]*' $CONFIG_DIR/clients/$CLI_NAME.cfg > ${STORDIR}/${CLI_NAME}/${CLI_CFG}/${CLI_NAME}.${CLI_CFG}.drlm.cfg
 else
   grep -o '^[^#]*' $CONFIG_DIR/clients/$CLI_NAME.cfg.d/$CLI_CFG.cfg > ${STORDIR}/${CLI_NAME}/${CLI_CFG}/${CLI_NAME}.${CLI_CFG}.drlm.cfg

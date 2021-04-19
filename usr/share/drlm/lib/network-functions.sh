@@ -159,9 +159,32 @@ function exist_network_ip ()
   local NET_IP=$1
   exist_network_ip_dbdrv "$NET_IP"
   if [ $? -eq 0 ];then return 0; else return 1; fi
-# Check if parameter $1 is ok and if exists network with this ip in database. Return 0 for ok , return 1 not ok.
+# Check if parameter $1 is ok and if exists network with this network ip in database. Return 0 for ok , return 1 not ok.
 }
 
+function exist_server_ip ()
+{
+  local NET_SRV=$1
+  exist_server_ip_dbdrv "$NET_SRV"
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+# Check if parameter $1 is ok and if exists network with this server ip in database. Return 0 for ok , return 1 not ok.
+}
+
+function exist_network_interface ()
+{
+  local NET_IFACE=$1
+  exist_network_interface_dbdrv "$NET_IFACE"
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+# Check if parameter $1 is ok and if exists network with this server ip in database. Return 0 for ok , return 1 not ok.
+}
+
+function count_networks () {
+  echo $(count_networks_dbdrv)
+}
+
+function count_active_networks () {
+  echo $(count_active_networks_dbdrv)
+}
 
 valid_client_name () {
   local CLIENT_NAME="$1"
@@ -247,7 +270,7 @@ function check_net_port ()
 {
   local ip=$1
   local port=$2
-  exec 3> /dev/tcp/"$ip"/"$port"
+  timeout 5 bash -c "exec 3> /dev/tcp/$ip/$port"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -274,7 +297,9 @@ function add_network ()
   local NET_BRO=$6
   local NET_SERVIP=$7
   local NET_NAME=$8
-  add_network_dbdrv "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_DOM" "$NET_DNS" "$NET_BRO" "$NET_SERVIP" "$NET_NAME"
+  local NET_ACTIVE=$9
+  local NET_IFACE=${10}
+  add_network_dbdrv "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_DOM" "$NET_DNS" "$NET_BRO" "$NET_SERVIP" "$NET_NAME" "$NET_ACTIVE" "$NET_IFACE"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -296,8 +321,7 @@ function get_network_id_by_name ()
   local NET_NAME=$1
   # Check if parameter $1 is ok
   exist_network_name "$NET_NAME"
-  if [ $? -eq 0 ];
-  then
+  if [ $? -eq 0 ]; then
     # Get network id from database and return it
     get_network_id_by_name_dbdrv "$NET_NAME"
     return 0
@@ -358,6 +382,16 @@ function get_network_srv ()
   local NET_ID=$1
   # Get network net from database and return it
   get_network_srv_dbdrv "$NET_ID"
+}
+
+function get_network_status () {
+  local NET_ID=$1
+  get_network_status_dbdrv "$NET_ID"
+}
+
+function get_network_interface () {
+local NET_ID=$1
+  get_network_interface_dbdrv "$NET_ID"
 }
 
 function mod_network_name ()
@@ -424,25 +458,53 @@ function mod_network_srv ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function mod_network_status ()
+{
+  local NET_ID=$1
+  local NET_STATUS=$2
+  mod_network_status_dbdrv "$NET_ID" "$NET_STATUS"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function mod_network_interface ()
+{
+  local NET_ID=$1
+  local NET_INTERFACE=$2
+  mod_network_interface_dbdrv "$NET_ID" "$NET_INTERFACE"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function list_network ()
 {
   local NET_NAME_PARAM="$1"
 
-  if [ "$NET_NAME_PARAM" = "all" ]; then 
+  if [ "$NET_NAME_PARAM" == "all" ]; then 
     NET_NAME_PARAM=""
   fi
 
-  printf '%-10s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$(tput bold)Id" "Ip" "Mask" "Gw" "Broadcast" "Server Ip" "Name$(tput sgr0)"
-  for line in $(get_all_networks $NET_NAME_PARAM)
-  do
-    local NET_ID=`echo $line|awk -F":" '{print $1}'`
-    local NET_IP=`echo $line|awk -F":" '{print $2}'`
-    local NET_MASK=`echo $line|awk -F":" '{print $3}'`
-    local NET_GW=`echo $line|awk -F":" '{print $4}'`
-    local NET_BRO=`echo $line|awk -F":" '{print $7}'`
-    local NET_SRV=`echo $line|awk -F":" '{print $8}'`
-    local NET_NAME=`echo $line|awk -F":" '{print $9}'`
-    printf '%-6s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_IP" "$NET_MASK" "$NET_GW" "$NET_BRO" "$NET_SRV" "$NET_NAME"
+  printf '%-10s %-15s %-8s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$(tput bold)Id" "Name" "Status" "Server IP" "Mask" "Network Ip" "Broadcast" "Gateway" "Interface$(tput sgr0)"
+  for line in $(get_all_networks $NET_NAME_PARAM); do
+    local NET_ID=$(echo $line|awk -F":" '{print $1}')
+    local NET_IP=$(echo $line|awk -F":" '{print $2}')
+    local NET_MASK=$(echo $line|awk -F":" '{print $3}')
+    local NET_GW=$(echo $line|awk -F":" '{print $4}')
+    local NET_BRO=$(echo $line|awk -F":" '{print $7}')
+    local NET_SRV=$(echo $line|awk -F":" '{print $8}')
+    local NET_NAME=$(echo $line|awk -F":" '{print $9}')
+    local NET_ACTIVE=$(echo $line|awk -F":" '{print $10}')
+    local NET_IFACE=$(echo $line|awk -F":" '{print $11}')
+
+    # if Pretty mode is enabled show in green enabled backups and in red disabled backups
+    NET_ACTIVE_DEC="%-8s"
+    if [ "$NET_ACTIVE" == "1" ]; then
+        NET_STATUS="enabled"
+        if [ "$DEF_PRETTY" == "true" ]; then NET_ACTIVE_DEC="\\e[0;32m%-8s\\e[0m"; fi
+    else
+        NET_STATUS="disabled"
+        if [ "$DEF_PRETTY" == "true" ]; then NET_ACTIVE_DEC="\\e[0;31m%-8s\\e[0m"; fi
+    fi
+
+    printf '%-6s %-15s '"$NET_ACTIVE_DEC"' %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_NAME" "$NET_STATUS" "$NET_SRV" "$NET_MASK" "$NET_IP" "$NET_BRO" "$NET_GW" "$NET_IFACE"
   done
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
@@ -463,4 +525,43 @@ function get_network_id_by_netip ()
     get_network_id_by_netip_dbdrv "$NET_IP"
     return 0
   fi
+}
+
+# check_client_network is used in addclient workflow.
+# this functions checks if new client ip matches some server network and if exists in drlm database
+# if found network and not exists create it and return the Net Name
+# if exists return the net name that machs withs client ip
+function check_client_network () {
+  local CLI_IP="$1"
+  local NET_INTERFACE=$(ip route get $CLI_IP | grep -vE 'via|cache' | awk '{print $3}')
+  local NET_SERVER_IP=$(ip route get $CLI_IP | grep -vE 'via|cache' | awk '{print $5}')
+  
+  if [ -n "$NET_SERVER_IP" ]; then
+    local NET_TMP="$(ip -o -f inet addr show | grep $NET_SERVER_IP | awk '/scope global/ {print $2 " " $4 " " $6}')"
+    local NET_CIDR="$(echo $NET_TMP | awk '{print $2}' | awk -F'/' '{print $2}')"
+    local NET_BROADCAST="$(echo $NET_TMP | awk '{print $3}')"
+  fi
+
+  if [ -n "$NET_CIDR" ]; then
+    local NET_MASK="$(cidr_to_netmask $NET_CIDR)"
+    local NET_IP="$(get_netaddress $CLI_IP $NET_MASK)"
+  fi
+
+  local NET_ID=$(get_network_id_by_netip $NET_IP)
+  if [ -z $NET_ID ]; then
+    if [ -n "$NET_INTERFACE" ] && [ -n "$NET_SERVER_IP" ]  && [ -n "$NET_IP" ] && [ -n "$NET_MASK" ] && [ -n "$NET_BROADCAST" ]; then
+      Log "Adding Network $NET_INTERFACE to DB"
+
+      if add_network "$NET_IP" "$NET_MASK" "$NET_GATEWAY" "$NET_DOMAIN" "$NET_DNS" "$NET_BROADCAST" "$NET_SERVER_IP" "$NET_INTERFACE" "$DEF_NET_ACTIVE" "$NET_INTERFACE"; then
+        Log  "Network $NET_INTERFACE registation Success!"
+      else
+        Error "Problem registering network $NET_INTERFACE to database! See $LOGFILE for details."
+      fi
+    fi
+
+  else 
+    NET_INTERFACE=$(get_network_name $NET_ID)
+  fi
+
+  echo "$NET_INTERFACE"
 }
