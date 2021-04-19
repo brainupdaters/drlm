@@ -154,7 +154,7 @@ BugError() {
 	fi
 	Error "BUG BUG BUG! " "$@" "
 === Issue report ===
-Please report this unexpected issue at: https://github.com/bainupdaters/drlm/issues
+Please report this unexpected issue at: https://github.com/brainupdaters/drlm/issues
 Also include the relevant bits from $LOGFILE
 
 HINT: If you can reproduce the issue, try using the -d or -D option !
@@ -184,7 +184,7 @@ PrintIfError() {
 	fi
 }
 
-if [[ "$DEBUG" || "$DEBUG_SCRIPTS" ]]; then
+if [[ "$DEBUG" || "$DEBUGSCRIPTS" ]]; then
 	Stamp() {
 		date +"%Y-%m-%d %H:%M:%S.%N "
 	}
