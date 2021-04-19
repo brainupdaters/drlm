@@ -90,7 +90,7 @@ function reload_dhcp() {
 
     if [ -n "$INTERFACES" ]; then
       # Get Server distribution
-      SRV_DISTRO=$(cat /etc/os-release | grep "^ID=" | awk -F'=' '{print $2}')
+      SRV_DISTRO=$(cat /etc/os-release | grep "^ID=" | awk -F'=' '{print $2}' | sed -e 's/^"//' -e 's/"$//')
 
       case "$SRV_DISTRO" in
          
@@ -112,7 +112,7 @@ function reload_dhcp() {
           INTERFACES="DHCPD_INTERFACE=\"$INTERFACES\""
           DHCP_INTERFACES=$(grep "^DHCPD_INTERFACE=" /etc/sysconfig/dhcpd)
           if [ "$INTERFACES" != "$DHCP_INTERFACES" ]; then
-            sed -i "s/^$DHCP_INTERFACES=.*/$INTERFACES/g" /etc/sysconfig/dhcpd
+            sed -i "s/^$DHCP_INTERFACES/$INTERFACES/g" /etc/sysconfig/dhcpd
           fi
           ;;
           
