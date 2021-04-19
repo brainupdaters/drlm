@@ -30,8 +30,15 @@ if [ "$PUBLIC_KEY" != "" ]; then
     if [ $? -eq 0 ]; then Log ".ssh client user directory created"; else Error "Error creating .shh client user directory"; fi
   fi 
 
-  chown $CLI_NAME:$CLI_NAME /home/$CLI_NAME/.ssh &> /dev/null
-  if [ $? -eq 0 ]; then Log "Owership of .ssh client user directory changed"; else Error "Error changing ownership of .shh client user directory"; fi
+  # debian,ubuntu,centos and redhat permissions
+  if getent group "$CLI_NAME" &> /dev/null; then
+    chown $CLI_NAME:$CLI_NAME /home/$CLI_NAME/.ssh &> /dev/null
+    if [ $? -eq 0 ]; then Log "Owership of .ssh client user directory changed"; else Error "Error changing ownership of .shh client user directory"; fi
+  # openSUSE permisisons 
+  elif getent group users &> /dev/null; then
+    chown $CLI_NAME:users /home/$CLI_NAME/.ssh &> /dev/null
+    if [ $? -eq 0 ]; then Log "Owership of .ssh client user directory changed"; else Error "Error changing ownership of .shh client user directory"; fi
+  fi
   
   chmod 700 /home/$CLI_NAME/.ssh &> /dev/null
   if [ $? -eq 0 ]; then Log "Permissions of .ssh client user directory changed"; else Error "Error changing permissions of .shh client user directory"; fi
@@ -40,9 +47,14 @@ if [ "$PUBLIC_KEY" != "" ]; then
   echo "$PUBLIC_KEY" >> /home/$CLI_NAME/.ssh/authorized_keys
   if [ $? -eq 0 ]; then Log "Client public key added to .ssh/authorized_keys"; else Error "Client adding public key to .ssh/authorized_keys"; fi
   
-  chown $CLI_NAME:$CLI_NAME /home/$CLI_NAME/.ssh/authorized_keys &> /dev/null
-  if [ $? -eq 0 ]; then Log "Owership of .ssh/authorized_keys client user file changed"; else Error "Error changing ownership of .ssh/authorized_keys client user file"; fi
-  
+  if getent group "$CLI_NAME" &> /dev/null; then
+    chown $CLI_NAME:$CLI_NAME /home/$CLI_NAME/.ssh/authorized_keys &> /dev/null
+    if [ $? -eq 0 ]; then Log "Owership of .ssh/authorized_keys client user file changed"; else Error "Error changing ownership of .ssh/authorized_keys client user file"; fi
+  elif getent group users &> /dev/null; then
+    chown $CLI_NAME:users /home/$CLI_NAME/.ssh/authorized_keys &> /dev/null
+    if [ $? -eq 0 ]; then Log "Owership of .ssh/authorized_keys client user file changed"; else Error "Error changing ownership of .ssh/authorized_keys client user file"; fi
+  fi
+
   chmod 600 /home/$CLI_NAME/.ssh/authorized_keys &> /dev/null
   if [ $? -eq 0 ]; then Log "Permissions of .ssh/authorized_keys client user file changed"; else Error "Error changing permissions of .ssh/authorized_keys client user file"; fi
 fi

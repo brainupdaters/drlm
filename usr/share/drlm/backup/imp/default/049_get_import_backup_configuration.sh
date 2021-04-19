@@ -87,8 +87,8 @@ if [ -f $TMP_MOUNTPOINT/*.*.drlm.cfg ]; then
     IMP_BKP_PROT="NETFS"
     IMP_BKP_PROG="TAR"
   fi
-# If no exists *.*.drlm.cfg file the backup to import is done whit a DRLM prior to 2.4.0 and only have a 
-# default configuration whit PXE rescue , NETFS protocol and TAR program.
+# If no exists *.*.drlm.cfg file the backup to import is done with a DRLM prior to 2.4.0 and only have a 
+# default configuration with PXE rescue , NETFS protocol and TAR program.
 else
   IMP_CLI_CFG="default"
   IMP_BKP_TYPE="PXE"

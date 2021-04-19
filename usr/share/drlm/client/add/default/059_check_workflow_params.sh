@@ -17,7 +17,7 @@ if [ -n "$CLI_IP" ]; then
   CLI_IP="${CLI_IP%/*}"
   check_icmp $CLI_IP
 else
-  Error "Can not get the client IP over the network, setup manually whit -i parameter"
+  Error "Can not get the client IP over the network, setup manually with -i parameter"
 fi
 
 # Check if the client IP is in DRLM client database
