@@ -160,8 +160,11 @@ fi
 ### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
 
-# Configure nbd
+### Configure nbd
 /usr/share/drlm/conf/nbd/config-nbd.sh install
+
+### Configure DHCP
+/usr/share/drlm/conf/DHCP/config-DHCP.sh install
 
 ### Enable systemd services 
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
