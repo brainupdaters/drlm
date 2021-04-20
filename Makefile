@@ -141,6 +141,7 @@ install-config:
 	cp -a etc/drlm/. $(DESTDIR)$(sysconfdir)/drlm/
 	install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
 	install -Dp -m0600 etc/bash_completion.d/drlm_completions $(DESTDIR)$(sysconfdir)/bash_completion.d/drlm_completions
+	install -Dp -m0600 etc/logrotate.d/drlm $(DESTDIR)$(sysconfdir)/logrotate.d/drlm
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \

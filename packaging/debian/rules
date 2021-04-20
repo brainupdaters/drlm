@@ -41,6 +41,7 @@ binary-indep: build
 	cp -av etc/drlm debian/drlm/etc/
 	cp -av etc/cron.d debian/drlm/etc/
 	cp -av etc/bash_completion.d debian/drlm/etc/
+	cp -av etc/logrotate.d debian/drlm/etc/
 	cp -av usr/sbin/. debian/drlm/usr/sbin/
 	cp -av usr/share/drlm debian/drlm/usr/share/
 	cp -av var/lib/drlm debian/drlm/var/lib/

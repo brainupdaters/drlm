@@ -112,6 +112,8 @@ DRLM Version 2.4.0 (April 2021) - Release Notes
 
   * DHCP server is managed automatically
 
+  * Improves logs management
+
 
 DRLM Version 2.3.2 (December 2020) - Release Notes
 --------------------------------------------------
