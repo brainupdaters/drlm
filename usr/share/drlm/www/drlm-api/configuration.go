@@ -3,7 +3,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -179,17 +178,16 @@ func loadDRLMConfiguration() {
 }
 
 func printDRLMConfiguration() {
-	fmt.Println("==============================")
-	fmt.Println("=== DRLM API CONFIGURATION ===")
-	fmt.Println("==============================")
-	fmt.Println("VAR_DIR=" + configDRLM.VarDir)
-	fmt.Println("STORDIR=" + configDRLM.StoreDir)
-	fmt.Println("DB_PATH=" + configDRLM.SqliteFile)
-	fmt.Println("CLI_CONF_DIR=" + configDRLM.CliConfigDir)
-	fmt.Println("REAR_LOG_DIR=" + configDRLM.RearLogDir)
-	fmt.Println("DRLM_CERT=" + configDRLM.Certificate)
-	fmt.Println("DRLM_KEY=" + configDRLM.Key)
-	fmt.Println("")
+	logger.Println("==============================")
+	logger.Println("=== DRLM API CONFIGURATION ===")
+	logger.Println("==============================")
+	logger.Println("VAR_DIR=" + configDRLM.VarDir)
+	logger.Println("STORDIR=" + configDRLM.StoreDir)
+	logger.Println("DB_PATH=" + configDRLM.SqliteFile)
+	logger.Println("CLI_CONF_DIR=" + configDRLM.CliConfigDir)
+	logger.Println("REAR_LOG_DIR=" + configDRLM.RearLogDir)
+	logger.Println("DRLM_CERT=" + configDRLM.Certificate)
+	logger.Println("DRLM_KEY=" + configDRLM.Key)
 }
 
 func updateDefaultAPIUser() {

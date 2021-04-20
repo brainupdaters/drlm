@@ -885,7 +885,7 @@ function disable_backup () {
   local ENABLED_DB_BKP_ID=$1
 
   if [ -n "$ENABLED_DB_BKP_ID" ]; then
-    Log "Disabling DR Backup Store of Backup ID $ENABLED_DB_BKP_ID "
+    LogPrint "Disabling DR Backup Store of Backup ID $ENABLED_DB_BKP_ID "
 
     ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID)
     ENABLED_BKP_CLI_ID=$(get_backup_client_id_by_backup_id $ENABLED_DB_BKP_ID)
@@ -899,14 +899,14 @@ function disable_backup () {
 
     # Disable NFS
     if disable_nfs_fs $ENABLED_BKP_CLI_NAME $ENABLED_BKP_CFG; then
-      Log "- Disabled NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
+      LogPrint "- Disabled NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
     else
       Error "- Problem disabling NFS export ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
     fi
 
     # Disable RSYNC
     if disable_rsync_fs $ENABLED_BKP_CLI_NAME $ENABLED_BKP_CFG; then
-      Log "- Disabled RSYNC module ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
+      LogPrint "- Disabled RSYNC module ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
     else
       Error "- Problem disabling RSYNC module ${STORDIR}/${ENABLED_BKP_CLI_NAME}/${ENABLED_BKP_CFG}"
     fi
@@ -914,7 +914,7 @@ function disable_backup () {
     # Umount NBD device
     if [ -n "$NBD_MOUNT_POINT" ]; then
       if do_umount $NBD_MOUNT_POINT; then
-        Log "- Umounted NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
+        LogPrint "- Umounted NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
       else
         Error "- Problem NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
       fi
@@ -923,7 +923,7 @@ function disable_backup () {
     # Detach NBD device
     if [ -n "$NBD_DEVICE" ]; then
       if disable_nbd $NBD_DEVICE; then
-        Log "- Dettached NBD device ($NBD_DEVICE)"
+        LogPrint "- Dettached NBD device ($NBD_DEVICE)"
       else
         Error "- Problem dettaching NBD device ($NBD_DEVICE)"
       fi
@@ -931,14 +931,14 @@ function disable_backup () {
 
     # Disable backup from database
     if disable_backup_db $ENABLED_DB_BKP_ID; then
-      Log "- Disabled Backup ID $ENABLED_DB_BKP_ID in the database"
+      LogPrint "- Disabled Backup ID $ENABLED_DB_BKP_ID in the database"
     else
       Error "- Problem disabling Backup ID $ENABLED_DB_BKP_ID in the database"
     fi
 
     # Disable current snap if exists
     if disable_backup_snap_db $ENABLED_DB_BKP_ID; then
-      Log "- Deactivated Backup ${ENABLED_DB_BKP_ID} snaps"
+      LogPrint "- Deactivated Backup ${ENABLED_DB_BKP_ID} snaps"
     else
       Error "- Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: Problem disabling backup snap in database"
     fi
