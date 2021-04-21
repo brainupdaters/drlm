@@ -22,8 +22,9 @@ drlm (2.4.0) stable release; urgency=high
   * Addnetwork, modnetwork and addclient simplified
   * Addnetwork is done automatically when you run addclient
   * DHCP server is managed automatically
+  * Improves logs management
 
- -- Pau Roura <pau@brainupdaters.net>  Fri, 16 Apr 2021 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Tue, 20 Apr 2021 00:00:00 +0100
 
 drlm (2.3.2) stable release; urgency=high
   * Fixed wget package dependency (issue #127)

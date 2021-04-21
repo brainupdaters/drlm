@@ -20,40 +20,68 @@
 # Authors:
 # Ruben Carbonell <ruben at brainupdaters dot net> [RC]
 # Didac Oliveira  <didac at brainupdaters dot net> [DO]
-# Pau Roura	  <pau at brainupdaters dot net> [PR]
+# Pau Roura    <pau at brainupdaters dot net> [PR]
 
+# Usually functions belong to the library scripts (i.e. $SHARE_DIR/lib/*.sh),
+# but these 2 are exceptions on the rule because the complementary global functions
+# to get and apply bash flags and options commands are needed from the very beginning
+# (the usual functions are sourced at "Include functions" below):
+function get_bash_flags_and_options_commands () {
+  # Output bash commands that set the currently set flags
+  # in reverse ordering to have "set ... xtrace" (i.e. "set +/- x") first
+  # so that this flag is set first via apply_bash_flags_and_options_commands
+  # which results better matching logging output in debugscript mode:
+  set +o | tac | tr '\n' ';'
+  # Output bash commands that set the currently set options:
+  shopt -p | tr '\n' ';'
+}
+# This function exists only to provide a syntactically matching counterpart of get_bash_flags_and_options_commands:
+function apply_bash_flags_and_options_commands () {
+  # Must be called with $1 that is the output of a previous get_bash_flags_and_options_commands:
+  eval "$1"
+}
+# At the very beginning save initial bash flags and options in a global readonly variable
+# so that exactly the initial bash flags and options can be restored if needed via
+#   apply_bash_flags_and_options_commands "$INITIAL_BASH_FLAGS_AND_OPTIONS_COMMANDS"
+readonly INITIAL_BASH_FLAGS_AND_OPTIONS_COMMANDS="$( get_bash_flags_and_options_commands )"
 
 # Versioning
-PRODUCT="Disaster Recovery Linux Manager"
-PROGRAM=${0##*/}
-VERSION=2.4.0
-RELEASE_DATE="Git"
+readonly PRODUCT="Disaster Recovery Linux Manager"
+readonly PROGRAM=${0##*/}
+readonly VERSION=2.4.0
+readonly RELEASE_DATE="Git"
 
-STARTTIME=$SECONDS
+readonly STARTTIME=$SECONDS
 
 # Allow workflows to set the exit code to a different value.
 EXIT_CODE=0
 
 # Find out if we're running from checkout
-SCRIPT_FILE="$(readlink -f $(type -p "$0" || echo "$0"))"
+readonly SCRIPT_FILE="$(readlink -f $(type -p "$0" || echo "$0"))"
 if [[ "$SCRIPT_FILE" != "$(readlink -f /usr/sbin/$PROGRAM)" ]]; then
-    DRLM_DIR_PREFIX=${SCRIPT_FILE%/usr/sbin/$PROGRAM}
+  DRLM_DIR_PREFIX=${SCRIPT_FILE%/usr/sbin/$PROGRAM}
 fi
+readonly DRLM_DIR_PREFIX
 
 # Program directories - they must be set here. Everything else is then dynamic
 SHARE_DIR="$DRLM_DIR_PREFIX/usr/share/drlm"
 CONFIG_DIR="$DRLM_DIR_PREFIX/etc/drlm"
 LOG_DIR="$DRLM_DIR_PREFIX/var/log/drlm"
-CMD_OPTS=( "$@" )
+readonly CMD_OPTS=( "$@" )
+
+# The current working directory when this script (usr/sbin/drlm) is launched
+# is also the working directory of all the other scripts and config files
+# that get sourced via the Source() function in lib/framework-functions.sh
+readonly WORKING_DIR="$( pwd )"
 
 # initialize defaults
-STEPBYSTEP=
-SIMULATE=
-VERBOSE=
-DEBUG=
+STEPBYSTEP=""
+SIMULATE=""
+VERBOSE=""
+DEBUG=""
 
 # split the parameters into two parts, one for the DRLM and one for the workflow
-ARGUMENTS=("$@")
+readonly ARGUMENTS=( "$@" )
 NUMERO=${#ARGUMENTS[@]}
 declare -a PARAMETRES1
 declare -a PARAMETRES2
@@ -61,26 +89,26 @@ separador=0
 zona2=0
 
 for (( i=0;i<$NUMERO;i++ )); do
-   char1=`echo ${ARGUMENTS[${i}]} | cut -c1`
-   char2=`echo ${ARGUMENTS[${i}]} | cut -c2`
+  char1=`echo ${ARGUMENTS[${i}]} | cut -c1`
+  char2=`echo ${ARGUMENTS[${i}]} | cut -c2`
 
-   if [ "$zona2" == "0" ]; then
-      if [ "$char1" == "-" ]; then
-         PARAMETRES1[$i]=${ARGUMENTS[${i}]}
-         if [ "$char2" == "-" ]; then
-            ((i++))
-            PARAMETRES1[$i]=${ARGUMENTS[${i}]}
-         fi
-      else
-         separador=$i
-         zona2="1"
-         PARAMETRES1[$i]=${ARGUMENTS[${i}]}
+  if [ "$zona2" == "0" ]; then
+    if [ "$char1" == "-" ]; then
+      PARAMETRES1[$i]=${ARGUMENTS[${i}]}
+      if [ "$char2" == "-" ]; then
+        ((i++))
+        PARAMETRES1[$i]=${ARGUMENTS[${i}]}
       fi
-   else
-      PARAMETRES2[$(($i-$separador))]=${ARGUMENTS[${i}]}
-   fi
-   char1=`echo`
-   char2=`echo`
+    else
+      separador=$i
+      zona2="1"
+      PARAMETRES1[$i]=${ARGUMENTS[${i}]}
+    fi
+  else
+    PARAMETRES2[$(($i-$separador))]=${ARGUMENTS[${i}]}
+  fi
+  char1=`echo`
+  char2=`echo`
 done
 
 set -- ${PARAMETRES1[@]}
@@ -88,62 +116,76 @@ set -- ${PARAMETRES1[@]}
 # Parse options
 OPTS="$(getopt -n $PROGRAM -o "dDhsSvV" -l "help,version" -- "$@")"
 if (( $? != 0 )); then
-	echo "Try \`$PROGRAM --help' for more information."
-	exit 1
+  echo "Try \`$PROGRAM --help' for more information."
+  exit 1
 fi
 
+readonly OPTS
 eval set -- "$OPTS"
 while true; do
-	case "$1" in
-		(-h|--help) WORKFLOW="help";;
-		(-V|--version) echo -e "$PRODUCT $VERSION / $RELEASE_DATE"; exit 0;;
-		(-v) VERBOSE=1;;
-		(-d) DEBUG=1; VERBOSE=1;;
-		(-D) DEBUGSCRIPTS=1;;
-		(-s) SIMULATE=1; VERBOSE=1;;
-		(-S) STEPBYSTEP=1;;
-		(--) shift; break;;
-		(-*)
-			echo "$PROGNAME: unrecognized option '$option'"
-			echo "Try \`$PROGRAM --help' for more information."
-			exit 1
-			;;
-		(*) break;;
-	esac
-	shift
+  case "$1" in
+    (-h|--help) WORKFLOW="help";;
+    (-V|--version) echo -e "$PRODUCT $VERSION / $RELEASE_DATE"; exit 0;;
+    (-v) VERBOSE=1;;
+    (-d) DEBUG=1; VERBOSE=1;;
+    (-D) DEBUGSCRIPTS=1;;
+    (-s) SIMULATE=1; VERBOSE=1;;
+    (-S) STEPBYSTEP=1;;
+    (--) shift; break;;
+    (-*)
+      echo "$PROGNAME: unrecognized option '$option'"
+      echo "Try \`$PROGRAM --help' for more information."
+      exit 1
+      ;;
+    (*) break;;
+  esac
+  shift
 done
 
 # set workflow to first command line argument or to usage
 if [[ -z "$WORKFLOW" ]]; then
-	if [[ "$1" ]]; then
-		WORKFLOW=$1 ; shift # not "$1" to get rid of compound commands
-	else
-		WORKFLOW=help
-	fi
+  if [[ "$1" ]]; then
+    WORKFLOW=$1 ; shift # not "$1" to get rid of compound commands
+  else
+    WORKFLOW=help
+  fi
 fi
 
 # keep the remaining command line arguments to feed to the workflow
 set -- ${PARAMETRES2[@]}
 ARGS=( "$@" )
 
+readonly ARGS
+readonly DEBUG DEBUGSCRIPTS
+readonly SIMULATE STEPBYSTEP
+
 # Make sure we have the necessary paths (eg. in cron), /sbin will be the first path to search.
 # some needed binaries are in /lib/udev or /usr/lib/udev
 for path in /usr/bin /bin /usr/sbin /sbin; do
-	case ":$PATH:" in
-		(*:"$path":*) ;;
-		(*) if [[ -d "$path" ]]; then PATH=$path:$PATH; fi ;;
-	esac
+  case ":$PATH:" in
+    (*:"$path":*) ;;
+    (*) if [[ -d "$path" ]]; then PATH=$path:$PATH; fi ;;
+  esac
 done
 PATH=$PATH:/lib/udev:/usr/lib/udev
 
 # are we root ?
 if [[ "$(id --user)" != "0" ]]; then
-	echo "ERROR: $PRODUCT needs ROOT privileges!" >&2
-	exit 1
+  echo "ERROR: $PRODUCT needs ROOT privileges!" >&2
+  exit 1
 fi
 
 # set some bash options
+# With nullglob set when e.g. for foo*bar no file matches are found, then foo*bar is removed
+# (e.g. "ls foo*bar" becomes plain "ls" without "foo*bar: No such file or directory" error).
+# The extglob shell option enables several extended pattern matching operators.
 shopt -s nullglob extglob
+# Save the current default bash flags and options in a global readonly variable
+# so that exactly the default bash flags and options can be restored if needed via
+#   apply_bash_flags_and_options_commands "$DEFAULT_BASH_FLAGS_AND_OPTIONS_COMMANDS"
+readonly DEFAULT_BASH_FLAGS_AND_OPTIONS_COMMANDS="$( get_bash_flags_and_options_commands )"
+
+# Forget all remembered full pathnames of commands:
 hash -r
 
 # make sure that we use only english
@@ -152,58 +194,57 @@ export LC_CTYPE=C LC_ALL=C LANG=C
 # set umask
 umask 0022
 
-# Logfile name
-TIMESTAMP=$(date +"%Y%m%d.%H%M%S.%4N")
-LOGFILE="$LOG_DIR/drlm-$HOSTNAME-$WORKFLOW.$TIMESTAMP.log"
-
 # include default config
 source $SHARE_DIR/conf/default.conf
 
 # include functions
 for script in $SHARE_DIR/lib/*-functions.sh ; do
-#	echo $script >> /tmp/sourcetest.log
-	source $script
+  source $script
 done
-# load workflows
-for script in $SHARE_DIR/lib/*-workflow.sh ; do
-	source $script
-done
-#source $SHARE_DIR/lib/$WORKFLOW-workflow.sh
 
 if ! has_binary pidof; then
-	echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2
-	exit 1
+  echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2
+  exit 1
 fi
 
-mkdir -p $LOG_DIR
-exec 2>"$LOGFILE" || echo "ERROR: Could not create $LOGFILE" >&2
+# Logfile name
+if [ "$DEBUGSCRIPTS" ] ; then
+  TIMESTAMP=$(date +"%Y%m%d.%H%M%S.%4N")
+  LOG_DIR="$LOG_DIR/debug"
+  LOGFILE="$LOG_DIR/drlm-$HOSTNAME-$WORKFLOW.$TIMESTAMP.log"
+  if [[ "$VERBOSE" ]]; then
+    Log "Using log file: $LOGFILE"
+  fi
+elif [ "$WORKFLOW" == "sched" ]; then
+  LOGFILE="$LOG_DIR/drlm-sched.log"
+else
+  LOGFILE="$LOG_DIR/drlm.log"
+fi
 
-case "$WORKFLOW" in
-	(help) ;;
-	(*)
-		LogPrint "$PRODUCT $VERSION / $RELEASE_DATE"
-    if [ "$DRLM_IS_SCHEDULED" == "true" ]; then  
-		  Log "Running from drlm scheduler - run \"drlm listjobs\" to list scheduled backups"
-    fi
-    Log "Command line options: $0 ${CMD_OPTS[@]}" 
-		if [[ "$VERBOSE" ]]; then
-			LogPrint "Using log file: $LOGFILE"
-		fi
-		;;
-esac
+mkdir -p $LOG_DIR || echo "ERROR: Could not create $LOG_DIR" >&2
+
+exec 2>> "$LOGFILE"
+
+Log ""
+Log "$PRODUCT $VERSION / $RELEASE_DATE"
+Log "Command line options: $0 ${CMD_OPTS[@]}"
+
+# load workflows
+for script in $SHARE_DIR/lib/*-workflow.sh ; do
+  source $script
+done
+
+if [ "$DRLM_IS_SCHEDULED" == "true" ]; then  
+    Log "Running from drlm scheduler - run \"drlm listjobs\" to list scheduled backups"
+fi
 
 v=""
 verbose=""
 # enable progress subsystem only in verbose mode, set some stuff that others can use
 if [[ "$VERBOSE" ]]; then
-	source $SHARE_DIR/lib/progresssubsystem.nosh
-	v="-v"
-	verbose="--verbose"
-fi
-
-# enable debug output of the progress pipe
-if [[ "$DEBUG" ]]; then
-	KEEP_BUILD_DIR=1
+  source $SHARE_DIR/lib/progresssubsystem.nosh
+  v="-v"
+  verbose="--verbose"
 fi
 
 [[ -z "$SIMULATE" ]]
@@ -217,15 +258,15 @@ Source "$CONFIG_DIR/$WORKFLOW.conf"
 SetOSVendorAndVersion
 # distribution configuration files
 for config in "$ARCH" "$OS" \
-				"$OS_MASTER_VENDOR" "$OS_MASTER_VENDOR_ARCH" "$OS_MASTER_VENDOR_VERSION" "$OS_MASTER_VENDOR_VERSION_ARCH" \
-				"$OS_VENDOR" "$OS_VENDOR_ARCH" "$OS_VENDOR_VERSION" "$OS_VENDOR_VERSION_ARCH" ; do
-	if [[ "$config" ]]; then
-		Source "$SHARE_DIR/conf/$config.conf"
-	fi
+              "$OS_MASTER_VENDOR" "$OS_MASTER_VENDOR_ARCH" "$OS_MASTER_VENDOR_VERSION" "$OS_MASTER_VENDOR_VERSION_ARCH" \
+              "$OS_VENDOR" "$OS_VENDOR_ARCH" "$OS_VENDOR_VERSION" "$OS_VENDOR_VERSION_ARCH" ; do
+  if [[ "$config" ]]; then
+    Source "$SHARE_DIR/conf/$config.conf"
+  fi
 done
 # user configuration files, last thing is to overwrite variables if we are in the rescue system
 for config in site local; do
-	Source "$CONFIG_DIR/$config.conf"
+  Source "$CONFIG_DIR/$config.conf"
 done
 
 # include DB driver
@@ -234,9 +275,9 @@ source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
 # check for requirements, do we have all required binaries ?
 MISSING_PROGRS=()
 for f in "${REQUIRED_PROGS[@]}" ; do
-	if ! has_binary "$f"; then
-		MISSING_PROGS=( "${MISSING_PROGS[@]}" "$f" )
-	fi
+  if ! has_binary "$f"; then
+    MISSING_PROGS=( "${MISSING_PROGS[@]}" "$f" )
+  fi
 done
 [[ -z "$MISSING_PROGS" ]]
 StopIfError "Cannot find required programs: ${MISSING_PROGS[@]}"
@@ -253,13 +294,13 @@ the GNU General Public License at: http://www.gnu.org/licenses/gpl.html
 
 # Check for and run the requested workflow
 if has_binary WORKFLOW_$WORKFLOW; then
-	Log "Running $WORKFLOW workflow"
-	WORKFLOW_$WORKFLOW "${ARGS[@]}"
-	Log "Finished running $WORKFLOW workflow"
+  Log "Running $WORKFLOW workflow"
+  WORKFLOW_$WORKFLOW "${ARGS[@]}"
+  Log "Finished running $WORKFLOW workflow"
 else
-	VERBOSE=1
-	LogPrint "ERROR: The specified command '$WORKFLOW' does not exist !"
-	EXIT_CODE=1
+  VERBOSE=1
+  LogPrint "ERROR: The specified command '$WORKFLOW' does not exist !"
+  EXIT_CODE=1
 fi
 
 exit $EXIT_CODE

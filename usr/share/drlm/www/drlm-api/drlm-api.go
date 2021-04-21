@@ -4,7 +4,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -79,8 +78,8 @@ func staticGet(w http.ResponseWriter, r *http.Request) {
 // Middleware to log requests
 func middlewareLog(h http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.SetOutput(os.Stdout) // logs go to Stderr by default
-		log.Println(r.RemoteAddr, r.Method, r.URL)
+		//logger.SetOutput(os.Stdout) // logs go to Stderr by default
+		logger.Println(r.RemoteAddr, r.Method, r.URL)
 		h.ServeHTTP(w, r) // call ServeHTTP on the original handler
 	})
 }
@@ -246,5 +245,5 @@ func main() {
 	updateDefaultAPIUser()
 
 	// Run HTTPS server with middlewareLog
-	log.Fatal(http.ListenAndServeTLS(":443", configDRLM.Certificate, configDRLM.Key, http.HandlerFunc(middlewareLog(Serve))))
+	logger.Fatal(http.ListenAndServeTLS(":443", configDRLM.Certificate, configDRLM.Key, http.HandlerFunc(middlewareLog(Serve))))
 }

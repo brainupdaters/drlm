@@ -4,7 +4,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -69,7 +68,7 @@ func userSignin(w http.ResponseWriter, r *http.Request) {
 	expectedPassword := user.Password
 
 	if expectedPassword != GetMD5Hash(creds.Password) {
-		log.Println("Failed login for user: ", creds.Username)
+		logger.Println("Failed login for user: ", creds.Username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -167,19 +166,19 @@ func apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = dbuser.GetByName(userToMod)
 	if err != nil {
-		log.Println("Failed user update: " + userToMod)
+		logger.Println("Failed user update: " + userToMod)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	if dbuser.Password != GetMD5Hash(newCreds.OldPassword) {
-		log.Println("Failed user update: " + dbuser.Username)
+		logger.Println("Failed user update: " + dbuser.Username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	if userToMod == newCreds.Username && GetMD5Hash(newCreds.OldPassword) == GetMD5Hash(newCreds.NewPassword) {
-		log.Println("Failed user update: " + dbuser.Username)
+		logger.Println("Failed user update: " + dbuser.Username)
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -192,5 +191,5 @@ func apiUpdateUser(w http.ResponseWriter, r *http.Request) {
 	_, err = stmt.Exec(newCreds.Username, GetMD5Hash(newCreds.NewPassword), dbuser.Username)
 	check(err)
 
-	log.Println("User " + userToMod + " updated")
+	logger.Println("User " + userToMod + " updated")
 }

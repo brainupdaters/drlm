@@ -3,29 +3,10 @@
 # drlm-stord    This shell script takes care of starting and stopping
 #               the DRLM Store Service.
 #
-# DEBIAN
-# update-rc.d drlm-stord defaults 10 06
-#
-# RHEL
-# chkconfig: - 29 61
-#
 # Description:       DRLM is a central Disaster Recovery Manager
 #                    for Linux OS. This service provides DR Images
 #                    Store Service available for Recover configured
 #                    servers in your network.
-
-### BEGIN INIT INFO
-# Provides:          drlm-stord
-# Required-Start:    $local_fs $remote_fs
-# Required-Stop:     $local_fs $remote_fs
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: DRLM Store Service
-# Description:       DRLM is a central Disaster Recovery Manager
-#                    for Linux OS. This service provides DR Images
-#                    Store Service available for Recover configured
-#                    servers in your network.
-### END INIT INFO
 
 # What is this?
 DESC="DRLM Store Service"
@@ -33,6 +14,7 @@ SHARE_DIR="/usr/share/drlm"
 PROGRAM="DRLM-STORD"
 WORKFLOW=""
 CONFIG_DIR="/etc/drlm"
+LOGFILE="/var/log/drlm/drlm-stord.log"
 
 # Source DRLM configurations and functions
 source $SHARE_DIR/conf/default.conf
@@ -66,13 +48,15 @@ function Stamp() {
 }
 
 function Error () {
-  echo "$(Stamp) Error: $*"
+  echo "$(Stamp) Error: $*" | tee -a $LOGFILE
   return 1
 }
 
 function Log () {
-  echo "$(Stamp)$*"
+  echo "$(Stamp)$*" | tee -a $LOGFILE
 }
+
+echo "$(Stamp)Command: drlm-stord $@" >> $LOGFILE
 
 case "$1" in
 	start)
@@ -92,7 +76,7 @@ case "$1" in
       if ! pgrep -fa $DR_FILE &> /dev/null; then
         enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
       else
-        echo "Backup $BKP_ID of client $CLI_NAME already enabled"
+        Log "Backup $BKP_ID of client $CLI_NAME already enabled"
       fi
       return_value="$?"
       if [ "$return_value" -ne "0" ]; then RETVAL="1"; fi
@@ -160,8 +144,8 @@ case "$1" in
     NBD_UP=$(pgrep -fa $ARCHDIR |  wc -l)
     
     Log "Getting Status from $DESC: "
-    printf '%-12s\n' "$(tput bold)"
-		printf '%-12s %-45s %-50s\n' "NBD Device" "DR Store" "DR File$(tput sgr0)"
+    #Log "$(printf '%-12s\n' "$(tput bold)")"
+		Log "$(printf '%-16s %-45s %-50s\n' ""$(tput bold)"NBD Device" "DR Store" "DR File$(tput sgr0)")"
     for MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR" | awk '{print $3}'); do
       NBD_DEVICE=$(/bin/mount -l | grep -w "$MOUNT_POINT" | awk '{print $1}')
       # ATTENTION! pgrep has to be used carefully, can return unwanted results if the match pattern is too simple.
@@ -170,7 +154,7 @@ case "$1" in
       # PGREP_RESULT intermediate step to avoid unwanted results of grep and pgrep combo
       PGREP_RESULT="$(pgrep -fa $NBD_DEVICE)"
       DR_FILE=$(echo "$PGREP_RESULT" | grep -w "$NBD_DEVICE" | awk '{print $5}')
-      printf '%-12s %-45s %-50s\n' $NBD_DEVICE $MOUNT_POINT $DR_FILE
+      Log "$(printf '%-12s %-45s %-50s\n' $NBD_DEVICE $MOUNT_POINT $DR_FILE)"
     done
 		;;
 

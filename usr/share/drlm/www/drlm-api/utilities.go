@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"log"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -19,7 +18,7 @@ func validateHostname(h string) bool {
 
 func check(e error) {
 	if e != nil {
-		log.Println(e.Error())
+		logger.Println(e.Error())
 	}
 }
 
@@ -56,14 +55,14 @@ func fileNameWithoutExtension(fileName string) string {
 /////////////////////////////////////////////////////////////////////
 // buf, bodyErr := ioutil.ReadAll(r.Body)
 // if bodyErr != nil {
-// 	log.Print("bodyErr ", bodyErr.Error())
+// 	logger.Print("bodyErr ", bodyErr.Error())
 // 	http.Error(w, bodyErr.Error(), http.StatusInternalServerError)
 // 	return
 // }
 
 // rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
 // rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf))
-// log.Printf("BODY: %q", rdr1)
+// logger.Printf("BODY: %q", rdr1)
 // r.Body = rdr2
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////

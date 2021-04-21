@@ -11,7 +11,7 @@ drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 name = drlm
-version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
+version := $(shell awk 'BEGIN { FS="=" } /^readonly VERSION=/ { print $$2}' $(drlmbin))
 
 ### Get the branch information from git
 ifeq ($(OFFICIAL),)
@@ -141,6 +141,7 @@ install-config:
 	cp -a etc/drlm/. $(DESTDIR)$(sysconfdir)/drlm/
 	install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
 	install -Dp -m0600 etc/bash_completion.d/drlm_completions $(DESTDIR)$(sysconfdir)/bash_completion.d/drlm_completions
+	install -Dp -m0600 etc/logrotate.d/drlm $(DESTDIR)$(sysconfdir)/logrotate.d/drlm
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \

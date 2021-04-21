@@ -160,8 +160,11 @@ fi
 ### Generate Database
 /usr/share/drlm/conf/DB/drlm_db_version.sh
 
-# Configure nbd
+### Configure nbd
 /usr/share/drlm/conf/nbd/config-nbd.sh install
+
+### Configure DHCP
+/usr/share/drlm/conf/DHCP/config-DHCP.sh install
 
 ### Enable systemd services 
 echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
@@ -228,6 +231,7 @@ systemctl daemon-reload
 %config(noreplace) %{_sysconfdir}/drlm/
 %config(noreplace) %{_sysconfdir}/cron.d/drlm
 %config(noreplace) %{_sysconfdir}/bash_completion.d/drlm_completions
+%config(noreplace) %{_sysconfdir}/logrotate.d/drlm
 %{_datadir}/drlm/
 %config(noreplace) %{_localstatedir}/lib/drlm/
 %{_sbindir}/drlm
@@ -278,7 +282,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Fri Apr 16 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Tue Apr 20 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -302,6 +306,7 @@ systemctl start drlm-tftpd.service
 - Addnetwork, modnetwork and addclient simplified
 - Addnetwork is done automatically when you run addclient
 - DHCP server is managed automatically
+- Improves logs management
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

@@ -15,7 +15,7 @@ if [ -z "$CONFIG_ONLY" ]; then
         if check_apt "$USER" "$CLI_NAME" "$SUDO"; then
             # Installing DRLM and ReaR dependencies
             LogPrint "Installing dependencies and ReaR"
-            if install_dependencies_apt  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_DEBIAN"$VERSION")" "$SUDO"; then 
+            if install_dependencies_apt "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_DEBIAN"$CLI_VERSION")" "$SUDO"; then 
               Log "Dependencies have been installed" 
             else 
               Error "Problem installing dependencies, check logfile"
@@ -23,9 +23,9 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if parameter -r/--repo in installclient try to install from oficial repositories
             if [ "$REPO_INST" == "true" ]; then
-              case "$VERSION" in
+              case "$CLI_VERSION" in
                 [6*-9*])
-                  Error "$DISTRO $VERSION has not ReaR package available in repositories!"
+                  Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                   ;;
 
                 10*)
@@ -52,10 +52,10 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install proposed ReaR package by DRLM
             else
-              eval URL_REAR=\$URL_REAR_DEBIAN"$VERSION""$REP_ARCH"
+              eval URL_REAR=\$URL_REAR_DEBIAN"$CLI_VERSION""$REP_ARCH"
 
               if [ "$URL_REAR" == "" ]; then 
-                Error "No URL for $DISTRO $VERSION $REP_ARCH in default.conf"
+                Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
               else
                 if ssh_install_rear_dpkg "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
                   Log "ReaR has been installed"
@@ -74,7 +74,7 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # Installing DRLM and ReaR dependencies
           LogPrint "Installing dependencies and ReaR"
-          if install_dependencies_apt  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_UBUNTU"$VERSION")" "$SUDO"; then 
+          if install_dependencies_apt  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_UBUNTU"$CLI_VERSION")" "$SUDO"; then 
             Log "Dependencies have been installed" 
           else 
             Error "Problem installing dependencies, check logfile" 
@@ -82,9 +82,9 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if parameter -r/--repo in installclient try to install from oficial repositories
           if [ "$REPO_INST" == "true" ]; then
-            case "$VERSION" in
+            case "$CLI_VERSION" in
               1[2-6])
-                Error "$DISTRO $VERSION has not ReaR package available in repositories!"
+                Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                 ;;
 
               18|20)
@@ -109,10 +109,10 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi
           # if not -r or -U install proposed ReaR package by DRLM    
           else
-            eval URL_REAR=\$URL_REAR_UBUNTU"$VERSION""$REP_ARCH"
+            eval URL_REAR=\$URL_REAR_UBUNTU"$CLI_VERSION""$REP_ARCH"
 
             if [ "$URL_REAR" == "" ]; then 
-              Error "No URL for $DISTRO $VERSION $REP_ARCH in default.conf"
+              Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
             else
               if ssh_install_rear_dpkg "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
                 Log "ReaR has been installed" 
@@ -131,7 +131,7 @@ if [ -z "$CONFIG_ONLY" ]; then
         
           # Installing DRLM and ReaR dependencies
           LogPrint "Installing dependencies and ReaR"
-          if install_dependencies_yum  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_REDHAT"$VERSION")" "$SUDO"; then 
+          if install_dependencies_yum  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_REDHAT"$CLI_VERSION")" "$SUDO"; then 
             Log "Dependencies have been installed"
           else 
             Error "Problem installing dependencies, check logfile" 
@@ -139,7 +139,7 @@ if [ -z "$CONFIG_ONLY" ]; then
           
           # if parameter -r/--repo in installclient try to install from oficial repositories
           if [ "$REPO_INST" == "true" ]; then
-              case "$VERSION" in
+              case "$CLI_VERSION" in
                 [5*-8*])
                   if install_rear_yum_repo "$USER" "$CLI_NAME" "$SUDO"; then 
                     Log "ReaR has been installed from repo"
@@ -162,10 +162,10 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if not -r or -U install proposed ReaR package by DRLM        
           else
-            eval URL_REAR=\$URL_REAR_REDHAT"$VERSION""$REP_ARCH"
+            eval URL_REAR=\$URL_REAR_REDHAT"$CLI_VERSION""$REP_ARCH"
 
             if [ "$URL_REAR" == "" ]; then 
-              Error "No URL for $DISTRO $VERSION $REP_ARCH in default.conf"
+              Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
             else
               if ssh_install_rear_yum "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
                 Log "ReaR has been installed"
@@ -186,7 +186,7 @@ if [ -z "$CONFIG_ONLY" ]; then
           # Installing DRLM and ReaR dependencies
           LogPrint "Installing dependencies and ReaR"
           
-          if install_dependencies_zypper "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_SUSE"$VERSION")" "$SUDO"; then
+          if install_dependencies_zypper "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_SUSE"$CLI_VERSION")" "$SUDO"; then
             Log "Dependencies have been installed"
           else
             Error "Error installing dependencies, check logfile"
@@ -194,9 +194,9 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if parameter -r/--repo in installclient try to install from oficial repositories
           if [ "$REPO_INST" == "true" ]; then
-            case "$VERSION" in
+            case "$CLI_VERSION" in
                 [11*-12*-13*-])
-                  Error "$DISTRO $VERSION has not ReaR package available in repositories!"
+                  Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                   ;;
 
                 [15*-42*])
@@ -222,10 +222,10 @@ if [ -z "$CONFIG_ONLY" ]; then
             fi  
           # if not -r or -U install proposed ReaR package by DRLM        
           else
-            eval URL_REAR=\$URL_REAR_SUSE"$VERSION""$REP_ARCH"
+            eval URL_REAR=\$URL_REAR_SUSE"$CLI_VERSION""$REP_ARCH"
 
             if [ "$URL_REAR" == "" ]; then 
-              Error "No URL for $DISTRO $VERSION $REP_ARCH in default.conf"
+              Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
             else
               if ssh_install_rear_zypper "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
                 Log "ReaR has been installed" 

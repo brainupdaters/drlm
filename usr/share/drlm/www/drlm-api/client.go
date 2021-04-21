@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -118,7 +117,7 @@ func (c *Client) getClientServerIP() (string, error) {
 func (c *Client) getClientToken() (string, error) {
 	token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".token")
 	if err != nil {
-		log.Println("Error getting token of user ", c.Name, " err: ", err)
+		logger.Println("Error getting token of user ", c.Name, " err: ", err)
 	}
 	c.Token = string(token)
 
@@ -136,7 +135,7 @@ func (c *Client) getClientConfigurations() ([]ClientConfig, error) {
 
 	files, err := ioutil.ReadDir(configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	for _, f := range files {
@@ -165,7 +164,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 
 	configFile, err := os.Open(configFileName)
 	if err != nil {
-		log.Println(err.Error())
+		logger.Println(err.Error())
 		// TODO what to do if returned error?
 		return ""
 	}
@@ -349,7 +348,7 @@ func (c *Client) generateConfiguration(configName string) (string, error) {
 
 	f, err := os.Open(configFileName)
 	if err != nil {
-		log.Println(err.Error())
+		logger.Println(err.Error())
 		return "", err
 	}
 	defer f.Close()
