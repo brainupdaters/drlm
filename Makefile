@@ -11,7 +11,7 @@ drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 name = drlm
-version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
+version := $(shell awk 'BEGIN { FS="=" } /^readonly VERSION=/ { print $$2}' $(drlmbin))
 
 ### Get the branch information from git
 ifeq ($(OFFICIAL),)
