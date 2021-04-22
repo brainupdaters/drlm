@@ -44,13 +44,18 @@ Requires: sqlite3
 ### RHEL/Fedora/Centos packages
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
 Requires: openssh-clients
-Requires: (dhcp or dhcp-server)
 Requires: tftp-server
 Requires: qemu-img
 Requires: crontabs
 Requires: redhat-lsb-core
 Requires: nfs-utils
 Requires: sqlite
+%endif
+
+%if (0%{?centos} <= 7 || 0%{?rhel} <= 7)
+Requires: dhcp
+%else
+Requires: dhcp-server
 %endif
 
 #Obsoletes:
