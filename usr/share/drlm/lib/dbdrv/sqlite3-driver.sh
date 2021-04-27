@@ -405,6 +405,18 @@ function get_all_network_id_dbdrv ()
   echo $(echo "select idnetwork from networks where idnetwork like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
+function get_all_network_enabled_id_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select idnetwork from networks where active='1' and idnetwork like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_all_network_disabled_id_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select idnetwork from networks where active='0' and idnetwork like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
 function mod_network_name_dbdrv ()
 {
   local NET_ID=$1
@@ -693,6 +705,41 @@ function get_all_backup_id_by_client_dbdrv () {
   echo $ID_LIST
 }
 
+function get_all_backup_enabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idbackup from backups where active='1' and drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_backup_disabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idbackup from backups where active='0' and drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idsnap from snaps, backups where backups.idbackup = snaps.idbackup and backups.drfile like '${CLI_NAME}.%' and snaps.idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_enabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idsnap from snaps, backups where backups.idbackup = snaps.idbackup and snaps.active='1' and backups.drfile like '${CLI_NAME}.%' and snaps.idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_disabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idsnap from snaps, backups where backups.idbackup = snaps.idbackup and snaps.active='0' and backups.drfile like '${CLI_NAME}.%' and snaps.idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
 # function get_all_snap_id_by_backup_id_dbdrv () {
 #   local BKP_ID=$1
 #   local ID_LIST=$(echo "select idsnap from snaps where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
@@ -702,6 +749,36 @@ function get_all_backup_id_by_client_dbdrv () {
 function get_all_backup_id_dbdrv () {
   local COMP=$1
   local ID_LIST=$(echo "select idbackup from backups where idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_backup_enabled_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active='1' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_backup_disabled_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active='0' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idsnap from snaps where idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_enabled_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idsnap from snaps where active='1' and idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_disabled_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idsnap from snaps where active='0' and idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
