@@ -56,3 +56,6 @@ else
         done
     fi
 fi
+
+# Update drlm.sqlite permissions
+chmod 640 /var/lib/drlm/drlm.sqlite; then

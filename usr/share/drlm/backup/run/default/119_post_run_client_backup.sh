@@ -42,6 +42,7 @@
 # Stuff to do in the client after execute runbakcup
 Log "Post run remote ReaR backup on client ${CLI_NAME} ..."
 
+
 # If backup type is ISO_FULL_TMP rear have to remove the remote tmp build dir 
 if [ "$DRLM_BKP_TYPE" == "ISO_FULL_TMP" ]; then
 
@@ -60,4 +61,42 @@ if [ "$DRLM_BKP_TYPE" == "ISO_FULL_TMP" ]; then
     rm -rf $STORDIR/$CLI_NAME/${CLI_CFG}_TMP
   fi
 
+fi
+
+
+# Check for DRLM_POST_RUNBACKUP_SCRIPTs
+if test "$DRLM_POST_RUNBACKUP_SCRIPT" ; then
+  Log "Running DRLM_POST_RUNBACKUP_SCRIPT '${DRLM_POST_RUNBACKUP_SCRIPT[@]}'"
+  
+  # Crate client sctips directory if no exists
+  if [ ! -d "$CONFIG_DIR/clients/$CLI_NAME.scripts" ]; then
+    mkdir -p $CONFIG_DIR/clients/$CLI_NAME.scripts
+  fi
+
+  # Generate Post Runbackup script
+  echo '#!/bin/bash' > $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_post_runbackup_script.sh
+  for command_post in "${DRLM_POST_RUNBACKUP_SCRIPT[@]}"; do
+    echo $command_post >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_post_runbackup_script.sh
+  done
+
+  # Synchronize client scripts
+  if sync_client_scripts "$CLI_NAME"; then
+    LogPrint "Scripts copied from $CONFIG_DIR/clients/$CLI_NAME.scripts/ to ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+  else
+    Error "Error copying scripts to ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+  fi
+  
+  # Run Post Runbackup script whit sudo
+  if ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /var/lib/drlm/scripts/drlm_post_runbackup_script.sh"; then
+    LogPrint "Running drlm_post_runbackup_script.sh in client host succesfully"
+  else
+    Error "Problems running drlm_post_runbackup_script.sh in client host"
+  fi
+  
+  # Remove client scripts
+  if remove_client_scripts "$CLI_NAME"; then
+    Log "Removed ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+  else
+    Error "Error removing ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+  fi
 fi

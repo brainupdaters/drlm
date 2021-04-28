@@ -234,10 +234,14 @@ function send_ssl_cert () {
 }
 
 function send_drlm_hostname () {
-
-  # Coment lines with same hostname as SRV_NAME and diferent SRV_IP
   if [ -n "$SRV_NAME" ] && [ -n "$SRV_IP" ];then
+    # Coment lines with same hostname as SRV_NAME and diferent ip SRV_IP
     for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_NAME" | grep -v "$SRV_IP" | awk -F':' '{print $1}'); do
+      $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
+    done
+
+    # Coment lines with same ip as SRV_IP and diferent hostname SRV_NAME
+    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_IP" | grep -v "$SRV_NAME" | awk -F':' '{print $1}'); do
       $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
     done
 
@@ -253,6 +257,20 @@ function ssh_send_drlm_hostname () {
   local SUDO=$4
   local SRV_NAME=$(hostname -s)
   ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SRV_NAME SRV_IP SUDO; declare -f send_drlm_hostname); send_drlm_hostname" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function create_drlm_var () {
+  $SUDO mkdir -p /var/lib/drlm/scripts
+  $SUDO chown -R drlm:drlm /var/lib/drlm
+  $SUDO chmod -R 700 /var/lib/drlm
+}
+
+function ssh_create_drlm_var () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SUDO; declare -f create_drlm_var); create_drlm_var" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -343,6 +361,10 @@ function config_sudo () {
     done
   fi
 
+  for sudo_script in "${SUDO_DRLM_SCRIPTS[@]}"; do
+    SUDO_COMMANDS+=( , "$sudo_script" )
+  done
+
   if [ ! -d /etc/sudoers.d/ ]; then
     $SUDO mkdir /etc/sudoers.d
     $SUDO chmod 755 /etc/sudoers.d
@@ -370,7 +392,7 @@ function ssh_config_sudo () {
   local CLI_NAME=$2
   local DRLM_USER=$3
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO ; declare -f config_sudo); config_sudo" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO_DRLM_SCRIPTS SUDO ; declare -f config_sudo); config_sudo" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -423,6 +445,31 @@ function ssh_config_public_keys () {
   local DRLM_SERVER="$(hostname -s)"
   
   echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO DRLM_SERVER DRLM_SERVER_IP ; declare -f config_public_keys); config_public_keys")
+}
+
+function sync_client_scripts () {
+  local CLI_NAME=$1
+ 
+  # Check for files in the directory
+  scripts=($CONFIG_DIR/clients/$CLI_NAME.scripts/*)
+  if [ ${#scripts[@]} -gt 0 ]; then 
+    # Copy the files to the remote client
+    scp $CONFIG_DIR/clients/$CLI_NAME.scripts/* ${DRLM_USER}@${CLI_NAME}:/var/lib/drlm/scripts/ &> /dev/null
+    if [ $? -eq 0 ]; then 
+      # Give execution permissions to sctipts
+      ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod -R 700 /var/lib/drlm/scripts"
+      if [ $? -eq 0 ]; then return 0; else return 1; fi
+    else 
+      return 1; 
+    fi
+  fi
+  return 0
+}
+
+function remove_client_scripts () {
+  local CLI_NAME=$1
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "rm -rf /var/lib/drlm/scripts/*"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function authors () {
