@@ -375,20 +375,40 @@ __drlm_delbackup ()
 			done
 			;;
 		-I | --id)
-			local i=0
-			prev3="${COMP_WORDS[COMP_CWORD-3]}"
-			if [ "$prev3" == "-c" ]; then
-				local client="${COMP_WORDS[COMP_CWORD-2]}"
-				query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			else
-				query=$(get_all_backup_id_dbdrv "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			fi
+
+      if __drlm_exist_option "-c --client" "$workflow"; then
+        # if exists -c Get client name
+        local i=0
+        client=""
+        while [ "$client" == "" ]; do
+          if [ "${COMP_WORDS[i]}" == "-c" ]; then
+            ((i++))
+            client="${COMP_WORDS[i]}"
+          else
+            ((i++))
+          fi
+        done
+
+        query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+        query=$(get_all_snap_id_by_client_dbdrv "$client" "$cur")
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      else
+        query=$(get_all_backup_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+        query=$(get_all_snap_id_dbdrv "$cur")
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      fi
 			;;
 		*)
 			__drlmcomp3 "$options_s" "$options_l"
@@ -754,21 +774,87 @@ __drlm_bkpmgr ()
 			done
 			;;
 		-I | --id)
-			local i=0
-			prev3="${COMP_WORDS[COMP_CWORD-3]}"
-			if [ "$prev3" == "-c" ]; then
-				local client="${COMP_WORDS[COMP_CWORD-2]}"
-				query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			else
-				query=$(get_all_backup_id_dbdrv "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			fi
-			;;
+      if __drlm_exist_option "-c --client" "$workflow"; then
+        # if exists -c Get client name
+        local i=0
+        client=""
+        while [ "$client" == "" ]; do
+          if [ "${COMP_WORDS[i]}" == "-c" ]; then
+            ((i++))
+            client="${COMP_WORDS[i]}"
+          else
+            ((i++))
+          fi
+        done
+
+        # check if $client exists
+        if exist_client_name_dbdrv "$client"; then
+          if __drlm_exist_option "-e --enable" "$workflow"; then
+            query=$(get_all_backup_disabled_id_by_client_dbdrv "$client" "$cur")
+            local i=0
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+            query=$(get_all_snap_disabled_id_by_client_dbdrv "$client" "$cur")
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+          elif __drlm_exist_option "-d --disable" "$workflow"; then
+            query=$(get_all_backup_enabled_id_by_client_dbdrv "$client" "$cur")
+            local i=0
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+            query=$(get_all_snap_enabled_id_by_client_dbdrv "$client" "$cur")
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+          else
+            query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
+            local i=0
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+            query=$(get_all_snap_id_by_client_dbdrv "$client" "$cur")
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+          fi         
+        fi
+      else
+        if __drlm_exist_option "-e --enable" "$workflow"; then
+          query=$(get_all_backup_disabled_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+          query=$(get_all_snap_disabled_id_dbdrv "$cur")
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        elif __drlm_exist_option "-d --disable" "$workflow"; then
+          query=$(get_all_backup_enabled_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+          query=$(get_all_snap_enabled_id_dbdrv "$cur")
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        else
+          query=$(get_all_backup_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+          query=$(get_all_snap_id_dbdrv "$cur")
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        fi
+      fi
+      ;;
 		*)
 			__drlmcomp3 "$options_s" "$options_l"
 			;;
@@ -853,11 +939,26 @@ __drlm_modnetwork ()
 			done
 			;;
 		-I | --id)
-			local i=0
-			query=$(get_all_network_id_dbdrv "$cur")
-			for result in $query; do
-				COMPREPLY[i++]="$result"
-			done
+      if __drlm_exist_option "-e --enable" "$workflow"; then
+        query=$(get_all_network_disabled_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      elif __drlm_exist_option "-d --disable" "$workflow"; then
+        query=$(get_all_network_enabled_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      else
+        query=$(get_all_network_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      fi
+
 			;;
     -e | -d | --enable | --disable)
       __drlmcomp3 "$options_s" "$options_l"
