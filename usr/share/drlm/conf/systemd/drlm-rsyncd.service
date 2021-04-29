@@ -6,6 +6,8 @@ After=drlm-api.service
 Type=simple
 Restart=always
 RestartSec=1
+ExecStartPre=-/bin/bash -c 'test -f /var/lib/drlm/run/drlm-rsyncd.pid && /usr/bin/pkill -F /var/lib/drlm/run/drlm-rsyncd.pid || exit 0'
+ExecStartPre=-/bin/bash -c 'test -f /var/lib/drlm/run/drlm-rsyncd.pid && /usr/bin/rm -f /var/lib/drlm/run/drlm-rsyncd.pid || exit 0'
 ExecStart=/usr/bin/rsync --daemon --config=/etc/drlm/rsyncd/rsyncd.conf --no-detach
 
 [Install]

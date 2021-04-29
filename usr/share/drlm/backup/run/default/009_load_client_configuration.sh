@@ -5,6 +5,9 @@
 # CLI_ID  (Client Id) or CLI_NAME (Client Name)
 # CLI_CFG (Client Configuration. If not set = "default")
 
+# Save initial exit tasks
+SAVE_EXIT_TASKS=( "${EXIT_TASKS[@]}" )
+
 # In order to get the client configration we have to make sure we have the client name ($CLI_NAME)
 if [ -n "$CLI_ID" ]; then
   if exist_client_id "$CLI_ID"; then

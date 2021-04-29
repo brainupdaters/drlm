@@ -40,22 +40,68 @@
 # Stuff to do in the client before execute runbakcup
 Log "Pre run remote ReaR backup on client ${CLI_NAME} ..."
 
+
+# Check for DRLM_PRE_RUNBACKUP_SCRIPTs
+if test "$DRLM_PRE_RUNBACKUP_SCRIPT" ; then
+  Log "Running DRLM_PRE_RUNBACKUP_SCRIPT '${DRLM_PRE_RUNBACKUP_SCRIPT[@]}'"
+  
+  # Crate client sctips directory if no exists
+  if [ ! -d "$CONFIG_DIR/clients/$CLI_NAME.scripts" ]; then
+    mkdir -p $CONFIG_DIR/clients/$CLI_NAME.scripts
+  fi
+
+  # Generate Pre Runbackup script
+  echo '#!/bin/bash' > $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
+  for command_pre in "${DRLM_PRE_RUNBACKUP_SCRIPT[@]}"; do
+    echo $command_pre >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
+  done
+
+  # Synchronize client scripts
+  if sync_client_scripts "$CLI_NAME"; then
+    LogPrint "Scripts copied from $CONFIG_DIR/clients/$CLI_NAME.scripts/ to ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+  else
+    Error "Error copying scripts to ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+  fi
+  
+  # Run Pre Runbackup script whit sudo
+  if ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /var/lib/drlm/scripts/drlm_pre_runbackup_script.sh" &> /dev/null; then
+    LogPrint "Running drlm_pre_runbackup_script.sh in client host succesfully"
+  else
+    Error "Problems running drlm_pre_runbackup_script.sh in client host"
+  fi
+  
+  # Remove client scripts
+  if remove_client_scripts "$CLI_NAME"; then
+    Log "Removed ${CLI_NAME}:/var/lib/drlm/scripts/ directory content"
+  else
+    Error "Error removing ${CLI_NAME}:/var/lib/drlm/scripts/ directory content"
+  fi
+fi
+
+
 # If backup type is ISO_FULL_TMP rear have to user a remote tmp build dir 
 if [ "$DRLM_BKP_TYPE" == "ISO_FULL_TMP" ]; then
 
   # Create CONFIG_TMP directory
   if [ ! -d "$STORDIR/$CLI_NAME/${CLI_CFG}_TMP" ]; then
     mkdir $STORDIR/$CLI_NAME/${CLI_CFG}_TMP
+    AddExitTask "rm -rf $STORDIR/$CLI_NAME/${CLI_CFG}_TMP"
   fi
 
   # Enable NFS in read/write mode on CONFIG_TMP directory
   if enable_nfs_fs_rw "$CLI_NAME" "${CLI_CFG}_TMP"; then
     Log "- Enabled NFS for ISO_FULL_TMP export $STORDIR/$CLI_NAME/${CLI_CFG}_TMP (read/write)"
+    AddExitTask "disable_nfs_fs "$CLI_NAME" "${CLI_CFG}_TMP""
   else
     Error "- Problem enabling NFS for ISO_FULL_TMP export $STORDIR/$CLI_NAME/${CLI_CFG}_TMP (read/write)"
   fi
 
   # Mount this NFS in /tmp/drlm path of the client
-  mount_remote_tmp_nfs "$CLI_NAME" "$STORDIR/$CLI_NAME/${CLI_CFG}_TMP" "/tmp/drlm" 
+  if mount_remote_tmp_nfs "$CLI_NAME" "$STORDIR/$CLI_NAME/${CLI_CFG}_TMP" "/tmp/drlm"; then
+    Log "Mounted remote tmp nfs for DRLM_BKP_TYPE = ISO_FULL_TMP"
+    AddExitTask "umount_remote_tmp_nfs "$CLI_NAME" "/tmp/drlm""
+  else
+    Error "Problem mounting remote tmp nfs for DRLM_BKP_TYPE = ISO_FULL_TMP"
+  fi
 
 fi

@@ -12,6 +12,8 @@ if [ -n "$SRV_IP" ]; then
   if ssh_send_drlm_hostname ${USER} ${CLI_NAME} ${SRV_IP} ${SUDO}; then LogPrint "Success to update DRLM hostname info to ${CLI_NAME}"; else Error "Error updating DRLM hostname information, check logfile"; fi
 fi
 
+if ssh_create_drlm_var ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "Creating /var/lib/drlm in $CLI_NAME"; else Error "Error creating /var/lib/drlm in $CLI_NAME, check logfile"; fi
+
 PUBLIC_KEY=$(ssh_config_public_keys "${USER}" "${CLI_NAME}" "${SRV_IP}" "${SUDO}" )
 if [ "$PUBLIC_KEY" == "" ]; then
   Error "Error getting the root client public key"

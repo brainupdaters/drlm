@@ -78,7 +78,12 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   if [ "$INHERITED_DR_FILE" == "yes" ]; then
     BKP_BASE_DR_FILE="$(get_backup_drfile_by_backup_id $BKP_BASE_ID)"
     cp $ARCHDIR/$BKP_BASE_DR_FILE $ARCHDIR/$DR_FILE
-    LogPrint "Created inherited DR file $ARCHDIR/$DR_FILE"
+    if [ $? -eq 0 ]; then
+      LogPrint "Created inherited DR file $ARCHDIR/$DR_FILE"
+      AddExitTask "del_dr_file "$DR_FILE""
+    else
+      Error "Problem copying inherited DR file"
+    fi
 
     del_all_dr_snaps $DR_FILE
     if [ $? -eq 0 ]; then
@@ -90,6 +95,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   else
     if make_img $QCOW_FORMAT $DR_FILE $DR_IMG_SIZE_MB; then
       LogPrint "Created DR image file $DR_FILE in $QCOW_FORMAT format"
+      AddExitTask "del_dr_file "$DR_FILE""
     else
       Error "Problem creating DR image file $DR_FILE in $QCOW_FORMAT format"
     fi
@@ -107,6 +113,7 @@ else
 
   if make_snap $SNAP_ID $DR_FILE; then 
     LogPrint "Created new snapshot in ${DR_FILE}"
+    AddExitTask "del_dr_snap "$SNAP_ID" "$DR_FILE""
   else
     Error "Problem creating new snapshot in ${DR_FILE}"
   fi
@@ -120,6 +127,7 @@ NBD_DEVICE=$(get_free_nbd)
 # Attach DR file to a NBD
 if enable_nbd_rw $NBD_DEVICE $DR_FILE; then
   Log "- Attached DR File $DR_FILE to NBD Device $NBD_DEVICE (read/write)"
+  AddExitTask "disable_nbd "$NBD_DEVICE""
 else
   Error "- Problem attaching DR File $DR_FILE to NBD Device $NBD_DEVICE (read/write)"
 fi
@@ -137,6 +145,7 @@ fi
 # Mount image:
 if do_mount_ext4_rw $NBD_DEVICE $CLI_NAME $CLI_CFG; then
   Log "- Mounted NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
+  AddExitTask "do_umount "$NBD_DEVICE""
 else
   Error "- Problem mounting NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
 fi
@@ -145,6 +154,7 @@ if [ "$DRLM_BKP_PROT" == "NETFS" ]; then
   # Enable NFS read/write mode:
   if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
     Log "- Enabled NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
+    AddExitTask "disable_nfs_fs "$CLI_NAME" "$CLI_CFG""
   else
     Error "- Problem enabling NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
   fi
@@ -152,6 +162,7 @@ elif [ "$DRLM_BKP_PROT" == "RSYNC" ]; then
   # Enable NFS read/write mode:
   if enable_rsync_fs_rw $CLI_NAME $CLI_CFG; then
     Log "- Enabled RSYNC module $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
+    AddExitTask "disable_rsync_fs "$CLI_NAME" "$CLI_CFG""
   else
     Error "- Problem enabling RSYNC module $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
   fi

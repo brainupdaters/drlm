@@ -112,11 +112,11 @@ elif [ "$DRLM_BKP_TYPE" == "PXE" ]; then
 # DATA #
 ########  
 elif [ "$DRLM_BKP_TYPE" == "DATA" ]; then
-  LogPrint "Running a DATA backup"
   if [ "$DRLM_BKP_PROT" == "RSYNC"  ]; then
     LogPrint "Running a DATA backup with RSYNC protocol"
     if [ "$DRLM_BKP_PROG" != "RSYNC" ]; then
       LogPrint "WARNING! DRLM_BKP_PROG != RSYNC but will be ignored. Only RSYNC program is suported for RSYNC protocol"
+      LogPrint "Running a DATA backup with RSYNC protocol"
     fi
   elif [ "$DRLM_BKP_PROT" == "NETFS" ]; then
     if [ "$DRLM_BKP_PROG" == "TAR" ]; then
