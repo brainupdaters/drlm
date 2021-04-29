@@ -47,96 +47,10 @@ if OUT=$(run_mkbackup_ssh_remote $CLI_ID $CLI_CFG); then
   #From seconds to hours:minuts:seconds
   BKP_DURATION=$(printf '%dh.%dm.%ds\n' $(($BKP_DURATION/3600)) $(($BKP_DURATION%3600/60)) $(($BKP_DURATION%60)))
   LogPrint "- Remote ReaR backup Success!"
+
+  # Reset exit tasks
+  EXIT_TASKS=( "${SAVE_EXIT_TASKS[@]}" )
 else
   LogPrint "- Problem running remote mkbackup"
-
-  disable_backup_store $DR_FILE $CLI_NAME $CLI_CFG
-
-  # Removing erroneous DR File or Snap
-  if [ "$DRLM_INCREMENTAL" != "yes" ]; then
-    # if backup file is new we have to delete it
-    del_dr_file ${DR_FILE}
-    if [ $? -eq 0 ]; then 
-      Log "Rollback cleaned failed DR backup file ${ARCHDIR}/${DR_FILE}"    
-    else
-      Log "Problem cleaning failed DR backup file ${ARCHDIR}/${DR_FILE}"
-    fi
-  else 
-    # if backup is incremental we have to delete the snap
-    del_dr_snap "$SNAP_ID" "$DR_FILE"
-    if [ $? -eq 0 ]; then 
-      Log "Rollback cleaned failed Snap $SNAP_ID from backup file ${ARCHDIR}/${DR_FILE}"    
-    else
-      Log "Problem cleaning failed Snap $SNAP_ID from backup file ${ARCHDIR}/${DR_FILE}"
-    fi
-  fi
-
-  # Enable PXE backup that was active before doing a runbackup
-  if [ -n "$ENABLED_DB_BKP_ID_PXE" ]; then
-
-    ENABLED_BKP_DR_FILE=$(get_backup_drfile_by_backup_id $ENABLED_DB_BKP_ID_PXE)
-    ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID_PXE)
-    
-    enable_backup_store_ro $ENABLED_BKP_DR_FILE $CLI_NAME $ENABLED_BKP_CFG $ENABLED_DB_BKP_SNAP_PXE
-
-    # Set backup as active in the data base
-    if enable_backup_db $ENABLED_DB_BKP_ID_PXE ; then
-      Log "Enabled backup in database"
-    else
-      Error "Problem enabling backup in database"
-    fi
-
-    if [ -n "$ENABLED_DB_BKP_SNAP_PXE" ]; then
-      if disable_backup_snap_db $ENABLED_DB_BKP_ID_PXE ; then
-        LogPrint "Disabled old Snap of Backup ID $ENABLED_DB_BKP_ID_PXE in the database"
-      else
-        Error "Problem disabling old Snap of Backup ID $ENABLED_DB_BKP_ID_PXE in the database"
-      fi
-      # Set snap as active in the data base
-      if enable_snap_db $ENABLED_DB_BKP_SNAP_PXE ; then
-        LogPrint "Enabled Snap ID $ENABLED_DB_BKP_SNAP_PXE in the database"
-      else
-        Error "Problem enabling Snap ID $ENABLED_DB_BKP_SNAP_PXE in the database"
-      fi
-    fi
-
-    # Check if PXE is a rescue backup and if true enable PXE in the database
-    if enable_pxe_db $ENABLED_DB_BKP_ID_PXE; then
-      Log "Enabled pxe backup in database"
-    else
-      Error "Problem enabling pxe backup in database"
-    fi
-
-  fi
-  
-  # Enable CFG backup that was active before doing a runbackup
-  if [ -n "$ENABLED_DB_BKP_ID_CFG" ] && [ "$ENABLED_DB_BKP_ID_CFG" != "$ENABLED_DB_BKP_ID_PXE" ]; then
-    ENABLED_BKP_DR_FILE=$(get_backup_drfile_by_backup_id $ENABLED_DB_BKP_ID_CFG)
-    ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID_CFG)
-    
-    enable_backup_store_ro $ENABLED_BKP_DR_FILE $CLI_NAME $ENABLED_BKP_CFG $ENABLED_DB_BKP_SNAP_CFG
-
-    # Set backup as active in the data base
-    if enable_backup_db $ENABLED_DB_BKP_ID_CFG ; then
-      Log "Enabled backup in database"
-    else
-      Error "Problem enabling backup in database"
-    fi
-
-    if [ -n "$ENABLED_DB_BKP_SNAP_CFG" ]; then
-      if disable_backup_snap_db $ENABLED_DB_BKP_ID_CFG ; then
-        LogPrint "Disabled old Snap of Backup ID $ENABLED_DB_BKP_ID_CFG in the database"
-      else
-        Error "Problem disabling old Snap of Backup ID $ENABLED_DB_BKP_ID_CFG in the database"
-      fi
-      # Set snap as active in the data base
-      if enable_snap_db $ENABLED_DB_BKP_SNAP_CFG ; then
-        LogPrint "Enabled Snap ID $ENABLED_DB_BKP_SNAP_CFG in the database"
-      else
-        Error "Problem enabling Snap ID $ENABLED_DB_BKP_SNAP_CFG in the database"
-      fi
-    fi
-  fi
-  
   Error "Problem running remote mkbackup"
 fi

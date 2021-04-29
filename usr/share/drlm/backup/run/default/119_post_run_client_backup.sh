@@ -87,7 +87,7 @@ if test "$DRLM_POST_RUNBACKUP_SCRIPT" ; then
   fi
   
   # Run Post Runbackup script whit sudo
-  if ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /var/lib/drlm/scripts/drlm_post_runbackup_script.sh"; then
+  if ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /var/lib/drlm/scripts/drlm_post_runbackup_script.sh" &> /dev/null; then
     LogPrint "Running drlm_post_runbackup_script.sh in client host succesfully"
   else
     Error "Problems running drlm_post_runbackup_script.sh in client host"
@@ -95,8 +95,8 @@ if test "$DRLM_POST_RUNBACKUP_SCRIPT" ; then
   
   # Remove client scripts
   if remove_client_scripts "$CLI_NAME"; then
-    Log "Removed ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+    Log "Removed ${CLI_NAME}:/var/lib/drlm/scripts/ directory content"
   else
-    Error "Error removing ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+    Error "Error removing ${CLI_NAME}:/var/lib/drlm/scripts/ directory content"
   fi
 fi

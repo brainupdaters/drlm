@@ -36,7 +36,14 @@ Log "Deactivating Backup ${ENABLED_DB_BKP_ID}: .... "
 ENABLED_DB_BKP_ID_CFG=$(get_active_cli_bkp_from_db $CLI_ID $CLI_CFG)
 # Save current backup snap if exists
 ENABLED_DB_BKP_SNAP_CFG=$(get_backup_active_snap_by_backup_id $ENABLED_DB_BKP_ID_CFG)
-disable_backup $ENABLED_DB_BKP_ID_CFG
+
+if [ -n "$ENABLED_DB_BKP_ID_CFG" ]; then
+  if [ "$(get_backup_pxe_by_backup_id $ENABLED_DB_BKP_ID_CFG)" == "1" ]; then
+    AddExitTask "enable_pxe_db "$ENABLED_DB_BKP_ID_CFG""
+  fi
+  disable_backup $ENABLED_DB_BKP_ID_CFG
+  AddExitTask "enable_backup "$CLI_NAME" "$ENABLED_DB_BKP_ID_CFG" "$ENABLED_DB_BKP_SNAP_CFG""
+fi
 
 
 if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
@@ -44,5 +51,12 @@ if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
   ENABLED_DB_BKP_ID_PXE=$(get_active_cli_rescue_from_db $CLI_ID)
   # Save current backup snap if exists
   ENABLED_DB_BKP_SNAP_PXE=$(get_backup_active_snap_by_backup_id $ENABLED_DB_BKP_ID_PXE)
-  disable_backup $ENABLED_DB_BKP_ID_PXE
+
+  if [ -n "$ENABLED_DB_BKP_ID_PXE" ]; then
+    if [ "$(get_backup_pxe_by_backup_id $ENABLED_DB_BKP_ID_PXE)" == "1" ]; then
+      AddExitTask "enable_pxe_db "$ENABLED_DB_BKP_ID_PXE""
+    fi
+    disable_backup $ENABLED_DB_BKP_ID_PXE
+    AddExitTask "enable_backup "$CLI_NAME" "$ENABLED_DB_BKP_ID_PXE" "$ENABLED_DB_BKP_SNAP_PXE""
+  fi
 fi

@@ -53,7 +53,7 @@ function list_backup () {
   local PRETTY_PARAM=$2
   local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
 
-  printf '%-24s %-15s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' "$(tput bold)Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
+  printf '%-24s %-15s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' "$(tput bold)Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
 
   save_default_pretty_params_list_backup
 
@@ -107,7 +107,7 @@ function list_backup () {
     if [ "$PRETTY_PARAM" == "true" ]; then
       BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
     else
-      BAC_SIZE_DEC="%-6s"
+      BAC_SIZE_DEC="%-7s"
     fi
 
     # if Pretty mode is enabled show in green enabled backups and in red disabled backups
@@ -155,7 +155,7 @@ function list_backup () {
         SNAP_SIZE="$(get_snap_size_by_snap_id $SNAP_ID)"
         SNAP_PXE=""
         
-        printf '%-4s %-31s %-18s %-10s %-11s %-6s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" "$SNAP_SIZE" "$SNAP_PXE" "$CLI_CFG" "$SNAP_TYPE";
+        printf '%-4s %-31s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "$CLI_CFG" " └─$SNAP_TYPE";
       done
     fi
 
@@ -648,6 +648,13 @@ function get_backup_status_by_backup_id ()
   echo $BKP_STATUS
 }
 
+function get_backup_pxe_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_PXE=$(get_backup_pxe_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_PXE
+}
+
 function get_backup_active_snap_by_backup_id () {
   local BKP_ID=$1
   local SNAP_ID=$(get_backup_active_snap_by_backup_id_dbdrv "$BKP_ID")
@@ -798,13 +805,13 @@ function check_backup_size_status () {
   fi
 
   if [ "$input_size" == "-" ]; then
-    echo -n "%-6s"
+    echo -n "%-7s"
   elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
-    echo -n "\\e[0;31m%-6s\\e[0m"
+    echo -n "\\e[0;31m%-7s\\e[0m"
   elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
-    echo -n "\\e[0;33m%-6s\\e[0m"
+    echo -n "\\e[0;33m%-7s\\e[0m"
   else
-    echo -n "%-6s"
+    echo -n "%-7s"
   fi
 }
 
@@ -941,6 +948,38 @@ function disable_backup () {
       LogPrint "- Deactivated Backup ${ENABLED_DB_BKP_ID} snaps"
     else
       Error "- Deactivating Backup ${ENABLED_DB_BKP_ID} snaps: Problem disabling backup snap in database"
+    fi
+  fi
+}
+
+function enable_backup () {
+  local CLI_NAME=$1
+  local ENABLED_DB_BKP_ID=$2
+  local ENABLED_DB_BKP_SNAP=$3
+
+  ENABLED_BKP_DR_FILE=$(get_backup_drfile_by_backup_id $ENABLED_DB_BKP_ID)
+  ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID)
+  
+  enable_backup_store_ro $ENABLED_BKP_DR_FILE $CLI_NAME $ENABLED_BKP_CFG $ENABLED_DB_BKP_SNAP
+
+  # Set backup as active in the data base
+  if enable_backup_db $ENABLED_DB_BKP_ID ; then
+    Log "Enabled backup in database"
+  else
+    Error "Problem enabling backup in database"
+  fi
+
+  if [ -n "$ENABLED_DB_BKP_SNAP" ]; then
+    if disable_backup_snap_db $ENABLED_DB_BKP_ID ; then
+      LogPrint "Disabled old Snap of Backup ID $ENABLED_DB_BKP_ID in the database"
+    else
+      Error "Problem disabling old Snap of Backup ID $ENABLED_DB_BKP_ID in the database"
+    fi
+    # Set snap as active in the data base
+    if enable_snap_db $ENABLED_DB_BKP_SNAP ; then
+      LogPrint "Enabled Snap ID $ENABLED_DB_BKP_SNAP in the database"
+    else
+      Error "Problem enabling Snap ID $ENABLED_DB_BKP_SNAP in the database"
     fi
   fi
 }

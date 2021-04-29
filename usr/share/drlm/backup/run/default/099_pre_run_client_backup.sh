@@ -64,7 +64,7 @@ if test "$DRLM_PRE_RUNBACKUP_SCRIPT" ; then
   fi
   
   # Run Pre Runbackup script whit sudo
-  if ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /var/lib/drlm/scripts/drlm_pre_runbackup_script.sh"; then
+  if ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /var/lib/drlm/scripts/drlm_pre_runbackup_script.sh" &> /dev/null; then
     LogPrint "Running drlm_pre_runbackup_script.sh in client host succesfully"
   else
     Error "Problems running drlm_pre_runbackup_script.sh in client host"
@@ -72,9 +72,9 @@ if test "$DRLM_PRE_RUNBACKUP_SCRIPT" ; then
   
   # Remove client scripts
   if remove_client_scripts "$CLI_NAME"; then
-    Log "Removed ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+    Log "Removed ${CLI_NAME}:/var/lib/drlm/scripts/ directory content"
   else
-    Error "Error removing ${CLI_NAME}:/var/lib/drlm/scripts/ directory"
+    Error "Error removing ${CLI_NAME}:/var/lib/drlm/scripts/ directory content"
   fi
 fi
 
@@ -85,16 +85,23 @@ if [ "$DRLM_BKP_TYPE" == "ISO_FULL_TMP" ]; then
   # Create CONFIG_TMP directory
   if [ ! -d "$STORDIR/$CLI_NAME/${CLI_CFG}_TMP" ]; then
     mkdir $STORDIR/$CLI_NAME/${CLI_CFG}_TMP
+    AddExitTask "rm -rf $STORDIR/$CLI_NAME/${CLI_CFG}_TMP"
   fi
 
   # Enable NFS in read/write mode on CONFIG_TMP directory
   if enable_nfs_fs_rw "$CLI_NAME" "${CLI_CFG}_TMP"; then
     Log "- Enabled NFS for ISO_FULL_TMP export $STORDIR/$CLI_NAME/${CLI_CFG}_TMP (read/write)"
+    AddExitTask "disable_nfs_fs "$CLI_NAME" "${CLI_CFG}_TMP""
   else
     Error "- Problem enabling NFS for ISO_FULL_TMP export $STORDIR/$CLI_NAME/${CLI_CFG}_TMP (read/write)"
   fi
 
   # Mount this NFS in /tmp/drlm path of the client
-  mount_remote_tmp_nfs "$CLI_NAME" "$STORDIR/$CLI_NAME/${CLI_CFG}_TMP" "/tmp/drlm" 
+  if mount_remote_tmp_nfs "$CLI_NAME" "$STORDIR/$CLI_NAME/${CLI_CFG}_TMP" "/tmp/drlm"; then
+    Log "Mounted remote tmp nfs for DRLM_BKP_TYPE = ISO_FULL_TMP"
+    AddExitTask "umount_remote_tmp_nfs "$CLI_NAME" "/tmp/drlm""
+  else
+    Error "Problem mounting remote tmp nfs for DRLM_BKP_TYPE = ISO_FULL_TMP"
+  fi
 
 fi

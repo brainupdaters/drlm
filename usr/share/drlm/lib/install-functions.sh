@@ -457,7 +457,7 @@ function sync_client_scripts () {
     scp $CONFIG_DIR/clients/$CLI_NAME.scripts/* ${DRLM_USER}@${CLI_NAME}:/var/lib/drlm/scripts/ &> /dev/null
     if [ $? -eq 0 ]; then 
       # Give execution permissions to sctipts
-      ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod -R 700 /var/lib/drlm/scripts"
+      ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod -R 700 /var/lib/drlm/scripts" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1; fi
     else 
       return 1; 
@@ -468,7 +468,7 @@ function sync_client_scripts () {
 
 function remove_client_scripts () {
   local CLI_NAME=$1
-  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "rm -rf /var/lib/drlm/scripts/*"
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "rm -rf /var/lib/drlm/scripts/*" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

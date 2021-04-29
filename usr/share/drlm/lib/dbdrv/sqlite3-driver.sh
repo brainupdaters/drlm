@@ -848,6 +848,12 @@ function get_backup_status_by_backup_id_dbdrv () {
   echo $BKP_STATUS
 }
 
+function get_backup_pxe_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_PXE=$(echo "select PXE from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_PXE
+}
+
 function get_backup_active_snap_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local SNAP_ID=$(echo "select idsnap from snaps where idbackup='$BKP_ID' and active='1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
