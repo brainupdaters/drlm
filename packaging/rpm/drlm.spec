@@ -134,6 +134,7 @@ chmod 700 /etc/drlm
 
 ### Create directory for rear client logs
 [ ! -d /var/log/drlm/rear ] && mkdir -p /var/log/drlm/rear
+chmod 700 /var/log/drlm
 chmod 775 /var/log/drlm/rear
 
 ### Check if /etc/exports.d directory is present
