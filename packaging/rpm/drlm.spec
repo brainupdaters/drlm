@@ -130,6 +130,7 @@ fi
 ### Create client config directory
 [ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
 [ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
+chmod 700 /etc/drlm
 
 ### Create directory for rear client logs
 [ ! -d /var/log/drlm/rear ] && mkdir -p /var/log/drlm/rear
@@ -143,6 +144,7 @@ chmod 775 /var/log/drlm/rear
 
 ### Unpack GRUB files
 tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
+chmod 700 /var/lib/drlm/store
 
 ### If --> is install create keys
 if [ "$1" == "1" ]; then

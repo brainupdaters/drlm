@@ -222,6 +222,12 @@ else
 fi
 
 mkdir -p $LOG_DIR || echo "ERROR: Could not create $LOG_DIR" >&2
+if [ $(stat -c %a $LOG_DIR) != "700" ]; then
+  chmod 700 $LOG_DIR
+  if [ $? -ne 0 ]; then
+    Error "- chmod 700 $LOG_DIR failed!"
+  fi
+fi
 
 exec 2>> "$LOGFILE"
 

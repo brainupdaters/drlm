@@ -58,4 +58,4 @@ else
 fi
 
 # Update drlm.sqlite permissions
-chmod 640 /var/lib/drlm/drlm.sqlite
+chmod 600 /var/lib/drlm/drlm.sqlite

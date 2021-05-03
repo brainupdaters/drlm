@@ -353,8 +353,9 @@ function make_img () {
   local DR_NAME=$2
   local DR_SIZE=$3
 
-  if [[ ! -d ${ARCHDIR} ]]; then 
-    mkdir -p ${ARCHDIR} 
+  if [ ! -d "$ARCHDIR" ]; then 
+    mkdir -p "$ARCHDIR" 
+    chmod 700 "$ARCHDIR"
   fi
   qemu-img create -f ${QCOW_FORMAT} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M >> /dev/null 2>&1
   if [ $? -eq 0 ]; then return 0; else return 1; fi
