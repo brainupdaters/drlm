@@ -197,16 +197,6 @@ umask 0022
 # include default config
 source $SHARE_DIR/conf/default.conf
 
-# include functions
-for script in $SHARE_DIR/lib/*-functions.sh ; do
-  source $script
-done
-
-if ! has_binary pidof; then
-  echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2
-  exit 1
-fi
-
 # Logfile name
 if [ "$DEBUGSCRIPTS" ] ; then
   TIMESTAMP=$(date +"%Y%m%d.%H%M%S.%4N")
@@ -221,7 +211,23 @@ else
   LOGFILE="$LOG_DIR/drlm.log"
 fi
 
+# include functions
+for script in $SHARE_DIR/lib/*-functions.sh ; do
+  source $script
+done
+
+if ! has_binary pidof; then
+  echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2
+  exit 1
+fi
+
 mkdir -p $LOG_DIR || echo "ERROR: Could not create $LOG_DIR" >&2
+if [ $(stat -c %a $LOG_DIR) != "700" ]; then
+  chmod 700 $LOG_DIR
+  if [ $? -ne 0 ]; then
+    Error "- chmod 700 $LOG_DIR failed!"
+  fi
+fi
 
 exec 2>> "$LOGFILE"
 

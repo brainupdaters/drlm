@@ -4,6 +4,7 @@
 if [ ! -d "${STORDIR}/${CLI_NAME}/${CLI_CFG}" ]; then
   Log "Making DR store mountpoint for client $CLI_NAME and $CLI_CFG configuration..."
   mkdir -p "${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+  # chmod 700 "${STORDIR}"
   chmod 755 "${STORDIR}/${CLI_NAME}"
   chmod 755 "${STORDIR}/${CLI_NAME}/${CLI_CFG}"
 fi
@@ -30,6 +31,7 @@ Log "Importing ${BKP_SRC} to ${ARCHDIR}/$DR_FILE"
 # Create backup archive directory if does not exists and copy the new backup in
 if [ ! -d "$ARCHDIR" ]; then 
   mkdir -p "$ARCHDIR" 
+  chmod 700 "$ARCHDIR"
 fi
 
 # Copy backup source to DRLM arch directory

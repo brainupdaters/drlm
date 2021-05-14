@@ -1,12 +1,14 @@
 # instclient workflow
 
+if ssh_tunning_rear "$USER" "$CLI_NAME" "$SUDO"; then LogPrint "Tunning ${CLI_NAME} ReaR installation successfully done"; else Error "Error tunning ${CLI_NAME} ReaR installation"; fi
+
 if send_drlm_managed ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "${CLI_NAME} is now managed by DRLM"; else Error "Error sending config, check logfile"; fi
 
 if send_drlm_token ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "${CLI_NAME} DRLM API token send"; else Error "Error sending DRLM API token, check logfile"; fi
 
-if make_ssl_capath ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "SSL CApath successfuly created in ${CLI_NAME}"; else Error "Error creating CApath, check logfile"; fi
+if make_ssl_capath ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "SSL CApath successfully created in ${CLI_NAME}"; else Error "Error creating CApath, check logfile"; fi
 
-if send_ssl_cert ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "SSL certificate successfuly sent to ${CLI_NAME}"; else Error "Error sending certificate, check logfile"; fi
+if send_ssl_cert ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "SSL certificate successfully sent to ${CLI_NAME}"; else Error "Error sending certificate, check logfile"; fi
 
 if [ -n "$SRV_IP" ]; then
   if ssh_send_drlm_hostname ${USER} ${CLI_NAME} ${SRV_IP} ${SUDO}; then LogPrint "Success to update DRLM hostname info to ${CLI_NAME}"; else Error "Error updating DRLM hostname information, check logfile"; fi
