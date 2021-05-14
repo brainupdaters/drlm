@@ -38,6 +38,9 @@ else
 fi
 
 CLI_REAR="$(ssh_get_rear_version $CLI_NAME)"
+if [ -z "$CLI_REAR" ]; then
+  Error "ReaR version not found. Check client $CLI_NAME is ssh accessible and ReaR is installed."
+fi
 
 if mod_client_rear "$CLI_ID" "$CLI_REAR"; then
   Log "Updating ReaR version $CLI_REAR of client $CLI_ID in the database"

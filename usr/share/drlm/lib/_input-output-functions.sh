@@ -98,7 +98,7 @@ has_binary() {
 }
 
 get_path() {
-  type -p $1 2>&8
+  type -P $1 2>&8
 }
 
 Error() {

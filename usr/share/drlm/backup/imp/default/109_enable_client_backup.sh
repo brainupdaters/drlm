@@ -6,7 +6,7 @@ Log "Enabling $CLI_CFG DRLM Store for client $CLI_NAME ...."
 if [ ! -d ${STORDIR}/${CLI_NAME}/${CLI_CFG} ]; then
   Log "Making DR store mountpoint for client: $CLI_NAME and $CLI_CFG configuration"
   mkdir -p ${STORDIR}/${CLI_NAME}/${CLI_CFG}
-  chmod 700 ${STORDIR}
+  # chmod 700 ${STORDIR}
   chmod 755 ${STORDIR}/${CLI_NAME}
   chmod 755 ${STORDIR}/${CLI_NAME}/${CLI_CFG}
 fi

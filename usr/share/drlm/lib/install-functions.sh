@@ -26,19 +26,19 @@ function get_release () {
 function get_arch () {
   local USER=$1
   local CLI_NAME=$2
-  ARCH=$(echo $( ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "arch"  2> /dev/null) | tr -dc '[:alnum:][:punct:]')
+  ARCH=$(echo $( ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "arch 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]')
   if [ "$ARCH" == "" ]; then echo noarch; else echo $ARCH ; fi
 }
 
 function ssh_get_release () {
   local USER=$1
   local CLI_NAME=$2
-  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -f get_release); get_release"  2> /dev/null) | tr -dc '[:alnum:][:punct:]'
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -f get_release); get_release 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]'
 }
 
 function ssh_get_rear_version () {
   local CLI_NAME=$1
-  echo $(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V"  2> /dev/null) | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//'
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//'
 }
 
 function check_apt () {
@@ -469,6 +469,22 @@ function sync_client_scripts () {
 function remove_client_scripts () {
   local CLI_NAME=$1
   ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "rm -rf /var/lib/drlm/scripts/*" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function tunning_rear () {
+  # remove cURL verbose to avoid infinite lines of Debug in some cURL versions
+  if [ -f "/usr/share/rear/lib/drlm-functions.sh" ]; then
+    $SUDO sed -i 's/ $verbose//g' /usr/share/rear/lib/drlm-functions.sh
+  fi
+}
+
+function ssh_tunning_rear () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO; declare -f tunning_rear); tunning_rear" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

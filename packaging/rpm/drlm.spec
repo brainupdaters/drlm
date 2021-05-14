@@ -145,7 +145,7 @@ chmod 775 /var/log/drlm/rear
 
 ### Unpack GRUB files
 tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
-chmod 700 /var/lib/drlm/store
+# chmod 700 /var/lib/drlm/store
 
 ### If --> is install create keys
 if [ "$1" == "1" ]; then
