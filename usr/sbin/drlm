@@ -202,9 +202,6 @@ if [ "$DEBUGSCRIPTS" ] ; then
   TIMESTAMP=$(date +"%Y%m%d.%H%M%S.%4N")
   LOG_DIR="$LOG_DIR/debug"
   LOGFILE="$LOG_DIR/drlm-$HOSTNAME-$WORKFLOW.$TIMESTAMP.log"
-  if [[ "$VERBOSE" ]]; then
-    Log "Using log file: $LOGFILE"
-  fi
 elif [ "$WORKFLOW" == "sched" ]; then
   LOGFILE="$LOG_DIR/drlm-sched.log"
 else
@@ -216,6 +213,10 @@ for script in $SHARE_DIR/lib/*-functions.sh ; do
   source $script
 done
 
+if [ "$VERBOSE" ]; then
+  Log "Using log file: $LOGFILE"
+fi
+  
 if ! has_binary pidof; then
   echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2
   exit 1
