@@ -246,6 +246,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		clientConfig = "export TMPDIR=/tmp/drlm\n"
 		clientConfig += "OUTPUT=ISO\n"
 		clientConfig += "OUTPUT_PREFIX=\n"
+		clientConfig += "ISO_DIR=/tmp/drlm\n"
 		clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 		clientConfig += "OUTPUT_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
 		clientConfig += "BACKUP=NETFS\n"
