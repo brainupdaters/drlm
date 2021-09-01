@@ -482,7 +482,7 @@ function tunning_rear () {
 function ssh_tunning_rear () {
   local USER=$1
   local CLI_NAME=$2
-  local SUDO=$4
+  local SUDO=$3
 
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO; declare -f tunning_rear); tunning_rear" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
