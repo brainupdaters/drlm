@@ -216,7 +216,7 @@ done
 if [ "$VERBOSE" ]; then
   Log "Using log file: $LOGFILE"
 fi
-  
+
 if ! has_binary pidof; then
   echo "ERROR: Required program 'pidof' missing, please check your PATH" >&2
   exit 1
