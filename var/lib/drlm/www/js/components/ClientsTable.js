@@ -14,6 +14,7 @@ var ClientsTable = {
             <th>ID</th>
             <th>Name</th>
             <th>MAC</th>
+            <th>IP</th>
             <th>Network</th>
             <th>OS</th>
             <th>ReaR</th>
@@ -26,6 +27,7 @@ var ClientsTable = {
             <td>{{ client.cli_id }}</td>
             <td>{{ client.cli_name }}</td>
             <td>{{ client.cli_mac }}</td>
+            <td>{{ client.cli_ip }}</td>
             <td>{{ client.cli_net }}</td>
             <td>{{ client.cli_os }}</td>
             <td>{{ client.cli_rear }}</td>
