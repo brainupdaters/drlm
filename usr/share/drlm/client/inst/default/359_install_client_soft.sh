@@ -28,7 +28,7 @@ if [ -z "$CONFIG_ONLY" ]; then
                   Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                   ;;
 
-                10*)
+                10*|11*)
                   if install_rear_deb_repo "$USER" "$CLI_NAME" "$SUDO"; then 
                     Log "ReaR has been installed from repo"
                   else 

@@ -3,7 +3,7 @@
 case "$DISTRO" in
     Debian)
         case "$CLI_VERSION" in
-            [6*-9*]|10*)
+            [6*-9*]|10*|11*)
                 if ssh_start_services "$USER" "$CLI_NAME" "$(eval echo \$REAR_SERVICES_DEBIAN"$CLI_VERSION")" "$DISTRO" "$SUDO"; then 
                     LogPrint "Services have been started succesfully" 
                 else 
