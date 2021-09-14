@@ -89,7 +89,7 @@ UPDATE backups SET PXE=1 WHERE active=1;
 UPDATE backups SET PXE=0 WHERE active=0;
 
 ALTER TABLE backups ADD COLUMN "type" varchar(20);
-UPDATE backups SET type='1' where type='';
+UPDATE backups SET type='PXE' where type='';
 
 ALTER TABLE backups ADD COLUMN "protocol" varchar(20);
 UPDATE backups SET protocol='NETFS' where protocol='';

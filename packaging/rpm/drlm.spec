@@ -314,7 +314,8 @@ systemctl start drlm-tftpd.service
 - Addnetwork, modnetwork and addclient simplified
 - Addnetwork is done automatically when you run addclient
 - DHCP server is managed automatically
-- Improves logs management
+- Improved logs management
+- Debian 11 Support on install client workflow.
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

@@ -826,20 +826,20 @@ function get_backup_protocol_by_backup_id_dbdrv () {
 
 function get_backup_date_by_backup_id_dbdrv () {
   local BKP_ID=$1
-  local BKP_TYPE=$(echo "select date from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-  echo $BKP_TYPE
+  local BKP_DATE=$(echo "select date from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_DATE
 }
 
 function get_backup_duration_by_backup_id_dbdrv () {
   local BKP_ID=$1
-  local BKP_TYPE=$(echo "select duration from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-  echo $BKP_TYPE
+  local BKP_DURATION=$(echo "select duration from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_DURATION
 }
 
 function get_backup_size_by_backup_id_dbdrv () {
   local BKP_ID=$1
-  local BKP_TYPE=$(echo "select size from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-  echo $BKP_TYPE
+  local BKP_SIZE=$(echo "select size from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_SIZE
 }
 
 function get_backup_status_by_backup_id_dbdrv () {

@@ -80,18 +80,17 @@ function list_backup () {
       BAC_PXE=""
     fi 
 
-    if [ "$BAC_TYPE" == "0" ]; then
-      BAC_TYPE="DATA"
-    elif [ "$BAC_TYPE" == "1" ]; then 
-      BAC_TYPE="PXE"
-    elif [ "$BAC_TYPE" == "2" ]; then 
-      BAC_TYPE="ISO"
-    elif [ "$BAC_TYPE" == "3" ]; then 
-      BAC_TYPE="ISO_FULL"
-    elif [ "$BAC_TYPE" == "4" ]; then 
-      BAC_TYPE="ISO_FULL"
-        
-    fi 
+    # if [ "$BAC_TYPE" == "0" ]; then
+    #   BAC_TYPE="DATA"
+    # elif [ "$BAC_TYPE" == "1" ]; then 
+    #   BAC_TYPE="PXE"
+    # elif [ "$BAC_TYPE" == "2" ]; then 
+    #   BAC_TYPE="ISO"
+    # elif [ "$BAC_TYPE" == "3" ]; then 
+    #   BAC_TYPE="ISO_FULL"
+    # elif [ "$BAC_TYPE" == "4" ]; then 
+    #   BAC_TYPE="ISO_FULL_TMP"
+    # fi 
 
     load_default_pretty_params_list_backup
     load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
@@ -617,22 +616,22 @@ function get_backup_protocol_by_backup_id ()
 function get_backup_date_by_backup_id ()
 {
   local BKP_ID=$1
-  local BKP_TYPE=$(get_backup_date_by_backup_id_dbdrv "$BKP_ID")
-  echo $BKP_TYPE
+  local BKP_DATE=$(get_backup_date_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_DATE
 }
 
 function get_backup_duration_by_backup_id ()
 {
   local BKP_ID=$1
-  local BKP_TYPE=$(get_backup_duration_by_backup_id_dbdrv "$BKP_ID")
-  echo $BKP_TYPE
+  local BKP_DURATION=$(get_backup_duration_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_DURATION
 }
 
 function get_backup_size_by_backup_id ()
 {
   local BKP_ID=$1
-  local BKP_TYPE=$(get_backup_size_by_backup_id_dbdrv "$BKP_ID")
-  echo $BKP_TYPE
+  local BKP_SIZE=$(get_backup_size_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_SIZE
 }
 
 function get_backup_client_id_by_backup_id ()
