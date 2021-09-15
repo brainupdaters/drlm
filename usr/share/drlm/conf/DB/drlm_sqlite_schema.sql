@@ -76,23 +76,23 @@ ALTER TABLE clients ADD COLUMN "rear" varchar(45);
 -- 2.4.0 new
 -- Update table networks
 ALTER TABLE networks ADD COLUMN "active" tinyint(1);
-UPDATE networks SET active=1 WHERE active='';
+UPDATE networks SET active=1 WHERE active is null;
 
 ALTER TABLE networks ADD COLUMN "interface" varchar(45);
 
 -- Update table backups
 ALTER TABLE backups ADD COLUMN "config" varchar(45);
-UPDATE backups SET config='default' WHERE config='';
+UPDATE backups SET config='default' WHERE config is null;
 
 ALTER TABLE backups ADD COLUMN "PXE" tinyint(1);
 UPDATE backups SET PXE=1 WHERE active=1;
 UPDATE backups SET PXE=0 WHERE active=0;
 
 ALTER TABLE backups ADD COLUMN "type" varchar(20);
-UPDATE backups SET type='PXE' where type='';
+UPDATE backups SET type='PXE' where type is null;
 
 ALTER TABLE backups ADD COLUMN "protocol" varchar(20);
-UPDATE backups SET protocol='NETFS' where protocol='';
+UPDATE backups SET protocol='NETFS' where protocol is null;
 
 ALTER TABLE backups ADD COLUMN "date" varchar(16);
 
