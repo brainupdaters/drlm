@@ -7,7 +7,7 @@ BEGIN TRANSACTION;
 ALTER TABLE networks ADD COLUMN "active" tinyint(1);
 UPDATE networks SET active=1 WHERE active is null;
 
-ALTER TABLE networks ADD COLUMN "iface" varchar(45);
+ALTER TABLE networks ADD COLUMN "interface" varchar(45);
 
 -- Update table backups
 ALTER TABLE backups ADD COLUMN "config" varchar(45);

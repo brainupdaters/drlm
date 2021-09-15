@@ -30,7 +30,7 @@ if [ "$PUBLIC_KEY" != "" ]; then
     if [ $? -eq 0 ]; then Log ".ssh client user directory created"; else Error "Error creating .shh client user directory"; fi
   fi 
 
-  # debian,ubuntu,centos and redhat permissions
+  # debian, ubuntu, centos, rocky and redhat permissions
   if getent group "$CLI_NAME" &> /dev/null; then
     chown $CLI_NAME:$CLI_NAME /home/$CLI_NAME/.ssh &> /dev/null
     if [ $? -eq 0 ]; then Log "Owership of .ssh client user directory changed"; else Error "Error changing ownership of .shh client user directory"; fi

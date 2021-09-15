@@ -1,7 +1,8 @@
 function get_distro () {
   if [ -f /etc/dpkg/origins/ubuntu ]; then echo Ubuntu;
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo RedHat;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then echo RedHat;
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then  echo Rocky;
   elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;
   elif [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo Suse; 
   fi
@@ -16,7 +17,8 @@ function ssh_get_distro () {
 function get_release () {
   if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; 
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" {'print $2'}|cut -c 2-4;
   elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;
   elif [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';
   elif [ -f /etc/SUSE-brand ]; then cat /etc/SUSE-brand|grep VERSION| awk '{print $3}';
@@ -425,7 +427,7 @@ function config_public_keys () {
   # Add drlm server to known_host if does not exists
   $SUDO /usr/bin/ssh-keygen -R $DRLM_SERVER &> /dev/null  
 
-  # Is better to add add the hosts hashed but -H parameter does not work on centos 8
+  # Is better to add the hosts hashed but -H parameter does not work on centos 8
   # $SUDO /usr/bin/ssh-keyscan -H $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
   $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
 

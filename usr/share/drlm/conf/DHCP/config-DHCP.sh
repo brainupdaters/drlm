@@ -10,7 +10,7 @@ case $1 in
         echo "DHCP_SVC_NAME=\"isc-dhcp-server\"" >> /etc/drlm/local.conf
         ;;
       
-      centos|rhel)
+      centos|rhel|rocky)
         ;;
 
       opensuse*|sles*)
