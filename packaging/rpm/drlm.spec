@@ -42,7 +42,7 @@ Requires: sqlite3
 %endif
 
 ### RHEL/Fedora/Centos packages
-%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel} || 0%{?rocky})
 Requires: openssh-clients
 Requires: tftp-server
 Requires: qemu-img
@@ -52,10 +52,10 @@ Requires: nfs-utils
 Requires: sqlite
 %endif
 
-%if (0%{?centos} <= 7 || 0%{?rhel} <= 7)
-Requires: dhcp
-%else
+%if (0%{?rocky} || 0%{?centos} > 7 || 0%{?rhel} > 7)
 Requires: dhcp-server
+%else
+Requires: dhcp
 %endif
 
 #Obsoletes:
@@ -186,7 +186,7 @@ if [ "$1" == "2" ]; then
 systemctl is-active --quiet apache2.service && systemctl stop apache2.service
 systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
 %endif
-%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel} || 0%{?rocky} )
 systemctl is-active --quiet httpd.service && systemctl stop httpd.service
 systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 %endif

@@ -52,7 +52,7 @@ SetOSVendorAndVersion () {
 
 	# add OS_MASTER_* vars in case this is a derived OS
 	case "$OS_VENDOR_VERSION" in
-		(*Oracle*|*CentOS*|*FedoraCore*|*RedHat*|*Scientific*)
+		(*Oracle*|*CentOS*|*FedoraCore*|*RedHat*|*Scientific*|*Rocky*)
 			OS_MASTER_VENDOR="Fedora"
 			case "$OS_VERSION" in
 				(5.*)

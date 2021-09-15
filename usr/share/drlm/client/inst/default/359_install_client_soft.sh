@@ -126,7 +126,7 @@ if [ -z "$CONFIG_ONLY" ]; then
         fi
         ;;
 
-      CentOS|RedHat)
+      CentOS|RedHat|Rocky)
         if check_yum "$USER" "$CLI_NAME" "$SUDO"; then
         
           # Installing DRLM and ReaR dependencies

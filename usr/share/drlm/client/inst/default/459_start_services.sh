@@ -31,7 +31,7 @@ case "$DISTRO" in
         esac
         ;;
 
-    CentOS|RedHat)
+    CentOS|RedHat|Rocky)
         case "$CLI_VERSION" in
             [5*-8*])
                 if ssh_start_services "$USER" "$CLI_NAME" "$(eval echo \$REAR_SERVICES_REDHAT"$CLI_VERSION")" "$DISTRO" "$SUDO"; then 
