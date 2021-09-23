@@ -22,11 +22,18 @@ if [ -n "$DR_FILE" ]; then
     Error "- Problem attaching DR File $DR_FILE to NBD Device $NBD_DEVICE (read only)"
   fi
 
+# Check if exists partition
+  if [ -e  "${NBD_DEVICE}p1" ]; then 
+    NBD_DEVICE_PART="${NBD_DEVICE}p1"
+  else  
+    NBD_DEVICE_PART="$NBD_DEVICE"
+  fi
+
   # Mount NBD device
-  if do_mount_ext4_ro $NBD_DEVICE $CLI_NAME $CLI_CFG ; then
-    LogPrint "- Mounted NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+  if do_mount_ext4_ro $NBD_DEVICE_PART $CLI_NAME $CLI_CFG ; then
+    LogPrint "- Mounted NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
   else
-    Error "- Problem mounting NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    Error "- Problem mounting NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
   fi
 
   

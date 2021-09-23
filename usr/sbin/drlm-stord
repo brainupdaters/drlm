@@ -148,6 +148,10 @@ case "$1" in
 		Log "$(printf '%-16s %-45s %-50s\n' ""$(tput bold)"NBD Device" "DR Store" "DR File$(tput sgr0)")"
     for MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR" | awk '{print $3}'); do
       NBD_DEVICE=$(/bin/mount -l | grep -w "$MOUNT_POINT" | awk '{print $1}')
+
+      # Remove p1 (the partition sufix) from the end of mounted partitions in order to get the device
+      NBD_DEVICE=${NBD_DEVICE%p1}
+
       # ATTENTION! pgrep has to be used carefully, can return unwanted results if the match pattern is too simple.
       # for example: if I want to find the process that attach one device only filttering by Backup id
       # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable

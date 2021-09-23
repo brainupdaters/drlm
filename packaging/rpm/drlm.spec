@@ -29,6 +29,8 @@ Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: rpcbind
 Requires: rsync
+Requires: bc
+Requires: parted
 
 ### SUSE packages
 %if %{?suse_version:1}0
