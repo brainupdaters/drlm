@@ -22,11 +22,18 @@ else
   Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
 fi
 
+# Check if exists partition
+  if [ -e  "${NBD_DEVICE}p1" ]; then 
+    NBD_DEVICE_PART="${NBD_DEVICE}p1"
+  else  
+    NBD_DEVICE_PART="$NBD_DEVICE"
+  fi
+
 # Mount image:
-if do_mount_ext4_rw $NBD_DEVICE $CLI_NAME $CLI_CFG; then
-  Log "- Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+if do_mount_ext4_rw $NBD_DEVICE_PART $CLI_NAME $CLI_CFG; then
+  Log "- Mounted $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
 else
-  Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+  Error "- Problem mounting $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
 fi
 
 

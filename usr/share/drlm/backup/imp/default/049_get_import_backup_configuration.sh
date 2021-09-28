@@ -31,9 +31,15 @@ if [ -n "$BKP_SRC" ]; then
   # Attach DR file to a NBD
   qemu-nbd -c $NBD_DEVICE $BKP_SRC -r --cache=none --aio=native >> /dev/null 2>&1
   if [ $? -ne 0 ]; then Error "Error attching $BKP_SRC to $NBD_DEVICE"; fi
+  # Check if exists partition
+  if [ -e  "${NBD_DEVICE}p1" ]; then 
+    NBD_DEVICE_PART="${NBD_DEVICE}p1"
+  else  
+    NBD_DEVICE_PART="$NBD_DEVICE"
+  fi
   # Mount image:
-  /bin/mount -t ext4 -o ro $NBD_DEVICE $TMP_MOUNTPOINT >> /dev/null 2>&1
-  if [ $? -ne 0 ]; then Error "Error mounting $NBD_DEVICE $TMP_MOUNTPOINT"; fi
+  /bin/mount -t ext4 -o ro $NBD_DEVICE_PART $TMP_MOUNTPOINT >> /dev/null 2>&1
+  if [ $? -ne 0 ]; then Error "Error mounting $NBD_DEVICE_PART $TMP_MOUNTPOINT"; fi
 fi
 
 # At this point is available the content of the DR file

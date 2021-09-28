@@ -93,7 +93,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
     fi
   # else we have to create a new DR Store file
   else
-    if make_img $QCOW_FORMAT $DR_FILE $DR_IMG_SIZE_MB; then
+    if make_img $QCOW_FORMAT $DR_FILE; then
       LogPrint "Created DR image file $DR_FILE in $QCOW_FORMAT format"
       AddExitTask "del_dr_file "$DR_FILE""
     else
@@ -123,6 +123,7 @@ LogPrint "Enabling new DR store for client $CLI_NAME and $CLI_CFG"
 # Create nbd
 # Get next free nbd
 NBD_DEVICE=$(get_free_nbd)
+NBD_DEVICE_PART="${NBD_DEVICE}p1"
 
 # Attach DR file to a NBD
 if enable_nbd_rw $NBD_DEVICE $DR_FILE; then
@@ -134,20 +135,33 @@ fi
 
 # if backup is not incremental or inherited, DR file is new and must be formated
 if [ "$DRLM_INCREMENTAL" != "yes" ] && [ "$INHERITED_DR_FILE" != "yes" ] ; then
+  # Create partition
+  if do_partition $NBD_DEVICE $DR_IMG_SIZE_MB; then
+    Log "- Created patition on $NBD_DEVICE"
+  else
+    Error "- Problem creating partition on $NBD_DEVICE"
+  fi
   # Format nbd device:
-  if do_format_ext4 $NBD_DEVICE; then
+  if do_format_ext4 $NBD_DEVICE_PART; then
     Log "- Formated DR File $DR_FILE to ext4 fs"
   else
     Error "- Problem Formating DR File $DR_FILE to ext4 fs"
   fi 
+# else backup is incremental, need to check that there is enough disk space for the new backup
+else
+  if extend_partition "$NBD_DEVICE" "$NBD_DEVICE_PART" "$DR_IMG_SIZE_MB"; then
+    Log "- Extended partition $NBD_DEVICE_PART to $DR_IMG_SIZE_MB MB"
+  else
+    Error "- Problem extendeding partition $NBD_DEVICE_PART to $DR_IMG_SIZE_MB MB"
+  fi
 fi
 
 # Mount image:
-if do_mount_ext4_rw $NBD_DEVICE $CLI_NAME $CLI_CFG; then
-  Log "- Mounted NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
-  AddExitTask "do_umount "$NBD_DEVICE""
+if do_mount_ext4_rw $NBD_DEVICE_PART $CLI_NAME $CLI_CFG; then
+  Log "- Mounted NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
+  AddExitTask "do_umount "$NBD_DEVICE_PART""
 else
-  Error "- Problem mounting NBD device $NBD_DEVICE at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
+  Error "- Problem mounting NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read/write)"
 fi
 
 if [ "$DRLM_BKP_PROT" == "NETFS" ]; then

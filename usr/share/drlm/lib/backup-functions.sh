@@ -80,18 +80,17 @@ function list_backup () {
       BAC_PXE=""
     fi 
 
-    if [ "$BAC_TYPE" == "0" ]; then
-      BAC_TYPE="DATA"
-    elif [ "$BAC_TYPE" == "1" ]; then 
-      BAC_TYPE="PXE"
-    elif [ "$BAC_TYPE" == "2" ]; then 
-      BAC_TYPE="ISO"
-    elif [ "$BAC_TYPE" == "3" ]; then 
-      BAC_TYPE="ISO_FULL"
-    elif [ "$BAC_TYPE" == "4" ]; then 
-      BAC_TYPE="ISO_FULL"
-        
-    fi 
+    # if [ "$BAC_TYPE" == "0" ]; then
+    #   BAC_TYPE="DATA"
+    # elif [ "$BAC_TYPE" == "1" ]; then 
+    #   BAC_TYPE="PXE"
+    # elif [ "$BAC_TYPE" == "2" ]; then 
+    #   BAC_TYPE="ISO"
+    # elif [ "$BAC_TYPE" == "3" ]; then 
+    #   BAC_TYPE="ISO_FULL"
+    # elif [ "$BAC_TYPE" == "4" ]; then 
+    #   BAC_TYPE="ISO_FULL_TMP"
+    # fi 
 
     load_default_pretty_params_list_backup
     load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
@@ -351,13 +350,13 @@ function gen_dr_file_name () {
 function make_img () {
   local QCOW_FORMAT=$1
   local DR_NAME=$2
-  local DR_SIZE=$3
 
   if [ ! -d "$ARCHDIR" ]; then 
     mkdir -p "$ARCHDIR" 
     chmod 700 "$ARCHDIR"
   fi
-  qemu-img create -f ${QCOW_FORMAT} ${ARCHDIR}/${DR_NAME} ${DR_SIZE}M >> /dev/null 2>&1
+
+  qemu-img create -f ${QCOW_FORMAT} ${ARCHDIR}/${DR_NAME} ${QCOW_VIRTUAL_SIZE} >> /dev/null 2>&1
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
@@ -371,6 +370,40 @@ function make_snap () {
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   fi
 # Return 0 if OK or 1 if NOK
+}
+
+function do_partition () {
+  local DEVICE="$1"
+  local PART_SIZE_MB="$2"
+
+  parted --script "$DEVICE" mklabel gpt mkpart primary 1MB ${PART_SIZE_MB}MB >> /dev/null 2>&1
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+# Return 0 if OK or 1 if NOK
+}
+
+function extend_partition () {
+  local DEVICE="$1"
+  local PARTITION="$2"
+  local PART_SIZE="$3"
+
+  local partition_name="$(echo ${PARTITION} | awk -F'/' '{print $3}')"
+  local number_of_blocks=$(cat /sys/class/block/$partition_name/size)
+  local partition_size_mb=$(echo "$number_of_blocks * 512 / 1000 / 1000" | bc)
+
+  if [ $PART_SIZE -gt $partition_size_mb ]; then
+      parted --script $DEVICE resizepart 1 ${PART_SIZE}MB >> /dev/null 2>&1
+      if [ $? -ne 0 ]; then return 1; fi
+
+      sleep 2
+      e2fsck -y -f $PARTITION >> /dev/null 2>&1
+      if [ $? -ne 0 ]; then return 1; fi
+
+      sleep 2
+      resize2fs $PARTITION >> /dev/null 2>&1
+      if [ $? -ne 0 ]; then return 1; fi
+  fi
+
+  return 0
 }
 
 function do_format_ext4 () {
@@ -617,22 +650,22 @@ function get_backup_protocol_by_backup_id ()
 function get_backup_date_by_backup_id ()
 {
   local BKP_ID=$1
-  local BKP_TYPE=$(get_backup_date_by_backup_id_dbdrv "$BKP_ID")
-  echo $BKP_TYPE
+  local BKP_DATE=$(get_backup_date_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_DATE
 }
 
 function get_backup_duration_by_backup_id ()
 {
   local BKP_ID=$1
-  local BKP_TYPE=$(get_backup_duration_by_backup_id_dbdrv "$BKP_ID")
-  echo $BKP_TYPE
+  local BKP_DURATION=$(get_backup_duration_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_DURATION
 }
 
 function get_backup_size_by_backup_id ()
 {
   local BKP_ID=$1
-  local BKP_TYPE=$(get_backup_size_by_backup_id_dbdrv "$BKP_ID")
-  echo $BKP_TYPE
+  local BKP_SIZE=$(get_backup_size_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_SIZE
 }
 
 function get_backup_client_id_by_backup_id ()
@@ -1085,11 +1118,18 @@ function enable_backup_store_ro () {
     Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (ro)"
   fi
 
+  # Check if exists partition
+  if [ -e  "${NBD_DEVICE}p1" ]; then 
+    NBD_DEVICE_PART="${NBD_DEVICE}p1"
+  else  
+    NBD_DEVICE_PART="$NBD_DEVICE"
+  fi
+
   # Mount image:
-  if do_mount_ext4_ro $NBD_DEVICE $CLI_NAME $CLI_CFG; then
-    Log "- Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
+  if do_mount_ext4_ro $NBD_DEVICE_PART $CLI_NAME $CLI_CFG; then
+    Log "- Mounted $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
   else
-    Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
+    Error "- Problem mounting $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (ro)"
   fi
 
   if [ "$BKP_PROTO" == "NETFS" ]; then

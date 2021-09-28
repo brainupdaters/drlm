@@ -102,7 +102,7 @@ function reload_dhcp() {
           fi
           ;;
         
-        centos|rhel)
+        centos|rhel|rocky)
           # dhcpd listens *only* on interfaces for which it finds subnet
           # declaration in dhcpd.conf. It means that explicitly enumerating interfaces
           # also on command line should not be required in most cases.

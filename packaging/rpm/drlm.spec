@@ -29,6 +29,8 @@ Requires: gawk sed grep
 Requires: coreutils util-linux
 Requires: rpcbind
 Requires: rsync
+Requires: bc
+Requires: parted
 
 ### SUSE packages
 %if %{?suse_version:1}0
@@ -42,7 +44,7 @@ Requires: sqlite3
 %endif
 
 ### RHEL/Fedora/Centos packages
-%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel} || 0%{?rocky})
 Requires: openssh-clients
 Requires: tftp-server
 Requires: qemu-img
@@ -52,10 +54,10 @@ Requires: nfs-utils
 Requires: sqlite
 %endif
 
-%if (0%{?centos} <= 7 || 0%{?rhel} <= 7)
-Requires: dhcp
-%else
+%if (0%{?rocky} || 0%{?centos} > 7 || 0%{?rhel} > 7)
 Requires: dhcp-server
+%else
+Requires: dhcp
 %endif
 
 #Obsoletes:
@@ -186,7 +188,7 @@ if [ "$1" == "2" ]; then
 systemctl is-active --quiet apache2.service && systemctl stop apache2.service
 systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
 %endif
-%if (0%{?centos} || 0%{?fedora} || 0%{?rhel})
+%if (0%{?centos} || 0%{?fedora} || 0%{?rhel} || 0%{?rocky} )
 systemctl is-active --quiet httpd.service && systemctl stop httpd.service
 systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 %endif
@@ -290,7 +292,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Tue Apr 20 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Wed Sep 15 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -314,7 +316,9 @@ systemctl start drlm-tftpd.service
 - Addnetwork, modnetwork and addclient simplified
 - Addnetwork is done automatically when you run addclient
 - DHCP server is managed automatically
-- Improves logs management
+- Improved logs management
+- Debian 11 Support on install client workflow.
+- Rocky Linux 8 server and client support.
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)
