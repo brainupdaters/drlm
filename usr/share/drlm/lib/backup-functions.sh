@@ -387,8 +387,8 @@ function extend_partition () {
   local PART_SIZE="$3"
 
   local partition_name="$(echo ${PARTITION} | awk -F'/' '{print $3}')"
-  local number_of_blocs=$(cat /sys/class/block/$partition_name/size)
-  local partition_size_mb=$(echo "$number_of_blocs * 512 / 1024 / 1024" | bc)
+  local number_of_blocks=$(cat /sys/class/block/$partition_name/size)
+  local partition_size_mb=$(echo "$number_of_blocks * 512 / 1000 / 1000" | bc)
 
   if [ $PART_SIZE -gt $partition_size_mb ]; then
       parted --script $DEVICE resizepart 1 ${PART_SIZE}MB >> /dev/null 2>&1
