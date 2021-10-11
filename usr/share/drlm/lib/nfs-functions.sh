@@ -17,17 +17,23 @@ function configure_nfs_exports ()
   for BACKUPLINE in $(get_active_backups) ; do
     local DR_FILE=$(echo ${BACKUPLINE} | awk -F":" '{ print $3 }')
     local CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
+    local ACTIVE_BKP=$(echo ${BACKUPLINE} | awk -F":" '{ print $5 }')
     local CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
-    local NFS_OPTS=$( echo ${NFS_OPTS} | sed 's|rw,|ro,|' )
+
     local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.${CLI_CFG}.drlm.exports
     local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.${CLI_CFG}.drlm.exports
 
     if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
-      mv ${EXPORT_CLI_NAME_DISABLED} ${EXPORT_CLI_NAME}
-      Log "Enabling NFS export: $EXPORT_CLI_NAME"
-    else
+        rm -f ${EXPORT_CLI_NAME_DISABLED}
+    fi
+
+    if [ $ACTIVE_BKP == "3" ]; then
       echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
-      Log "Enabling NFS export: $EXPORT_CLI_NAME"
+      Log "Enabling NFS export (rw): $EXPORT_CLI_NAME"
+    else
+      local NFS_OPTS=$( echo ${NFS_OPTS} | sed 's|rw,|ro,|' )
+      echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+      Log "Enabling NFS export : $EXPORT_CLI_NAME"
     fi
   done
 }

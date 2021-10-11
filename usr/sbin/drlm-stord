@@ -71,10 +71,17 @@ case "$1" in
       BKP_ID=$(echo ${BACKUPLINE} | awk -F":" '{ print $1 }')
       SNAP_ID=$(get_backup_active_snap_by_backup_id $BKP_ID)
       DR_FILE=$(echo ${BACKUPLINE} | awk -F":" '{ print $3 }')
+      ACTIVE_BKP=$(echo ${BACKUPLINE} | awk -F":" '{ print $5 }')
       CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
       CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
       if ! pgrep -fa $DR_FILE &> /dev/null; then
-        enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+        if [ "$ACTIVE_BKP" == "1" ]; then
+          enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+        elif [ "$ACTIVE_BKP" == "2" ]; then
+          enable_backup_store_rw $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+        elif [ "$ACTIVE_BKP" == "3" ]; then
+          enable_backup_store_rw_full $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+        fi
       else
         Log "Backup $BKP_ID of client $CLI_NAME already enabled"
       fi

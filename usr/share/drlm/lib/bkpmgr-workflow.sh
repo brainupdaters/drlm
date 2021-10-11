@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} bkpmgr )
 
 if [ "$WORKFLOW" == "bkpmgr" ]; then
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:I:edPh" -l "client:,id:,enable,disable,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:I:edwWh" -l "client:,id:,enable,disable,write,full-write,help" -- "$@")"
 
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
@@ -40,6 +40,14 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
 
       (-d|--disable) 
         DISABLE="yes"
+        ;;
+
+      (-w|--write) 
+        WRITE_LOCAL_MODE="yes"
+        ;;
+      
+      (-W|--full-write) 
+        WRITE_FULL_MODE="yes"
         ;;
 
       # (-c|--client) option Not used! Only for compatibility with old versions or demos.
@@ -85,16 +93,34 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
   done
 
   if [ -z "$BKP_ID" ]; then
-    echo "$PROGRAM $WORKFLOW: ENABLE: --client and --id options are required"
+    echo "$PROGRAM $WORKFLOW: --id or -I option (Backup ID to modify) is required"
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
   else
-    if [ -n "$ENABLE" ] && [ -n "$DISABLE" ]; then
-      echo "$PROGRAM $WORKFLOW: Only one option (-d or -e) required!!"
+    num_opts=0
+    
+    if [ -n "$ENABLE" ]; then
+      num_opts=$((num_opts+1))
+    fi
+
+    if [ -n "$DISABLE" ]; then
+      num_opts=$((num_opts+1))
+    fi
+
+    if [ -n "$WRITE_LOCAL_MODE" ]; then
+      num_opts=$((num_opts+1))
+    fi
+
+    if [ -n "$WRITE_FULL_MODE" ]; then
+      num_opts=$((num_opts+1))
+    fi
+
+    if [ "$num_opts" -gt "1" ]; then
+      echo "$PROGRAM $WORKFLOW: Only one option (-d, -e, -w or -W) required!"
       echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
       exit 1
-    elif [ -z "$ENABLE" ] && [ -z "$DISABLE" ]; then
-      echo "$PROGRAM $WORKFLOW: One option (-d or -e) required!!"
+    elif [ -z "$ENABLE" ] && [ -z "$DISABLE" ] && [ -z "$WRITE_LOCAL_MODE" ] && [ -z "$WRITE_FULL_MODE" ]; then
+      echo "$PROGRAM $WORKFLOW: One option (-d, -e, -w or -W) required!"
       echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
       exit 1
     fi
