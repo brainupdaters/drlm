@@ -1,28 +1,35 @@
 # bkpmgr workflow
 
-# Simplificated Truth Table
+# Simplificated Status Table
 ####################################################################
-#  En/Dis  # Is SNAP # BKP Staus # Snap Status # Has Enabled Snaps #
+#  E/D/W   # Is SNAP # BKP Staus # Snap Status # Has Enabled Snaps #
 ####################################################################
-#  Enable  #    -    #     0     #      -      #        -          # *Disable old. Enable DR file
-#  Enable  #    0    #     1     #      -      #        0          # *Nothing to do.
+#  Enable  #    -    #   D or W  #      -      #        -          # *Disable old. Enable DR file
+#  Enable  #    0    #     E     #      -      #        0          # *Nothing to do.
 #  Enable  #    0    #     -     #      -      #        1          # *Disable old. Enable DR file
 #  Enable  #    1    #     -     #      0      #        -          # *Disable old. Enable DR file
-#  Enable  #    1    #     1     #      1      #        -          # *Nothing to do.
-#  Disable #    -    #     0     #      -      #        -          # *Nothing to do.
-#  Disable #    0    #     1     #      -      #        -          # *Disable backup and backup snaps
-#  Disable #    1    #     1     #      0      #        -          # *Nothing to do. 
-#  Disable #    1    #     1     #      1      #        -          # *Disable old. Enable DR file
+#  Enable  #    1    #     E     #      1      #        -          # *Nothing to do.
+
+#  Write   #    -    #   D or E  #      -      #        -          # *Disable old. Enable DR file
+#  Write   #    0    #     W     #      -      #        0          # *Nothing to do.
+#  Write   #    0    #     -     #      -      #        1          # *Disable old. Enable DR file
+#  Write   #    1    #     -     #      -      #        -          # *Nothing to do. (Snaps can only be readable)
+
+#  Disable #    -    #     D     #      -      #        -          # *Nothing to do.
+#  Disable #    0    #    E/W    #      -      #        -          # *Disable backup and backup snaps
+#  Disable #    1    #    E/W    #      0      #        -          # *Nothing to do. 
+#  Disable #    1    #    E/W    #      1      #        -          # *Disable old. Enable DR file
+
 
 # E = 0 - Enable/ 1 - Disable
 # S = 0 - Is Snap/ 1 - Is Backup 
-# B = Backup Enabled / Disabled
+# B = Backup Enabled / Disabled / Write
 # N = Snap Enabled / Disabled
 # H = Has Enabled Sanps / Don't have Enabled Snaps
 
-# Minimal Form (Disable old. Enable DR file) = ESBN + ~E~SH + ~ES~N + ~E~B
+# Minimal Form (Disable old. Enable DR file) = ESBN + ~E~SH + ~ES~N + ~E~B 
 # Minimal Form (Disable backup and backup snaps) = E~SB
-# Minimal Form (Nothing to do) =  ~E~SB~H + ~ESBN + ES~N + E~B
+# Minimal Form (Nothing to do) =  ~E~SB~H + ~ESBN + ES~N + E~B 
 
 LogPrint "Checking if Backup ID or Snap ID ( $BKP_ID ) is registered in DRLM database ..."
 
@@ -55,6 +62,24 @@ if exist_backup_id "$BKP_ID" ; then
   # if the workflow is enable and backup status is enabled and snap is enabled -> Nothing to do!
   if [ "$ENABLE" == "yes" ] && [ -n "$SNAP_ID" ] && [ "$BKP_STATUS" == "1" ] && [ "$SNAP_STATUS" == "1" ]; then
     LogPrint "WARNING! Trying to enable Snap $SNAP_ID of Backup $BKP_ID and it is already enabled!"
+    exit 0
+  fi
+
+  # if the workflow is write and backup status is write and has not enabled snaps -> Nothing to do!
+  if [ "$WRITE_LOCAL_MODE" == "yes" ] && [ -z "$SNAP_ID" ] && [ "$BKP_STATUS" == "2" ] && [ -z "$BKP_ENABLED_SNAP" ]; then
+    LogPrint "WARNING! Trying to enable Backup $BKP_ID in write mode and it is already enabled!"
+    exit 0
+  fi
+
+  # if the workflow is write and backup status is write and has not enabled snaps -> Nothing to do!
+  if [ "$WRITE_FULL_MODE" == "yes" ] && [ -z "$SNAP_ID" ] && [ "$BKP_STATUS" == "3" ] && [ -z "$BKP_ENABLED_SNAP" ]; then
+    LogPrint "WARNING! Trying to enable Backup $BKP_ID in full write mode and it is already enabled!"
+    exit 0
+  fi
+
+  # if the workflow is write and backup status is write and snap is enabled -> Nothing to do!
+  if ( [ "$WRITE_LOCAL_MODE" == "yes" ] || [ "$WRITE_FULL_MODE" == "yes" ] ) && [ -n "$SNAP_ID" ]; then
+    LogPrint "WARNING! Trying to enable Snap $SNAP_ID of Backup $BKP_ID in write mode and snaps are read only!"
     exit 0
   fi
 

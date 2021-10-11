@@ -292,7 +292,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Wed Sep 15 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
+* Mon Oct 11 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported
 - Incremental backups supported
 - ISO recover image supported 
@@ -317,9 +317,10 @@ systemctl start drlm-tftpd.service
 - Addnetwork is done automatically when you run addclient
 - DHCP server is managed automatically
 - Improved logs management
-- Debian 11 Support on install client workflow.
-- Rocky Linux 8 server and client support.
+- Debian 11 Support on install client workflow
+- Rocky Linux 8 server and client support
 - NRDP Nagios Support
+- New write and full write mode in bkpmgr workflow
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

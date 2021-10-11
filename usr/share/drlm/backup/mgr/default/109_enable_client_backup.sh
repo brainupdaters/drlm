@@ -16,10 +16,18 @@ if [ -n "$DR_FILE" ]; then
   fi
 
   # Attach qcow dr file to generated nbd device
-  if enable_nbd_ro $NBD_DEVICE $DR_FILE $SNAP_ID; then
-    LogPrint "- Attached DR File $DR_FILE to NBD Device $NBD_DEVICE (read only)"
+  if [ "$WRITE_LOCAL_MODE" == "yes" ] || [ "$WRITE_FULL_MODE" == "yes" ]; then
+    if enable_nbd_rw $NBD_DEVICE $DR_FILE $SNAP_ID; then
+      LogPrint "- Attached DR File $DR_FILE to NBD Device $NBD_DEVICE (write mode)"
+    else
+      Error "- Problem attaching DR File $DR_FILE to NBD Device $NBD_DEVICE (write mode)"
+    fi
   else
-    Error "- Problem attaching DR File $DR_FILE to NBD Device $NBD_DEVICE (read only)"
+    if enable_nbd_ro $NBD_DEVICE $DR_FILE $SNAP_ID; then
+      LogPrint "- Attached DR File $DR_FILE to NBD Device $NBD_DEVICE (read only)"
+    else
+      Error "- Problem attaching DR File $DR_FILE to NBD Device $NBD_DEVICE (read only)"
+    fi
   fi
 
 # Check if exists partition
@@ -30,31 +38,64 @@ if [ -n "$DR_FILE" ]; then
   fi
 
   # Mount NBD device
-  if do_mount_ext4_ro $NBD_DEVICE_PART $CLI_NAME $CLI_CFG ; then
-    LogPrint "- Mounted NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+  if [ "$WRITE_LOCAL_MODE" == "yes" ] || [ "$WRITE_FULL_MODE" == "yes" ]; then
+    if do_mount_ext4_rw $NBD_DEVICE_PART $CLI_NAME $CLI_CFG ; then
+      LogPrint "- Mounted NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (write mode)"
+    else
+      Error "- Problem mounting NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (write mode)"
+    fi
   else
-    Error "- Problem mounting NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    if do_mount_ext4_ro $NBD_DEVICE_PART $CLI_NAME $CLI_CFG ; then
+      LogPrint "- Mounted NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    else
+      Error "- Problem mounting NBD device $NBD_DEVICE_PART at mount point $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+    fi
   fi
 
-  
-  if [ "$BKP_PROTO" == "NETFS" ]; then
-    # Enable NSF
-    if enable_nfs_fs_ro $CLI_NAME $CLI_CFG ; then
-      LogPrint "- Enabled NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
-    else
-      Error "- Problem enabling NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+  if [ "$WRITE_FULL_MODE" == "yes" ]; then
+    if [ "$BKP_PROTO" == "NETFS" ]; then
+      # Enable NSF
+      if enable_nfs_fs_rw $CLI_NAME $CLI_CFG ; then
+        LogPrint "- Enabled NFS export $STORDIR/$CLI_NAME/$CLI_CFG (write mode)"
+      else
+        Error "- Problem enabling NFS export $STORDIR/$CLI_NAME/$CLI_CFG (write mode)"
+      fi
+    elif [ "$BKP_PROTO" == "RSYNC" ]; then
+      # Enable RSYNC read only mode:
+      if enable_rsync_fs_rw $CLI_NAME $CLI_CFG; then
+        Log "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (write mode)"
+      else
+        Error "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (write mode)"
+      fi
     fi
-  elif [ "$BKP_PROTO" == "RSYNC" ]; then
-    # Enable RSYNC read only mode:
-    if enable_rsync_fs_ro $CLI_NAME $CLI_CFG; then
-      Log "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
-    else
-      Error "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+  else
+    if [ "$BKP_PROTO" == "NETFS" ]; then
+      # Enable NSF
+      if enable_nfs_fs_ro $CLI_NAME $CLI_CFG ; then
+        LogPrint "- Enabled NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+      else
+        Error "- Problem enabling NFS export $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+      fi
+    elif [ "$BKP_PROTO" == "RSYNC" ]; then
+      # Enable RSYNC read only mode:
+      if enable_rsync_fs_ro $CLI_NAME $CLI_CFG; then
+        Log "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+      else
+        Error "- Enabled RSYNC module (ro) for $STORDIR/$CLI_NAME/$CLI_CFG (read only)"
+      fi
     fi
+  fi
+
+  if [ "$WRITE_LOCAL_MODE" == "yes" ]; then
+    ENABLE_MODE=2
+  elif [ "$WRITE_FULL_MODE" == "yes" ]; then
+    ENABLE_MODE=3
+  else
+    ENABLE_MODE=1
   fi
 
   # Set backup as active in the data base
-  if enable_backup_db $BKP_ID ; then
+  if enable_backup_db $BKP_ID $ENABLE_MODE ; then
     LogPrint "- Enabled Backup ID $BKP_ID in the database"
   else
     Error "- Problem enabling Backup ID $BKP_ID in the database"

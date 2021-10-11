@@ -64,7 +64,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.0 (September 2021) - Release Notes
+DRLM Version 2.4.0 (October 2021) - Release Notes
 --------------------------------------------------
   * Multiple configuration supported
  
@@ -114,11 +114,13 @@ DRLM Version 2.4.0 (September 2021) - Release Notes
 
   * Improved logs management
 
-  * Debian 11 Support on install client workflow.
+  * Debian 11 Support on install client workflow
 
-  * Rocky Linux 8 server and client support.
+  * Rocky Linux 8 server and client support
 
   * NRDP Nagios support
+
+  * New write and full write mode in bkpmgr workflow
 
 
 DRLM Version 2.3.2 (December 2020) - Release Notes

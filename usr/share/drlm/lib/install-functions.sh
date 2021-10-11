@@ -263,6 +263,8 @@ function ssh_send_drlm_hostname () {
 }
 
 function create_drlm_var () {
+  # ToDo: Check if client it's a DRLM server. If true, don't modify permissions or DRLM server 
+  # because will broke functionality.
   $SUDO mkdir -p /var/lib/drlm/scripts
   $SUDO chown -R drlm:drlm /var/lib/drlm
   $SUDO chmod -R 700 /var/lib/drlm

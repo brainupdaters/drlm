@@ -23,11 +23,12 @@ drlm (2.4.0) stable release; urgency=high
   * Addnetwork is done automatically when you run addclient
   * DHCP server is managed automatically
   * Improved logs management
-  * Debian 11 Support on install client workflow.
-  * Rocky Linux 8 server and client support.
+  * Debian 11 Support on install client workflow
+  * Rocky Linux 8 server and client support
   * NRDP Nagios Support
+  * New write and full write mode in bkpmgr workflow
 
- -- Pau Roura <pau@brainupdaters.net>  Wed, 15 Sep 2021 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Mon, 11 Oct 2021 00:00:00 +0100
 
 drlm (2.3.2) stable release; urgency=high
   * Fixed wget package dependency (issue #127)

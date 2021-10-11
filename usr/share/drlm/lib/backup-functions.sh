@@ -80,17 +80,15 @@ function list_backup () {
       BAC_PXE=""
     fi 
 
-    # if [ "$BAC_TYPE" == "0" ]; then
-    #   BAC_TYPE="DATA"
-    # elif [ "$BAC_TYPE" == "1" ]; then 
-    #   BAC_TYPE="PXE"
-    # elif [ "$BAC_TYPE" == "2" ]; then 
-    #   BAC_TYPE="ISO"
-    # elif [ "$BAC_TYPE" == "3" ]; then 
-    #   BAC_TYPE="ISO_FULL"
-    # elif [ "$BAC_TYPE" == "4" ]; then 
-    #   BAC_TYPE="ISO_FULL_TMP"
-    # fi 
+    if [ "$BAC_STATUS" == "0" ]; then
+      BAC_STATUS="disabled"
+    elif [ "$BAC_STATUS" == "1" ]; then
+      BAC_STATUS="enabled"
+    elif [ "$BAC_STATUS" == "2" ]; then
+      BAC_STATUS=" write"
+    elif [ "$BAC_STATUS" == "3" ]; then
+      BAC_STATUS="write F"
+    fi
 
     load_default_pretty_params_list_backup
     load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
@@ -113,8 +111,10 @@ function list_backup () {
     if [ "$PRETTY_PARAM" == "true" ]; then
       if [ "$BAC_STATUS" == "enabled" ]; then 
         BAC_STATUS_DEC="\\e[0;32m%-10s\\e[0m"
-      else
+      elif [ "$BAC_STATUS" == "disabled" ]; then 
         BAC_STATUS_DEC="\\e[0;31m%-10s\\e[0m"
+      else
+        BAC_STATUS_DEC="\\e[0;33m%-10s\\e[0m"
       fi
     else
       BAC_STATUS_DEC="%-10s"
@@ -256,7 +256,8 @@ function do_umount ()
 function enable_backup_db ()
 {
   local BKP_ID=$1
-  enable_backup_db_dbdrv "$BKP_ID"
+  local MODE=$2
+  enable_backup_db_dbdrv "$BKP_ID" "$MODE"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
@@ -1063,39 +1064,6 @@ function disable_backup_store () {
   fi
 }
 
-# function enable_backup_store_rw () {
-  
-#   local DR_FILE=$1
-#   local CLI_NAME=$2
-#   local CLI_CFG=$3
-
-#   # Create nbd:
-#   # Get next nbd device free
-#   local NBD_DEVICE="$(get_free_nbd)"
-
-#   Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
-
-#   if enable_nbd_rw $NBD_DEVICE $DR_FILE; then
-#     Log "- Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
-#   else
-#     Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
-#   fi
-
-#   # Mount image:
-#   if do_mount_ext4_rw $NBD_DEVICE $CLI_NAME $CLI_CFG; then
-#     Log "- Mounted $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
-#   else
-#     Error "- Problem mounting $NBD_DEVICE on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
-#   fi
-
-#   # # Enable NFS read/write mode:
-#   # if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
-#   #   Log "- Enabled NFS export (rw)"
-#   # else
-#   #   Error "- Problem enabling NFS export (rw)"
-#   # fi
-# }
-
 function enable_backup_store_ro () {
   
   local DR_FILE=$1
@@ -1145,6 +1113,114 @@ function enable_backup_store_ro () {
       Log "- Enabled RSYNC module (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
     else
       Error "- Enabled RSYNC module (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    fi
+  fi
+  
+}
+
+function enable_backup_store_rw () {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+  local SNAP_ID=$4
+
+  # Create nbd:
+  # Get next nbd device free
+  local NBD_DEVICE="$(get_free_nbd)"
+
+  local BKP_ID="$(get_backup_id_by_drfile $DR_FILE)"
+  local BKP_PROTO="$(get_backup_protocol_by_backup_id $BKP_ID)"
+
+  Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+
+  if enable_nbd_rw $NBD_DEVICE $DR_FILE $SNAP_ID; then
+    Log "- Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
+  else
+    Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
+  fi
+
+  # Check if exists partition
+  if [ -e  "${NBD_DEVICE}p1" ]; then 
+    NBD_DEVICE_PART="${NBD_DEVICE}p1"
+  else  
+    NBD_DEVICE_PART="$NBD_DEVICE"
+  fi
+
+  # Mount image:
+  if do_mount_ext4_rw $NBD_DEVICE_PART $CLI_NAME $CLI_CFG; then
+    Log "- Mounted $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+  else
+    Error "- Problem mounting $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+  fi
+
+  if [ "$BKP_PROTO" == "NETFS" ]; then
+    # Enable NFS read only mode:
+    if enable_nfs_fs_ro $CLI_NAME $CLI_CFG; then
+      Log "- Enabled NFS export (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    else
+      Error "- Problem enabling NFS export (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    fi
+  elif [ "$BKP_PROTO" == "RSYNC" ]; then
+    # Enable RSYNC read only mode:
+    if enable_rsync_fs_ro $CLI_NAME $CLI_CFG; then
+      Log "- Enabled RSYNC module (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    else
+      Error "- Enabled RSYNC module (ro) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    fi
+  fi
+  
+}
+
+function enable_backup_store_rw_full () {
+  
+  local DR_FILE=$1
+  local CLI_NAME=$2
+  local CLI_CFG=$3
+  local SNAP_ID=$4
+
+  # Create nbd:
+  # Get next nbd device free
+  local NBD_DEVICE="$(get_free_nbd)"
+
+  local BKP_ID="$(get_backup_id_by_drfile $DR_FILE)"
+  local BKP_PROTO="$(get_backup_protocol_by_backup_id $BKP_ID)"
+
+  Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+
+  if enable_nbd_rw $NBD_DEVICE $DR_FILE $SNAP_ID; then
+    Log "- Attached DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
+  else
+    Error "- Problem attaching DR file $DR_FILE to NBD Device $NBD_DEVICE (rw)"
+  fi
+
+  # Check if exists partition
+  if [ -e  "${NBD_DEVICE}p1" ]; then 
+    NBD_DEVICE_PART="${NBD_DEVICE}p1"
+  else  
+    NBD_DEVICE_PART="$NBD_DEVICE"
+  fi
+
+  # Mount image:
+  if do_mount_ext4_rw $NBD_DEVICE_PART $CLI_NAME $CLI_CFG; then
+    Log "- Mounted $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+  else
+    Error "- Problem mounting $NBD_DEVICE_PART on $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
+  fi
+
+  if [ "$BKP_PROTO" == "NETFS" ]; then
+    # Enable NFS read only mode:
+    if enable_nfs_fs_rw $CLI_NAME $CLI_CFG; then
+      Log "- Enabled NFS export (rw) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    else
+      Error "- Problem enabling NFS export (rw) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    fi
+  elif [ "$BKP_PROTO" == "RSYNC" ]; then
+    # Enable RSYNC read only mode:
+    if enable_rsync_fs_rw $CLI_NAME $CLI_CFG; then
+      Log "- Enabled RSYNC module (rw) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
+    else
+      Error "- Enabled RSYNC module (rw) for ${STORDIR}/${CLI_NAME}/${CLI_CFG}"
     fi
   fi
   

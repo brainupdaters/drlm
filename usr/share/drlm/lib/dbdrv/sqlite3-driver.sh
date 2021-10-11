@@ -534,16 +534,16 @@ function get_active_cli_bkp_from_db_dbdrv ()
   local CLI_CFG=$2
 
   if [ -n "$CLI_CFG" ]; then
-    BKP_ID=$(echo "select idbackup from backups where clients_id='${CLI_ID}' and active=1 and config='${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    BKP_ID=$(echo "select idbackup from backups where clients_id='${CLI_ID}' and active in (1,2,3) and config='${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   else
-    BKP_ID=$(echo "select idbackup from backups where clients_id='${CLI_ID}' and active=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    BKP_ID=$(echo "select idbackup from backups where clients_id='${CLI_ID}' and active in (1,2,3);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   fi
   echo $BKP_ID
 }
 
 function get_active_cli_rescue_from_db_dbdrv () {
   local CLI_ID=$1
-  echo $(echo "select idbackup from backups where clients_id='${CLI_ID}' and active=1 and type='PXE';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $(echo "select idbackup from backups where clients_id='${CLI_ID}' and active in (1,2,3) and type='PXE';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
 function get_active_cli_pxe_from_db_dbdrv () {
@@ -552,13 +552,19 @@ function get_active_cli_pxe_from_db_dbdrv () {
 }
 
 function get_all_backups_dbdrv () {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function enable_backup_db_dbdrv ()
 {
   local BKP_ID=$1
-  echo "update backups set active=1 where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  local MODE=$2
+
+  if [ -z "$MODE" ]; then
+    MODE=1
+  fi
+
+  echo "update backups set active=$MODE where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -630,7 +636,7 @@ function get_count_active_backups_by_client_dbdrv ()
 {
   local CLI_NAME=$1
   local CLI_CFG=$2
-  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and active=1 and config = '${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and active in (1,2,3) and config = '${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo "$A_BKP"
 }
 
@@ -708,7 +714,7 @@ function get_all_backup_id_by_client_dbdrv () {
 function get_all_backup_enabled_id_by_client_dbdrv () {
   local CLI_NAME=$1
   local COMP=$2
-  local ID_LIST=$(echo "select idbackup from backups where active='1' and drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local ID_LIST=$(echo "select idbackup from backups where active in (1,2,3) and drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
@@ -754,13 +760,25 @@ function get_all_backup_id_dbdrv () {
 
 function get_all_backup_enabled_id_dbdrv () {
   local COMP=$1
-  local ID_LIST=$(echo "select idbackup from backups where active='1' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local ID_LIST=$(echo "select idbackup from backups where active in (1,2,3) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
-function get_all_backup_disabled_id_dbdrv () {
+function get_all_not_enable_backup_id_dbdrv () {
   local COMP=$1
-  local ID_LIST=$(echo "select idbackup from backups where active='0' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local ID_LIST=$(echo "select idbackup from backups where active in (0,2,3) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_not_write_backup_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active in (0,1,3) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_not_full_write_backup_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active in (0,1,2) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
@@ -937,7 +955,7 @@ function get_older_backup_by_client_dbdrv() {
 
 function get_active_backups_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::",config,":",type,":" from backups where active=1;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::",config,":",type,":" from backups where active in (1,2,3);' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 

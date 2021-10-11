@@ -744,25 +744,43 @@ __drlm_instclient ()
 
 __drlm_bkpmgr ()
 {
-	local options_s="-c -I -e -d -h"
-	local options_l="--client --id --enable --disable --help"
+	local options_s="-c -I -e -d -w -W -h"
+	local options_l="--client --id --enable --disable --write --full-write --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I -e -d"
-		local options_l="--id --enable --disable"
+		local options_s="-I -e -d -w -W"
+		local options_l="--id --enable --disable --write"
 		if __drlm_exist_option "-e --enable" "$workflow"; then
 			local options_s="-I -e"
 			local options_l="--id --enable"
 		elif __drlm_exist_option "-d --disable" "$workflow"; then
 			local options_s="-I -d"
 			local options_l="--id --disable"
+    elif __drlm_exist_option "-w --write" "$workflow"; then
+			local options_s="-I -w"
+			local options_l="--id --write"
+    elif __drlm_exist_option "-W --full-write" "$workflow"; then
+			local options_s="-I -W"
+			local options_l="--id --full-write"
 		fi
+  elif __drlm_exist_option "-e --enable" "$workflow"; then
+    local options_s="-I -e"
+    local options_l="--id --enable"
+  elif __drlm_exist_option "-d --disable" "$workflow"; then
+    local options_s="-I -d"
+    local options_l="--id --disable"
+  elif __drlm_exist_option "-w --write" "$workflow"; then
+    local options_s="-I -w"
+    local options_l="--id --write"
+  elif __drlm_exist_option "-W --full-write" "$workflow"; then
+    local options_s="-I -W"
+    local options_l="--id --full-write"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -I -e -d"
-		local options_l="--client --id --enable --disable"
+		local options_s="-c -I -e -d -w -W"
+		local options_l="--client --id --enable --disable --write --full-write"
 	fi
 
 	case "$prev" in
@@ -823,7 +841,7 @@ __drlm_bkpmgr ()
         fi
       else
         if __drlm_exist_option "-e --enable" "$workflow"; then
-          query=$(get_all_backup_disabled_id_dbdrv "$cur")
+          query=$(get_all_not_enable_backup_id_dbdrv "$cur")
           local i=0
           for result in $query; do
             COMPREPLY[i++]="$result"
@@ -839,6 +857,18 @@ __drlm_bkpmgr ()
             COMPREPLY[i++]="$result"
           done
           query=$(get_all_snap_enabled_id_dbdrv "$cur")
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        elif __drlm_exist_option "-w --write" "$workflow"; then
+          query=$(get_all_not_write_backup_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        elif __drlm_exist_option "-W --full-write" "$workflow"; then
+          query=$(get_all_not_full_write_backup_id_dbdrv "$cur")
+          local i=0
           for result in $query; do
             COMPREPLY[i++]="$result"
           done
