@@ -118,6 +118,8 @@ DRLM Version 2.4.0 (September 2021) - Release Notes
 
   * Rocky Linux 8 server and client support.
 
+  * NRDP Nagios support
+
 
 DRLM Version 2.3.2 (December 2020) - Release Notes
 --------------------------------------------------

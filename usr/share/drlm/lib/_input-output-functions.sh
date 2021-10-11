@@ -113,7 +113,7 @@ Error() {
 
   # If drlm workflow is launched from scheluder we have to check if error_reporting is enabled
   if [ "$DRLM_IS_SCHEDULED" == "true" ]; then
-    report_error "$(Stamp)$PROGRAM:$WORKFLOW:ERROR: $*"
+    report_error "$(Stamp)$PROGRAM:$WORKFLOW:$CLI_NAME:ERROR: $*"
   fi
 
   LogPrint "ERROR: $*"

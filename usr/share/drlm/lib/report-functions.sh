@@ -74,6 +74,40 @@ function report_error_nsca () {
         fi
 }
 
+function crea_nrpd_nagios_xml() {                                                                                                       
+cat > /tmp/drlm_nrdp.xml << EOF                                                                                                         
+<?xml version='1.0'?>                                                                                                                   
+<checkresults>                                                                                                                          
+ <checkresult type="service" checktype="1">                                                                                             
+   <hostname>${NAGHOST}</hostname>                                                                                                      
+   <servicename>${NAGSVC}</servicename>                                                                                                 
+   <state>2</state>                                                                                                                     
+   <output>${ERRMSG}</output>                                                                                                           
+ </checkresult>                                                                                                                         
+</checkresults>                                                                                                                         
+EOF                                                                                                                                     
+} 
+
+function report_error_nrdp () {                                                                                                         
+# Report $ERR_MSG through nrdp                                                                                                          
+# Return 0 for ok, return 1 not ok                                                                                                      
+                                                                                                                                        
+   local ERRMSG=$( echo "$@" | tr "\\n" " - " )                                                                                         
+   local CMDOUT                                                                                                                         
+   local pdata="token=${NRDPTOKEN}&cmd=submitcheck"                                                                                     
+   crea_nrpd_nagios_xml                                                                                                                 
+   if [[ -x "$NRDPCMD" ]]; then                                                                                                        
+       CMDOUT=$( "$NRDPCMD" -f --silent --insecure -d "${pdata}" --data-urlencode XMLDATA@/tmp/drlm_nrdp.xml "${NRDPURL}" )            
+               if [ $? -eq 0 ]; then                                                                                                   
+                  return 0                                                                                                             
+               else                                                                                                                    
+                  return 1                                                                                                             
+               fi                                                                                                                      
+    else                                                                                                                               
+               LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"    
+    fi                                                                                                                                 
+}       
+
 function report_error_zabbix () {
 # Report $ERR_MSG through zabbix
 # Return 0 for ok, return 1 not ok

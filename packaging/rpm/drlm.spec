@@ -319,6 +319,7 @@ systemctl start drlm-tftpd.service
 - Improved logs management
 - Debian 11 Support on install client workflow.
 - Rocky Linux 8 server and client support.
+- NRDP Nagios Support
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)
