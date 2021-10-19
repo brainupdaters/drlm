@@ -524,6 +524,8 @@ function del_all_snaps_by_backup_id_dbdrv () {
 function del_all_db_client_backup_dbdrv ()
 {
     local CLI_ID=$1
+    echo "delete from snaps where idbackup in ( select idbackup from backups where clients_id='$CLI_ID' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -ne 0 ]; then return 1; fi
     echo "delete from backups where clients_id='$CLI_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
@@ -751,6 +753,11 @@ function get_all_snap_disabled_id_by_client_dbdrv () {
 #   local ID_LIST=$(echo "select idsnap from snaps where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 #   echo $ID_LIST
 # }
+
+function get_all_snaps_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  echo $(echo "select * from snaps where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
 
 function get_all_backup_id_dbdrv () {
   local COMP=$1

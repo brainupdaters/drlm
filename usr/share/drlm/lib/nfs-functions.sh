@@ -41,13 +41,25 @@ function configure_nfs_exports ()
 #Disables the NFS configuration file from $NFS_DIR (Used in drlm-stord)
 function unconfigure_nfs_exports ()
 {
-  # Disable all DRLM nfs exports found in $NFS_DIR
-  for FILE_EXPORTS in $( ls ${NFS_DIR}/exports.d/ | grep '\.drlm.exports$'); do 
-    EXPORT_CLI_NAME="${NFS_DIR}/exports.d/$FILE_EXPORTS"
-    EXPORT_CLI_NAME_DISABLED="${NFS_DIR}/exports.d/.$FILE_EXPORTS"
-    Log "Disabling NFS export: $EXPORT_CLI_NAME" 
-    mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
-  done
+  local CLI_NAME=$1
+
+  if [ -n "$CLI_NAME" ]; then
+    # Disable client DRLM nfs exports found in $NFS_DIR
+    for FILE_EXPORTS in $( ls ${NFS_DIR}/exports.d/ | grep "^$CLI_NAME."); do 
+      EXPORT_CLI_NAME="${NFS_DIR}/exports.d/$FILE_EXPORTS"
+      EXPORT_CLI_NAME_DISABLED="${NFS_DIR}/exports.d/.$FILE_EXPORTS"
+      Log "Disabling NFS export: $EXPORT_CLI_NAME" 
+      mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
+    done
+  else
+    # Disable all DRLM nfs exports found in $NFS_DIR
+    for FILE_EXPORTS in $( ls ${NFS_DIR}/exports.d/ | grep '\.drlm.exports$'); do 
+      EXPORT_CLI_NAME="${NFS_DIR}/exports.d/$FILE_EXPORTS"
+      EXPORT_CLI_NAME_DISABLED="${NFS_DIR}/exports.d/.$FILE_EXPORTS"
+      Log "Disabling NFS export: $EXPORT_CLI_NAME" 
+      mv ${EXPORT_CLI_NAME} ${EXPORT_CLI_NAME_DISABLED}
+    done
+  fi
 }
 
 function enable_nfs_fs_ro ()

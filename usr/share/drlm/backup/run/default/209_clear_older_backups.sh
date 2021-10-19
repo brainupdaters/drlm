@@ -72,7 +72,16 @@ if [ "$DRLM_INCREMENTAL" == "yes" ]; then
   fi
 fi
 
-# Disable current backup in Read only mode 
-enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
-
-LogPrint "DRLM Store switched from read/write to read only"
+# Enable current backup in DRLM_DEFAULT_BKP_STATUS mode 
+if [ "$DRLM_DEFAULT_BKP_STATUS" == "enabled" ]; then
+  enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG
+  LogPrint "DRLM Store switched from read/write to read only"
+elif [ "$DRLM_DEFAULT_BKP_STATUS" == "write" ]; then
+  enable_backup_store_rw $DR_FILE $CLI_NAME $CLI_CFG
+  LogPrint "DRLM Store switched from read/write to local read/write only"
+elif [ "$DRLM_DEFAULT_BKP_STATUS" == "full-write" ]; then
+  enable_backup_store_rw_full $DR_FILE $CLI_NAME $CLI_CFG
+  LogPrint "DRLM Store switched from read/write to local and remote read/write only"
+else
+  LogPrint "DRLM Store switched from read/write to disabled"
+fi

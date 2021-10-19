@@ -321,6 +321,9 @@ systemctl start drlm-tftpd.service
 - Rocky Linux 8 server and client support
 - NRDP Nagios Support
 - New write and full write mode in bkpmgr workflow
+- Configurable backup status after runbackup (enabled, disabled, write or full-write mode)
+- Information improvements and new one client mode in drlm-stord
+- Encrypted backup files
 
 * Mon Dec 28 2020 Pau Roura <pau@brainupdaters.net> 2.3.2
 - Fixed wget package dependency (issue #127)

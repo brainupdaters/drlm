@@ -129,31 +129,24 @@ __drlm_addnetwork ()
 
 __drlm_addclient ()
 {
-	local options_s="-i -c -M -n -I -u -U -r -C -h"
-	local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --repo --config --help"
+	local options_s="-i -c -M -I -u -U -r -C -h"
+	local options_l="--ipaddr --client --macaddr --installclient --user --url_rear --repo --config --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --installclient" "$workflow"; then
 		local options_s="-i -c -M -n -I -u -U -r -C"
-		local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --repo --config"
+		local options_l="--ipaddr --client --macaddr --installclient --user --url_rear --repo --config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
 		local options_s="-i -c -M -n -I"
-		local options_l="--ipaddr --client --macaddr --netname --installclient"
+		local options_l="--ipaddr --client --macaddr --installclient"
 	else
 		local options_s="-i -c -M -n -I -h"
-		local options_l="--ipaddr --client --macaddr --netname --installclient --help"
+		local options_l="--ipaddr --client --macaddr --installclient --help"
 	fi
 
 	case "$prev" in
-		-n | --netname)
-			local i=0
-			query=$(get_all_network_names_dbdrv "$cur")
-			for result in $query; do
-				COMPREPLY[i++]="$result"
-			done
-			;;
 		-I | --installclient)
 			__drlmcomp3 "$options_s" "$options_l"
 			;;
@@ -492,8 +485,8 @@ __drlm_listclient ()
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-n -p"
-		local options_l="--netname --pretty"
+		local options_s="-U -p"
+		local options_l="--unsched --pretty"
 	elif __drlm_exist_option "-A --all" "$workflow"; then
 		local options_s="-A -U -p"
 		local options_l="--all --unsched --pretty"

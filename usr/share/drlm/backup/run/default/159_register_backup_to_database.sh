@@ -46,12 +46,24 @@
 #     CLI_REAR_PXE_FILE (Client ReaR PXE file)
 #     CLI_KERNEL_OPTS   (Client Kernel options)
 
+if [ "$DRLM_DEFAULT_BKP_STATUS" == "disabled" ]; then
+  ENABLE_MODE=0
+elif [ "$DRLM_DEFAULT_BKP_STATUS" == "enabled" ]; then
+  ENABLE_MODE=1
+elif [ "$DRLM_DEFAULT_BKP_STATUS" == "write" ]; then
+  ENABLE_MODE=2
+elif [ "$DRLM_DEFAULT_BKP_STATUS" == "full-write" ]; then
+  ENABLE_MODE=3
+else
+  ENABLE_MODE=0
+fi
+
 if [ "$DRLM_INCREMENTAL" != "yes" ]; then  
-  BKP_IS_ACTIVE="1"
+  BKP_IS_ACTIVE=$ENABLE_MODE
   BKP_SIZE=$(du -h $ARCHDIR/$DR_FILE | cut -f1)
   BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )" 
 
-  if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
+  if [ "$DRLM_BKP_TYPE" == "PXE" ] && [ "$DRLM_DEFAULT_BKP_STATUS" != "disabled" ]; then
     ACTIVE_PXE=1
   else 
     ACTIVE_PXE=0
@@ -65,14 +77,14 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
 else 
 
   # If incremental set backup as active in the data base
-  if enable_backup_db $BKP_BASE_ID ; then
-    Log "Enabled backup $BKP_BASE_ID in the database"
+  if enable_backup_db $BKP_BASE_ID $ENABLE_MODE ; then
+    Log "Enabled backup $BKP_BASE_ID in $DRLM_DEFAULT_BKP_STATUS mode in the database"
   else
-    Error "Problem enabling backup $BKP_BASE_ID in database"
+    Error "Problem enabling backup $BKP_BASE_ID in $DRLM_DEFAULT_BKP_STATUS mode in database"
   fi
 
   # Check if is a PXE rescue backup and if true enable PXE in the database
-  if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
+  if [ "$DRLM_BKP_TYPE" == "PXE" ] && [ "$DRLM_DEFAULT_BKP_STATUS" != "disabled" ]; then
     if enable_pxe_db $BKP_BASE_ID; then
       Log "Enabled PXE of backup $BKP_BASE_ID in the database"
     else

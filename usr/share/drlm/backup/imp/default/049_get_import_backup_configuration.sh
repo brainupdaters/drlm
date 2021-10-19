@@ -28,9 +28,16 @@ if [ -n "$BKP_SRC" ]; then
   # Get a free NBD device
   NBD_DEVICE=$(get_free_nbd)
   if [ $? -ne 0 ]; then Error "Error getting a free NBD"; fi
+
   # Attach DR file to a NBD
-  qemu-nbd -c $NBD_DEVICE $BKP_SRC -r --cache=none --aio=native >> /dev/null 2>&1
-  if [ $? -ne 0 ]; then Error "Error attching $BKP_SRC to $NBD_DEVICE"; fi
+  if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC} -r --cache=none --aio=native >> /dev/null 2>&1
+    if [ $? -ne 0 ]; then Error "Error attching $BKP_SRC to $NBD_DEVICE"; fi
+  else
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} >> /dev/null 2>&1
+    if [ $? -ne 0 ]; then Error "Error attching encrypted $BKP_SRC to $NBD_DEVICE"; fi
+  fi
+
   # Check if exists partition
   if [ -e  "${NBD_DEVICE}p1" ]; then 
     NBD_DEVICE_PART="${NBD_DEVICE}p1"

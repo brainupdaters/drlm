@@ -74,7 +74,8 @@ function report_error_nsca () {
         fi
 }
 
-function crea_nrpd_nagios_xml() {                                                                                                       
+function crea_nrpd_nagios_xml() {  
+
 cat > /tmp/drlm_nrdp.xml << EOF                                                                                                         
 <?xml version='1.0'?>                                                                                                                   
 <checkresults>                                                                                                                          
@@ -85,8 +86,9 @@ cat > /tmp/drlm_nrdp.xml << EOF
    <output>${ERRMSG}</output>                                                                                                           
  </checkresult>                                                                                                                         
 </checkresults>                                                                                                                         
-EOF                                                                                                                                     
-} 
+EOF
+
+}
 
 function report_error_nrdp () {                                                                                                         
 # Report $ERR_MSG through nrdp                                                                                                          
@@ -149,30 +151,32 @@ function report_error_mail () {
 function report_error () {
 # triggers the correct reporting type $REPORT_TYPE [ ovo|nsca-ng|nsca|zabbix|mail ]
 # Return 0 for ok return 1 not ok
-   local ERRMSG="$@"
+  local ERRMSG="$@"
 
-   if error_reporting ;
-   then
-      case $REPORT_TYPE in
-         ovo)
-            return $(report_error_ovo "$ERRMSG")
-         ;;
-         nsca-ng)
-            return $(report_error_nsca-ng "$ERRMSG")
-         ;;
-         nsca)
-            return $(report_error_nsca "$ERRMSG")
-         ;;
-         zabbix)
-            return $(report_error_zabbix "$ERRMSG")
-         ;;
-         mail)
-            return $(report_error_mail "$ERRMSG")
-         ;;
-         *)
-            return 1
-         ;;
-      esac
-   fi
+  if error_reporting; then
+    case $REPORT_TYPE in
+      ovo)
+        return $(report_error_ovo "$ERRMSG")
+        ;;
+      nsca-ng)
+        return $(report_error_nsca-ng "$ERRMSG")
+        ;;
+      nsca)
+        return $(report_error_nsca "$ERRMSG")
+        ;;
+      nrdp)
+        return $(report_error_nrdp "$ERRMSG")
+        ;;
+      zabbix)
+        return $(report_error_zabbix "$ERRMSG")
+        ;;
+      mail)
+        return $(report_error_mail "$ERRMSG")
+        ;;
+      *)
+        return 1
+        ;;
+    esac
+  fi
 }
 

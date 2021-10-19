@@ -125,38 +125,29 @@ function list_backup () {
     fi
 
     # Check if BAC_ID have snapshots and list them
-    if [ "$(qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | wc -l)" -gt "0" ] && [ "$CLI_NAME_REC" == "all" ] || [ "$CLI_ID" == "$CLI_BAC_ID" ]; then
-      # line_counter=0
-      found_enabled=0
-      SNAP_TYPE="$BAC_TYPE (Snap)"
-      #while....
-      qemu-img snapshot -l ${ARCHDIR}/${BAC_FILE} | sed -e '1,2d' | sort -r | while read snap_line ; do
-        SNAP_ID="$(echo $snap_line | awk '{print $2}')"
-        # SNAP_DATE="$(echo $snap_line | awk '{print $4}') $(echo $snap_line | awk '{print $5}' | awk -F':' '{ printf ("%s:%s\n", $1, $2) }')"
-        SNAP_DATE="$(get_snap_date_by_snap_id $SNAP_ID)"
-        SNAP_DAY="$(echo $SNAP_DATE|cut -c1-8)"
-        SNAP_TIME="$(echo $SNAP_DATE|cut -c9-12)"
-        SNAP_DATE="$(date --date "$SNAP_DAY $SNAP_TIME" "+%Y-%m-%d %H:%M")"
-        SNAP_STATUS="$(get_snap_status_by_snap_id $SNAP_ID)"
-        
-        if [ "$BAC_STATUS" == "enabled" ]; then
-          if [ "$SNAP_STATUS" == "1" ]; then
-            SNAP_STATUS="   @"
-            found_enabled=1
-          else
-            [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
-          fi
-        else
-          SNAP_STATUS=""
-        fi
+    found_enabled=0
+    SNAP_TYPE="$BAC_TYPE (Snap)"
 
-        SNAP_DURA="$(get_snap_duration_by_snap_id $SNAP_ID)"
-        SNAP_SIZE="$(get_snap_size_by_snap_id $SNAP_ID)"
-        SNAP_PXE=""
-        
-        printf '%-4s %-31s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "$CLI_CFG" " └─$SNAP_TYPE";
-      done
-    fi
+    for snap_line in $(get_all_snaps_by_backup_id_dbdrv $BAC_ID); do
+      SNAP_ID="$(echo $snap_line | awk -F'|' '{print $2}')"
+      SNAP_DATE="$(date --date "$(echo $snap_line | awk -F'|' '{print $3}' | sed 's/.\{8\}/& /g')" "+%Y-%m-%d %H:%M")"
+      SNAP_STATUS="$(echo $snap_line | awk -F'|' '{print $4}')"
+      SNAP_DURA="$(echo $snap_line | awk -F'|' '{print $5}')"
+      SNAP_SIZE="$(echo $snap_line | awk -F'|' '{print $6}')"
+      SNAP_PXE=" "
+
+      if [ "$BAC_STATUS" == "disabled" ]; then
+        SNAP_STATUS=""
+      else
+        if [ "$SNAP_STATUS" == "1" ]; then
+          SNAP_STATUS="   @"
+          found_enabled=1
+        else
+          [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
+        fi
+      fi
+      printf '%-4s %-31s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "$CLI_CFG" " └─$SNAP_TYPE";
+    done
 
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
@@ -181,11 +172,23 @@ function enable_nbd_ro () {
   # when we are trying to get the NBD or DR_FILE from a grep if there the 
   # paremeters are in diferent order we can not obtain correctly them.
   if [ -n "$SNAP_ID" ]; then
-    qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native -l $SNAP_ID >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+      #qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native -l $SNAP_ID >> /dev/null 2>&1
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native -l $SNAP_ID >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    else
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native -l $SNAP_ID --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    fi
   else 
-    qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+      #qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native >> /dev/null 2>&1
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    else
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    fi
   fi
   # Return 0 if OK or 1 if NOK
 }
@@ -197,8 +200,14 @@ function enable_nbd_rw () {
   # It is important to put the parameters in this oder.
   # when we are trying to get the NBD or DR_FILE from a grep if there the 
   # paremeters are in diferent order we can not obtain correctly them.
-  qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
-  if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+  if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+    #qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
+    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
+    if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+  else
+    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 --cache=none --aio=native --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} >> /dev/null 2>&1
+    if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+  fi
   # Return 0 if OK or 1 if NOK
 }
 
@@ -357,8 +366,13 @@ function make_img () {
     chmod 700 "$ARCHDIR"
   fi
 
-  qemu-img create -f ${QCOW_FORMAT} ${ARCHDIR}/${DR_NAME} ${QCOW_VIRTUAL_SIZE} >> /dev/null 2>&1
-  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+    qemu-img create -f ${QCOW_FORMAT} ${ARCHDIR}/${DR_NAME} ${QCOW_VIRTUAL_SIZE} >> /dev/null 2>&1
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  else
+    qemu-img create --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} -f ${QCOW_FORMAT} -o encrypt.format=luks,encrypt.key-secret=sec0 ${ARCHDIR}/${DR_NAME} ${QCOW_VIRTUAL_SIZE} >> /dev/null 2>&1
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  fi
 # Return 0 if OK or 1 if NOK
 }
 
@@ -367,8 +381,13 @@ function make_snap () {
   local DR_FILE=$2
 
   if [ -n "$ARCHDIR" ] && [ -n "$SNAP_ID" ] && [ -n "$DR_FILE" ]; then
-    qemu-img snapshot -c $SNAP_ID ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+    if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+      qemu-img snapshot -c $SNAP_ID ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then return 0; else return 1; fi
+    else
+      qemu-img snapshot -c $SNAP_ID --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then return 0; else return 1; fi
+    fi
   fi
 # Return 0 if OK or 1 if NOK
 }
@@ -377,7 +396,7 @@ function do_partition () {
   local DEVICE="$1"
   local PART_SIZE_MB="$2"
 
-  parted --script "$DEVICE" mklabel gpt mkpart primary 1MB ${PART_SIZE_MB}MB >> /dev/null 2>&1
+  parted --script "$DEVICE" mklabel gpt mkpart primary 10MB ${PART_SIZE_MB}MB >> /dev/null 2>&1
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 # Return 0 if OK or 1 if NOK
 }
@@ -517,20 +536,33 @@ function del_dr_snap () {
   local DR_FILE="$2"
 
   if [ -n "$ARCHDIR" ] && [ -n "$SNAP_ID" ] && [ -n "$DR_FILE" ]; then
-    qemu-img snapshot -d "$SNAP_ID" "$ARCHDIR"/"$DR_FILE" >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+    if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+      qemu-img snapshot -d "$SNAP_ID" "$ARCHDIR"/"$DR_FILE" >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then return 0; else return 1; fi
+    else
+      qemu-img snapshot -d "$SNAP_ID" --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} --image-opts driver=qcow2,file.filename="$ARCHDIR"/"$DR_FILE",encrypt.format=luks,encrypt.key-secret=sec0 >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then return 0; else return 1; fi
+    fi
   fi
 }
 
 function del_all_dr_snaps () {
   local DR_FILE="$1"
   local ERR=0
-
-  for SNAP_IDENT in $(qemu-img snapshot -l "$ARCHDIR"/"$DR_FILE" | sed -e '1,2d' | awk '{print $2}'); do
-    del_dr_snap "$SNAP_IDENT" "$DR_FILE"
-    [ $? -eq 0 ] || ERR=1
-  done
-  if [ $ERR -eq 0 ]; then return 0; else return 1; fi
+  if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
+    for SNAP_IDENT in $(qemu-img snapshot -l "$ARCHDIR"/"$DR_FILE" | sed -e '1,2d' | awk '{print $2}'); do
+      del_dr_snap "$SNAP_IDENT" "$DR_FILE"
+      [ $? -eq 0 ] || ERR=1
+      if [ $ERR -eq 0 ]; then return 0; else return 1; fi
+    done
+  else
+    for SNAP_IDENT in $(qemu-img snapshot -l --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} --image-opts driver=qcow2,file.filename="$ARCHDIR"/"$DR_FILE",encrypt.format=luks,encrypt.key-secret=sec0 | sed -e '1,2d' | awk '{print $2}'); do
+      del_dr_snap "$SNAP_IDENT" "$DR_FILE"
+      [ $? -eq 0 ] || ERR=1
+      if [ $ERR -eq 0 ]; then return 0; else return 1; fi
+    done
+  fi
+  
 }
 
 function del_all_db_client_backup () {

@@ -65,8 +65,15 @@ EOF
 }
 
 function unconfigure_rsync_modules () {
-  rm -f ${RSYNC_DIR}/rsyncd.d/*
-  if [ ${?} -eq 0 ]; then return 0; else return 1; fi
+  local CLI_NAME=$1
+
+  if [ -n "$CLI_NAME" ]; then
+    rm -f ${RSYNC_DIR}/rsyncd.d/$CLI_NAME*
+    if [ ${?} -eq 0 ]; then return 0; else return 1; fi
+  else
+    rm -f ${RSYNC_DIR}/rsyncd.d/*
+    if [ ${?} -eq 0 ]; then return 0; else return 1; fi
+  fi
 }
 
 function del_rsync_modules ()
