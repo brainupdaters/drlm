@@ -122,6 +122,12 @@ DRLM Version 2.4.0 (October 2021) - Release Notes
 
   * New write and full write mode in bkpmgr workflow
 
+  * Configurable backup status after runbackup (enabled, disabled, write or full-write mode)
+
+  * Information improvements and new one client mode in drlm-stord
+
+  * Encrypted backup files
+
 
 DRLM Version 2.3.2 (December 2020) - Release Notes
 --------------------------------------------------

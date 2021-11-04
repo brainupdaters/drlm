@@ -35,7 +35,6 @@ function addclienthelp() {
   printf "$(tput bold)Options:\n$(tput sgr0)"
   printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client name to add"
   printf '%-25s %-45s\n' "-M|--macaddr <MAC>" "Client MAC address"
-  printf '%-25s %-45s\n' "-n|--netname <NET>" "Client NETWORK"
   printf "\n"
   printf "$(tput bold)InstallClient Options:\n$(tput sgr0)"
   printf '%-25s %-45s\n' "-I|--installclient" "Install ReaR and configure client to be managed by DRLM"
@@ -50,9 +49,9 @@ function addclienthelp() {
   printf "$(tput bold)Examples:\n$(tput sgr0)"
   printf "drlm addclient -i|--ipaddr <cli_ip>/<cidr>\n"
   printf "  or\n"
-  printf "drlm addclient -c|--client <cli_name> -i|--ipaddr <cli_ip> -M|--macaddr <cli_mac> -n|--netname <net_name>\n"
+  printf "drlm addclient -c|--client <cli_name> -i|--ipaddr <cli_ip> -M|--macaddr <cli_mac>\n"
   printf "$(tput bold)Example with installClient:\n$(tput sgr0)"
-  printf "drlm addclient -c|--client <cli_name> -i|--ipaddr <cli_ip> -M|--macaddr <cli_mac> -n|--netname <net_name> -I|--installclient -u|--user <user> -U|--url_rear <URL ReaR package>\n"
+  printf "drlm addclient -c|--client <cli_name> -i|--ipaddr <cli_ip> -M|--macaddr <cli_mac> -I|--installclient -u|--user <user> -U|--url_rear <URL ReaR package>\n"
   printf "\n"
 }
 

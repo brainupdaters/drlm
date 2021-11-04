@@ -481,6 +481,11 @@ function tunning_rear () {
   if [ -f "/usr/share/rear/lib/drlm-functions.sh" ]; then
     $SUDO sed -i 's/ $verbose//g' /usr/share/rear/lib/drlm-functions.sh
   fi
+  
+  # Solve SELinux autorelabel after recover (RSYNC)
+  if [ -f "/usr/share/rear/restore/default/500_selinux_autorelabel.sh" ]; then
+    $SUDO sed -i '/^touch \$TARGET_FS_ROOT\/\.autorelabel/i rm -rf \$TARGET_FS_ROOT\/\.autorelabel' /usr/share/rear/restore/default/500_selinux_autorelabel.sh
+  fi
 }
 
 function ssh_tunning_rear () {

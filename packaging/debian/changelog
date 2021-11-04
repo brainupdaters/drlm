@@ -27,6 +27,9 @@ drlm (2.4.0) stable release; urgency=high
   * Rocky Linux 8 server and client support
   * NRDP Nagios Support
   * New write and full write mode in bkpmgr workflow
+  * Configurable backup status after runbackup (enabled, disabled, write or full-write mode)
+  * Information improvements and new one client mode in drlm-stord
+  * Encrypted backup files
 
  -- Pau Roura <pau@brainupdaters.net>  Mon, 11 Oct 2021 00:00:00 +0100
 

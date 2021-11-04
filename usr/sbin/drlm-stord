@@ -58,6 +58,15 @@ function Log () {
 
 echo "$(Stamp)Command: drlm-stord $@" >> $LOGFILE
 
+if [ -n "$2" ]; then
+  if exist_client_name "$2"; then
+    CLI_NAME_INPUT="$2"
+  else
+    Log "Client name $2 not found"
+    exit 1
+  fi
+fi
+
 case "$1" in
 	start)
     WORKFLOW="START"
@@ -74,19 +83,23 @@ case "$1" in
       ACTIVE_BKP=$(echo ${BACKUPLINE} | awk -F":" '{ print $5 }')
       CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
       CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
-      if ! pgrep -fa $DR_FILE &> /dev/null; then
-        if [ "$ACTIVE_BKP" == "1" ]; then
-          enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
-        elif [ "$ACTIVE_BKP" == "2" ]; then
-          enable_backup_store_rw $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
-        elif [ "$ACTIVE_BKP" == "3" ]; then
-          enable_backup_store_rw_full $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+
+      if [ -z "$CLI_NAME_INPUT" ] || [ "$CLI_NAME" == "$CLI_NAME_INPUT" ]; then
+        if ! pgrep -fa $DR_FILE &> /dev/null; then
+          if [ "$ACTIVE_BKP" == "1" ]; then
+            enable_backup_store_ro $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+          elif [ "$ACTIVE_BKP" == "2" ]; then
+            enable_backup_store_rw $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+          elif [ "$ACTIVE_BKP" == "3" ]; then
+            enable_backup_store_rw_full $DR_FILE $CLI_NAME $CLI_CFG $SNAP_ID
+          fi
+        else
+          Log "Backup $BKP_ID of client $CLI_NAME already enabled"
         fi
-      else
-        Log "Backup $BKP_ID of client $CLI_NAME already enabled"
+
+        return_value="$?"
+        if [ "$return_value" -ne "0" ]; then RETVAL="1"; fi
       fi
-      return_value="$?"
-      if [ "$return_value" -ne "0" ]; then RETVAL="1"; fi
     done
     ;;
 
@@ -96,7 +109,7 @@ case "$1" in
     Log "Shutting down $DESC: "
     
     Log "Removing rsync modules"
-    unconfigure_rsync_modules
+    unconfigure_rsync_modules $CLI_NAME_INPUT
     if [ "$?" -eq "0" ]; then 
       Log "RSYNC:MODULES:REMOVE: .... Success!"
     else
@@ -105,7 +118,7 @@ case "$1" in
     fi 
 
 		Log "Unconfiguring NFS exports"
-    unconfigure_nfs_exports
+    unconfigure_nfs_exports $CLI_NAME_INPUT
   	reload_nfs
     if [ "$?" -eq "0" ]; then 
       Log "NFS:RELOAD:EXPORTFS: .... Success!"
@@ -115,7 +128,7 @@ case "$1" in
     fi 
 
     Log "Umounting DR Images: "
-    for NBD_MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR" | awk '{print $3}');	do
+    for NBD_MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR/$CLI_NAME_INPUT" | awk '{print $3}');	do
       do_umount $NBD_MOUNT_POINT
       if [ "$?" -eq "0" ]; then 
         Log "FS:UMOUNT:MOUNT_POINT($NBD_MOUNT_POINT): .... Success!"
@@ -130,7 +143,7 @@ case "$1" in
     # ATTENTION! pgrep has to be used carefully, can return unwanted results if the match pattern is too simple.
     # for example: if I want to find the process that attach one device only filttering by Backup id
     # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
-    for NBD_DEVICE in $(pgrep -fa ${ARCHDIR} | awk '{print $4}'); do
+    for NBD_DEVICE in $(pgrep -fa "${ARCHDIR}/$CLI_NAME_INPUT" | awk '{print $4}'); do
       disable_nbd $NBD_DEVICE
       if [ "$?" -eq "0" ]; then 
         Log "NBD_DEVICE:DETACH:NBD_DEVICE($NBD_DEVICE): .... Success!"
@@ -144,16 +157,16 @@ case "$1" in
 	status)
     WORKFLOW="STATUS"
 
-    MOUNT_UP=$(/bin/mount -l | grep "$STORDIR" | wc -l)
-    # ATTENTION! pgrep has to be used carefully, can return unwanted results if the match pattern is too simple.
-    # for example: if I want to find the process that attach one device only filttering by Backup id
-    # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
-    NBD_UP=$(pgrep -fa $ARCHDIR |  wc -l)
+    # MOUNT_UP=$(/bin/mount -l | grep "$STORDIR" | wc -l)
+    # # ATTENTION! pgrep has to be used carefully, can return unwanted results if the match pattern is too simple.
+    # # for example: if I want to find the process that attach one device only filttering by Backup id
+    # # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
+    # NBD_UP=$(pgrep -fa $ARCHDIR |  wc -l)
     
     Log "Getting Status from $DESC: "
     #Log "$(printf '%-12s\n' "$(tput bold)")"
-		Log "$(printf '%-16s %-45s %-50s\n' ""$(tput bold)"NBD Device" "DR Store" "DR File$(tput sgr0)")"
-    for MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR" | awk '{print $3}'); do
+		Log "$(printf '%-20s %-10s %-45s %-50s\n' ""$(tput bold)"NBD Device" "NET Mode" "DR Store" "DR File$(tput sgr0)")"
+    for MOUNT_POINT in $(/bin/mount -l | grep "$STORDIR/$CLI_NAME_INPUT" | awk '{print $3}'); do
       NBD_DEVICE=$(/bin/mount -l | grep -w "$MOUNT_POINT" | awk '{print $1}')
 
       # Remove p1 (the partition sufix) from the end of mounted partitions in order to get the device
@@ -164,8 +177,44 @@ case "$1" in
       # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
       # PGREP_RESULT intermediate step to avoid unwanted results of grep and pgrep combo
       PGREP_RESULT="$(pgrep -fa $NBD_DEVICE)"
-      DR_FILE=$(echo "$PGREP_RESULT" | grep -w "$NBD_DEVICE" | awk '{print $5}')
-      Log "$(printf '%-12s %-45s %-50s\n' $NBD_DEVICE $MOUNT_POINT $DR_FILE)"
+      DR_FILE=$(echo "$PGREP_RESULT" | grep -w "$NBD_DEVICE" | awk '{print $6}' | awk -F"=" '{print $3}' | awk -F"," '{print $1}')
+      
+      # get NBD status
+      if /bin/mount -l | grep -w "$MOUNT_POINT" | awk '{print $6}' | grep -q rw; then
+        NBD_DEVICE="(rw)$NBD_DEVICE"
+      else
+        NBD_DEVICE="(ro)$NBD_DEVICE"
+      fi
+
+      # get NFS status
+      NFS_MODE=""
+
+      if grep -rq "$MOUNT_POINT" /etc/exports.d/; then
+        if [[ $(basename $(grep -r "$MOUNT_POINT" /etc/exports.d/ | cut -d":" -f1)) != .* ]]; then 
+          if grep -r "$MOUNT_POINT" /etc/exports.d/ | grep -q "(rw,"; then
+            NFS_MODE="(rw)NFS"
+          else
+            NFS_MODE="(ro)NFS"
+          fi
+        fi
+      fi
+
+      #get RSYNC status
+      RSYNC_MODE=""
+
+      if grep -rq "$MOUNT_POINT" /etc/drlm/rsyncd/rsyncd.d/; then
+        RSYNC_STATUS=$(grep "read only" $(grep -r "$MOUNT_POINT" /etc/drlm/rsyncd/rsyncd.d/ | cut -d":" -f1) | awk '{print $4}')
+        if [ "$RSYNC_STATUS" == "false" ]; then
+          RSYNC_MODE="(rw)RSYNC"
+        else 
+          RSYNC_MODE="(ro)RSYNC"
+        fi
+      fi
+      
+      NET_MODE="$NFS_MODE$RSYNC_MODE"
+
+      Log "$(printf '%-16s %-10s %-45s %-50s\n' "$NBD_DEVICE" "$NET_MODE" "$MOUNT_POINT" "$DR_FILE")"
+      
     done
 		;;
 

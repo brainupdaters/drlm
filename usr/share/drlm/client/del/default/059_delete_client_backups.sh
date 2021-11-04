@@ -25,3 +25,9 @@ case $BKP_CLI_PER in
     fi
     ;;
 esac
+
+# remove client store 
+if [ -d ${STORDIR}/${CLI_NAME} ]; then
+  Log "Removed store for client $CLI_NAME"
+  rm -rf ${STORDIR}/${CLI_NAME}
+fi

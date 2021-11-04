@@ -24,6 +24,8 @@ var BackupsTable = {
             <td>{{ backup.clients_id }}</td>
             <td>{{ backup.date }}</td>
             <td v-if="backup.active == 1">enabled</td>
+            <td v-else-if="backup.active == 2">write</td>
+            <td v-else-if="backup.active == 3">full write</td>
             <td v-else>disabled</td>
             <td>{{ backup.drfile }}</td>
             <td>{{ backup.duration }}</td>
