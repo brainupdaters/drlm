@@ -31,7 +31,7 @@ if [ -n "$DR_FILE" ]; then
   fi
 
 # Check if exists partition
-  if [ -e  "${NBD_DEVICE}p1" ]; then 
+  if [ -e "${NBD_DEVICE}p1" ]; then 
     NBD_DEVICE_PART="${NBD_DEVICE}p1"
   else  
     NBD_DEVICE_PART="$NBD_DEVICE"

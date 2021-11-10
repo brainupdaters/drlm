@@ -554,7 +554,7 @@ function get_active_cli_pxe_from_db_dbdrv () {
 }
 
 function get_all_backups_dbdrv () {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function enable_backup_db_dbdrv ()
@@ -667,8 +667,16 @@ function register_backup_dbdrv () {
   local BKP_TYPE="$9"
   local BKP_PROTO="${10}"
   local BKP_DATE="${11}"
+  local BKP_ENCRYPTED="${12}"
+  local BKP_ENCRYP_PASS="${13}"
 
-  echo "INSERT INTO backups VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ "$BKP_ENCRYPTED" == "enabled" ]; then
+    BKP_ENCRYPTED="1"
+  else
+    BKP_ENCRYPTED="0"
+  fi
+
+  echo "INSERT INTO backups VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -855,6 +863,18 @@ function get_backup_date_by_backup_id_dbdrv () {
   echo $BKP_DATE
 }
 
+function get_backup_encrypted_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_ENCRYPTED=$(echo "select encrypted from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ENCRYPTED
+}
+
+function get_backup_encryp_pass_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_ENCRYP_PASS=$(echo "select encryp_pass from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ENCRYP_PASS
+}
+
 function get_backup_duration_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local BKP_DURATION=$(echo "select duration from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
@@ -962,7 +982,7 @@ function get_older_backup_by_client_dbdrv() {
 
 function get_active_backups_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::",config,":",type,":" from backups where active in (1,2,3);' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::",config,":",type,":",encrypted,":",encryp_pass,":" from backups where active in (1,2,3);' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 

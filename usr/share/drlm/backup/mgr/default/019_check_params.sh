@@ -52,6 +52,15 @@ if exist_backup_id "$BKP_ID" ; then
   BKP_PROTO=$(get_backup_protocol_by_backup_id $BKP_ID)
   BKP_STATUS=$(get_backup_status_by_backup_id $BKP_ID)
   BKP_ENABLED_SNAP=$(get_backup_active_snap_by_backup_id $BKP_ID)
+  DRLM_ENCRYPTION=$(get_backup_encrypted_by_backup_id $BKP_ID)
+
+  if [ "$DRLM_ENCRYPTION" == "1" ]; then
+    DRLM_ENCRYPTION="enabled"
+    DRLM_ENCRYPTION_KEY=$(get_backup_encryp_pass_by_backup_id $BKP_ID)
+  else
+    DRLM_ENCRYPTION="disabled"
+    DRLM_ENCRYPTION_KEY=""
+  fi
   
   # if the workflow is enable and backup status is enabled and has not enabled snaps -> Nothing to do!
   if [ "$ENABLE" == "yes" ] && [ -z "$SNAP_ID" ] && [ "$BKP_STATUS" == "1" ] && [ -z "$BKP_ENABLED_SNAP" ]; then

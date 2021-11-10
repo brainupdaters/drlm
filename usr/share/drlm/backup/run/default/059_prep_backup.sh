@@ -42,10 +42,13 @@ if [ -n "$ENABLED_DB_BKP_ID_CFG" ]; then
   if [ "$(get_backup_pxe_by_backup_id $ENABLED_DB_BKP_ID_CFG)" == "1" ]; then
     AddExitTask "enable_pxe_db "$ENABLED_DB_BKP_ID_CFG""
   fi
-  disable_backup $ENABLED_DB_BKP_ID_CFG
-  AddExitTask "enable_backup "$CLI_NAME" "$ENABLED_DB_BKP_ID_CFG" "$ENABLED_DB_BKP_SNAP_CFG""
-fi
 
+  #Get the current enabled backup status
+  ENABLED_DB_BKP_STATUS="$(get_backup_status_by_backup_id "$ENABLED_DB_BKP_ID_CFG")"
+
+  disable_backup $ENABLED_DB_BKP_ID_CFG
+  AddExitTask "enable_backup \"$CLI_NAME\" \"$ENABLED_DB_BKP_ID_CFG\" \"$ENABLED_DB_BKP_SNAP_CFG\" \"$ENABLED_DB_BKP_STATUS\""
+fi
 
 if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
   # If backup type is PXE (type=1) it is only possible to have one backup mounted for ALL configurations
@@ -57,7 +60,11 @@ if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
     if [ "$(get_backup_pxe_by_backup_id $ENABLED_DB_BKP_ID_PXE)" == "1" ]; then
       AddExitTask "enable_pxe_db "$ENABLED_DB_BKP_ID_PXE""
     fi
+
+    #Get the current enabled backup status
+    ENABLED_DB_BKP_STATUS="$(get_backup_status_by_backup_id "$ENABLED_DB_BKP_ID_CFG")"
+
     disable_backup $ENABLED_DB_BKP_ID_PXE
-    AddExitTask "enable_backup "$CLI_NAME" "$ENABLED_DB_BKP_ID_PXE" "$ENABLED_DB_BKP_SNAP_PXE""
+    AddExitTask "enable_backup \"$CLI_NAME\" \"$ENABLED_DB_BKP_ID_PXE\" \"$ENABLED_DB_BKP_SNAP_PXE\" \"$ENABLED_DB_BKP_STATUS\""
   fi
 fi

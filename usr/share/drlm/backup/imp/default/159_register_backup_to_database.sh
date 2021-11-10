@@ -12,7 +12,7 @@ else
   ACTIVE_PXE=0
 fi
 
-if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "-ImpBKP-" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$IMP_BKP_TYPE" "$IMP_BKP_PROT" "$BKP_DATE"; then
+if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "-ImpBKP-" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$IMP_BKP_TYPE" "$IMP_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY"; then
   Log "Registered backup $BKP_ID in the database"
 else
   Error "Problem registering backup backup $BKP_ID in database"

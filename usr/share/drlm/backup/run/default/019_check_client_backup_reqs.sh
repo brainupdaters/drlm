@@ -49,6 +49,17 @@ else
 fi
 
 # Check the backup configuration and LogPrint what type of backup will be done
+
+##############
+# ENCRYPTION #
+##############
+if [ "$DRLM_ENCRYPTION" == "enabled" ]; then
+  LogPrint "Running an encrypted backup"
+  if [ "$DRLM_ENCRYPTION_KEY" == "" ]; then
+    Error "Running an encrypted backup, but not encryption key found"
+  fi
+fi
+
 #######
 # ISO #
 #######

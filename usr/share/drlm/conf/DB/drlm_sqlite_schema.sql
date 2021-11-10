@@ -96,6 +96,11 @@ UPDATE backups SET protocol='NETFS' where protocol is null;
 
 ALTER TABLE backups ADD COLUMN "date" varchar(16);
 
+ALTER TABLE backups ADD COLUMN "encrypted" tinyint(1);
+UPDATE backups SET encrypted='0' where encrypted is null;
+
+ALTER TABLE backups ADD COLUMN "encryp_pass" varchar(255);
+
 -- Update table jobs
 ALTER TABLE jobs ADD COLUMN "config" varchar(45);
 
