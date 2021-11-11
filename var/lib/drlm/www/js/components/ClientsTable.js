@@ -31,7 +31,12 @@ var ClientsTable = {
             <td>{{ client.cli_net }}</td>
             <td>{{ client.cli_os }}</td>
             <td>{{ client.cli_rear }}</td>
-            <td>{{ client.cli_token }}</td>
+
+            <td class="hover">
+              <span class="token1">{{ client.cli_token }}</span>
+              <span class="token2">******************************</span>
+            </td>
+
             <td>
               <client-configurations-list
                 v-for="config in client.cli_configs"

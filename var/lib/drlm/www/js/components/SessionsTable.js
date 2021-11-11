@@ -14,7 +14,10 @@ var SessionsTable = {
         <tbody v-for="session in sessions" v-bind:key="session.token">
           <tr>
             <td>{{ session.username }}</td>
-            <td>{{ session.token }}</td>
+            <td class="hover">
+              <span class="token1">{{ session.token }}</span>
+              <span class="token2">************************************</span>
+            </td>
             <td>{{ session.timestamp }}</td>
           </tr>
         </tbody>
