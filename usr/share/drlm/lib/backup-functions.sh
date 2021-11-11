@@ -36,6 +36,18 @@ function run_mkbackup_ssh_remote () {
   fi
 }
 
+function check_client_resolution () {
+  local CLI_ID=$1
+  local CLI_NAME=$(get_client_name $CLI_ID)
+
+  SSHOUT=$(ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} 'getent hosts $(hostname)' 2>&1)
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 function mod_pxe_link () {
   local OLD_CLI_MAC=$1
   local CLI_MAC=$2

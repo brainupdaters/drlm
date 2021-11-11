@@ -98,20 +98,32 @@ get_template() {
     fi
 }
 
-function check_drlm_services() {
+function check_drlm_stord_service() {
   # Check drlm-stord.service
   systemctl is-active --quiet drlm-stord.service || Error "drlm-stord.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-stord.service'"
   systemctl is-failed --quiet drlm-stord.service && Error "drlm-stord.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-stord.service'"
+}
 
+function check_drlm_api_service() {
   # Check drlm-api.service
   systemctl is-active --quiet drlm-api.service || Error "drlm-api.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-api.service'"
   systemctl is-failed --quiet drlm-api.service && Error "drlm-api.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-api.service'"
+}
 
-  # # Check rsync service
-  # systemctl is-active --quiet drlm-rsyncd.service || Error "drlm-rsyncd.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-rsyncd.service'"
-  # systemctl is-failed --quiet drlm-rsyncd.service && Error "drlm-rsyncd.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-rsyncd.service'"
+function check_drlm_rsyncd_service() {
+  # Check rsync service
+  systemctl is-active --quiet drlm-rsyncd.service || Error "drlm-rsyncd.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-rsyncd.service'"
+  systemctl is-failed --quiet drlm-rsyncd.service && Error "drlm-rsyncd.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-rsyncd.service'"
+}
 
-  # # Check tftpd service
-  # systemctl is-active --quiet drlm-tftpd.service || Error "drlm-tftpd.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-tftpd.service'"
-  # systemctl is-failed --quiet drlm-tftpd.service && Error "drlm-tftpd.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-tftpd.service'"
+function check_drlm_tftpd_service() {
+  # Check tftpd service
+  systemctl is-active --quiet drlm-tftpd.service || Error "drlm-tftpd.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-tftpd.service'"
+  systemctl is-failed --quiet drlm-tftpd.service && Error "drlm-tftpd.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-tftpd.service'"
+}
+
+function check_nfs_service() {
+  # Check tftpd service
+  systemctl is-active --quiet $NFS_SVC_NAME.service || Error "$NFS_SVC_NAME.service is stoped. Start before run $WORKFLOW with 'systemctl start $NFS_SVC_NAME.service'"
+  systemctl is-failed --quiet $NFS_SVC_NAME.service && Error "$NFS_SVC_NAME.service is failed. Restart before run $WORKFLOW with 'systemctl restart $NFS_SVC_NAME.service'"
 }

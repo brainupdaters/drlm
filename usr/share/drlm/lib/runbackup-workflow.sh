@@ -23,7 +23,8 @@ WORKFLOWS=( ${WORKFLOWS[@]} runbackup )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} runbackup )
 
 # Check that required services are running before do a runbackup
-check_drlm_services
+check_drlm_stord_service
+check_drlm_api_service
 
 if [ "$WORKFLOW" == "runbackup" ]; then 
   
