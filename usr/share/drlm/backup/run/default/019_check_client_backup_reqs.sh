@@ -49,6 +49,17 @@ else
 fi
 
 # Check the backup configuration and LogPrint what type of backup will be done
+
+##############
+# ENCRYPTION #
+##############
+if [ "$DRLM_ENCRYPTION" == "enabled" ]; then
+  LogPrint "Running an encrypted backup"
+  if [ "$DRLM_ENCRYPTION_KEY" == "" ]; then
+    Error "Running an encrypted backup, but not encryption key found"
+  fi
+fi
+
 #######
 # ISO #
 #######
@@ -137,4 +148,16 @@ elif [ "$DRLM_BKP_TYPE" == "DATA" ]; then
 #################   
 else 
   Error "Backup type not supported. DRLM_BKP_TYPE != [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ]"
+fi
+
+# Check in DRLM server services are active
+if [ "$DRLM_BKP_PROT" == "RSYNC"  ]; then
+  check_drlm_rsyncd_service
+elif [ "$DRLM_BKP_PROT" == "NETFS" ]; then
+  check_nfs_service
+fi
+
+# Check if client resolves itself
+if ! check_client_resolution "$CLI_ID"; then
+  Error "Client ${CLI_NAME} does not resolve itself and may give errors when running the backup."
 fi

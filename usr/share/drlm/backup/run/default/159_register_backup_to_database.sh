@@ -69,14 +69,14 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
     ACTIVE_PXE=0
   fi
 
-  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE"; then
+  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY"; then
     LogPrint "Registered backup $BKP_ID in the database"
   else
     Error "Problem registering backup $BKP_ID in database"
   fi
 else 
 
-  # If incremental set backup as active in the data base
+  # If incremental set backup as active in the database
   if enable_backup_db $BKP_BASE_ID $ENABLE_MODE ; then
     Log "Enabled backup $BKP_BASE_ID in $DRLM_DEFAULT_BKP_STATUS mode in the database"
   else

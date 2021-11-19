@@ -64,7 +64,7 @@ if [ "$DRLM_INCREMENTAL" == "yes" ]; then
   fi
 fi
 
-# Check if backup is incremental of existent DR file or a new one
+# Check if backup is incremental of an existent DR file or a new one needs to be created
 if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   # if not is incremental create a backup id and generate a DR file name
   BKP_ID=$(gen_backup_id $CLI_ID)
@@ -77,6 +77,28 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   # if is an inherited DR file we copy the file from where to inherit and remove ols the snaps
   if [ "$INHERITED_DR_FILE" == "yes" ]; then
     BKP_BASE_DR_FILE="$(get_backup_drfile_by_backup_id $BKP_BASE_ID)"
+
+    # Check if inherited dr file is encrypted. If inherited dr file enctyption configuration 
+    # differs from the current enctyption configuration a warning message will be displayed.
+    # If its an inherited dr file right now it is only possible to keep the same encryption settings
+    # as the inherited dr file. 
+    BKP_BASE_DRLM_ENCRYPTION="$(get_backup_encrypted_by_backup_id $BKP_BASE_ID)"
+
+    if [ "$BKP_BASE_DRLM_ENCRYPTION" == "1" ]; then
+      BKP_BASE_DRLM_ENCRYPTION="enabled"
+      BKP_BASE_DRLM_ENCRYPTION_KEY="$(get_backup_encryp_pass_by_backup_id $BKP_BASE_ID)"
+    else
+      BKP_BASE_DRLM_ENCRYPTION="disabled"
+      BKP_BASE_DRLM_ENCRYPTION_KEY=""
+    fi
+    
+    if [ "$DRLM_ENCRYPTION" != "$BKP_BASE_DRLM_ENCRYPTION" ] || [ "$DRLM_ENCRYPTION_KEY" != "$BKP_BASE_DRLM_ENCRYPTION_KEY" ]; then
+      LogPrint "WARNING! This backup inherits from another backup with a diferent encryption configuration, so it will also inherit the encryption settings"
+      DRLM_ENCRYPTION="$BKP_BASE_DRLM_ENCRYPTION"
+      DRLM_ENCRYPTION_KEY="$BKP_BASE_DRLM_ENCRYPTION_KEY"
+    fi
+    ##
+
     cp $ARCHDIR/$BKP_BASE_DR_FILE $ARCHDIR/$DR_FILE
     if [ $? -eq 0 ]; then
       LogPrint "Created inherited DR file $ARCHDIR/$DR_FILE"
@@ -110,6 +132,26 @@ else
   if [ -z "$DR_FILE" ]; then
     Error "Problem getting DR file name"
   fi
+
+  # Check if dr file is encrypted. If dr file enctyption configuration differs from the current
+  # enctyption configuration a warning message will be displayed. If its an snap of dr file right
+  # now it is only possible to keep the same encryption settings as dr file. 
+  BKP_BASE_DRLM_ENCRYPTION="$(get_backup_encrypted_by_backup_id $BKP_BASE_ID)"
+
+  if [ "$BKP_BASE_DRLM_ENCRYPTION" == "1" ]; then
+    BKP_BASE_DRLM_ENCRYPTION="enabled"
+    BKP_BASE_DRLM_ENCRYPTION_KEY="$(get_backup_encryp_pass_by_backup_id $BKP_BASE_ID)"
+  else
+    BKP_BASE_DRLM_ENCRYPTION="disabled"
+    BKP_BASE_DRLM_ENCRYPTION_KEY=""
+  fi
+  
+  if [ "$DRLM_ENCRYPTION" != "$BKP_BASE_DRLM_ENCRYPTION" ] || [ "$DRLM_ENCRYPTION_KEY" != "$BKP_BASE_DRLM_ENCRYPTION_KEY" ]; then
+    LogPrint "WARNING! This backup is an snap in dr file with a diferent encryption configuration, so the original encryption settings will be preserved"
+    DRLM_ENCRYPTION="$BKP_BASE_DRLM_ENCRYPTION"
+    DRLM_ENCRYPTION_KEY="$BKP_BASE_DRLM_ENCRYPTION_KEY"
+  fi
+  ##
 
   if make_snap $SNAP_ID $DR_FILE; then 
     LogPrint "Created new snapshot in ${DR_FILE}"

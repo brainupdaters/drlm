@@ -36,6 +36,18 @@ function run_mkbackup_ssh_remote () {
   fi
 }
 
+function check_client_resolution () {
+  local CLI_ID=$1
+  local CLI_NAME=$(get_client_name $CLI_ID)
+
+  SSHOUT=$(ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} 'getent hosts $(hostname)' 2>&1)
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 function mod_pxe_link () {
   local OLD_CLI_MAC=$1
   local CLI_MAC=$2
@@ -73,6 +85,13 @@ function list_backup () {
     local BAC_DAY="$(echo $BAC_DATE|cut -c1-8)"
     local BAC_TIME="$(echo $BAC_DATE|cut -c9-12)"
     local BAC_DATE="$(date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M")"
+
+    local BAC_ENCRYPT="$(echo $line|awk -F":" '{print $15}')"
+    if [ "$BAC_ENCRYPT" == "1" ]; then
+      BAC_ENCRYPT="(C)"
+    else
+      BAC_ENCRYPT=""
+    fi
     
     if [ "$BAC_PXE" == "1" ]; then
       BAC_PXE=" *"
@@ -121,12 +140,13 @@ function list_backup () {
     fi
 
     if [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then 
-      printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "$BAC_TYPE-$BAC_PROT"; 
+      printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}"; 
     fi
 
     # Check if BAC_ID have snapshots and list them
     found_enabled=0
-    SNAP_TYPE="$BAC_TYPE (Snap)"
+    #SNAP_TYPE="$BAC_TYPE (Snap)"
+    SNAP_TYPE="Snap"
 
     for snap_line in $(get_all_snaps_by_backup_id_dbdrv $BAC_ID); do
       SNAP_ID="$(echo $snap_line | awk -F'|' '{print $2}')"
@@ -146,7 +166,7 @@ function list_backup () {
           [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
         fi
       fi
-      printf '%-4s %-31s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "$CLI_CFG" " └─$SNAP_TYPE";
+      printf '%-4s %-31s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─$SNAP_TYPE";
     done
 
   done
@@ -177,8 +197,16 @@ function enable_nbd_ro () {
       qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native -l $SNAP_ID >> /dev/null 2>&1
       if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
     else
-      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native -l $SNAP_ID --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} >> /dev/null 2>&1
-      if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+      ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native -l $SNAP_ID --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then 
+        sleep 1
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 0
+      else 
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 1
+      fi
     fi
   else 
     if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
@@ -186,8 +214,16 @@ function enable_nbd_ro () {
       qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native >> /dev/null 2>&1
       if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
     else
-      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} >> /dev/null 2>&1
-      if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+      ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then 
+        sleep 1
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 0
+      else 
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 1
+      fi
     fi
   fi
   # Return 0 if OK or 1 if NOK
@@ -205,8 +241,16 @@ function enable_nbd_rw () {
     qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
     if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   else
-    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 --cache=none --aio=native --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
+    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 --cache=none --aio=native --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+    if [ $? -eq 0 ]; then 
+      sleep 1
+      rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+      return 0
+    else 
+      rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+      return 1
+    fi
   fi
   # Return 0 if OK or 1 if NOK
 }
@@ -370,8 +414,16 @@ function make_img () {
     qemu-img create -f ${QCOW_FORMAT} ${ARCHDIR}/${DR_NAME} ${QCOW_VIRTUAL_SIZE} >> /dev/null 2>&1
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   else
-    qemu-img create --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} -f ${QCOW_FORMAT} -o encrypt.format=luks,encrypt.key-secret=sec0 ${ARCHDIR}/${DR_NAME} ${QCOW_VIRTUAL_SIZE} >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+    ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
+    qemu-img create --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 -f ${QCOW_FORMAT} -o encrypt.format=luks,encrypt.key-secret=sec0 ${ARCHDIR}/${DR_NAME} ${QCOW_VIRTUAL_SIZE} >> /dev/null 2>&1
+    if [ $? -eq 0 ]; then 
+      sleep 1
+      rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+      return 0
+    else 
+      rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+      return 1
+    fi
   fi
 # Return 0 if OK or 1 if NOK
 }
@@ -385,8 +437,16 @@ function make_snap () {
       qemu-img snapshot -c $SNAP_ID ${ARCHDIR}/${DR_FILE} >> /dev/null 2>&1
       if [ $? -eq 0 ]; then return 0; else return 1; fi
     else
-      qemu-img snapshot -c $SNAP_ID --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 >> /dev/null 2>&1
-      if [ $? -eq 0 ]; then return 0; else return 1; fi
+      ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
+      qemu-img snapshot -c $SNAP_ID --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then 
+        sleep 1
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 0
+      else 
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 1
+      fi
     fi
   fi
 # Return 0 if OK or 1 if NOK
@@ -473,8 +533,10 @@ function register_backup () {
   local BKP_TYPE="$9"
   local BKP_PROTO="${10}"
   local BKP_DATE="${11}"
+  local BKP_ENCRYPTED="${12}"
+  local BKP_ENCRYP_PASS="${13}"
 
-  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS"
 }
 
 function register_snap () {
@@ -540,8 +602,16 @@ function del_dr_snap () {
       qemu-img snapshot -d "$SNAP_ID" "$ARCHDIR"/"$DR_FILE" >> /dev/null 2>&1
       if [ $? -eq 0 ]; then return 0; else return 1; fi
     else
-      qemu-img snapshot -d "$SNAP_ID" --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} --image-opts driver=qcow2,file.filename="$ARCHDIR"/"$DR_FILE",encrypt.format=luks,encrypt.key-secret=sec0 >> /dev/null 2>&1
-      if [ $? -eq 0 ]; then return 0; else return 1; fi
+      ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
+      qemu-img snapshot -d "$SNAP_ID" --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 --image-opts driver=qcow2,file.filename="$ARCHDIR"/"$DR_FILE",encrypt.format=luks,encrypt.key-secret=sec0 >> /dev/null 2>&1
+      if [ $? -eq 0 ]; then 
+        sleep 1
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 0
+      else 
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 1
+      fi
     fi
   fi
 }
@@ -556,10 +626,17 @@ function del_all_dr_snaps () {
       if [ $ERR -eq 0 ]; then return 0; else return 1; fi
     done
   else
-    for SNAP_IDENT in $(qemu-img snapshot -l --object secret,id=sec0,data=${DRLM_ENCRYPTION_KEY} --image-opts driver=qcow2,file.filename="$ARCHDIR"/"$DR_FILE",encrypt.format=luks,encrypt.key-secret=sec0 | sed -e '1,2d' | awk '{print $2}'); do
+    ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
+    for SNAP_IDENT in $(qemu-img snapshot -l --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 --image-opts driver=qcow2,file.filename="$ARCHDIR"/"$DR_FILE",encrypt.format=luks,encrypt.key-secret=sec0 | sed -e '1,2d' | awk '{print $2}'); do
       del_dr_snap "$SNAP_IDENT" "$DR_FILE"
       [ $? -eq 0 ] || ERR=1
-      if [ $ERR -eq 0 ]; then return 0; else return 1; fi
+      if [ $ERR -eq 0 ]; then 
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 0
+      else 
+        rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
+        return 1
+      fi
     done
   fi
   
@@ -685,6 +762,20 @@ function get_backup_date_by_backup_id ()
   local BKP_ID=$1
   local BKP_DATE=$(get_backup_date_by_backup_id_dbdrv "$BKP_ID")
   echo $BKP_DATE
+}
+
+function get_backup_encrypted_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_ENCRYPTED=$(get_backup_encrypted_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_ENCRYPTED
+}
+
+function get_backup_encryp_pass_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_ENCRYP_PASS=$(get_backup_encryp_pass_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_ENCRYP_PASS
 }
 
 function get_backup_duration_by_backup_id ()
@@ -1023,14 +1114,33 @@ function enable_backup () {
   local CLI_NAME=$1
   local ENABLED_DB_BKP_ID=$2
   local ENABLED_DB_BKP_SNAP=$3
+  local ENABLED_DB_BKP_MODE=$4
 
   ENABLED_BKP_DR_FILE=$(get_backup_drfile_by_backup_id $ENABLED_DB_BKP_ID)
   ENABLED_BKP_CFG=$(get_backup_config_by_backup_id $ENABLED_DB_BKP_ID)
+
+  DRLM_ENCRYPTION=$(get_backup_encrypted_by_backup_id $ENABLED_DB_BKP_ID)
+
+  if [ "$DRLM_ENCRYPTION" == "1" ]; then
+    DRLM_ENCRYPTION="enabled"
+    # Getting the key from imported backup id.
+    DRLM_ENCRYPTION_KEY=$(get_backup_encryp_pass_by_backup_id $ENABLED_DB_BKP_ID)
+    LogPrint "Encrypted DR File. Usign $ENABLED_DB_BKP_ID backup id encryption key"
+  else
+    DRLM_ENCRYPTION="disabled"
+    DRLM_ENCRYPTION_KEY=""
+  fi
   
-  enable_backup_store_ro $ENABLED_BKP_DR_FILE $CLI_NAME $ENABLED_BKP_CFG $ENABLED_DB_BKP_SNAP
+  if [ "$ENABLED_DB_BKP_MODE" == "1" ]; then
+    enable_backup_store_ro $ENABLED_BKP_DR_FILE $CLI_NAME $ENABLED_BKP_CFG $ENABLED_DB_BKP_SNAP
+  elif [ "$ENABLED_DB_BKP_MODE" == "2" ]; then
+    enable_backup_store_rw $ENABLED_BKP_DR_FILE $CLI_NAME $ENABLED_BKP_CFG $ENABLED_DB_BKP_SNAP
+  elif [ "$ENABLED_DB_BKP_MODE" == "3" ]; then
+    enable_backup_store_rw_full $ENABLED_BKP_DR_FILE $CLI_NAME $ENABLED_BKP_CFG $ENABLED_DB_BKP_SNAP
+  fi
 
   # Set backup as active in the data base
-  if enable_backup_db $ENABLED_DB_BKP_ID ; then
+  if enable_backup_db $ENABLED_DB_BKP_ID $ENABLED_DB_BKP_MODE; then
     Log "Enabled backup in database"
   else
     Error "Problem enabling backup in database"
@@ -1119,7 +1229,7 @@ function enable_backup_store_ro () {
   fi
 
   # Check if exists partition
-  if [ -e  "${NBD_DEVICE}p1" ]; then 
+  if [ -e "${NBD_DEVICE}p1" ]; then 
     NBD_DEVICE_PART="${NBD_DEVICE}p1"
   else  
     NBD_DEVICE_PART="$NBD_DEVICE"
@@ -1173,7 +1283,7 @@ function enable_backup_store_rw () {
   fi
 
   # Check if exists partition
-  if [ -e  "${NBD_DEVICE}p1" ]; then 
+  if [ -e "${NBD_DEVICE}p1" ]; then 
     NBD_DEVICE_PART="${NBD_DEVICE}p1"
   else  
     NBD_DEVICE_PART="$NBD_DEVICE"
@@ -1227,7 +1337,7 @@ function enable_backup_store_rw_full () {
   fi
 
   # Check if exists partition
-  if [ -e  "${NBD_DEVICE}p1" ]; then 
+  if [ -e "${NBD_DEVICE}p1" ]; then 
     NBD_DEVICE_PART="${NBD_DEVICE}p1"
   else  
     NBD_DEVICE_PART="$NBD_DEVICE"
@@ -1257,3 +1367,19 @@ function enable_backup_store_rw_full () {
   fi
   
 }
+
+function generate_enctyption_key_file () {
+  local ENCRYPTION_KEY="$1"
+
+  # Check inf DRLM_ENCRYPTION_KEY is base64
+  echo "$ENCRYPTION_KEY" | base64 -d >> /dev/null 2>&1
+  if [ $? -ne 0 ]; then 
+    Error "The encryption key does not appear to be base64 encoded."
+  fi
+
+  EncryptionKeyFile="/tmp/$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32)"
+  touch $EncryptionKeyFile >> /dev/null 2>&1
+  chmod 600 $EncryptionKeyFile  >> /dev/null 2>&1
+  echo "$ENCRYPTION_KEY" > $EncryptionKeyFile
+  echo "$EncryptionKeyFile"
+}  

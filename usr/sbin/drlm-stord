@@ -83,6 +83,15 @@ case "$1" in
       ACTIVE_BKP=$(echo ${BACKUPLINE} | awk -F":" '{ print $5 }')
       CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
       CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
+      BKP_ENCRYPTED=$(echo ${BACKUPLINE} | awk -F":" '{ print $10 }')
+
+      if [ "$BKP_ENCRYPTED" == "1" ]; then
+        DRLM_ENCRYPTION="enabled"
+        DRLM_ENCRYPTION_KEY=$(echo ${BACKUPLINE} | awk -F":" '{ print $11 }')
+      else  
+        DRLM_ENCRYPTION="disabled"
+        DRLM_ENCRYPTION_KEY=""
+      fi
 
       if [ -z "$CLI_NAME_INPUT" ] || [ "$CLI_NAME" == "$CLI_NAME_INPUT" ]; then
         if ! pgrep -fa $DR_FILE &> /dev/null; then

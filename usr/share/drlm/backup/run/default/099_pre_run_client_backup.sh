@@ -79,7 +79,7 @@ if test "$DRLM_PRE_RUNBACKUP_SCRIPT" ; then
 fi
 
 
-# If backup type is ISO_FULL_TMP rear have to user a remote tmp build dir 
+# If backup type is ISO_FULL_TMP rear have to use a remote tmp build dir 
 if [ "$DRLM_BKP_TYPE" == "ISO_FULL_TMP" ]; then
 
   # Create CONFIG_TMP directory
