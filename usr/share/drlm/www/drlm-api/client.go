@@ -211,6 +211,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
+			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=ISO\n"
@@ -227,6 +228,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				clientConfig += "BACKUP_PROG=rsync\n"
 				clientConfig += "NETFS_PREFIX=\n"
 				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 			}
 		}
 		////////////////
@@ -263,6 +265,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\"\n"
+			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=PXE\n"
@@ -279,6 +282,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				clientConfig += "BACKUP_PROG=rsync\n"
 				clientConfig += "NETFS_PREFIX=\n"
 				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 			}
 		}
 		/////////////
@@ -292,6 +296,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
+			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 			clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
@@ -310,6 +315,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				clientConfig += "BACKUP_PROG=rsync\n"
 				clientConfig += "NETFS_PREFIX=\n"
 				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 				clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
 			}
 		}
