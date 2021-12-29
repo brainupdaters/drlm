@@ -1,130 +1,249 @@
+//drlm-api.go
 package main
 
 import (
+	"context"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 )
 
-func check(e error) {
-	if e != nil {
-		fmt.Println(e.Error())
-	}
-}
+func signin(w http.ResponseWriter, r *http.Request) {
 
-func validateHostname(h string) bool {
-	valid, _ := regexp.MatchString(`^[A-z0-9\.\-]+$`, h)
-	return valid
-}
-
-func sendConfigFile(w http.ResponseWriter, file string) {
-	if _, err := os.Stat(file); err == nil {
-		f, err := ioutil.ReadFile(file) // just pass the file name
-		check(err)
-		w.Write(f)
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusOK)
+	// Check if user have an active session else serve signin.html
+	if r.URL.Path != "/signin" {
+		http.Redirect(w, r, "/signin", http.StatusFound)
 	} else {
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusNotFound)
-	}
-}
-
-func drlmClientsService(w http.ResponseWriter, r *http.Request) {
-	urlPart := strings.Split(r.URL.Path, "/")
-
-	if !validateHostname(urlPart[2]) {
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "invalid hostname")
-		return
-	}
-
-	clientID, err := exec.Command("/bin/bash", "-c", "VAR_DIR=\"/var/lib/drlm\"; source /usr/share/drlm/conf/default.conf; source /etc/drlm/local.conf; source /usr/share/drlm/lib/dbdrv/$DB_BACKEND-driver.sh; source /usr/share/drlm/lib/http-functions.sh; source /usr/share/drlm/lib/client-functions.sh; get_client_id_by_name "+urlPart[2]).Output()
-	check(err)
-	clientIDStr := strings.TrimSpace(string(clientID))
-
-	clientIP, err := exec.Command("/bin/bash", "-c", "VAR_DIR=\"/var/lib/drlm\"; source /usr/share/drlm/conf/default.conf; source /etc/drlm/local.conf; source /usr/share/drlm/lib/dbdrv/$DB_BACKEND-driver.sh; source /usr/share/drlm/lib/http-functions.sh; source /usr/share/drlm/lib/client-functions.sh; get_client_ip "+clientIDStr).Output()
-	check(err)
-	clientIPStr := strings.TrimSpace(string(clientIP))
-
-	clientConfDir, err := exec.Command("/bin/bash", "-c", "VAR_DIR=\"/var/lib/drlm\"; source /usr/share/drlm/conf/default.conf; source /etc/drlm/local.conf; echo $CLI_CONF_DIR").Output()
-	check(err)
-	clientConfDirStr := strings.TrimSpace(string(clientConfDir))
-
-	rearLogDir, err := exec.Command("/bin/bash", "-c", "VAR_DIR=\"/var/lib/drlm\"; source /usr/share/drlm/conf/default.conf; source /etc/drlm/local.conf; echo $REAR_LOG_DIR").Output()
-	check(err)
-	rearLogDirStr := strings.TrimSpace(string(rearLogDir))
-
-	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-
-	if clientIPStr != ip {
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	if len(urlPart) == 3 || (len(urlPart) == 4 && urlPart[3] == "") {
-		// Keep backwards compatible with previous versions of ReaR (1.17 to 2.00)
-		if r.Method == "GET" {
-			sendConfigFile(w, clientConfDirStr+"/"+urlPart[2]+".cfg")
-		} else {
-			w.Header().Set("Content-Type", "text/html")
-			w.WriteHeader(http.StatusMethodNotAllowed)
+		c, err := r.Cookie("session_token")
+		if err != nil {
+			// If no exist token redirec to login
+			http.ServeFile(w, r, configDRLM.VarDir+"/www/signin.html")
+			return
 		}
-	} else {
-		switch urlPart[3] {
-		case "config":
-			if r.Method == "GET" {
-				if len(urlPart) == 4 || (len(urlPart) == 5 && urlPart[4] == "") {
-					sendConfigFile(w, clientConfDirStr+"/"+urlPart[2]+".cfg")
-				} else {
-					sendConfigFile(w, clientConfDirStr+"/"+urlPart[2]+".cfg.d/"+urlPart[4]+".cfg")
-				}
-			} else {
-				w.Header().Set("Content-Type", "text/html")
-				w.WriteHeader(http.StatusMethodNotAllowed)
-			}
 
-		case "log":
-			if r.Method == "PUT" {
-				f, err := os.OpenFile(rearLogDirStr+"/rear-"+urlPart[2]+"."+urlPart[4]+"."+urlPart[5]+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-				check(err)
-				defer f.Close()
+		// First clean old sessions
+		new(Session).CleanSessions()
 
-				io.Copy(f, r.Body)
+		// Get the session from sessions with the token value
+		session := Session{"", c.Value, 0}
+		session, err = session.Get()
+		if err != nil {
+			// If there is an error fetching from sessions, redirect to login
+			http.ServeFile(w, r, configDRLM.VarDir+"/www/signin.html")
+			return
+		}
 
-				w.Header().Set("Content-Type", "text/html")
-				w.WriteHeader(http.StatusOK)
-			} else {
-				w.Header().Set("Content-Type", "text/html")
-				w.WriteHeader(http.StatusMethodNotAllowed)
-			}
+		session.Timestamp = time.Now().Unix()
+		session.Update()
 
-		default:
+		// Send updated expiration time cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:    "session_token",
+			Value:   session.Token,
+			Path:    "/",
+			Expires: time.Now().Add(600 * time.Second),
+			Secure:  true,
+		})
+
+		http.Redirect(w, r, "/", http.StatusFound)
+	}
+}
+
+// Serve static content
+func staticGet(w http.ResponseWriter, r *http.Request) {
+	// get the absolute path to prevent directory traversal
+	path, err := filepath.Abs(r.URL.Path)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	// prepend the path with the path to the static directory
+	path = filepath.Join(configDRLM.VarDir+"/www", path)
+	// check whether a file exists at the given path
+	_, err = os.Stat(path)
+	if err != nil {
+		// if we got an error (that wasn't that the file doesn't exist) stating the file, return a 500 internal server error and stop
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	// otherwise, use http.FileServer to serve the static dir
+	http.FileServer(http.Dir(configDRLM.VarDir+"/www")).ServeHTTP(w, r)
+}
+
+// Middleware to log requests
+func middlewareLog(h http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//logger.SetOutput(os.Stdout) // logs go to Stderr by default
+		logger.Println(r.RemoteAddr, r.Method, r.URL)
+		h.ServeHTTP(w, r) // call ServeHTTP on the original handler
+	})
+}
+
+// Middleware to check if the recived user token is ok
+// User --> API / Web Page user
+func middlewareUserToken(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get Request Cookie "session_token"
+		c, err := r.Cookie("session_token")
+		if err != nil {
+			// If no exist token redirec to login
+			signin(w, r)
+			return
+		}
+
+		// First clean old sessions
+		new(Session).CleanSessions()
+
+		// Get the session from sessions with the token value
+		session := Session{"", c.Value, 0}
+		session, err = session.Get()
+		if err != nil {
+			// If there is an error fetching from sessions, redirect to login
+			signin(w, r)
+			return
+		}
+
+		session.Timestamp = time.Now().Unix()
+		session.Update()
+
+		// Send updated expiration time cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:    "session_token",
+			Value:   session.Token,
+			Path:    "/",
+			Expires: time.Now().Add(600 * time.Second),
+			Secure:  true,
+		})
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// Middleware to check if the recived client token is ok
+// Client --> DRLM client
+func middlewareClientToken(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		receivedToken := r.Header.Get("Authorization")
+		receivedClientName := getField(r, 0)
+
+		// Check if the recived Client Name is a valid client name
+		if !validateHostname(receivedClientName) {
 			w.Header().Set("Content-Type", "text/html")
 			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintln(w, "invalid hostname")
+			return
 		}
-	}
+
+		// Load client from database
+		client := new(Client)
+		client.GetByName(receivedClientName)
+
+		// Check if recieved token is a valid token.
+		if receivedToken != client.Token {
+			w.Header().Set("Content-Type", "text/html")
+			w.WriteHeader(http.StatusForbidden)
+			fmt.Fprintln(w, "invalid token")
+			return
+		}
+
+		recivedClientip, _, _ := net.SplitHostPort(r.RemoteAddr)
+
+		if client.IP != recivedClientip {
+			w.Header().Set("Content-Type", "text/html")
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+
+	})
 }
 
-func drlmRootService(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "DRLM SERVER")
+type route struct {
+	method  string
+	regex   *regexp.Regexp
+	handler http.HandlerFunc
+}
+
+type ctxKey struct{}
+
+// type spaHandler struct {
+// 	staticPath string
+// 	indexPath  string
+// }
+
+// Http Routing
+var routes = []route{
+	// File server token protected
+	newRoute("GET", "/", middlewareUserToken(staticGet)),
+	// File server no protected
+	newRoute("GET", "/((images|static|css|js)/[a-zA-Z0-9._/-]+)", staticGet),
+	// Legacy API functions /////////////////////////
+	newRoute("GET", "/clients/([^/]+)/config", middlewareClientToken(apiGetClientConfigLegacy)),
+	newRoute("GET", "/clients/([^/]+)/config/([^/]+)", middlewareClientToken(apiGetClientConfigLegacy)),
+	newRoute("PUT", "/clients/([^/]+)/log/([^/]+)/([^/]+)", middlewareClientToken(apiPutClientLogLegacy)),
+	// API functions ////////////////////////////////
+	newRoute("GET", "/api/networks", middlewareUserToken(apiGetNetworks)),
+	newRoute("GET", "/api/clients", middlewareUserToken(apiGetClients)),
+	newRoute("GET", "/api/clients/([^/]+)", middlewareUserToken(apiGetClient)),
+	newRoute("GET", "/api/clients/([^/]+)/configs", middlewareUserToken(apiGetClientConfigs)),
+	newRoute("GET", "/api/clients/([^/]+)/configs/([^/]+)", middlewareUserToken(apiGetClientConfig)),
+	newRoute("GET", "/api/backups", middlewareUserToken(apiGetBackups)),
+	newRoute("GET", "/api/jobs", middlewareUserToken(apiGetJobs)),
+	newRoute("GET", "/api/snaps", middlewareUserToken(apiGetSnaps)),
+	newRoute("GET", "/api/users", middlewareUserToken(apiGetUsers)),
+	newRoute("GET", "/api/users/([^/]+)", middlewareUserToken(apiGetUser)),
+	newRoute("PUT", "/api/users/([^/]+)", middlewareUserToken(apiUpdateUser)),
+	newRoute("GET", "/api/sessions", middlewareUserToken(apiGetSessions)),
+	// User Control Functions ///////////////////////
+	newRoute("POST", "/signin", userSignin),
+	newRoute("GET", "/signin", signin),
+	newRoute("POST", "/logout", middlewareUserToken(userLogout)),
+}
+
+func newRoute(method, pattern string, handler http.HandlerFunc) route {
+	return route{method, regexp.MustCompile("^" + pattern + "$"), handler}
+}
+
+func Serve(w http.ResponseWriter, r *http.Request) {
+	var allow []string
+	for _, route := range routes {
+		matches := route.regex.FindStringSubmatch(r.URL.Path)
+		if len(matches) > 0 {
+			if r.Method != route.method {
+				allow = append(allow, route.method)
+				continue
+			}
+			ctx := context.WithValue(r.Context(), ctxKey{}, matches[1:])
+			route.handler(w, r.WithContext(ctx))
+			return
+		}
+	}
+
+	if len(allow) > 0 {
+		w.Header().Set("Allow", strings.Join(allow, ", "))
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	//http.NotFound(w, r)
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func main() {
-	cert := "/etc/drlm/cert/drlm.crt"
-	key := "/etc/drlm/cert/drlm.key"
+	// Load DRLM configuration files
+	loadDRLMConfiguration()
+	// Show DRLM configuration files
+	printDRLMConfiguration()
+	// Update API User
+	updateDefaultAPIUser()
 
-	http.HandleFunc("/clients/", drlmClientsService)
-	http.HandleFunc("/", drlmRootService)
-
-	err := http.ListenAndServeTLS(":443", cert, key, nil)
-	check(err)
+	// Run HTTPS server with middlewareLog
+	logger.Fatal(http.ListenAndServeTLS(":443", configDRLM.Certificate, configDRLM.Key, http.HandlerFunc(middlewareLog(Serve))))
 }

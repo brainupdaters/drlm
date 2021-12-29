@@ -7,7 +7,7 @@ function parse_put() {
     local IFS='&'
     unset $*
     vars="&$*&"
-    [ "$REQUEST_METHOD" = "PUT" ] && read QUERY_STRING
+    [ "$REQUEST_METHOD" == "PUT" ] && read QUERY_STRING
     set -f
     for item in $QUERY_STRING
     do
@@ -37,7 +37,7 @@ function parse_post() {
     local IFS='&'
     unset $*
     vars="&$*&"
-    [ "$REQUEST_METHOD" = "POST" ] && read QUERY_STRING
+    [ "$REQUEST_METHOD" == "POST" ] && read QUERY_STRING
     set -f
     for item in $QUERY_STRING
     do

@@ -1,347 +1,500 @@
 function get_distro () {
-    if [ -f /etc/dpkg/origins/ubuntu ]; then echo Ubuntu;fi
-    if [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;fi
-    if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then echo RedHat;fi
-    if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;fi
-    if [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo Suse; fi
+  if [ -f /etc/dpkg/origins/ubuntu ]; then echo Ubuntu;
+  elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then echo RedHat;
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then  echo Rocky;
+  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;
+  elif [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo Suse; 
+  fi
 }
 
-function ssh_get_distro() {
-    local USER=$1
-    local CLI_NAME=$2
-    echo $(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -f get_distro); get_distro") | tr -dc '[:alnum:][:punct:]'
+function ssh_get_distro () {
+  local USER=$1
+  local CLI_NAME=$2
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -f get_distro); get_distro"  2> /dev/null) | tr -dc '[:alnum:][:punct:]'
 }
 
-function get_release() {
-    if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; fi
-    if [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;fi
-    if [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
-    if [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;fi
-    if [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';fi
-    if [ -f /etc/SUSE-brand ]; then cat /etc/SUSE-brand|grep VERSION| awk '{print $3}';fi
+function get_release () {
+  if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; 
+  elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" {'print $2'}|cut -c 2-4;
+  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;
+  elif [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';
+  elif [ -f /etc/SUSE-brand ]; then cat /etc/SUSE-brand|grep VERSION| awk '{print $3}';
+  fi
 }
 
-function get_arch() {
-    local USER=$1
-    local CLI_NAME=$2
-    ARCH=$(echo $( ssh $SSH_OPTS $USER@$CLI_NAME arch ) | tr -dc '[:alnum:][:punct:]')
-    if [ "$ARCH" = "" ]; then echo noarch; else echo $ARCH ; fi
+function get_arch () {
+  local USER=$1
+  local CLI_NAME=$2
+  ARCH=$(echo $( ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "arch 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]')
+  if [ "$ARCH" == "" ]; then echo noarch; else echo $ARCH ; fi
 }
 
-function ssh_get_release() {
-    local USER=$1
-    local CLI_NAME=$2
-    echo $(ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -f get_release); get_release") | tr -dc '[:alnum:][:punct:]'
+function ssh_get_release () {
+  local USER=$1
+  local CLI_NAME=$2
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -f get_release); get_release 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]'
 }
 
-function ssh_get_rear_version() {
-    local CLI_NAME=$1
-    echo $(ssh $SSH_OPTS $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V") | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//'
+function ssh_get_rear_version () {
+  local CLI_NAME=$1
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//'
 }
 
 function check_apt () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-cache search netcat|grep -w netcat &>/dev/null)"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-cache search netcat|grep -w netcat &>/dev/null)" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function check_yum () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum search netcat| grep -w netcat &> /dev/null )"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO yum search netcat| grep -w netcat &> /dev/null )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function check_zypper () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper se netcat| grep -w netcat &> /dev/null )"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO zypper se netcat| grep -w netcat &> /dev/null )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_dependencies_apt () {
-    local USER=$1
-    local CLI_NAME=$2
-    local REAR_DEPENDENCIES="$3"
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local REAR_DEPENDENCIES="$3"
+  local SUDO=$4
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_dependencies_yum () {
-    local USER=$1
-    local CLI_NAME=$2
-    local REAR_DEP_REDHAT="$3"
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum -y install ${REAR_DEP_REDHAT[@]} &>/dev/null )"
+  local USER=$1
+  local CLI_NAME=$2
+  local REAR_DEP_REDHAT="$3"
+  local SUDO=$4
+  if [ -n "$REAR_DEP_REDHAT" ]; then
+    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO yum -y install $REAR_DEP_REDHAT &>/dev/null )" &> /dev/null
     if [ $? -eq 0 ]; then return 0; else return 1; fi
+  fi
 }
 
 function install_dependencies_zypper () {
-    local USER=$1
-    local CLI_NAME=$2
-    local REAR_DEP_SUSE="$3"
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper --no-gpg-checks in -y ${REAR_DEP_SUSE[@]} &>/dev/null )"
+  local USER=$1
+  local CLI_NAME=$2
+  local REAR_DEP_SUSE="$3"
+  local SUDO=$4
+  if [ -n "$REAR_DEP_SUSE" ]; then
+    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO zypper --no-gpg-checks in -y $REAR_DEP_SUSE &>/dev/null )" &> /dev/null
     if [ $? -eq 0 ]; then return 0; else return 1; fi
+  fi
 }
 
 function install_rear_yum () {
-    $SUDO yum -y remove rear &> /dev/null
-    $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
-    if [ $? -ne 0 ]; then
-        echo "Error Downloading rear package"
-    else
-        $SUDO yum --nogpgcheck -y install /tmp/rear.rpm &> /dev/null
-        if [ $? -ne 0 ]; then
-            echo "Error Installing ReaR package"
-        fi
-    fi
+  $SUDO yum -y remove rear &> /dev/null
+  $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
+  if [ $? -ne 0 ]; then
+      echo "Error Downloading rear package"
+  else
+      $SUDO yum --nogpgcheck -y install /tmp/rear.rpm &> /dev/null
+      if [ $? -ne 0 ]; then
+          echo "Error Installing ReaR package"
+      fi
+  fi
 }
 
 function install_rear_yum_repo () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO yum -y remove rear; $SUDO yum -y install rear &>/dev/null )"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO yum -y remove rear; $SUDO yum -y install rear &>/dev/null )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function ssh_install_rear_yum () {
-    local USER=$1
-    local CLI_NAME=$2
-    local URL_REAR=$3
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_yum); install_rear_yum"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local URL_REAR=$3
+  local SUDO=$4
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_yum); install_rear_yum" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_rear_dpkg () {
-    $SUDO apt-get -y remove rear &> /dev/null
-    $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
+  $SUDO apt-get -y remove rear &> /dev/null
+  $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo "Error Downloading rear package"
+  else
+    $SUDO /usr/bin/dpkg --install /tmp/rear.deb &> /dev/null
     if [ $? -ne 0 ]; then
-        echo "Error Downloading rear package"
-    else
-        $SUDO /usr/bin/dpkg --install /tmp/rear.deb &> /dev/null
-        if [ $? -ne 0 ]; then
-            echo "Error Installing ReaR package"
-        fi
+      echo "Error Installing ReaR package"
     fi
+  fi
 }
 
 function install_rear_deb_repo () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO apt-get -y remove rear; $SUDO apt-get -y install rear &>/dev/null )"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get -y remove rear; $SUDO apt-get -y install rear &>/dev/null )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function ssh_install_rear_dpkg () {
-    local USER=$1
-    local CLI_NAME=$2
-    local URL_REAR=$3
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local URL_REAR=$3
+  local SUDO=$4
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_dpkg); install_rear_dpkg" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_rear_zypper_repo () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO zypper rm -y rear; $SUDO zypper in -y rear  &>/dev/null )"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO zypper rm -y rear; $SUDO zypper in -y rear  &>/dev/null )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_rear_zypper () {
-    $SUDO zypper rm -y rear &> /dev/null
-    $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
+  $SUDO zypper rm -y rear &> /dev/null
+  $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.rpm $URL_REAR &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo "Error Downloading rear package"
+  else
+    $SUDO /usr/bin/zypper --no-gpg-checks in -y /tmp/rear.rpm &> /dev/null
     if [ $? -ne 0 ]; then
-        echo "Error Downloading rear package"
-    else
-        $SUDO /usr/bin/zypper --no-gpg-checks in -y /tmp/rear.rpm &> /dev/null
-        if [ $? -ne 0 ]; then
-            echo "Error Installing ReaR package"
-        fi
+      echo "Error Installing ReaR package"
     fi
+  fi
 }
 
 function ssh_install_rear_zypper () {
-    local USER=$1
-    local CLI_NAME=$2
-    local URL_REAR=$3
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local URL_REAR=$3
+  local SUDO=$4
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function ssh_keygen () {
-    ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N '' &> /dev/null
-    if [ $? -eq 0 ];then return 0; else return 1; fi
+  ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N '' &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function send_drlm_managed () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\n%s\n%s\n%s\n' "DRLM_MANAGED=y" "DRLM_SERVER=$(hostname -s)" "DRLM_ID=$CLI_NAME" 'DRLM_REST_OPTS=\"$REST_OPTS\"' | ${SUDO} tee /etc/rear/local.conf >/dev/null && ${SUDO} chmod 644 /etc/rear/local.conf )"
-    if [ $? -eq 0 ];then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( printf '%s\n%s\n%s\n%s\n' "DRLM_MANAGED=y" "DRLM_SERVER=$(hostname -s)" "DRLM_ID=$CLI_NAME" 'DRLM_REST_OPTS=\"$REST_OPTS_RESCUE\"' | ${SUDO} tee /etc/rear/local.conf >/dev/null && ${SUDO} chmod 644 /etc/rear/local.conf )" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function send_drlm_token () {
+  local USER="$1"
+  local CLI_NAME="$2"
+  local SUDO="$3"
+
+  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.token ]; then
+    generate_client_token "$CLI_NAME"
+  fi
+  
+  local TOKEN="$(/bin/cat $CONFIG_DIR/clients/${CLI_NAME}.token)"
+
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( echo '$TOKEN' | ${SUDO} tee /etc/rear/drlm.token >/dev/null && ${SUDO} chmod 600 /etc/rear/drlm.token )" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function make_ssl_capath () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS ${USER}@${CLI_NAME} "( if [ ! -d /etc/rear/cert ]; then ${SUDO} mkdir -p /etc/rear/cert && ${SUDO} chmod 755 /etc/rear/cert; fi )"
-    if [ $? -eq 0 ];then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( if [ ! -d /etc/rear/cert ]; then ${SUDO} mkdir -p /etc/rear/cert && ${SUDO} chmod 755 /etc/rear/cert; fi )" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function send_ssl_cert () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    local CERT=$(cat /etc/drlm/cert/drlm.crt)
-    ssh $SSH_OPTS ${USER}@${CLI_NAME} "$(declare -p CERT); ( echo \"$CERT\" | ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )"
-    if [ $? -eq 0 ];then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  local CERT=$(cat /etc/drlm/cert/drlm.crt)
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p CERT); ( echo \"$CERT\" | ${SUDO} tee /etc/rear/cert/$(hostname -s).crt >/dev/null \
+  && ${SUDO} chmod 644 /etc/rear/cert/$(hostname -s).crt \
+  && ${SUDO} ln -sf /etc/rear/cert/$(hostname -s).crt /etc/rear/cert/\`${SUDO} openssl x509 -hash -noout -in /etc/rear/cert/$(hostname -s).crt\`.0 )" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function send_drlm_hostname () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SRV_IP=$3
-    local SUDO=$4
-    ssh $SSH_OPTS ${USER}@${CLI_NAME} "( printf '%s\t%s\n' "$SRV_IP" "$(hostname -s)" | ${SUDO} tee --append /etc/hosts >/dev/null )"
-    if [ $? -eq 0 ];then return 0; else return 1; fi
+  if [ -n "$SRV_NAME" ] && [ -n "$SRV_IP" ];then
+    # Coment lines with same hostname as SRV_NAME and diferent ip SRV_IP
+    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_NAME" | grep -v "$SRV_IP" | awk -F':' '{print $1}'); do
+      $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
+    done
+
+    # Coment lines with same ip as SRV_IP and diferent hostname SRV_NAME
+    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_IP" | grep -v "$SRV_NAME" | awk -F':' '{print $1}'); do
+      $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
+    done
+
+    # If no exists "$SRV_IP" "$SRV_NAME" line in /etc/hosts attach it
+    grep -o '^[^#]*' /etc/hosts | grep "^$SRV_IP" | grep -w "$SRV_NAME" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$SRV_NAME" | $SUDO tee --append /etc/hosts >/dev/null
+  fi
+}
+
+function ssh_send_drlm_hostname () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SRV_IP=$3
+  local SUDO=$4
+  local SRV_NAME=$(hostname -s)
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SRV_NAME SRV_IP SUDO; declare -f send_drlm_hostname); send_drlm_hostname" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function create_drlm_var () {
+  # ToDo: Check if client it's a DRLM server. If true, don't modify permissions or DRLM server 
+  # because will broke functionality.
+  $SUDO mkdir -p /var/lib/drlm/scripts
+  $SUDO chown -R drlm:drlm /var/lib/drlm
+  $SUDO chmod -R 700 /var/lib/drlm
+}
+
+function ssh_create_drlm_var () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SUDO; declare -f create_drlm_var); create_drlm_var" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function create_drlm_user () {
-    local USER=$1
-    local CLI_NAME=$2
-    local DRLM_USER=$3
-    local SUDO=$4
-    PASS=$(echo -n changeme | openssl passwd -1 -stdin)
-    ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO /usr/sbin/useradd -d /home/$DRLM_USER -c 'DRLM User Agent' -m -s /bin/bash -p '$PASS' $DRLM_USER"
-    if [ $? -eq 0 ];then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local DRLM_USER=$3
+  local SUDO=$4
+  PASS=$(echo -n changeme | openssl passwd -1 -stdin)
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$SUDO /usr/sbin/useradd -d /home/$DRLM_USER -c 'DRLM User Agent' -m -s /bin/bash -p '$PASS' $DRLM_USER" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function delete_drlm_user () {
-    local USER=$1
-    local CLI_NAME=$2
-    local DRLM_USER=$3
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -r $DRLM_USER"
-    if [ $? -eq 0 ];then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local DRLM_USER=$3
+  local SUDO=$4
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -r $DRLM_USER" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function disable_drlm_user_login () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SUDO=$3
-    ssh $SSH_OPTS $USER@$CLI_NAME "( $SUDO chage -I -1 -m 0 -M 99999 -E -1 $DRLM_USER; $SUDO passwd -l $DRLM_USER )"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO chage -I -1 -m 0 -M 99999 -E -1 $DRLM_USER; $SUDO passwd -l $DRLM_USER )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function remove_authorized_keys () {
-    sed -i /$AUTH_KEY/d $HOME/.ssh/authorized_keys
+  sed -i /$AUTH_KEY/d $HOME/.ssh/authorized_keys
 }
 
 function ssh_remove_authorized_keys () {
-    local USER=$1
-    local CLI_NAME=$2
-    local AUTH_KEY=$(cat ~/.ssh/id_rsa.pub|awk '{print $3}')
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p AUTH_KEY ; declare -f remove_authorized_keys); remove_authorized_keys"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local AUTH_KEY=$(cat ~/.ssh/id_rsa.pub|awk '{print $3}')
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p AUTH_KEY ; declare -f remove_authorized_keys); remove_authorized_keys" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function start_services () {
-    for service in ${SERVICES[@]}
-    do
-        if [ "$(ps -p 1 -o comm=)" = "systemd" ]; then
-            $SUDO systemctl start $service.service
-            $SUDO systemctl enable $service.service
-        else
-            if [ "$DISTRO" = "Debian" ] || [ "$DISTRO" = "Ubuntu" ]; then
-                $SUDO /usr/sbin/service $service start
-                $SUDO /usr/sbin/update-rc.d $service enable
-            else
-                $SUDO /sbin/service $service start
-                $SUDO /sbin/chkconfig $service on
-            fi
-        fi
-    done
+  for service in ${SERVICES[@]}; do
+    if [ "$(ps -p 1 -o comm=)" == "systemd" ]; then
+      $SUDO systemctl start $service.service
+      $SUDO systemctl enable $service.service
+    else
+      if [ "$DISTRO" == "Debian" ] || [ "$DISTRO" == "Ubuntu" ]; then
+        $SUDO /usr/sbin/service $service start
+        $SUDO /usr/sbin/update-rc.d $service enable
+      else
+        $SUDO /sbin/service $service start
+        $SUDO /sbin/chkconfig $service on
+      fi
+    fi
+  done
 }
 
 function ssh_start_services () {
-    local USER=$1
-    local CLI_NAME=$2
-    local SERVICES="$3"
-    local DISTRO=$4
-    local SUDO=$5
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p SERVICES DISTRO SUDO; declare -f start_services); start_services"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local SERVICES="$3"
+  local DISTRO=$4
+  local SUDO=$5
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SERVICES DISTRO SUDO; declare -f start_services); start_services" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function config_sudo () {
-    export PATH="$PATH:/sbin:/usr/sbin"
-    if [ -z "$SUDO" ]; then SUDO_CMDS_DRLM=( $(which ${SUDO_CMDS_DRLM[@]}) ); else SUDO_CMDS_DRLM=( $($SUDO "PATH=$PATH" which ${SUDO_CMDS_DRLM[@]}) ); fi
-    SLen=${#SUDO_CMDS_DRLM[@]}
-    for (( i=0; i<$SLen; i++ )); do
-        SUDO_COMMANDS+=( , ${SUDO_CMDS_DRLM[$i]} )
+  export PATH="$PATH:/sbin:/usr/sbin"
+
+  if [ -z "$SUDO" ]; then 
+    for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
+      commands="$(echo "$sudo_element" | awk '{print $1}')"
+      args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
+      if [ -n "$(which --skip-alias $commands)" ]; then
+        SUDO_COMMANDS+=( , "$(which --skip-alias $commands) $args")
+      fi
     done
-    if [ ! -d /etc/sudoers.d/ ]; then
-        $SUDO mkdir /etc/sudoers.d
-        $SUDO chmod 755 /etc/sudoers.d
-        $SUDO sh -c "echo '#includedir /etc/sudoers.d' >> /etc/sudoers"
-    fi
-    $SUDO cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
-    Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
-    $DRLM_USER    ALL=(root)      NOPASSWD: DRLM
+  else 
+    for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
+      commands="$(echo "$sudo_element" | awk '{print $1}')"
+      args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
+      if [ -n "$($SUDO "PATH=$PATH" which --skip-alias $commands)" ]; then
+        SUDO_COMMANDS+=( , "$($SUDO "PATH=$PATH" which --skip-alias $commands) $args")
+      fi
+    done
+  fi
+
+  for sudo_script in "${SUDO_DRLM_SCRIPTS[@]}"; do
+    SUDO_COMMANDS+=( , "$sudo_script" )
+  done
+
+  if [ ! -d /etc/sudoers.d/ ]; then
+    $SUDO mkdir /etc/sudoers.d
+    $SUDO chmod 755 /etc/sudoers.d
+    $SUDO sh -c "echo '#includedir /etc/sudoers.d' >> /etc/sudoers"
+  fi
+
+  $SUDO cat > /tmp/etc_sudoers.d_drlm.sudo << EOF
+  Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
+  $DRLM_USER    ALL=(root)      NOPASSWD: DRLM
 EOF
-    if [ -d /etc/sudoers.d/ ]; then
-        $SUDO chmod 440 /tmp/etc_sudoers.d_drlm.sudo
-        $SUDO chown root:root /tmp/etc_sudoers.d_drlm.sudo
-        $SUDO cp -p /tmp/etc_sudoers.d_drlm.sudo /etc/sudoers.d/drlm
-        $SUDO rm -f /tmp/etc_sudoers.d_drlm.sudo
-        if [ $? -eq 0 ]; then return 0; else return 1;fi
-    else
-        return 1
-    fi
+
+  if [ -d /etc/sudoers.d/ ]; then
+    $SUDO chmod 440 /tmp/etc_sudoers.d_drlm.sudo
+    $SUDO chown root:root /tmp/etc_sudoers.d_drlm.sudo
+    $SUDO cp -p /tmp/etc_sudoers.d_drlm.sudo /etc/sudoers.d/drlm
+    $SUDO rm -f /tmp/etc_sudoers.d_drlm.sudo
+    if [ $? -eq 0 ]; then return 0; else return 1;fi
+  else
+    return 1
+  fi
 }
 
 function ssh_config_sudo () {
-    local USER=$1
-    local CLI_NAME=$2
-    local DRLM_USER=$3
-    local SUDO=$4
-    ssh $SSH_OPTS $USER@$CLI_NAME "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO ; declare -f config_sudo); config_sudo"
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  local USER=$1
+  local CLI_NAME=$2
+  local DRLM_USER=$3
+  local SUDO=$4
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p DRLM_USER SUDO_CMDS_DRLM SUDO_DRLM_SCRIPTS SUDO ; declare -f config_sudo); config_sudo" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function copy_ssh_id () {
-    local USER=$1
-    local CLI_NAME=$2
-    local DRLM_USER=$3
-    local SUDO=$4
+  local USER=$1
+  local CLI_NAME=$2
+  local DRLM_USER=$3
+  local SUDO=$4
 
-    PUBKEY=$(<~/.ssh/id_rsa.pub)
+  PUBKEY=$(<~/.ssh/id_rsa.pub)
 
-    ssh $SSH_OPTS $USER@$CLI_NAME "DRLM_USER_HOME_DIR=\"\$(getent passwd \"$DRLM_USER\" | cut -d: -f6)\" ;
-        DRLM_USER_GROUP=\"\$(id -gn $DRLM_USER)\" ;
-        if [ ! -d \"\$DRLM_USER_HOME_DIR/.ssh\" ]; then
-            $SUDO mkdir \"\$DRLM_USER_HOME_DIR/.ssh\" ;
-            $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh ;
-            $SUDO chmod 700 \$DRLM_USER_HOME_DIR/.ssh ;
-        fi ;
-        $SUDO cat \$DRLM_USER_HOME_DIR/.ssh/authorized_keys >> /tmp/authorized_keys ;
-        $SUDO echo '$PUBKEY' >> /tmp/authorized_keys ;
-        $SUDO mv /tmp/authorized_keys \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
-        $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
-        $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;"
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "DRLM_USER_HOME_DIR=\"\$(getent passwd \"$DRLM_USER\" | cut -d: -f6)\" ;
+      DRLM_USER_GROUP=\"\$(id -gn $DRLM_USER)\" ;
+      if [ ! -d \"\$DRLM_USER_HOME_DIR/.ssh\" ]; then
+          $SUDO mkdir \"\$DRLM_USER_HOME_DIR/.ssh\" ;
+          $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh ;
+          $SUDO chmod 700 \$DRLM_USER_HOME_DIR/.ssh ;
+      fi ;
+      $SUDO cat \$DRLM_USER_HOME_DIR/.ssh/authorized_keys >> /tmp/authorized_keys ;
+      $SUDO echo '$PUBKEY' >> /tmp/authorized_keys ;
+      $SUDO mv /tmp/authorized_keys \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
+      $SUDO chown $DRLM_USER:\$DRLM_USER_GROUP \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;
+      $SUDO chmod 600 \$DRLM_USER_HOME_DIR/.ssh/authorized_keys ;" &> /dev/null
+}
+
+function config_public_keys () {
+  # Generate key and public key if does not exists
+  $SUDO [ ! -f /root/.ssh/id_rsa ] && $SUDO /usr/bin/ssh-keygen -q -t rsa -N '' -f /root/.ssh/id_rsa <<<y &> /dev/null
+  
+  # Add drlm server to known_host if does not exists
+  $SUDO /usr/bin/ssh-keygen -R $DRLM_SERVER &> /dev/null  
+
+  # Is better to add the hosts hashed but -H parameter does not work on centos 8
+  # $SUDO /usr/bin/ssh-keyscan -H $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+  $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+
+  if [ -n "$DRLM_SERVER_IP" ]; then
+    $SUDO /usr/bin/ssh-keyscan $DRLM_SERVER_IP 2>/dev/null | $SUDO tee --append /root/.ssh/known_hosts >/dev/null
+  fi
+
+  # return the public key to add and authorize the client in drlm server  
+  $SUDO cat /root/.ssh/id_rsa.pub
+}
+
+function ssh_config_public_keys () {
+  local USER=$1
+  local CLI_NAME=$2
+  local DRLM_SERVER_IP=$3
+  local SUDO=$4
+  local DRLM_SERVER="$(hostname -s)"
+  
+  echo $(ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO DRLM_SERVER DRLM_SERVER_IP ; declare -f config_public_keys); config_public_keys")
+}
+
+function sync_client_scripts () {
+  local CLI_NAME=$1
+ 
+  # Check for files in the directory
+  scripts=($CONFIG_DIR/clients/$CLI_NAME.scripts/*)
+  if [ ${#scripts[@]} -gt 0 ]; then 
+    # Copy the files to the remote client
+    scp $CONFIG_DIR/clients/$CLI_NAME.scripts/* ${DRLM_USER}@${CLI_NAME}:/var/lib/drlm/scripts/ &> /dev/null
+    if [ $? -eq 0 ]; then 
+      # Give execution permissions to sctipts
+      ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod -R 700 /var/lib/drlm/scripts" &> /dev/null
+      if [ $? -eq 0 ]; then return 0; else return 1; fi
+    else 
+      return 1; 
+    fi
+  fi
+  return 0
+}
+
+function remove_client_scripts () {
+  local CLI_NAME=$1
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "rm -rf /var/lib/drlm/scripts/*" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function tunning_rear () {
+  # remove cURL verbose to avoid infinite lines of Debug in some cURL versions
+  if [ -f "/usr/share/rear/lib/drlm-functions.sh" ]; then
+    $SUDO sed -i 's/ $verbose//g' /usr/share/rear/lib/drlm-functions.sh
+  fi
+  
+  # Solve SELinux autorelabel after recover (RSYNC)
+  if [ -f "/usr/share/rear/restore/default/500_selinux_autorelabel.sh" ]; then
+    $SUDO sed -i '/^touch \$TARGET_FS_ROOT\/\.autorelabel/i rm -rf \$TARGET_FS_ROOT\/\.autorelabel' /usr/share/rear/restore/default/500_selinux_autorelabel.sh
+  fi
+}
+
+function ssh_tunning_rear () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO; declare -f tunning_rear); tunning_rear" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function authors () {

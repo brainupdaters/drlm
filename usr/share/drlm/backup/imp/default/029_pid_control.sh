@@ -9,14 +9,14 @@ if [ -f $VAR_DIR/run/$CLI_NAME.pid ]; then
   if [ "$CLI_PID" != "" ]; then
     COMMAND=$( ps -p $CLI_PID -o comm= )
     if [ -n "$COMMAND" ]; then
-      LogPrint "$PROGRAM:$WORKFLOW:Backup of client [ $CLI_NAME ] running with PID: $CLI_PID Command: $COMMAND."
-      Error "$PROGRAM:$WORKFLOW:Skipping import backup for client [ $CLI_NAME ]."
+      LogPrint "Backup of client [ $CLI_NAME ] running with PID: $CLI_PID Command: $COMMAND."
+      Error "Skipping import backup for client [ $CLI_NAME ]"
     else
       echo $BASHPID > $VAR_DIR/run/$CLI_NAME.pid
-      Log "$PROGRAM:$WORKFLOW:Importing backup for client [ $CLI_NAME ] with PID: $BASHPID."
+      Log "Importing backup for client [ $CLI_NAME ] with PID: $BASHPID."
     fi
   fi
 else
   echo $BASHPID > $VAR_DIR/run/$CLI_NAME.pid
-  Log "$PROGRAM:$WORKFLOW:Importing backup for client [ $CLI_NAME ] with PID: $BASHPID."
+  Log "Importing backup for client [ $CLI_NAME ] with PID: $BASHPID."
 fi

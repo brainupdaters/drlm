@@ -124,18 +124,29 @@ function get_all_client_id_dbdrv ()
 
 function add_client_dbdrv ()
 {
-    local CLI_ID=0
-    local CLI_NAME=$1
-    local CLI_MAC=$2
-    local CLI_IP=$3
-    local CLI_OS=$4
-    local CLI_NET=$5
-    local CLI_REAR=$6
+    local CLI_ID="$1"
+    local CLI_NAME="$2"
+    local CLI_MAC="$3"
+    local CLI_IP="$4"
+    local CLI_OS="$5"
+    local CLI_NET="$6"
+    local CLI_REAR="$7"
 
-    #To improve prevention of duplicated id when addclients are done simultaneously
-    sleep $(echo 0.$[ $RANDOM % 10 ]$[ $RANDOM % 10 ])
+    if [ -z "$CLI_ID" ]; then 
+      CLI_ID=$(generate_client_id_dbdrv)
+    fi
 
-    CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+    echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}', '${CLI_OS}', '${CLI_REAR}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -eq 0 ]; then 
+      LogPrint "New Client ID: $CLI_ID"
+      return 0
+    else 
+      return 1 
+    fi
+}
+
+function generate_client_id_dbdrv () {
+    local CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     if [ $CLI_ID -eq  0 ]; then
         CLI_ID=$(echo "select ifnull(max(idclient)+1, 100) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
         echo "INSERT INTO counters (idcounter, value) VALUES ('clients', $CLI_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
@@ -143,8 +154,7 @@ function add_client_dbdrv ()
         CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     fi
 
-    echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (${CLI_ID}, '${CLI_NAME}', '${CLI_MAC}', '${CLI_IP}', '${CLI_NET}', '${CLI_OS}', '${CLI_REAR}' ); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    if [ $? -eq 0 ]; then echo "New Client ID: $CLI_ID";else echo "ERRORFILEDB"; fi
+    echo $CLI_ID
 }
 
 function del_client_id_dbdrv ()
@@ -227,6 +237,30 @@ function exist_network_ip_dbdrv ()
   if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
 }
 
+function exist_server_ip_dbdrv ()
+{
+  local NET_SRV=$1
+  COUNT=$(echo "select count(*) from networks where serverip='${NET_SRV}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function exist_network_interface_dbdrv ()
+{
+  local NET_IFACE=$1
+  COUNT=$(echo "select count(*) from networks where interface='${NET_IFACE}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function count_networks_dbdrv () {
+  local COUNT=$(echo "select count(*) from networks;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT
+}
+
+function count_active_networks_dbdrv () {
+  local COUNT=$(echo "select count(*) from networks where active='1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT
+}
+
 function add_network_dbdrv ()
 {
     local NET_ID=0
@@ -238,9 +272,8 @@ function add_network_dbdrv ()
     local NET_BRO=$6
     local NET_SERVIP=$7
     local NET_NAME=$8
-
-    #To improve prevention of duplicated id when addnetwork are done simultaneously
-    sleep $(echo 0.$[ $RANDOM % 10 ]$[ $RANDOM % 10 ])
+    local NET_ACTIVE=$9
+    local NET_IFACE=${10}
 
     NET_ID=$(echo "select count(*) from counters where idcounter='networks';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     if [ $NET_ID -eq  0 ]; then
@@ -250,8 +283,13 @@ function add_network_dbdrv ()
         NET_ID=$(echo "select value+1 from counters where idcounter='networks'; UPDATE counters set value=(value+1) where idcounter='networks';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     fi
 
-    echo "INSERT INTO networks (idnetwork, netip, mask, gw, domain, dns, broadcast, serverip, netname) VALUES (${NET_ID}, '${NET_IP}', '${NET_MASK}', '${NET_GW}', '${NET_DOM}', '${NET_DNS}', '${NET_BRO}', '${NET_SERVIP}', '${NET_NAME}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    if [ $? -eq 0 ]; then echo "New Network ID: $NET_ID";else echo "ERRORFILEDB"; fi
+    echo "INSERT INTO networks (idnetwork, netip, mask, gw, domain, dns, broadcast, serverip, netname, active, interface) VALUES (${NET_ID}, '${NET_IP}', '${NET_MASK}', '${NET_GW}', '${NET_DOM}', '${NET_DNS}', '${NET_BRO}', '${NET_SERVIP}', '${NET_NAME}', '${NET_ACTIVE}', '${NET_IFACE}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -eq 0 ]; then 
+      LogPrint "New Network ID: $NET_ID";
+      return 0
+    else 
+      return 1 
+    fi
 }
 
 function del_network_id_dbdrv ()
@@ -331,9 +369,28 @@ function get_network_srv_dbdrv ()
   echo "$NET_SRV"
 }
 
+function get_network_status_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_STATUS=$(echo "select active from networks where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$NET_STATUS"
+}
+
+function get_network_interface_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_IFACE=$(echo "select interface from networks where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$NET_IFACE"
+}
+
 function get_all_networks_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":" from networks;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  local NET_NAME="$1"
+  if [ -n "$NET_NAME" ]; then
+    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":",active,":",interface,":" from networks where netname="'$NET_NAME'";' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  else
+    echo "$(echo -e '.separator ""\n select idnetwork,":",netip,":",mask,":",gw,":",domain,":",dns,":",broadcast,":",serverip,":",netname,":",active,":",interface,":" from networks;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  fi
 }
 
 function get_all_network_names_dbdrv ()
@@ -346,6 +403,18 @@ function get_all_network_id_dbdrv ()
 {
   local COMP=$1
   echo $(echo "select idnetwork from networks where idnetwork like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_all_network_enabled_id_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select idnetwork from networks where active='1' and idnetwork like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_all_network_disabled_id_dbdrv ()
+{
+  local COMP=$1
+  echo $(echo "select idnetwork from networks where active='0' and idnetwork like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
 function mod_network_name_dbdrv ()
@@ -412,6 +481,22 @@ function mod_network_srv_dbdrv ()
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function mod_network_status_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_STATUS=$2
+  echo "update networks set active='$NET_STATUS' where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function mod_network_interface_dbdrv ()
+{
+  local NET_ID=$1
+  local NET_INTERFACE=$2
+  echo "update networks set interface='$NET_INTERFACE' where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 #############################
 # Backup database functions #
 #############################
@@ -423,36 +508,108 @@ function del_backup_dbdrv ()
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function del_snap_dbdrv ()
+{
+    local SNAP_ID="$1"
+    echo "delete from snaps where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function del_all_snaps_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  echo "delete from snaps where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function del_all_db_client_backup_dbdrv ()
 {
     local CLI_ID=$1
+    echo "delete from snaps where idbackup in ( select idbackup from backups where clients_id='$CLI_ID' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -ne 0 ]; then return 1; fi
     echo "delete from backups where clients_id='$CLI_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_active_cli_bkp_from_db_dbdrv ()
 {
-  local CLI_NAME=$1
-  BKP_ID=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_ID=$1
+  local CLI_CFG=$2
+
+  if [ -n "$CLI_CFG" ]; then
+    BKP_ID=$(echo "select idbackup from backups where clients_id='${CLI_ID}' and active in (1,2,3) and config='${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  else
+    BKP_ID=$(echo "select idbackup from backups where clients_id='${CLI_ID}' and active in (1,2,3);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  fi
   echo $BKP_ID
 }
 
-function get_all_backups_dbdrv ()
-{
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "enabled" else "disabled" end,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+function get_active_cli_rescue_from_db_dbdrv () {
+  local CLI_ID=$1
+  echo $(echo "select idbackup from backups where clients_id='${CLI_ID}' and active in (1,2,3) and type='PXE';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_active_cli_pxe_from_db_dbdrv () {
+  local CLI_ID=$1
+  echo $(echo "select idbackup from backups where clients_id='${CLI_ID}' and PXE=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_all_backups_dbdrv () {
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function enable_backup_db_dbdrv ()
 {
   local BKP_ID=$1
-  echo "update backups set active=1 where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  local MODE=$2
+
+  if [ -z "$MODE" ]; then
+    MODE=1
+  fi
+
+  echo "update backups set active=$MODE where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function enable_snap_db_dbdrv ()
+{
+  local SNAP_ID=$1
+  echo "update snaps set active=1 where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function disable_backup_db_dbdrv ()
 {
   local BKP_ID=$1
-  echo "update backups set active=0 where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "update backups set active=0, PXE=0 where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+# disable all snaps of one backup id
+function disable_backup_snap_db_dbdrv ()
+{
+  local BKP_ID=$1
+  echo "update snaps set active=0 where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+# disable snap id specified, more secure if backup id its also specified
+function disable_snap_db_dbdrv ()
+{
+  local SNAP_ID=$1
+  local BKP_ID=$2
+  echo "update snaps set active=0 where idsnap='$SNAP_ID' and idbackup like '$BKP_ID%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function disable_pxe_db_dbdrv () {
+  local BKP_ID=$1
+  echo "update backups set PXE=0 where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function enable_pxe_db_dbdrv () {
+  local BKP_ID=$1
+  echo "update backups set PXE=1 where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -460,6 +617,13 @@ function exist_backup_id_dbdrv ()
 {
   local BKP_ID=$1
   COUNT=$(echo "select count(*) from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
+function exist_snap_id_dbdrv ()
+{
+  local SNAP_ID=$1
+  COUNT=$(echo "select count(*) from snaps where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
 }
 
@@ -473,98 +637,352 @@ function exist_dr_file_db_dbdrv ()
 function get_count_active_backups_by_client_dbdrv ()
 {
   local CLI_NAME=$1
-  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and active=1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_CFG=$2
+  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and active in (1,2,3) and config = '${CLI_CFG}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo "$A_BKP"
 }
 
 function get_count_backups_by_client_dbdrv ()
 {
   local CLI_NAME=$1
-  A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_CFG=$2
+
+  if [ -n $CLI_CFG ]; then
+    A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%' and config='$CLI_CFG';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  else
+    A_BKP=$(echo "select count(*) from backups where drfile like '${CLI_NAME}.%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  fi
   echo "$A_BKP"
 }
 
-function register_backup_dbdrv ()
-{
-  local BKP_ID=$1
-  local CLI_ID=$2
-  local CLI_NAME=$3
-  local DR_FILE=$4
-  local BKP_DURATION=$5
-  local BKP_SIZE=$6
-  local BKP_IS_ACTIVE=1
+function register_backup_dbdrv () {
+  local BKP_ID="$1"
+  local BKP_CLI_ID="$2"
+  local BKP_DR_FILE="$3"
+  local BKP_IS_ACTIVE="$4"
+  local BKP_DURATION="$5"
+  local BKP_SIZE="$6"
+  local BKP_CFG="$7"
+  local BKP_PXE="$8"
+  local BKP_TYPE="$9"
+  local BKP_PROTO="${10}"
+  local BKP_DATE="${11}"
+  local BKP_ENCRYPTED="${12}"
+  local BKP_ENCRYP_PASS="${13}"
 
-# MARK LAST ACTIVE BACKUP AS INACTIVE
-  local A_BKP_ID=$(get_active_cli_bkp_from_db_dbdrv "$CLI_NAME")
-  if [ -n "$A_BKP_ID" ]; then
-    disable_backup_db_dbdrv "$A_BKP_ID"
-    if [ $? -ne 0 ]; then return 1; fi
-  fi
-
-# REGISTER BACKUP TO DATABASE
-  local A_BKP=$(get_count_active_backups_by_client_dbdrv "$CLI_NAME")
-
-  if [ $A_BKP -eq 0 ]; then
-    echo "INSERT INTO backups VALUES('${BKP_ID}', ${CLI_ID}, '${DR_FILE}', ${BKP_IS_ACTIVE}, '${BKP_DURATION}', '${BKP_SIZE}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-    if [ $? -eq 0 ]; then return 0; else return 1; fi
+  if [ "$BKP_ENCRYPTED" == "enabled" ]; then
+    BKP_ENCRYPTED="1"
   else
-    return 1
+    BKP_ENCRYPTED="0"
   fi
+
+  echo "INSERT INTO backups VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
-function get_backup_id_lst_by_client_dbdrv ()
-{
+function register_snap_dbdrv (){
+  local BKP_ID="$1" 
+  local SNAP_ID="$2" 
+  local SNAP_DATE="$3"
+  local SNAP_IS_ACTIVE="$4"
+  local SNAP_DURATION="$5"
+  local SNAP_SIZE="$6"
+  
+  echo "INSERT INTO snaps VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+# Get a list of backup id by client name
+function get_backup_id_list_by_client_id_dbdrv () {
+  local CLI_ID=$1
+  local BKP_ID_LIST=$(echo "select idbackup from backups where clients_id='$CLI_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ID_LIST
+}
+
+function get_backup_id_by_drfile_dbdrv () {
+  local DR_FILE=$1
+  local BKP_ID=$(echo "select idbackup from backups where drfile='${DR_FILE}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ID
+}
+
+function get_backup_id_candidate_by_config_dbdrv () {
   local CLI_NAME=$1
-  local ID_LIST=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-  echo $ID_LIST
+  local CLI_CFG=$2
+  local BKP_ID=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%' and config='$CLI_CFG' order by idbackup desc LIMIT 1;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ID
 }
 
-function get_all_backpu_id_by_client_dbdrv ()
-{
+# Get CLI_NAME backups list with BKP_ID like $COM* 
+# function for drlm bash_completions
+function get_all_backup_id_by_client_dbdrv () {
   local CLI_NAME=$1
   local COMP=$2
   local ID_LIST=$(echo "select idbackup from backups where drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
-function get_all_backup_id_dbdrv ()
-{
+function get_all_backup_enabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idbackup from backups where active in (1,2,3) and drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_backup_disabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idbackup from backups where active='0' and drfile like '${CLI_NAME}.%' and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idsnap from snaps, backups where backups.idbackup = snaps.idbackup and backups.drfile like '${CLI_NAME}.%' and snaps.idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_enabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idsnap from snaps, backups where backups.idbackup = snaps.idbackup and snaps.active='1' and backups.drfile like '${CLI_NAME}.%' and snaps.idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_disabled_id_by_client_dbdrv () {
+  local CLI_NAME=$1
+  local COMP=$2
+  local ID_LIST=$(echo "select idsnap from snaps, backups where backups.idbackup = snaps.idbackup and snaps.active='0' and backups.drfile like '${CLI_NAME}.%' and snaps.idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+# function get_all_snap_id_by_backup_id_dbdrv () {
+#   local BKP_ID=$1
+#   local ID_LIST=$(echo "select idsnap from snaps where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+#   echo $ID_LIST
+# }
+
+function get_all_snaps_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  echo $(echo "select * from snaps where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+}
+
+function get_all_backup_id_dbdrv () {
   local COMP=$1
   local ID_LIST=$(echo "select idbackup from backups where idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
-function get_all_client_names_in_backups_dbdrv()
-{
+function get_all_backup_enabled_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active in (1,2,3) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_not_enable_backup_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active in (0,2,3) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_not_write_backup_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active in (0,1,3) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_not_full_write_backup_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idbackup from backups where active in (0,1,2) and idbackup like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idsnap from snaps where idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_enabled_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idsnap from snaps where active='1' and idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_snap_disabled_id_dbdrv () {
+  local COMP=$1
+  local ID_LIST=$(echo "select idsnap from snaps where active='0' and idsnap like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_client_names_in_backups_dbdrv() {
   local COMP=$1
   local ID_LIST=$(echo "select distinct cliname from clients, backups where clients.idclient = backups.clients_id and clients.cliname like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
-function get_client_id_by_backup_id_dbdrv ()
-{
+function get_backup_config_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local CLI_CFG=$(echo "select config from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_CFG
+}
+
+function get_backup_client_id_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local CLI_ID=$(echo "select clients_id from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $CLI_ID
 }
 
-function get_backup_drfile_dbdrv ()
-{
+function get_backup_drfile_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local BKP_DR=$(echo "select drfile from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo "$BKP_DR"
 }
 
-function get_older_backup_by_client_dbdrv ()
-{
+function get_backup_drfile_by_snap_id_dbdrv () {
+  local SNAP_ID=$1
+  local BKP_DR=$(echo "select backups.drfile from snaps, backups where snaps.idbackup = backups.idbackup and snaps.idsnap='${SNAP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo "$BKP_DR"
+}
+
+function get_backup_type_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_TYPE=$(echo "select type from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_TYPE
+}
+
+function get_backup_protocol_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_PROTO=$(echo "select protocol from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_PROTO
+}
+
+function get_backup_date_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_DATE=$(echo "select date from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_DATE
+}
+
+function get_backup_encrypted_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_ENCRYPTED=$(echo "select encrypted from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ENCRYPTED
+}
+
+function get_backup_encryp_pass_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_ENCRYP_PASS=$(echo "select encryp_pass from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ENCRYP_PASS
+}
+
+function get_backup_duration_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_DURATION=$(echo "select duration from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_DURATION
+}
+
+function get_backup_size_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_SIZE=$(echo "select size from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_SIZE
+}
+
+function get_backup_status_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_STATUS=$(echo "select active from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_STATUS
+}
+
+function get_backup_pxe_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_PXE=$(echo "select PXE from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_PXE
+}
+
+function get_backup_active_snap_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local SNAP_ID=$(echo "select idsnap from snaps where idbackup='$BKP_ID' and active='1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $SNAP_ID
+}
+
+function get_backup_count_snaps_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local COUNT=$(echo "select count(*) from snaps where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT
+}
+
+function get_backup_older_snap_id_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local SNAP_ID=$(sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "select idsnap from snaps where idbackup='$BKP_ID' order by idsnap asc limit 1")
+  echo $SNAP_ID
+}
+
+function set_backup_date_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_DATE=$2
+  echo "update backups set date='$BKP_DATE' where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function set_backup_duration_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_DURATION=$2
+  echo "update backups set duration='$BKP_DURATION' where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function set_backup_size_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_SIZE=$2
+  echo "update backups set size='$BKP_SIZE' where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function get_snap_backup_id_by_snap_id_dbdrv () {
+  local SNAP_ID=$1
+  local BKP_ID=$(echo "select idbackup from snaps where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ID
+}
+
+function get_snap_status_by_snap_id_dbdrv () {
+  local SNAP_ID=$1
+  local SNAP_STATUS=$(echo "select active from snaps where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $SNAP_STATUS
+}
+
+function get_snap_date_by_snap_id_dbdrv () {
+  local SNAP_ID=$1
+  local SNAP_DATE=$(echo "select date from snaps where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $SNAP_DATE
+}
+
+function get_snap_duration_by_snap_id_dbdrv () {
+  local SNAP_ID=$1
+  local SNAP_DURATION=$(echo "select duration from snaps where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $SNAP_DURATION
+}
+
+function get_snap_size_by_snap_id_dbdrv () {
+  local SNAP_ID=$1
+  local SNAP_SIZE=$(echo "select size from snaps where idsnap='$SNAP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $SNAP_SIZE
+}
+
+function get_older_backup_by_client_dbdrv() {
   local CLI_NAME=$1
-  local OLD_BKP=$(sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=0 order by idbackup asc limit 1")
+  local CLI_CFG=$2
+
+  if [ -n $CLI_CFG ]; then
+    OLD_BKP=$(sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=0 and config='$CLI_CFG' order by idbackup asc limit 1")
+  else
+    OLD_BKP=$(sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "select idbackup from backups where drfile like '${CLI_NAME}.%' and active=0 order by idbackup asc limit 1")
+  fi
   echo "$OLD_BKP"
 }
 
 function get_active_backups_dbdrv ()
 {
-  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",case when active = 1 then "true" else "false" end,":::" from backups where active=1;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::",config,":",type,":",encrypted,":",encryp_pass,":" from backups where active in (1,2,3);' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 
@@ -599,18 +1017,18 @@ function exist_job_id_dbdrv ()
 function get_jobs_by_client_dbdrv ()
 {
   local CLI_ID=$1
-  echo "$(echo -e ".separator "," \n select idjob,start_date,end_date,last_date,next_date,repeat,enabled from jobs where clients_id=${CLI_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end from jobs where clients_id=${CLI_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function get_job_by_id_dbdrv ()
 {
   local JOB_ID=$1
-  echo "$(echo -e ".separator "," \n select clients_id,start_date,end_date,last_date,next_date,repeat,enabled from jobs where idjob=${JOB_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end from jobs where idjob=${JOB_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function get_all_jobs_dbdrv ()
 {
-  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function get_all_jobs_id_dbdrv()
@@ -638,7 +1056,7 @@ function get_all_client_names_in_jobs_dbdrv()
 function get_jobs_by_ndate_dbdrv ()
 {
   local DATE=$1
-  echo "$(echo -e ".separator "," \n select idjob,clients_id,next_date,end_date,repeat,enabled from jobs where datetime(next_date) <= datetime('${DATE}') and (end_date = '' or datetime(end_date) >= datetime('${DATE}'));" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,next_date,end_date,repeat,enabled,case when config is null then 'default' else config end from jobs where datetime(next_date) <= datetime('${DATE}') and (end_date = '' or datetime(end_date) >= datetime('${DATE}'));" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function add_job_dbdrv ()
@@ -648,10 +1066,11 @@ function add_job_dbdrv ()
   local JOB_EDATE=$3
   local JOB_NDATE=$JOB_SDATE
   local JOB_REPEAT=$4
+  local JOB_ENABLED=$5
+  local CLI_CFG=$6
 
-  echo "INSERT INTO jobs (clients_id, start_date, end_date, next_date, repeat, enabled) VALUES (${CLI_ID}, '${JOB_SDATE}', '${JOB_EDATE}', '${JOB_NDATE}', '${JOB_REPEAT}', 1); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO jobs (clients_id, start_date, end_date, next_date, repeat, enabled, config) VALUES (${CLI_ID}, '${JOB_SDATE}', '${JOB_EDATE}', '${JOB_NDATE}', '${JOB_REPEAT}', 1, '${CLI_CFG}'); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0;else return 1; fi
-
 }
 
 function del_job_id_dbdrv ()

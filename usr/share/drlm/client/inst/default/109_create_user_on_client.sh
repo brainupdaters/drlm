@@ -1,60 +1,63 @@
-Log "####################################################"
-Log "#         $CLI_NAME Install process: Create User   #"
-Log "####################################################"
+# instclient workflow
 
-LogPrint "$PROGRAM:$WORKFLOW: Installing software with user ${USER}"
-LogPrint "$PROGRAM:$WORKFLOW: Sending Key for user: ${USER}"
+LogPrint "Installing software with user ${USER}"
+LogPrint "Sending Key for user: ${USER}"
 
-ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
-if [ $? -ne 0  ]; then  
-    Error "$PROGRAM:$WORKFLOW: ssh-copy-id failed!"
-else 
-    Log "$PROGRAM:$WORKFLOW: Key succesfully copied to $CLI_NAME" 
+if ssh_access_enabled "$USER" "$CLI_NAME"; then 
+  REMOVE_SSH_ID="false"
+else
+  ssh-copy-id -p ${SSH_PORT} ${USER}@${CLI_NAME} &> /dev/null
+  if [ $? -ne 0  ]; then  
+    Error "ssh-copy-id failed!"
+  else 
+    Log "Key succesfully copied to $CLI_NAME" 
+  fi
+  REMOVE_SSH_ID="true"
 fi
 
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)
-VERSION=$(echo $RELEASE| cut -d "." -f 1)
+CLI_VERSION=$(echo $RELEASE | cut -d "." -f 1)
 ARCH=$(get_arch $USER $CLI_NAME)
 
 if [ $DISTRO = "" ] || [ $RELEASE = "" ]; then
-    Error "$PROGRAM:$WORKFLOW: Missing Release or Distro!"
+  Error "Missing Release or Distro!"
 else
-    if mod_client_os "$CLI_ID" "$DISTRO $RELEASE"; then
-        LogPrint "$PROGRAM:$WORKFLOW: Updating OS version $DISTRO $RELEASE of client $CLI_ID in the database"
-    else
-        LogPrint "$PROGRAM:$WORKFLOW: Warning: Can not update OS version of client $CLI_ID in the database"
-    fi
+  if mod_client_os "$CLI_ID" "$DISTRO $RELEASE"; then
+    LogPrint "Updating OS version $DISTRO $RELEASE of client $CLI_ID in the database"
+  else
+    LogPrint "Warning: Can not update OS version of client $CLI_ID in the database"
+  fi
 fi
 
 #Create user on client
-ssh $SSH_OPTS ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER}
+ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER} &> /dev/null
 if [ $? -eq 0 ]; then
-    Log "$PROGRAM:$WORKFLOW: ${DRLM_USER} exists, deleting user ..."
-    delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
-    if [ $? -ne 0  ]; then
-        Error "$PROGRAM:$WORKFLOW: User ${DRLM_USER} deletion Failed!!!"
-    fi
+  Log "${DRLM_USER} exists, deleting user ..."
+  delete_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
+  if [ $? -ne 0  ]; then
+    Error "User ${DRLM_USER} deletion Failed!!!"
+  fi
 fi
 
-Log "$PROGRAM:$WORKFLOW: Creating DRLM user: ${DRLM_USER} ..."
+Log "Creating DRLM user: ${DRLM_USER} ..."
 create_drlm_user ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
 if [ $? -ne 0  ]; then
-    Error "$PROGRAM:$WORKFLOW: User ${DRLM_USER} creation Failed!!!"
+  Error "User ${DRLM_USER} creation Failed!!!"
 else
-    LogPrint "$PROGRAM:$WORKFLOW: User $DRLM_USER created on $CLI_NAME"
-    #Send key for drlm user
-    LogPrint "$PROGRAM:$WORKFLOW: Sending ssh key for drlm user ..."
-    copy_ssh_id ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
-    if [ $? -ne 0  ]; then
-        Error "$PROGRAM:$WORKFLOW: Sending key for ${DRLM_USER} Failed!!!"
-    else
-        LogPrint "$PROGRAM:$WORKFLOW: key for $DRLM_USER has been sent on $CLI_NAME"
-        #Disable password aging for drlm userdd
-        if disable_drlm_user_login ${USER} ${CLI_NAME} ${SUDO}; then 
-            LogPrint "$PROGRAM:$WORKFLOW: User ${DRLM_USER} has been blocked using password" 
-        else 
-            Error "$PROGRAM:$WORKFLOW: Problem blocking ${DRLM_USER} User!!!" 
-        fi
+  LogPrint "User $DRLM_USER created on $CLI_NAME"
+  #Send key for drlm user
+  LogPrint "Sending ssh key for drlm user ..."
+  copy_ssh_id ${USER} ${CLI_NAME} ${DRLM_USER} ${SUDO}
+  if [ $? -ne 0  ]; then
+    Error "Sending key for ${DRLM_USER} Failed!!!"
+  else
+    LogPrint "key for $DRLM_USER has been sent on $CLI_NAME"
+    #Disable password aging for drlm userdd
+    if disable_drlm_user_login ${USER} ${CLI_NAME} ${SUDO}; then 
+      LogPrint "User ${DRLM_USER} has been blocked using password" 
+    else 
+      Error "Problem blocking ${DRLM_USER} User!!!" 
     fi
+  fi
 fi

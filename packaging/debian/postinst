@@ -2,56 +2,102 @@
 set -e
 
 case "$1" in
-    configure)
-        [ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
-        [ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
-        [ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
-        chmod 775 /var/log/drlm/rear
-        #Check if /etc/exports.d directory is present
-        [ ! -d /etc/exports.d ] && mkdir /etc/exports.d && chmod 755 /etc/exports.d
+  configure)
+    # Create client config directory
+    [ ! -d /etc/drlm/clients ] && mkdir /etc/drlm/clients
+    [ ! -d /etc/drlm/alerts ] && mkdir /etc/drlm/alerts
+    chmod 700 /etc/drlm
 
-        #Check if drlm.key has been generated in older installations.
-        if [ ! -f /etc/drlm/cert/drlm.key ]; then
-            openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
-        fi
-        
-        #Update old database or create new one running drlm_db_version script.
-        /usr/share/drlm/conf/DB/drlm_db_version.sh
+    # Create directory for rear client logs
+    [ ! -d /var/log/drlm/rear ] && mkdir /var/log/drlm/rear
+    chmod 700 /var/log/drlm
+    chmod 775 /var/log/drlm/rear
 
-        #Check for systemd or initd
-        if [ $(ps -p 1 -o comm=) = "systemd" ]
-        then
-            systemctl enable tftpd-hpa.service
-            systemctl enable nfs-kernel-server.service
-            systemctl enable rpcbind.service
-            systemctl enable isc-dhcp-server.service
-            cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
-            if [ $(systemctl --version | head -n 1 | cut -d' ' -f2) -lt 229 ]; then
-                sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
-            fi
-            systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
-            systemctl daemon-reload
-            systemctl enable drlm-stord.service
-            systemctl start drlm-stord.service
-        else
-            update-rc.d tftpd-hpa defaults
-            update-rc.d nfs-kernel-server defaults
-            update-rc.d rpcbind defaults
-            update-rc.d isc-dhcp-server defaults
-            cp /usr/sbin/drlm-stord /etc/init.d/
-            update-rc.d drlm-stord defaults
-            service drlm-stord start
-        fi
+    # Check if /etc/exports.d directory is present
+    [ ! -d /etc/exports.d ] && mkdir /etc/exports.d && chmod 755 /etc/exports.d
 
-        [ -f /etc/drlm/local.conf ] && echo "DHCP_SVC_NAME=\"isc-dhcp-server\"" >> /etc/drlm/local.conf
-        [ -f /etc/drlm/local.conf ] && echo "NFS_SVC_NAME=\"nfs-kernel-server\"" >> /etc/drlm/local.conf
+    # Check if /etc/rsyncd.d directory is present
+    [ ! -d /etc/drlm/rsyncd/rsyncd.d ] && mkdir /etc/drlm/rsyncd/rsyncd.d && chmod 755 /etc/drlm/rsyncd/rsyncd.d
 
-        ;;
+    # Unpack GRUB files
+    tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_i386-efi_x86_64-efi_powerpc-ieee1275.tgz -C /var/lib/drlm/store/boot/grub
+    # chmod 700 /var/lib/drlm/store
+    
+    # Check if drlm.key has been generated in older installations.
+    if [ ! -f /etc/drlm/cert/drlm.key ]; then
+        openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+    fi
+    
+    # Update old database or create new one running drlm_db_version script.
+    /usr/share/drlm/conf/DB/drlm_db_version.sh
 
-    *)
-        echo "postinst called with unknown argument \`$1'" >&2
-        exit 0
-        ;;
+    # Configure nbd
+    /usr/share/drlm/conf/nbd/config-nbd.sh install
+
+    ###########
+    # Systemd #
+    ###########
+
+    # Disable current tftpd-hpa.service
+    systemctl is-enabled --quiet tftpd-hpa.service && systemctl disable tftpd-hpa.service
+    systemctl is-active --quiet tftpd-hpa.service && systemctl stop tftpd-hpa.service
+
+    # Create user tftp if does not exists
+    if ! getent passwd tftp2 > /dev/null 2>&1; then
+      adduser --system --home /var/lib/drlm/store --no-create-home --quiet --gecos 'tftp daemon' --group tftp2
+    fi
+
+    # Stop previos drlm services if exists
+    systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+    systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+    systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-rsyncd.service
+
+    # Add systemd drlm services
+    cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
+    if [ $(systemctl --version | head -n 1 | cut -d' ' -f2) -lt 229 ]; then
+        sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
+    fi
+    cp /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/
+
+    # Reload systemd services
+    systemctl daemon-reload
+
+    # Enable systemd services
+    systemctl enable nfs-kernel-server.service
+    systemctl enable rpcbind.service
+    systemctl enable isc-dhcp-server.service
+
+    # Enable drlm systemd services
+    systemctl enable drlm-stord.service
+    systemctl enable drlm-api.service
+    systemctl enable drlm-rsyncd.service
+    systemctl enable drlm-tftpd.service
+
+
+    # Start drlm services
+    systemctl start drlm-stord.service
+    systemctl start drlm-api.service
+    systemctl start drlm-rsyncd.service  
+    systemctl start drlm-tftpd.service  
+
+    #################
+    # DRLM services #
+    #################
+
+    # Set debian like DHCP an NFS service names
+    /usr/share/drlm/conf/DHCP/config-DHCP.sh install
+    [ -f /etc/drlm/local.conf ] && echo "NFS_SVC_NAME=\"nfs-kernel-server\"" >> /etc/drlm/local.conf
+
+    ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 0
+    ;;
+    
 esac
 
 exit 0

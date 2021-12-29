@@ -1,8 +1,7 @@
-Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Deleting jobs for client: .... "
+# delclient workflow
 
-if del_all_client_job $CLI_ID;
-then
-    Log "$PROGRAM:$WORKFLOW:$CLI_NAME: Deleting jobs for client: .... Success!"
+if del_all_client_job $CLI_ID; then
+  LogPrint "Deleted all jobs for client"
 else
-    Error "$PROGRAM:$WORKFLOW:$CLI_NAME: Problem deleting jobs for client! aborting ..."
+  Error "Problem deleting jobs for client"
 fi

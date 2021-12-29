@@ -1,0 +1,44 @@
+body {
+  font-family: monospace;
+}
+
+.table { 
+  margin-top: 20px; 
+  caption-side: top;
+}
+
+.table caption {
+  background-color: #999999;
+  color: #ffffff;
+  padding: 5px 15px;
+}
+
+.container-xxl{
+  margin-top: 60px;
+}
+
+.btn-primary{
+  margin: 20px; 
+}
+
+.modal-backdrop {
+  background-color: grey;
+}
+
+span.token1 {
+  display: none;
+}
+span.token2 {
+  display: inline;
+}
+
+.hover:hover span.token1 {
+  display: inline;
+}
+.hover:hover span.token2 {
+  display: none;
+}
+
+td,tr {
+  font-size: 12px;
+}

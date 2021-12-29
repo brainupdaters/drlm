@@ -64,8 +64,73 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.0 (October 2021) - Release Notes
+--------------------------------------------------
+  * Multiple configuration supported
+ 
+  * Incremental backups supported
+ 
+  * ISO recover image supported 
+
+  * PowerPC architecture supported
+ 
+  * ReaR mkbackuponly and ReaR restoreonly supported
+ 
+  * Configurable DRLM parameters for each client or backup
+ 
+  * Added drlm-api systemd service
+
+  * HTTPS GUI base to add future functionalities
+ 
+  * Security token added for comunitacions between DRLM server and client
+ 
+  * Improved and simplified client configurations
+ 
+  * Loop devices are repaced by NBD (network block devices)
+ 
+  * DR file format was changed from RAW to QCOW2 
+ 
+  * Improved instclient configuration workflow
+ 
+  * List Unscheduled clients bug fixed
+
+  * Removed unsupported SysVinit service management
+
+  * SSH_PORT variable independent of SSH_OPTS
+  
+  * RSYNC protocol supported
+
+  * Improved DRLM installation
+
+  * Added drlm-tftpd systemd service
+
+  * Added drlm-rsyncd systemd service
+
+  * Addnetwork, modnetwork and addclient simplified
+
+  * Addnetwork is done automatically when you run addclient
+
+  * DHCP server is managed automatically
+
+  * Improved logs management
+
+  * Debian 11 Support on install client workflow
+
+  * Rocky Linux 8 server and client support
+
+  * NRDP Nagios support
+
+  * New write and full write mode in bkpmgr workflow
+
+  * Configurable backup status after runbackup (enabled, disabled, write or full-write mode)
+
+  * Information improvements and new one client mode in drlm-stord
+
+  * Encrypted backup files
+
+
 DRLM Version 2.3.2 (December 2020) - Release Notes
------------------------------------------------
+--------------------------------------------------
   * Fixed wget package dependency (issue #127)
 
   * Fixed make clean leave drlm-api binary in place (issue #130)
@@ -74,7 +139,7 @@ DRLM Version 2.3.2 (December 2020) - Release Notes
 
   * Fixed NFS_OPTS variable is not honored (issue #138)
 
-  * RedHat/CenOS 8 support
+  * RedHat/CentOS 8 support
 
   * Ubuntu 20.04 support 
 
@@ -196,7 +261,7 @@ DRLM Version 2.1.2 (March 2017) - Release Notes
 
   * SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo commands.
 
-  * Automatic creation of /etc/sudoers.d if not exists on systems RedHat/CenOS 5.
+  * Automatic creation of /etc/sudoers.d if not exists on systems RedHat/CentOS 5.
 
   * Fixed some errors for dependencies on default.conf.
 

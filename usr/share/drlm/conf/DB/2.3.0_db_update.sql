@@ -3,9 +3,9 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 
-ALTER TABLE backups ADD COLUMN "duration" VARCHAR(12);
-ALTER TABLE backups ADD COLUMN "size" VARCHAR(12);
-ALTER TABLE clients ADD COLUMN "os" VARCHAR(45);
-ALTER TABLE clients ADD COLUMN "rear" VARCHAR(45);
+ALTER TABLE backups ADD COLUMN "duration" varchar(12);
+ALTER TABLE backups ADD COLUMN "size" varchar(12);
+ALTER TABLE clients ADD COLUMN "os" varchar(45);
+ALTER TABLE clients ADD COLUMN "rear" varchar(45);
 
 COMMIT;

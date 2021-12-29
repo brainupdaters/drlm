@@ -1,78 +1,56 @@
+# runbackup workflow
 
-Log "Starting remote DR backup on client: ${CLI_NAME} ..."
+# Available VARs
+# ==============
+# CLI_ID                (Client Id) 
+# CLI_NAME              (Client Name)
+# CLI_CFG               (Client Configuration. If not set = "default"
+# CLI_MAC               (Client Mac)
+# CLI_IP                (Client IP)
+# CLI_DISTO             (Client Linux Distribution)
+# CLI_RELEASE           (Client Linux CLI_RELEASE)
+# CLI_REAR              (Client ReaR Version)
+    
+# DRLM_BKP_TYPE         (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ] 
+# DRLM_BKP_PROT         (Backup protocol) [ RSYNC | NETFS ]
+# DRLM_BKP_PROG         (Backup program)  [ RSYNC | TAR ]
+
+# INCLUDE_LIST_VG       (Include list of Volume Groups in client Configurations)
+# EXCLUDE_LIST_VG       (Exclude list of Volume Groups in client Configurations)
+# EXCLUDE_LIST          (Exclude list of mountpoints and paths in client Configurations)
+# DR_IMG_SIZE_MB        (Backup DR file size)
+    
+# ENABLED_DB_BKP_ID_PXE     (Backup ID of enabled backup before do runbackup)
+# ENABLED_DB_BKP_SNAP_PXE   (SNAP ID of ENABLED_DB_BKP_ID_PXE)
+# ENABLED_DB_BKP_ID_CFG     (Backup ID of enabled backup before do runbackup)
+# ENABLED_DB_BKP_SNAP_CFG   (SNAP ID of ENABLED_DB_BKP_ID_CFG)
+# DR_FILE               (DR file)
+# NBD_DEVICE            (NBD Device)
+# INHERITED_DR_FILE     (yes=backup inherited from old backup,no=new empty dr file)
+
+# if DRLM_INCREMENTAL = "yes" (when incremental = "yes" and exists Backup Base, isn't the first backup)
+#     BKP_BASE_ID       (Parent Backup ID)
+#     BKP_COUNT_SNAPS   (Number of snaps of BKP_BASE_ID)
+#     SNAP_ID           (Snap ID)
+#     OLD_DR_FILE_SIZE  (File size before run a backup in sanpshot)
+#
+# if DRLM_INCREMENTAL = "no" (when incremental = "no" or is the first Backup of an incremental)
+#     BKP_ID            (Backup ID)
+
+LogPrint "Starting remote ReaR backup on client ${CLI_NAME} ..."
 
 BKP_DURATION=$(date +%s)
 
-if OUT=$(run_mkbackup_ssh_remote $CLI_ID); then
-    #Getting the backup duration in seconds 
-    BKP_DURATION=$(echo "$(($(date +%s) - $BKP_DURATION))")
-    #From seconds to hours:minuts:seconds
-    BKP_DURATION=$(printf '%dh.%dm.%ds\n' $(($BKP_DURATION/3600)) $(($BKP_DURATION%3600/60)) $(($BKP_DURATION%60)))
+if OUT=$(run_mkbackup_ssh_remote $CLI_ID $CLI_CFG); then
+  #Getting the backup duration in seconds 
+  BKP_DURATION=$(echo "$(($(date +%s) - $BKP_DURATION))")
+  #From seconds to hours:minuts:seconds
+  BKP_DURATION=$(printf '%dh.%dm.%ds\n' $(($BKP_DURATION/3600)) $(($BKP_DURATION%3600/60)) $(($BKP_DURATION%60)))
+  LogPrint "- Remote ReaR backup Success!"
 
-    Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: .... remote mkbackup Success!"
+  # Reset exit tasks
+  EXIT_TASKS=( "${SAVE_EXIT_TASKS[@]}" )
 else
-    report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Problem running remote mkbackup! aborting ...  Error Message: [ $OUT ]"
-    
-    ROLL_ERR=0
-
-    Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Starting rollback to previous DR ...."
-    #report_error "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Starting rollback to previous DR ...."
-
-    if disable_nfs_fs ${CLI_NAME}; then
-        Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:NFS:DISABLE:$CLI_NAME: .... Success!"
-        if do_umount ${CLI_ID}; then
-            Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:FS:UMOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
-            if disable_loop ${CLI_ID}; then
-                Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:LOOPDEV(${CLI_ID}):DISABLE:DR:${DR_FILE}: .... Success!"
-            else
-                Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:LOOPDEV(${CLI_ID}):DISABLE:DR:${DR_FILE}: Problem disabling Loop device!"
-                ROLL_ERR=1
-            fi
-        else
-            Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:FS:UMOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): Problem umounting Filesystem!"
-            ROLL_ERR=1
-        fi
-    else
-        Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:NFS:DISABLE:$CLI_NAME: Problem disabling NFS export!"
-        ROLL_ERR=1
-    fi
-
-    if [ $ROLL_ERR -eq 0 ]; then    
-        rm -vf ${ARCHDIR}/${DR_FILE}
-        if [ $? -eq 0 ]; then 
-            Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:CLEAN:${ARCHDIR}/${DR_FILE}: .... Success!"    
-        else
-            Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:CLEAN:${ARCHDIR}/${DR_FILE}: Problem cleaning failed backup image!"
-            ROLL_ERR=1
-        fi
-    fi
-
-    if [[ -n "$A_DR_FILE" && $ROLL_ERR -eq 0 ]]; then
-        if enable_loop_rw ${CLI_ID} $(basename ${A_DR_FILE}); then
-            Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:LOOPDEV(${CLI_ID}):ENABLE:DR:${A_DR_FILE}: .... Success!"
-            if do_mount_ext4_ro ${CLI_ID} ${CLI_NAME}; then
-                Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT($STORDIR/$CLI_NAME): .... Success!"
-                if enable_nfs_fs_ro ${CLI_NAME}; then
-                    Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:NFS:ENABLE(ro):$CLI_NAME: .... Success!"
-                else
-                    Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:NFS:ENABLE(ro):$CLI_NAME: Problem enabling NFS export!"
-                    ROLL_ERR=1
-                fi
-            else
-                Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:FS:MOUNT:LOOPDEV(${CLI_ID}):MNT(${STORDIR}/${CLI_NAME}): Problem mounting Filesystem!"
-                ROLL_ERR=1
-            fi
-        else
-            Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:LOOPDEV(${CLI_ID}):ENABLE:DR:${A_DR_FILE}: Problem enabling Loop Device!"
-            ROLL_ERR=1
-        fi    
-    fi
-    
-    if [ $ROLL_ERR -eq 0 ]; then
-        Log "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: .... Success!"
-    else
-        Log "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: Problem rolling back to previous DR!"
-        report_error "ERROR:$PROGRAM:$WORKFLOW:REMOTE:mkbackup:ROLLBACK:${CLI_NAME}: Problem rolling back to previous DR!"
-    fi
-    Error "$PROGRAM:$WORKFLOW:REMOTE:mkbackup:$CLI_NAME: Problem running remote mkbackup! aborting ..."
+  LogPrint "- Problem running remote mkbackup"
+  Error "Problem running remote mkbackup"
 fi

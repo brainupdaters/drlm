@@ -22,75 +22,129 @@ WORKFLOW_impbackup_DESCRIPTION="import backup from DB."
 WORKFLOWS=( ${WORKFLOWS[@]} impbackup )
 
 if [ "$WORKFLOW" == "impbackup" ]; then
-	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "f:c:I:h" -l "file:,client:,id:,help" -- "$@")"
-	if (( $? != 0 )); then
-			echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-			exit 1
-	fi
+  # Parse options
+  OPT="$(getopt -n $WORKFLOW -o "f:c:C:iI:hk:K:" -l "file:,client:,import-config,type:,id:,help,key:,file-key" -- "$@")"
+  if (( $? != 0 )); then
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
 
-	eval set -- "$OPT"
-	while true; do
-		case "$1" in
-		(-f|--file)
-				# We need to take the option argument
-				if [ -n "$2" ]; then
-					IMP_FILE_NAME="$2"
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
-					exit 1
-				fi
-				shift
-				;;
-		(-c|--client)
-				# We need to take the option argument
-				if [ -n "$2" ]; then
-					CLI_NAME="$2"
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
-					exit 1
-				fi
-				shift
-				;;
-		(-I|--id)
-				# We need to take the option argument
-				if [ -n "$2" ]; then
-					IMP_BKP_ID="$2"
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
-					exit 1
-				fi
-				shift
-				;;
-		(-h|--help)
-				impbackuphelp
-				exit 0
-				;;
-		(--) shift; break;;
-		(-*)
-				echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-				echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-				exit 1
-				;;
-		esac
-		shift
-	done
+  eval set -- "$OPT"
+  while true; do
+    case "$1" in
 
-	if [ -z "$CLI_NAME" ];then
-	  echo "$PROGRAM $WORKFLOW: Client id is required."
-	 	echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	  exit 1
-	fi
+      (-f|--file)
+        # We need to take the option argument
+        if [ -n "$2" ]; then
+          IMP_FILE_NAME="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+          exit 1
+        fi
+        shift
+        ;;
 
-	if [ -z "$IMP_FILE_NAME" ] && [ -z "$IMP_BKP_ID" ];then
-		echo "$PROGRAM $WORKFLOW: Input is required."
-		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-		exit 1
-	fi
+      (-c|--client)
+        # We need to take the option argument
+        if [ -n "$2" ]; then
+          CLI_NAME="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+          exit 1
+        fi
+        shift
+        ;;
+            
+      (-C|--config)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_CFG="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
+          exit 1
+        fi
+        shift 
+        ;;
 
-	WORKFLOW_impbackup () {
-    		#echo impbackup workflow
-    		SourceStage "backup/imp"
-	}
+      (-i|--import-config)
+        IMPORT_CONFIGURATION="Y"
+        ;;
+
+      (-k|--key)
+        # We need to take the option argument
+        if [ -n "$2" ]; then
+          IMP_DRLM_ENCRYPTION_KEY="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+          exit 1
+        fi
+        shift
+        ;;
+
+      (-K|--file-key)
+        # We need to take the option argument
+        if [ -n "$2" ]; then
+          IMP_DRLM_ENCRYPTION_KEY_FILE="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+          exit 1
+        fi
+        shift
+        ;;  
+
+      (-I|--id)
+        # We need to take the option argument
+        if [ -n "$2" ]; then
+          IMP_BKP_ID="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"
+          exit 1
+        fi
+        shift
+        ;;
+
+      (-h|--help)
+        impbackuphelp
+        exit 0
+        ;;
+
+      (--) 
+        shift
+        break
+        ;;
+
+      (-*)
+        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+        exit 1
+        ;;
+
+    esac
+    shift
+  done
+
+  if [ -z "$CLI_NAME" ];then
+    echo "$PROGRAM $WORKFLOW: Client id is required."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  if [ -z "$IMP_FILE_NAME" ] && [ -z "$IMP_BKP_ID" ];then
+    echo "$PROGRAM $WORKFLOW: Input is required."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  # Check if both IMP_FILE_NAME and IMP_BKP_ID are passed 
+  if [ -n "$IMP_FILE_NAME" ] && [ -n "$IMP_BKP_ID" ]; then
+    echo "$PROGRAM $WORKFLOW: Only one option can be used: --file or --id."  
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  WORKFLOW_impbackup () {
+    #echo impbackup workflow
+    SourceStage "backup/imp"
+  }
 
 fi

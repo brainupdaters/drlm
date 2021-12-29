@@ -2,59 +2,64 @@
 set -e
 
 case "$1" in
-    remove)
-        # do something
-	    ;;
+  remove)
+    # do something
+    ;;
 
-    install)
-        # do something
-        ;;
+  install)
+    # do something
+    ;;
 
-    upgrade)
-        # do something
-	    ;;
-    
-    purge)
-        rm -rf /var/lib/drlm 
-        rm -rf /etc/drlm
-        rm -rf /var/log/drlm
+  upgrade)
+    # do something
+    ;;
+  
+  purge)
+    # Stop, disable and remove drlm-stord.service
+    if [ -f /etc/systemd/system/drlm-stord.service ]; then
+      systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
+      systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
+      rm /etc/systemd/system/drlm-stord.service
+    fi
 
-        #Check for systemd or initd
-        if [ $(ps -p 1 -o comm=) = "systemd" ]
-        then
-            if [ -f /etc/systemd/system/drlm-stord.service ]; then
-                systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
-                systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.service
-                rm /etc/systemd/system/drlm-stord.service
-                systemctl daemon-reload
-            fi
+    # Stop, disable and remove drlm-api.service
+    if [ -f /etc/systemd/system/drlm-api.service ]; then
+      systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+      systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+      rm /etc/systemd/system/drlm-api.service
+    fi
 
-            # systemctl stop tftpd-hpa.service
-            # systemctl disable tftpd-hpa.service
-            # systemctl stop nfs-kernel-server.service
-            # systemctl disable nfs-kernel-server.service
-            # systemctl stop rpcbind.service
-            # systemctl disable rpcbind.service
-            # systemctl stop isc-dhcp-server.service
-            # systemctl disable isc-dhcp-server.service
-        else
-            service drlm-stord stop
-            update-rc.d drlm-stord remove
-            [ -f /etc/init.d/drlm-stord ] && rm /etc/init.d/drlm-stord
+    # Stop, disable and remove rsync service
+    if [ -f /etc/systemd/system/drlm-rsyncd.service ]; then
+      systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
+      systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
+      rm /etc/systemd/system/drlm-rsyncd.service
+    fi
 
-            # update-rc.d tftpd-hpa stop
-            # update-rc.d tftpd-hpa remove
-            # update-rc.d nfs-kernel-server stop
-            # update-rc.d nfs-kernel-server remove
-            # update-rc.d rpcbind stop
-            # update-rc.d rpcbind remove
-            # update-rc.d isc-dhcp-server stop
-            # update-rc.d isc-dhcp-server remove
-        fi
-	    ;;
-    *)
-        exit 0
-        ;;
+    # Stop, disable and remove tftpd service
+    if [ -f /etc/systemd/system/drlm-tftpd.service ]; then
+      systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+      systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
+      rm /etc/systemd/system/drlm-tftpd.service 
+    fi
+
+    systemctl daemon-reload
+
+    # Remove all backups stored and archived
+    rm -rf /var/lib/drlm 
+
+    # Remove all client configurations
+    rm -rf /etc/drlm
+
+    # Remove all log files
+    rm -rf /var/log/drlm
+
+    ;;
+
+  *)
+    exit 0
+    ;;
+
 esac
 
 exit 0

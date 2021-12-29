@@ -11,7 +11,7 @@ drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 name = drlm
-version := $(shell awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' $(drlmbin))
+version := $(shell awk 'BEGIN { FS="=" } /^readonly VERSION=/ { print $$2}' $(drlmbin))
 
 ### Get the branch information from git
 ifeq ($(OFFICIAL),)
@@ -71,6 +71,7 @@ help:
   dist            - Create tar file\n\
   deb             - Create DEB package\n\
   rpm             - Create RPM package\n\
+  docker          - Create Docker image\n\
 \n\
 DRLM make variables (optional):\n\
 \n\
@@ -81,16 +82,17 @@ DRLM make variables (optional):\n\
 clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
+	rm -f packaging/docker/src/drlm*.deb
 	rm -f usr/sbin/drlm-api
 
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
-	
-	#Validating BASH Syntax 
-	find etc/ usr/share/drlm/conf/ -name '*.conf' | xargs bash -n
+
+	#Validating BASH Syntax
+	find etc/ usr/share/drlm/conf/ -name '*.conf' ! -path etc/drlm/rsyncd/rsyncd.conf | xargs bash -n
 	bash -n $(drlmbin)
 	bash -n $(drlm_store_svc)
-	find . -name '*.sh' | xargs bash -n
+	for file in $$(find . -name '*.sh'); do bash -n $$file || exit 1; done
 
 ifneq ($(shell which gofmt),)
 	#Validating GO Syntax
@@ -126,26 +128,22 @@ restore:
 	mv -f $(specfile).orig $(specfile)
 	mv -f $(dscfile).orig $(dscfile)
 	mv -f $(drlmbin).orig $(drlmbin)
-else	
-rewrite:	
-	@echo "Nothing to do."	
-restore:	
+else
+rewrite:
+	@echo "Nothing to do."
+restore:
 	@echo "Nothing to do."
 endif
 
 install-config:
 	@echo -e "\033[1m== Installing configuration ==\033[0;0m"
 	install -d -m0700 $(DESTDIR)$(sysconfdir)/drlm/
-	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/cert
-	install -Dp -m0600 etc/drlm/cert/README.rst $(DESTDIR)$(sysconfdir)/drlm/cert/README.rst
+	cp -a etc/drlm/. $(DESTDIR)$(sysconfdir)/drlm/
 	install -Dp -m0600 etc/cron.d/drlm $(DESTDIR)$(sysconfdir)/cron.d/drlm
 	install -Dp -m0600 etc/bash_completion.d/drlm_completions $(DESTDIR)$(sysconfdir)/bash_completion.d/drlm_completions
+	install -Dp -m0600 etc/logrotate.d/drlm $(DESTDIR)$(sysconfdir)/logrotate.d/drlm
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/clients
 	install -d -m0600 $(DESTDIR)$(sysconfdir)/drlm/alerts
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/local.conf ]] && \
-		install -Dp -m0644 etc/drlm/local.conf $(DESTDIR)$(sysconfdir)/drlm/local.conf
-	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg ]] && \
-		install -Dp -m0644 etc/drlm/client_local_template.cfg $(DESTDIR)$(sysconfdir)/drlm/client_local_template.cfg		
 	-[[ ! -e $(DESTDIR)$(sysconfdir)/drlm/os.conf && -e etc/drlm/os.conf ]] && \
 		install -Dp -m0600 etc/drlm/os.conf $(DESTDIR)$(sysconfdir)/drlm/os.conf
 	-find $(DESTDIR)$(sysconfdir)/drlm/ -name '.gitignore' -exec rm -rf {} \; &>/dev/null
@@ -198,7 +196,9 @@ uninstall:
 drlmapi:
 ifneq ($(shell which go),)
 	@echo -e "\033[1m== Building DRLM API ==\033[0;0m"
-	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
+	go get github.com/google/uuid
+	go get github.com/mattn/go-sqlite3
+	go build -o ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/
 else
 	@echo -e "No Go binaries detected to build DRLM API, will be copied the builded one"
 endif
@@ -213,7 +213,7 @@ $(name)-$(distversion).tar.gz:
 		--files-from=- ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
 
 rpm: dist
-	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"	
+	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
 	rpmbuild -tb --clean \
 		--define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
 		--define "debug_package %{nil}" \
@@ -229,3 +229,9 @@ deb: dist
 	-rm -rf debian/
 	rm $(name)-$(distversion).tar.gz
 	rm build-stamp
+	rm usr/sbin/drlm-api
+
+docker: dist
+	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
+	packaging/docker/setup.sh
+	echo "Docker DRLM image built, now start with 'packaging/docker/run.sh'"

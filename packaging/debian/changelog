@@ -1,9 +1,44 @@
+drlm (2.4.0) stable release; urgency=high
+  * Multiple configuration supported
+  * Incremental backups supported
+  * ISO recover image supported 
+  * PowerPC architecture supported
+  * ReaR mkbackuponly and ReaR restoreonly supported
+  * Configurable DRLM parameters for each client or backup
+  * Added drlm-api systemd service
+  * HTTPS GUI base to add future functionalities
+  * Security token added for comunitacions between DRLM server and client
+  * Improved and simplified client configurations
+  * Loop devices are repaced by NBD (network block devices)
+  * DR file format was changed from RAW to QCOW2 
+  * Improved instclient configuration workflow
+  * List Unscheduled clients bug fixed
+  * Removed unsupported SysVinit service management
+  * SSH_PORT variable independent of SSH_OPTS
+  * RSYNC protocol supported
+  * Improved DRLM installation
+  * Added drlm-tftpd systemd service
+  * Added drlm-rsyncd systemd service
+  * Addnetwork, modnetwork and addclient simplified
+  * Addnetwork is done automatically when you run addclient
+  * DHCP server is managed automatically
+  * Improved logs management
+  * Debian 11 Support on install client workflow
+  * Rocky Linux 8 server and client support
+  * NRDP Nagios Support
+  * New write and full write mode in bkpmgr workflow
+  * Configurable backup status after runbackup (enabled, disabled, write or full-write mode)
+  * Information improvements and new one client mode in drlm-stord
+  * Encrypted backup files
+
+ -- Pau Roura <pau@brainupdaters.net>  Mon, 11 Oct 2021 00:00:00 +0100
+
 drlm (2.3.2) stable release; urgency=high
   * Fixed wget package dependency (issue #127)
   * Fixed make clean leave drlm-api binary in place (issue #130)
   * Fixed message errors during drlm version upgrade (issue #131, #132)
   * Fixed NFS_OPTS variable is not honored (issue #138)
-  * RedHat/CenOS 8 support
+  * RedHat/CentOS 8 support
   * Ubuntu 20.04 support
 
  -- Pau Roura <pau@brainupdaters.net>  Mon, 28 Dec 2020 00:00:00 +0100
@@ -80,7 +115,7 @@ drlm (2.1.3) stable release; urgency=high
 drlm (2.1.2) stable release; urgency=high
 
   * SUDO_CMDS_DRLM added in default.conf allowing to easy add new sudo.
-  * Automatic creation of /etc/sudoers.d if not exists RedHat/CenOS 5
+  * Automatic creation of /etc/sudoers.d if not exists RedHat/CentOS 5
   * Fixed some errors for dependencies on default.conf.
   * DRLM_USER variable deleted on addclient and help.
   * Added sudo for stat to allow check size on File Systems without perms.

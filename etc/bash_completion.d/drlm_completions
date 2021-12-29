@@ -129,31 +129,24 @@ __drlm_addnetwork ()
 
 __drlm_addclient ()
 {
-	local options_s="-i -c -M -n -I -u -U -r -C -h"
-	local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --repo --config --help"
+	local options_s="-i -c -M -I -u -U -r -C -h"
+	local options_l="--ipaddr --client --macaddr --installclient --user --url_rear --repo --config --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --installclient" "$workflow"; then
 		local options_s="-i -c -M -n -I -u -U -r -C"
-		local options_l="--ipaddr --client --macaddr --netname --installclient --user --url_rear --repo --config"
+		local options_l="--ipaddr --client --macaddr --installclient --user --url_rear --repo --config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
 		local options_s="-i -c -M -n -I"
-		local options_l="--ipaddr --client --macaddr --netname --installclient"
+		local options_l="--ipaddr --client --macaddr --installclient"
 	else
 		local options_s="-i -c -M -n -I -h"
-		local options_l="--ipaddr --client --macaddr --netname --installclient --help"
+		local options_l="--ipaddr --client --macaddr --installclient --help"
 	fi
 
 	case "$prev" in
-		-n | --netname)
-			local i=0
-			query=$(get_all_network_names_dbdrv "$cur")
-			for result in $query; do
-				COMPREPLY[i++]="$result"
-			done
-			;;
 		-I | --installclient)
 			__drlmcomp3 "$options_s" "$options_l"
 			;;
@@ -168,18 +161,18 @@ __drlm_addclient ()
 
 __drlm_runbackup ()
 {
-	local options_s="-c -I -h"
-	local options_l="--client --id --help"
+	local options_s="-c -C -I -h"
+	local options_l="--client --config --id --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I"
-		local options_l="--id"
+		local options_s="-I -C"
+		local options_l="--id --config"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-c"
-		local options_l="--client"
+		local options_s="-c -C"
+		local options_l="--client --config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
 		local options_s="-c -I"
 		local options_l="--client --id"
@@ -200,6 +193,24 @@ __drlm_runbackup ()
 				COMPREPLY[i++]="$result"
 			done
 			;;
+    -C | --config)
+      local i=0
+			prev3="${COMP_WORDS[COMP_CWORD-3]}"
+			if [ "$prev3" == "-c" ]; then
+				local client="${COMP_WORDS[COMP_CWORD-2]}"
+				query=$(ls /etc/drlm/clients/$client.cfg.d/"$cur"*.cfg 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
+				for result in $query; do
+					COMPREPLY[i++]="$result"
+				done
+			elif [ "$prev3" == "-I" ]; then
+        local client_id="${COMP_WORDS[COMP_CWORD-2]}"
+				client=$(get_client_name_dbdrv "$client_id")
+        query=$(ls -1 /etc/drlm/clients/$client.cfg.d/"$cur"*.cfg 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
+				for result in $query; do
+					COMPREPLY[i++]="$result"
+				done
+			fi
+			;;
 		"-"*)
 			COMPREPLY=()
 			;;
@@ -211,15 +222,15 @@ __drlm_runbackup ()
 
 __drlm_addjob ()
 {
-	local options_s="-c -s -e -r -h"
-	local options_l="--client --start_date --end_date --repeat --help"
+	local options_s="-c -C -s -e -r -h"
+	local options_l="--client --config --start_date --end_date --repeat --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -s -e -r"
-		local options_l="--client --start_date --end_date --repeat"
+		local options_s="-c -C -s -e -r"
+		local options_l="--client --config --start_date --end_date --repeat"
 	fi
 
 	case "$prev" in
@@ -229,6 +240,22 @@ __drlm_addjob ()
 			for result in $query; do
 				COMPREPLY[i++]="$result"
 			done
+			;;
+    -C | --config)
+      local i=0
+      local j=${#COMP_WORDS[@]}
+      j=$((j-4))
+      while [ "${COMP_WORDS[$j]}" != "-c" ] && [ "$j" -gt "0" ]; do
+        j=$((j-1))
+      done
+      if [ "$j" -gt "0" ]; then
+        j=$((j+1))
+        local client="${COMP_WORDS[$j]}"
+				query=$(ls -1 /etc/drlm/clients/$client.cfg.d/"$cur"*.cfg 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
+				for result in $query; do
+					COMPREPLY[i++]="$result"
+				done
+      fi
 			;;
 		-I | --installclient)
 			__drlmcomp3 "$options_s" "$options_l"
@@ -341,20 +368,40 @@ __drlm_delbackup ()
 			done
 			;;
 		-I | --id)
-			local i=0
-			prev3="${COMP_WORDS[COMP_CWORD-3]}"
-			if [ "$prev3" == "-c" ]; then
-				local client="${COMP_WORDS[COMP_CWORD-2]}"
-				query=$(get_all_backpu_id_by_client_dbdrv "$client" "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			else
-				query=$(get_all_backup_id_dbdrv "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			fi
+
+      if __drlm_exist_option "-c --client" "$workflow"; then
+        # if exists -c Get client name
+        local i=0
+        client=""
+        while [ "$client" == "" ]; do
+          if [ "${COMP_WORDS[i]}" == "-c" ]; then
+            ((i++))
+            client="${COMP_WORDS[i]}"
+          else
+            ((i++))
+          fi
+        done
+
+        query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+        query=$(get_all_snap_id_by_client_dbdrv "$client" "$cur")
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      else
+        query=$(get_all_backup_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+        query=$(get_all_snap_id_dbdrv "$cur")
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      fi
 			;;
 		*)
 			__drlmcomp3 "$options_s" "$options_l"
@@ -438,8 +485,8 @@ __drlm_listclient ()
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-c --client" "$workflow"; then
-		local options_s="-n -p"
-		local options_l="--netname --pretty"
+		local options_s="-U -p"
+		local options_l="--unsched --pretty"
 	elif __drlm_exist_option "-A --all" "$workflow"; then
 		local options_s="-A -U -p"
 		local options_l="--all --unsched --pretty"
@@ -500,8 +547,8 @@ __drlm_listbackup ()
 
 __drlm_listjob ()
 {
-	local options_s="-c -A -h"
-	local options_l="--client --all --help"
+	local options_s="-c -J -A -h"
+	local options_l="--client --job_id --all --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
@@ -509,6 +556,9 @@ __drlm_listjob ()
 	elif __drlm_exist_option "-c --client" "$workflow"; then
 		local options_s="-c"
 		local options_l="--client"
+  elif __drlm_exist_option "-J --job_id" "$workflow"; then
+		local options_s="-J"
+		local options_l="--job_id"  
 	elif __drlm_exist_option "-A --all" "$workflow"; then
 		local options_s="-A"
 		local options_l="--all"
@@ -518,6 +568,13 @@ __drlm_listjob ()
 		-c | --client)
 			local i=0
 			query=$(get_all_client_names_in_jobs_dbdrv "$cur")
+			for result in $query; do
+				COMPREPLY[i++]="$result"
+			done
+			;;
+    -J | --job_id)
+      local i=0
+      query=$(get_all_jobs_id_dbdrv "$cur")
 			for result in $query; do
 				COMPREPLY[i++]="$result"
 			done
@@ -560,21 +617,21 @@ __drlm_expbackup ()
 
 __drlm_impbackup ()
 {
-	local options_s="-c -f -I -h"
-	local options_l="--client --file  --id --help"
+	local options_s="-c -f -I -h -C -i -k -K"
+	local options_l="--client --file  --id --help --config --import-config --key --key-file"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-f --file" "$workflow"; then
-		local options_s="-c -f"
-		local options_l="--client --file"
+		local options_s="-c -f -C -i -k -K"
+		local options_l="--client --file --config --import-config --key --key-file"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-c -I"
-		local options_l="--client --id"
+		local options_s="-c -I -C -i"
+		local options_l="--client --id --config --import-config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -f -I"
-		local options_l="--client --file --id"
+		local options_s="-c -f -I -C -i -k -K"
+		local options_l="--client --file --id --config --import-config --key --key-file"
 	fi
 
 	case "$prev" in
@@ -585,7 +642,35 @@ __drlm_impbackup ()
 				COMPREPLY[i++]="$result"
 			done
 			;;
+    -C | --config)
+      local i=0
+
+      ### Find client name in command line
+      local j=0
+      local found="false"
+      for word in "${COMP_WORDS[@]}"; do
+        if [ "$word" == "-c" ] || [ "$word" == "--client" ] ; then
+          found="true"
+          ((j++))
+          break
+        else
+          ((j++))
+        fi
+      done
+      
+      ### If client found get his configurations
+      if [ "$found" == "true" ]; then 
+        client="${COMP_WORDS[j]}"
+        query=$(ls /etc/drlm/clients/$client.cfg.d/"$cur"*.cfg 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
+				for result in $query; do
+					COMPREPLY[i++]="$result"
+				done
+      fi
+			;;
 		-f | --file)
+			_filedir
+			;;
+    -K | --key-file)
 			_filedir
 			;;
 		-I | --id)
@@ -655,25 +740,43 @@ __drlm_instclient ()
 
 __drlm_bkpmgr ()
 {
-	local options_s="-c -I -e -d -h"
-	local options_l="--client --id --enable --disable --help"
+	local options_s="-c -I -e -d -w -W -h"
+	local options_l="--client --id --enable --disable --write --full-write --help"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I -e -d"
-		local options_l="--id --enable --disable"
+		local options_s="-I -e -d -w -W"
+		local options_l="--id --enable --disable --write"
 		if __drlm_exist_option "-e --enable" "$workflow"; then
 			local options_s="-I -e"
 			local options_l="--id --enable"
 		elif __drlm_exist_option "-d --disable" "$workflow"; then
 			local options_s="-I -d"
 			local options_l="--id --disable"
+    elif __drlm_exist_option "-w --write" "$workflow"; then
+			local options_s="-I -w"
+			local options_l="--id --write"
+    elif __drlm_exist_option "-W --full-write" "$workflow"; then
+			local options_s="-I -W"
+			local options_l="--id --full-write"
 		fi
+  elif __drlm_exist_option "-e --enable" "$workflow"; then
+    local options_s="-I -e"
+    local options_l="--id --enable"
+  elif __drlm_exist_option "-d --disable" "$workflow"; then
+    local options_s="-I -d"
+    local options_l="--id --disable"
+  elif __drlm_exist_option "-w --write" "$workflow"; then
+    local options_s="-I -w"
+    local options_l="--id --write"
+  elif __drlm_exist_option "-W --full-write" "$workflow"; then
+    local options_s="-I -W"
+    local options_l="--id --full-write"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-c -I -e -d"
-		local options_l="--client --id --enable --disable"
+		local options_s="-c -I -e -d -w -W"
+		local options_l="--client --id --enable --disable --write --full-write"
 	fi
 
 	case "$prev" in
@@ -685,21 +788,99 @@ __drlm_bkpmgr ()
 			done
 			;;
 		-I | --id)
-			local i=0
-			prev3="${COMP_WORDS[COMP_CWORD-3]}"
-			if [ "$prev3" == "-c" ]; then
-				local client="${COMP_WORDS[COMP_CWORD-2]}"
-				query=$(get_all_backpu_id_by_client_dbdrv "$client" "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			else
-				query=$(get_all_backup_id_dbdrv "$cur")
-				for result in $query; do
-					COMPREPLY[i++]="$result"
-				done
-			fi
-			;;
+      if __drlm_exist_option "-c --client" "$workflow"; then
+        # if exists -c Get client name
+        local i=0
+        client=""
+        while [ "$client" == "" ]; do
+          if [ "${COMP_WORDS[i]}" == "-c" ]; then
+            ((i++))
+            client="${COMP_WORDS[i]}"
+          else
+            ((i++))
+          fi
+        done
+
+        # check if $client exists
+        if exist_client_name_dbdrv "$client"; then
+          if __drlm_exist_option "-e --enable" "$workflow"; then
+            query=$(get_all_backup_disabled_id_by_client_dbdrv "$client" "$cur")
+            local i=0
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+            query=$(get_all_snap_disabled_id_by_client_dbdrv "$client" "$cur")
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+          elif __drlm_exist_option "-d --disable" "$workflow"; then
+            query=$(get_all_backup_enabled_id_by_client_dbdrv "$client" "$cur")
+            local i=0
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+            query=$(get_all_snap_enabled_id_by_client_dbdrv "$client" "$cur")
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+          else
+            query=$(get_all_backup_id_by_client_dbdrv "$client" "$cur")
+            local i=0
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+            query=$(get_all_snap_id_by_client_dbdrv "$client" "$cur")
+            for result in $query; do
+              COMPREPLY[i++]="$result"
+            done
+          fi         
+        fi
+      else
+        if __drlm_exist_option "-e --enable" "$workflow"; then
+          query=$(get_all_not_enable_backup_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+          query=$(get_all_snap_disabled_id_dbdrv "$cur")
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        elif __drlm_exist_option "-d --disable" "$workflow"; then
+          query=$(get_all_backup_enabled_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+          query=$(get_all_snap_enabled_id_dbdrv "$cur")
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        elif __drlm_exist_option "-w --write" "$workflow"; then
+          query=$(get_all_not_write_backup_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        elif __drlm_exist_option "-W --full-write" "$workflow"; then
+          query=$(get_all_not_full_write_backup_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        else
+          query=$(get_all_backup_id_dbdrv "$cur")
+          local i=0
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+          query=$(get_all_snap_id_dbdrv "$cur")
+          for result in $query; do
+            COMPREPLY[i++]="$result"
+          done
+        fi
+      fi
+      ;;
 		*)
 			__drlmcomp3 "$options_s" "$options_l"
 			;;
@@ -740,6 +921,13 @@ __drlm_modclient ()
 				COMPREPLY[i++]="$result"
 			done
 			;;
+    -n | --netname)
+			local i=0
+			query=$(get_all_network_names_dbdrv "$cur")
+			for result in $query; do
+				COMPREPLY[i++]="$result"
+			done
+			;;
 		"-"*)
 			COMPREPLY=()
 			;;
@@ -751,21 +939,21 @@ __drlm_modclient ()
 
 __drlm_modnetwork ()
 {
-	local options_s="-n -I -i -g -m -s -h"
-	local options_l="--netname --id --ip --gateway --mask --server --help"
+	local options_s="-n -I -g -m -s -h -e -d"
+	local options_l="--netname --id --gateway --mask --server --help --enable --disable"
 
 	if __drlm_exist_option "-h --help" "$workflow"; then
 		local options_s="-h"
 		local options_l="--help"
-	elif __drlm_exist_option "-n --netname" "$workflow"; then
-		local options_s="-n -i -g -m -s"
-		local options_l="--netname --ip --gateway --mask --server"
-	elif __drlm_exist_option "-I --id" "$workflow"; then
-		local options_s="-I -i -g -m -s"
-		local options_l="--id --ip --gateway --mask --server"
+	elif __drlm_exist_option "-e --enable" "$workflow"; then
+		local options_s="-I -n -g -m -s"
+		local options_l="--id --netname --gateway --mask --server"
+	elif __drlm_exist_option "-d --disable" "$workflow"; then
+		local options_s="-n -I -g -m -s"
+		local options_l="--name --id --gateway --mask --server"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-n -I -i -g -m -s"
-		local options_l="--netname --id --ip --gateway --mask --server"
+		local options_s="-n -I -g -m -s -e -d"
+		local options_l="--netname --id --gateway --mask --server --enable --disable"
 	fi
 
 	case "$prev" in
@@ -777,12 +965,30 @@ __drlm_modnetwork ()
 			done
 			;;
 		-I | --id)
-			local i=0
-			query=$(get_all_network_id_dbdrv "$cur")
-			for result in $query; do
-				COMPREPLY[i++]="$result"
-			done
+      if __drlm_exist_option "-e --enable" "$workflow"; then
+        query=$(get_all_network_disabled_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      elif __drlm_exist_option "-d --disable" "$workflow"; then
+        query=$(get_all_network_enabled_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      else
+        query=$(get_all_network_id_dbdrv "$cur")
+        local i=0
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      fi
+
 			;;
+    -e | -d | --enable | --disable)
+      __drlmcomp3 "$options_s" "$options_l"
+      ;;
 		"-"*)
 			COMPREPLY=()
 			;;
@@ -820,7 +1026,7 @@ __drlm_find_on_cmdline ()
 	while [ $c -lt $COMP_CWORD ]; do
 		word="${COMP_WORDS[c]}"
 		for workflow in $1; do
-			if [ "$workflow" = "$word" ]; then
+			if [ "$workflow" == "$word" ]; then
 				echo "$workflow"
 				return
 			fi

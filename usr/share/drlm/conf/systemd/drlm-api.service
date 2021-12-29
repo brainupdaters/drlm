@@ -1,0 +1,13 @@
+[Unit]
+Description=DRLM Api Service
+After=drlm-stord.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/sbin/drlm-api
+
+[Install]
+WantedBy=multi-user.target
+

@@ -106,16 +106,20 @@ function check_client_connectivity ()
 
 function add_client ()
 {
-  local CLI_ID=""
-  local CLI_NAME=$1
-  local CLI_MAC=$2
-  local CLI_IP=$3
-  local CLI_OS=$4
-  local CLI_NET=$5
-  local CLI_REAR=$6
+  local CLI_ID="$1"
+  local CLI_NAME="$2"
+  local CLI_MAC="$3"
+  local CLI_IP="$4"
+  local CLI_OS="$5"
+  local CLI_NET="$6"
+  local CLI_REAR="$7"
 
-  add_client_dbdrv "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_REAR"
+  add_client_dbdrv "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_NET" "$CLI_REAR"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function generate_client_id () {
+  echo "$(generate_client_id_dbdrv)"
 }
 
 function del_client_id ()
@@ -133,16 +137,13 @@ function del_client_id ()
 
 function check_client_mac ()
 {
-  local CLI_NAME=$1
-  local CLI_IP=$2
-  local CLI_MAC=$3
+  local CLI_IP=$1
+  local CLI_MAC=$2
 
   ping  -c 1 -t 2 $CLI_IP &>/dev/null
-  if [ $? -eq 0 ];
-  then
+  if [ $? -eq 0 ]; then
     local REAL_MAC=$(ip n | grep -w $CLI_IP | awk '{print $5}' | tr -d ":" | tr \[A-Z\] \[a-z\])
-    if [ "${REAL_MAC}" == "${CLI_MAC}" ]
-    then
+    if [ "${REAL_MAC}" == "${CLI_MAC}" ]; then
       return 0;
     else
       return 1;
@@ -203,12 +204,13 @@ function list_client () {
   local UNSHED_PARAM=$2
   local PRETTY_PARAM="$3"
 
-  if [ "$CLI_NAME_PARAM" = "all" ]; then 
+  if [ "$CLI_NAME_PARAM" == "all" ]; then 
     CLI_NAME_PARAM=""
   fi
 
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-6s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+  printf '%-10s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "$(tput bold)Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+
+  save_default_pretty_params_list_client
 
   for client in $(get_all_client_names $CLI_NAME_PARAM); do
     local CLI_NAME=$client
@@ -219,15 +221,18 @@ function list_client () {
     local CLI_NET=$(get_client_net $CLI_ID)
     local CLI_REAR=$(get_client_rear $CLI_ID)
 
+    load_default_pretty_params_list_client
+    load_client_pretty_params_list_client $CLI_NAME
+
     if [ -z "$(has_jobs_scheduled "$CLI_ID")" ]; then
-      local CLI_HAS_JOBS="False"
+      local CLI_HAS_JOBS="false"
     else
-      local CLI_HAS_JOBS="True"
+      local CLI_HAS_JOBS="true"
     fi
 
-    if [ "$UNSHED_PARAM" = "false" ] || { [ "$UNSHED_PARAM" = "ture" ] && [ $CLI_HAS_JOBS = "False" ]; } ; then
-      if [ "$PRETTY_PARAM" = "true" ]; then
-        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" = "open" ]; then
+    if [ "$UNSHED_PARAM" == "false" ] || { [ "$UNSHED_PARAM" == "true" ] && [ "$CLI_HAS_JOBS" == "false" ]; } ; then
+      if [ "$PRETTY_PARAM" == "true" ]; then
+        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" == "open" ]; then
           printf '%-6s '"\\e[0;32m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
         else
           printf '%-6s '"\\e[0;31m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
@@ -259,25 +264,90 @@ function get_clients_by_network () {
 }
 
 function config_client_cfg () {
-  local CLI_NAME=$1
-  local SRV_IP=$2
+  local CLI_NAME="$1"
+  
+  cp $SHARE_DIR/conf/samples/client_default.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
+  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
 
-  cp $CONFIG_DIR/client_local_template.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
+  cp $SHARE_DIR/conf/samples/client_default.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
+  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
 
-  sed -i -e "s/%CLI_NAME%/$CLI_NAME/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
-  sed -i -e "s/%SRV_IP%/$SRV_IP/g" $CONFIG_DIR/clients/$CLI_NAME.cfg
-
-  chmod 644 $CONFIG_DIR/clients/${CLI_NAME}.cfg
   mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
   chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
+
+  generate_client_token $CLI_NAME
+
 }
 
-function has_jobs_scheduled() {
-	local CLI_ID="$1"
+function generate_client_token () {
+  local CLI_NAME="$1"
+  # Generate client token to improve drlm-api security
+  /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > $CONFIG_DIR/clients/${CLI_NAME}.token
+  chmod 600 $CONFIG_DIR/clients/${CLI_NAME}.token
+}
 
-	for line in $(get_all_jobs_dbdrv); do
-		if [ $(echo $line|awk -F"," '{print $2}') == "$CLI_ID" ]; then
-			echo "true"
-		fi
-	done
+function generate_client_secrets () {
+  local CLI_NAME="$1"
+
+  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.token ]; then
+    generate_client_token "$CLI_NAME"
+  fi
+
+  # Generate client token to improve drlm-api security
+  echo "${CLI_NAME}:$(cat $CONFIG_DIR/clients/${CLI_NAME}.token)" > $CONFIG_DIR/clients/${CLI_NAME}.secrets
+
+  # RSYNCD needs to have user and group read/write restrictions to secrets file
+  chmod 600 $CONFIG_DIR/clients/${CLI_NAME}.secrets
+}
+
+function has_jobs_scheduled () {
+  local CLI_ID="$1"
+
+  for line in $(get_all_jobs_dbdrv); do
+    if [ $(echo $line|awk -F"," '{print $2}') == "$CLI_ID" ]; then
+      echo "true"
+    fi
+  done
+}
+
+function load_client_pretty_params_list_client () { 
+  local CLI_NAME=$1
+  eval $(grep SSH_PORT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+}
+
+function save_default_pretty_params_list_client () {
+  DEF_SSH_PORT=$SSH_PORT
+  DEF_CLIENT_LIST_TIMEOUT=$CLIENT_LIST_TIMEOUT
+}
+
+function load_default_pretty_params_list_client () {
+  SSH_PORT=$DEF_SSH_PORT
+  CLIENT_LIST_TIMEOUT=$DEF_CLIENT_LIST_TIMEOUT
+}
+
+function ssh_access_enabled () {
+  local USER="$1"
+  local CLI_NAME="$2"
+
+  if ssh $SSH_OPTS -p $SSH_PORT -q -o "BatchMode=yes" "$USER"@"$CLI_NAME" exit; then 
+    return 0 
+  else 
+    return 1 
+  fi
+}
+
+function mount_remote_tmp_nfs () {
+  local CLI_NAME=$1
+  local NFS_EXPORT=$2
+  local TMP_MOUNT_POINT=$3
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /usr/bin/rm -rf /tmp/drlm; sudo /usr/bin/mkdir /tmp/drlm; sudo /usr/bin/mount -t nfs $(hostname -s):$NFS_EXPORT $TMP_MOUNT_POINT;" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function umount_remote_tmp_nfs () {
+  local CLI_NAME=$1
+  local TMP_MOUNT_POINT=$2
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /usr/bin/umount $TMP_MOUNT_POINT; sudo /usr/bin/rm -rf /tmp/drlm;" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
