@@ -351,16 +351,16 @@ function config_sudo () {
     for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
       commands="$(echo "$sudo_element" | awk '{print $1}')"
       args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
-      if [ -n "$(which --skip-alias $commands)" ]; then
-        SUDO_COMMANDS+=( , "$(which --skip-alias $commands) $args")
+      if [ -n "$(which $commands --skip-alias)" ]; then
+        SUDO_COMMANDS+=( , "$(which $commands --skip-alias) $args")
       fi
     done
   else 
     for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
       commands="$(echo "$sudo_element" | awk '{print $1}')"
       args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
-      if [ -n "$($SUDO "PATH=$PATH" which --skip-alias $commands)" ]; then
-        SUDO_COMMANDS+=( , "$($SUDO "PATH=$PATH" which --skip-alias $commands) $args")
+      if [ -n "$($SUDO "PATH=$PATH" which $commands --skip-alias)" ]; then
+        SUDO_COMMANDS+=( , "$($SUDO "PATH=$PATH" which $commands --skip-alias) $args")
       fi
     done
   fi
