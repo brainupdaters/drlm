@@ -136,13 +136,13 @@ __drlm_addclient ()
 		local options_s="-h"
 		local options_l="--help"
 	elif __drlm_exist_option "-I --installclient" "$workflow"; then
-		local options_s="-i -c -M -n -I -u -U -r -C"
+		local options_s="-i -c -M -I -u -U -r -C"
 		local options_l="--ipaddr --client --macaddr --installclient --user --url_rear --repo --config"
 	elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-		local options_s="-i -c -M -n -I"
+		local options_s="-i -c -M -I"
 		local options_l="--ipaddr --client --macaddr --installclient"
 	else
-		local options_s="-i -c -M -n -I -h"
+		local options_s="-i -c -M -I -h"
 		local options_l="--ipaddr --client --macaddr --installclient --help"
 	fi
 
