@@ -189,16 +189,15 @@ function enable_nbd_ro () {
   local SNAP_ID=$3
 
   # It is important to put the parameters in this oder, with -r or -l at the end.
-  # when we are trying to get the NBD or DR_FILE from a grep if there the 
+  # When we are trying to get the NBD or DR_FILE from a grep if the 
   # paremeters are in diferent order we can not obtain correctly them.
   if [ -n "$SNAP_ID" ]; then
     if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
-      #qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native -l $SNAP_ID >> /dev/null 2>&1
-      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native -l $SNAP_ID >> /dev/null 2>&1
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r ${QEMU_NBD_OPTIONS} -l $SNAP_ID >> /dev/null 2>&1
       if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
     else
       ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
-      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native -l $SNAP_ID --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r ${QEMU_NBD_OPTIONS} -l $SNAP_ID --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
       if [ $? -eq 0 ]; then 
         sleep 1
         rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
@@ -210,12 +209,11 @@ function enable_nbd_ro () {
     fi
   else 
     if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
-      #qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native >> /dev/null 2>&1
-      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r --cache=none --aio=native >> /dev/null 2>&1
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} -r ${QEMU_NBD_OPTIONS} >> /dev/null 2>&1
       if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
     else
       ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
-      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+      qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 -r ${QEMU_NBD_OPTIONS} --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
       if [ $? -eq 0 ]; then 
         sleep 1
         rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
@@ -234,17 +232,16 @@ function enable_nbd_rw () {
   local DR_FILE=$2
 
   # It is important to put the parameters in this oder.
-  # when we are trying to get the NBD or DR_FILE from a grep if there the 
+  # When we are trying to get the NBD or DR_FILE from a grep if the 
   # paremeters are in diferent order we can not obtain correctly them.
   if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
-    #qemu-nbd -c ${NBD_DEV} ${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
-    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} --cache=none --aio=native >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
+    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} ${QEMU_NBD_OPTIONS} >> /dev/null 2>&1
+    if [ $? -eq 0 ]; then sleep 4; return 0; else return 1; fi
   else
     ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
-    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 --cache=none --aio=native --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+    qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 ${QEMU_NBD_OPTIONS} --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
     if [ $? -eq 0 ]; then 
-      sleep 1
+      sleep 4
       rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
       return 0
     else 
@@ -258,9 +255,6 @@ function enable_nbd_rw () {
 function disable_nbd () {
   local NBD_DEV=$1
 
-  # It is important to put the parameters in this oder.
-  # when we are trying to get the NBD or DR_FILE from a grep if there the 
-  # paremeters are in diferent order we can not obtain correctly them.
   qemu-nbd -d ${NBD_DEV} >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK

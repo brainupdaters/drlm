@@ -81,11 +81,11 @@ if [ -n "$BKP_SRC" ]; then
 
    # Attach DR file to a NBD
   if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
-    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC} -r --cache=none --aio=native >> /dev/null 2>&1
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC} -r ${QEMU_NBD_OPTIONS} >> /dev/null 2>&1
     if [ $? -ne 0 ]; then Error "Error attching $BKP_SRC to $NBD_DEVICE"; fi
   else
     ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
-    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC},encrypt.format=luks,encrypt.key-secret=sec0 -r ${QEMU_NBD_OPTIONS} --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
     if [ $? -ne 0 ]; then 
       rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
       Error "Error attching encrypted $BKP_SRC to $NBD_DEVICE"
