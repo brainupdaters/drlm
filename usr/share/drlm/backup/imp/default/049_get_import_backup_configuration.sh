@@ -124,17 +124,17 @@ if [ -f $TMP_MOUNTPOINT/*.*.drlm.cfg ]; then
   IMPORT_CONFIGURATION_CONTENT="$(cat $IMP_CFG_FILE)"
 
   # Get backup type and remove quotes if exists
-  IMP_BKP_TYPE="$(cat $IMP_CFG_FILE | grep DRLM_BKP_TYPE | awk -F'=' {'print $2'})"
+  IMP_BKP_TYPE="$(grep DRLM_BKP_TYPE $IMP_CFG_FILE | xargs | awk -F'=' {'print $2'})"
   temp="${IMP_BKP_TYPE%\"}"
   IMP_BKP_TYPE="${temp#\"}"
 
   # Get backup protocol and remove quotes if exists
-  IMP_BKP_PROT="$(cat $IMP_CFG_FILE | grep DRLM_BKP_PROT | awk -F'=' {'print $2'})"
+  IMP_BKP_PROT="$(grep DRLM_BKP_PROT $IMP_CFG_FILE | xargs | awk -F'=' {'print $2'})"
   temp="${IMP_BKP_PROT%\"}"
   IMP_BKP_PROT="${temp#\"}"
 
   # Get backup program and remove quotes if exists
-  IMP_BKP_PROG="$(cat $IMP_CFG_FILE | grep DRLM_BKP_PROG | awk -F'=' {'print $2'})"
+  IMP_BKP_PROG="$(grep DRLM_BKP_PROG $IMP_CFG_FILE | xargs | awk -F'=' {'print $2'})"
   temp="${IMP_BKP_PROG%\"}"
   IMP_BKP_PROG="${temp#\"}"
 

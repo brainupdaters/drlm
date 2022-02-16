@@ -17,11 +17,11 @@ function ssh_get_distro () {
 function get_release () {
   if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; 
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'}|cut -c 2-4;
-  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" {'print $2'}|cut -c 2-4;
-  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'}|cut -c 2-4;
-  elif [ -f /etc/SuSE-release ]; then cat /etc/SuSE-release|grep VERSION| awk '{print $3}';
-  elif [ -f /etc/SUSE-brand ]; then cat /etc/SUSE-brand|grep VERSION| awk '{print $3}';
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'} | cut -c 2-4;
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" {'print $2'} | cut -c 2-4;
+  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'} | cut -c 2-4;
+  elif [ -f /etc/SuSE-release ]; then grep VERSION /etc/SuSE-release | awk '{print $3}';
+  elif [ -f /etc/SUSE-brand ]; then grep VERSION /etc/SUSE-brand | awk '{print $3}';
   fi
 }
 
@@ -351,16 +351,16 @@ function config_sudo () {
     for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
       commands="$(echo "$sudo_element" | awk '{print $1}')"
       args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
-      if [ -n "$(which --skip-alias $commands)" ]; then
-        SUDO_COMMANDS+=( , "$(which --skip-alias $commands) $args")
+      if [ -n "$(which $commands --skip-alias)" ]; then
+        SUDO_COMMANDS+=( , "$(which $commands --skip-alias) $args")
       fi
     done
   else 
     for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
       commands="$(echo "$sudo_element" | awk '{print $1}')"
       args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
-      if [ -n "$($SUDO "PATH=$PATH" which --skip-alias $commands)" ]; then
-        SUDO_COMMANDS+=( , "$($SUDO "PATH=$PATH" which --skip-alias $commands) $args")
+      if [ -n "$($SUDO "PATH=$PATH" which $commands --skip-alias)" ]; then
+        SUDO_COMMANDS+=( , "$($SUDO "PATH=$PATH" which $commands --skip-alias) $args")
       fi
     done
   fi
