@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get Server distribution
-SRV_DISTRO=$(cat /etc/os-release | grep "^ID=" | awk -F'=' '{print $2}' | sed -e 's/^"//' -e 's/"$//')
+SRV_DISTRO=$(grep "^ID=" /etc/os-release | awk -F'=' '{print $2}' | sed -e 's/^"//' -e 's/"$//')
 
 case $1 in
   "install")
