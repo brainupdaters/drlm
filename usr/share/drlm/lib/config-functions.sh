@@ -61,13 +61,24 @@ SetOSVendorAndVersion () {
 					OS_MASTER_VERSION="5"
 					;;
 				(6.*)
-					# map all RHEL 5.x and clones to Fedora/5
-					# this is safe because FedoraCore 5 never existed
+					# map all RHEL 6.x and clones to Fedora/6
 					OS_MASTER_VERSION="6"
 					;;
+        (7.*)
+					# map all RHEL 7.x and clones to Fedora/7
+					OS_MASTER_VERSION="7"
+					;;
+        (8.*)
+					# map all RHEL 8.x and clones to Fedora/8
+					OS_MASTER_VERSION="8"
+					;;
+        (9.*)
+					# map all RHEL 9.x and clones to Fedora/9
+					OS_MASTER_VERSION="0"
+					;;
 				(*)
-				OS_MASTER_VERSION="$OS_VERSION"
-				;;
+				  OS_MASTER_VERSION="$OS_VERSION"
+				  ;;
 			esac
 			;;
 		(*Ubuntu*|*LinuxMint*)
@@ -86,7 +97,7 @@ SetOSVendorAndVersion () {
 		OS_MASTER_VENDOR_ARCH="$OS_MASTER_VENDOR/$MACHINE"
 		OS_MASTER_VENDOR_VERSION_ARCH="$OS_MASTER_VENDOR/$OS_MASTER_VERSION/$MACHINE"
 	fi
-
+  
 }
 
 ### Return the template filename
