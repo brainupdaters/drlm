@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.0
+Version: 2.4.1
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -291,6 +291,13 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Tue Feb 22 2022 Pau Roura <pau@brainupdaters.net> 2.4.1
+- Fixed --skip-alias parameter in which command
+- Fixed several typo errors 
+- Fixed cat, grep and xargs bugs
+- Parameterizable qemu-nbd options
+- Fixed udev hang errors
 
 * Mon Oct 11 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported

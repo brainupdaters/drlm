@@ -81,11 +81,11 @@ if [ -n "$BKP_SRC" ]; then
 
    # Attach DR file to a NBD
   if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
-    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC} -r --cache=none --aio=native >> /dev/null 2>&1
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC} -r ${QEMU_NBD_OPTIONS} >> /dev/null 2>&1
     if [ $? -ne 0 ]; then Error "Error attching $BKP_SRC to $NBD_DEVICE"; fi
   else
     ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
-    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC},encrypt.format=luks,encrypt.key-secret=sec0 -r --cache=none --aio=native --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC},encrypt.format=luks,encrypt.key-secret=sec0 -r ${QEMU_NBD_OPTIONS} --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
     if [ $? -ne 0 ]; then 
       rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
       Error "Error attching encrypted $BKP_SRC to $NBD_DEVICE"
@@ -124,17 +124,17 @@ if [ -f $TMP_MOUNTPOINT/*.*.drlm.cfg ]; then
   IMPORT_CONFIGURATION_CONTENT="$(cat $IMP_CFG_FILE)"
 
   # Get backup type and remove quotes if exists
-  IMP_BKP_TYPE="$(cat $IMP_CFG_FILE | grep DRLM_BKP_TYPE | awk -F'=' {'print $2'})"
+  IMP_BKP_TYPE="$(grep DRLM_BKP_TYPE $IMP_CFG_FILE | xargs | awk -F'=' {'print $2'})"
   temp="${IMP_BKP_TYPE%\"}"
   IMP_BKP_TYPE="${temp#\"}"
 
   # Get backup protocol and remove quotes if exists
-  IMP_BKP_PROT="$(cat $IMP_CFG_FILE | grep DRLM_BKP_PROT | awk -F'=' {'print $2'})"
+  IMP_BKP_PROT="$(grep DRLM_BKP_PROT $IMP_CFG_FILE | xargs | awk -F'=' {'print $2'})"
   temp="${IMP_BKP_PROT%\"}"
   IMP_BKP_PROT="${temp#\"}"
 
   # Get backup program and remove quotes if exists
-  IMP_BKP_PROG="$(cat $IMP_CFG_FILE | grep DRLM_BKP_PROG | awk -F'=' {'print $2'})"
+  IMP_BKP_PROG="$(grep DRLM_BKP_PROG $IMP_CFG_FILE | xargs | awk -F'=' {'print $2'})"
   temp="${IMP_BKP_PROG%\"}"
   IMP_BKP_PROG="${temp#\"}"
 

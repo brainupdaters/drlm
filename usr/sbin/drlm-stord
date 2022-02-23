@@ -229,9 +229,9 @@ case "$1" in
 
 	restart | reload | force-reload)
     WORKFLOW="RESTART"
-		$0 stop
+		$0 stop $CLI_NAME_INPUT
 		sleep 1
-		$0 start
+		$0 start $CLI_NAME_INPUT
 		;;
 
 	*)
