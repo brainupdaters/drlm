@@ -74,6 +74,8 @@ DRLM Version 2.4.1 (February 2022) - Release Notes
 
   * Parameterizable qemu-nbd options
 
+  * Fixed udev hang errors
+
 
 DRLM Version 2.4.0 (October 2021) - Release Notes
 --------------------------------------------------

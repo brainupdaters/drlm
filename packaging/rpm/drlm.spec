@@ -292,11 +292,12 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Wed Feb 16 2022 Pau Roura <pau@brainupdaters.net> 2.4.1
+* Tue Feb 22 2022 Pau Roura <pau@brainupdaters.net> 2.4.1
 - Fixed --skip-alias parameter in which command
 - Fixed several typo errors 
 - Fixed cat, grep and xargs bugs
 - Parameterizable qemu-nbd options
+- Fixed udev hang errors
 
 * Mon Oct 11 2021 Pau Roura <pau@brainupdaters.net> 2.4.0
 - Multiple configuration supported

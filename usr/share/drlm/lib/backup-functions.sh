@@ -236,12 +236,12 @@ function enable_nbd_rw () {
   # paremeters are in diferent order we can not obtain correctly them.
   if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
     qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE} ${QEMU_NBD_OPTIONS} >> /dev/null 2>&1
-    if [ $? -eq 0 ]; then sleep 4; return 0; else return 1; fi
+    if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   else
     ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
     qemu-nbd -c ${NBD_DEV} --image-opts driver=${QCOW_FORMAT},file.filename=${ARCHDIR}/${DR_FILE},encrypt.format=luks,encrypt.key-secret=sec0 ${QEMU_NBD_OPTIONS} --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
     if [ $? -eq 0 ]; then 
-      sleep 4
+      sleep 1
       rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
       return 0
     else 
@@ -449,9 +449,15 @@ function make_snap () {
 function do_partition () {
   local DEVICE="$1"
   local PART_SIZE_MB="$2"
-
+  
+  my_udevsettle
   parted --script "$DEVICE" mklabel gpt mkpart primary 10MB ${PART_SIZE_MB}MB >> /dev/null 2>&1
-  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  if [ $? -eq 0 ]; then 
+    my_udevsettle
+    return 0
+  else 
+    return 1
+  fi
 # Return 0 if OK or 1 if NOK
 }
 
@@ -465,16 +471,17 @@ function extend_partition () {
   local partition_size_mb=$(echo "$number_of_blocks * 512 / 1000 / 1000" | bc)
 
   if [ $PART_SIZE -gt $partition_size_mb ]; then
-      parted --script $DEVICE resizepart 1 ${PART_SIZE}MB >> /dev/null 2>&1
-      if [ $? -ne 0 ]; then return 1; fi
+    my_udevsettle
+    parted --script $DEVICE resizepart 1 ${PART_SIZE}MB >> /dev/null 2>&1
+    if [ $? -ne 0 ]; then return 1; fi
+    my_udevsettle
 
-      sleep 2
-      e2fsck -y -f $PARTITION >> /dev/null 2>&1
-      if [ $? -ne 0 ]; then return 1; fi
+    e2fsck -y -f $PARTITION >> /dev/null 2>&1
+    if [ $? -ne 0 ]; then return 1; fi
 
-      sleep 2
-      resize2fs $PARTITION >> /dev/null 2>&1
-      if [ $? -ne 0 ]; then return 1; fi
+    sleep 2
+    resize2fs $PARTITION >> /dev/null 2>&1
+    if [ $? -ne 0 ]; then return 1; fi
   fi
 
   return 0
@@ -1377,3 +1384,25 @@ function generate_enctyption_key_file () {
   echo "$ENCRYPTION_KEY" > $EncryptionKeyFile
   echo "$EncryptionKeyFile"
 }  
+
+# try calling 'udevadm settle' or 'udevsettle' or fallback
+# but waiting for udev and "kicking udev" both miss the point
+# see https://github.com/rear/rear/issues/791
+function my_udevsettle () {
+    # first try the most current way, newer systems (e.g. SLES11) have 'udevadm settle'
+    #has_binary udevadm && udevadm settle $@ && return 0
+    udevadm settle $@ && return 0
+    # then try an older way, older systems (e.g. SLES10) have 'udevsettle'
+    #has_binary udevsettle && udevsettle $@ && return 0
+    # as first fallback re-implement udevsettle for older systems
+    if [ -e /sys/kernel/uevent_seqnum ] && [ -e /dev/.udev/uevent_seqnum ] ; then
+        local tries=0
+        while [ "$( cat /sys/kernel/uevent_seqnum )" = "$( cat /dev/.udev/uevent_seqnum )" ] && [ "$tries" -lt 10 ] ; do
+            sleep 1
+            let tries=tries+1
+        done
+        return 0
+    fi
+    # as final fallback just wait a bit and hope for the best
+    sleep 10
+}
