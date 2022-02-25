@@ -15,9 +15,11 @@ func main() {
 	// Show DRLM PROXY configuratio vars
 	printDRLMProxyConfiguration()
 
-	rtr := mux.NewRouter()
-	rtr.HandleFunc("/Rear/{distro}/{arch}/{package}", remotepkg)
-	http.ListenAndServe(":80", rtr)
+	if configDRLMProxy.RedirectURL != "" {
+		rtr := mux.NewRouter()
+		rtr.HandleFunc("/Rear/{distro}/{arch}/{package}", remotepkg)
+		http.ListenAndServe(":80", rtr)
+	}
 }
 
 func remotepkg(w http.ResponseWriter, r *http.Request) {

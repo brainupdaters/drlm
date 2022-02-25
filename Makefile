@@ -209,6 +209,7 @@ endif
 drlmproxy:
 ifneq ($(shell which go),)
 	@echo -e "\033[1m== Building DRLM PROXY ==\033[0;0m"
+	go get github.com/gorilla/mux
 	go build -o ./usr/sbin/drlm-proxy ./usr/share/drlm/www/drlm-proxy/
 else
 	@echo -e "No Go binaries detected to build DRLM PROXY, will be copied the builded one"

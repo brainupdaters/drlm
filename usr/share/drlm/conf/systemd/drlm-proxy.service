@@ -4,8 +4,6 @@ After=drlm-stord.service
 
 [Service]
 Type=simple
-Restart=always
-RestartSec=1
 ExecStart=/usr/sbin/drlm-proxy
 
 [Install]

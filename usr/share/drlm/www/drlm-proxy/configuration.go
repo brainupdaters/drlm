@@ -26,10 +26,8 @@ func loadDRLMProxyConfiguration() {
 	}
 
 	if configDRLMProxy.RedirectURL == "" {
-		logger.Fatal("DRLM_PROXY_URL not found in DRLM config. Impossible to redirect requests")
+		logger.Println("DRLM_PROXY_URL not found in DRLM config. Stoping DRLM Proxy")
 		return
-	} else {
-		logger.Println(configDRLMProxy.RedirectURL)
 	}
 
 	if found, tmpValue := getConfigFileVar("/usr/share/drlm/conf/default.conf", "URL_REAR_BASE"); found {
@@ -44,9 +42,8 @@ func loadDRLMProxyConfiguration() {
 
 	if configDRLMProxy.CurrenturlURLBase == "" {
 		logger.Println("WARNING! URL_REAR_BASE not found in DRLM config. ReaR packages URL may be incorrect")
-	} else {
-		logger.Println(configDRLMProxy.CurrenturlURLBase)
 	}
+
 }
 
 func printDRLMProxyConfiguration() {
