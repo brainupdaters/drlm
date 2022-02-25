@@ -47,9 +47,10 @@ case "$1" in
       adduser --system --home /var/lib/drlm/store --no-create-home --quiet --gecos 'tftp daemon' --group tftp2
     fi
 
-    # Stop previos drlm services if exists
+    # Stop previous drlm services if exists
     systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+    systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
     systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
     systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-rsyncd.service
 
@@ -59,6 +60,7 @@ case "$1" in
         sed -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/drlm-stord.service
     fi
     cp /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-proxy.service /etc/systemd/system/
     cp /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/
     cp /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/
 
@@ -73,6 +75,7 @@ case "$1" in
     # Enable drlm systemd services
     systemctl enable drlm-stord.service
     systemctl enable drlm-api.service
+    systemctl enable drlm-proxy.service
     systemctl enable drlm-rsyncd.service
     systemctl enable drlm-tftpd.service
 
@@ -80,6 +83,7 @@ case "$1" in
     # Start drlm services
     systemctl start drlm-stord.service
     systemctl start drlm-api.service
+    systemctl start drlm-proxy.service
     systemctl start drlm-rsyncd.service  
     systemctl start drlm-tftpd.service  
 

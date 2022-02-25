@@ -64,6 +64,10 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.2 (February 2022) - Release Notes
+--------------------------------------------------
+  * DRLM Proxy added.
+
 DRLM Version 2.4.1 (February 2022) - Release Notes
 --------------------------------------------------
   * Fixed --skip-alias parameter in which command
