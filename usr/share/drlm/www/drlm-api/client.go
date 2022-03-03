@@ -466,11 +466,22 @@ func apiGetClientConfig(w http.ResponseWriter, r *http.Request) {
 	receivedClientConfig := getField(r, 1)
 
 	client := new(Client)
-	client.GetByName(receivedClientName)
+	err := client.GetByName(receivedClientName)
+	if err != nil {
+		logger.Println("Client", receivedClientName, "not found")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-	configName := "default"
-	configFile := configDRLM.CliConfigDir + "/" + receivedClientName + ".cfg"
-	configContent, _ := client.generateConfiguration(receivedClientConfig)
+	for i := range client.Configs {
+		if client.Configs[i].Name == receivedClientConfig {
+			configFileName := client.Configs[i].File
+			configContent := client.Configs[i].Content
+			fmt.Fprintln(w, generateJSONResponse(ClientConfig{Name: receivedClientConfig, File: configFileName, Content: configContent}))
+			return
+		}
+	}
 
-	fmt.Fprintln(w, generateJSONResponse(ClientConfig{Name: configName, File: configFile, Content: configContent}))
+	logger.Println("Config", receivedClientConfig, "not found in client", receivedClientName)
+	w.WriteHeader(http.StatusNotFound)
 }
