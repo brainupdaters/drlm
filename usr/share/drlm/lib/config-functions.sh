@@ -121,6 +121,12 @@ function check_drlm_api_service() {
   systemctl is-failed --quiet drlm-api.service && Error "drlm-api.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-api.service'"
 }
 
+function check_drlm_proxy_service() {
+  # Check drlm-proxy.service
+  systemctl is-active --quiet drlm-proxy.service || Error "drlm-proxy.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-proxy.service'"
+  systemctl is-failed --quiet drlm-proxy.service && Error "drlm-proxy.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-proxy.service'"
+}
+
 function check_drlm_rsyncd_service() {
   # Check rsync service
   systemctl is-active --quiet drlm-rsyncd.service || Error "drlm-rsyncd.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-rsyncd.service'"

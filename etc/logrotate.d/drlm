@@ -11,7 +11,16 @@
     create
     copytruncate
 }
-
+/var/log/drlm/drlm-proxy.log {
+    missingok
+    weekly
+    rotate 3
+    size 10M
+    compress
+    delaycompress
+    create
+    copytruncate
+}
 /var/log/drlm/rear/*
 /var/log/drlm/debug/* {
     missingok

@@ -10,6 +10,7 @@ OFFICIAL =
 drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
+drlm_proxy = usr/sbin/drlm-proxy
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /^readonly VERSION=/ { print $$2}' $(drlmbin))
 
@@ -84,6 +85,7 @@ clean:
 	rm -f build-stamp
 	rm -f packaging/docker/src/drlm*.deb
 	rm -f usr/sbin/drlm-api
+	rm -f usr/sbin/drlm-proxy
 
 validate:
 	@echo -e "\033[1m== Validating scripts and configuration ==\033[0;0m"
@@ -98,7 +100,7 @@ ifneq ($(shell which gofmt),)
 	#Validating GO Syntax
 	gofmt $(shell find usr/share/drlm/ -name '*.go') > /dev/null
 else
-	@echo -e "Warning: gofmt not found, can not validate DRLM API code."
+	@echo -e "Warning: gofmt not found, can not validate DRLM Golang code."
 endif
 
 man: doc/drlm.8
@@ -159,6 +161,7 @@ install-bin:
 		$(DESTDIR)$(sbindir)/drlm
 	install -Dp -m0755 $(drlm_store_svc) $(DESTDIR)$(sbindir)/drlm-stord
 	install -Dp -m0755 $(drlm_api) $(DESTDIR)$(sbindir)/drlm-api
+	install -Dp -m0755 $(drlm_proxy) $(DESTDIR)$(sbindir)/drlm-proxy
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
@@ -203,14 +206,23 @@ else
 	@echo -e "No Go binaries detected to build DRLM API, will be copied the builded one"
 endif
 
-dist: clean validate drlmapi man rewrite $(name)-$(distversion).tar.gz restore
+drlmproxy:
+ifneq ($(shell which go),)
+	@echo -e "\033[1m== Building DRLM PROXY ==\033[0;0m"
+	go get github.com/gorilla/mux
+	go build -o ./usr/sbin/drlm-proxy ./usr/share/drlm/www/drlm-proxy/
+else
+	@echo -e "No Go binaries detected to build DRLM PROXY, will be copied the builded one"
+endif
+
+dist: clean validate drlmapi drlmproxy man rewrite $(name)-$(distversion).tar.gz restore
 
 $(name)-$(distversion).tar.gz:
 	@echo -e "\033[1m== Building archive $(name)-$(distversion) ==\033[0;0m"
 	git checkout $(git_branch)
 	git ls-tree -r --name-only --full-tree $(git_branch) | \
 		tar -czf $(name)-$(distversion).tar.gz --transform='s,^,$(name)-$(distversion)/,S' \
-		--files-from=- ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go
+		--files-from=- ./usr/sbin/drlm-api ./usr/share/drlm/www/drlm-api/drlm-api.go ./usr/sbin/drlm-proxy ./usr/share/drlm/www/drlm-proxy/drlm-proxy.go
 
 rpm: dist
 	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
@@ -230,6 +242,7 @@ deb: dist
 	rm $(name)-$(distversion).tar.gz
 	rm build-stamp
 	rm usr/sbin/drlm-api
+	rm usr/sbin/drlm-proxy
 
 docker: dist
 	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
