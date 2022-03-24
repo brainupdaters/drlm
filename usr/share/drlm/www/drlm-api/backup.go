@@ -5,25 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"./models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Backup struct {
-	ID         string `json:"idbackup"`
-	Client     string `json:"clients_id"`
-	DR         string `json:"drfile"`
-	Active     string `json:"active"`
-	Duration   string `json:"duration"`
-	Size       string `json:"size"`
-	Config     string `json:"config"`
-	PXE        string `json:"PXE"`
-	Type       string `json:"type"`
-	Protocol   string `json:"protocol"`
-	Date       string `json:"date"`
-	Encrypted  string `json:"encrypted"`
-	EncrypPass string `json:"encryppass"`
-}
+type Backup models.Backup
 
+// Get all backup from database
 func (b *Backup) GetAll() ([]Backup, error) {
 	db := GetConnection()
 	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass FROM backups"
@@ -32,7 +20,9 @@ func (b *Backup) GetAll() ([]Backup, error) {
 		return []Backup{}, err
 	}
 	defer rows.Close()
+
 	backups := []Backup{}
+
 	for rows.Next() {
 		rows.Scan(
 			&b.ID,
@@ -54,8 +44,116 @@ func (b *Backup) GetAll() ([]Backup, error) {
 	return backups, nil
 }
 
+// Get backup from database by backup id
+func (b *Backup) GetByID(id string) error {
+	db := GetConnection()
+	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass FROM backups where idbackup=?"
+
+	err := db.QueryRow(q, id).Scan(
+		&b.ID,
+		&b.Client,
+		&b.DR,
+		&b.Active,
+		&b.Duration,
+		&b.Size,
+		&b.Config,
+		&b.PXE,
+		&b.Type,
+		&b.Protocol,
+		&b.Date,
+		&b.Encrypted,
+		&b.EncrypPass,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Get all snaps from database
+func (b *Backup) GetSnaps() ([]Snap, error) {
+	db := GetConnection()
+	q := "SELECT idbackup, idsnap, date, active, duration, size FROM snaps WHERE idbackup=?"
+	rows, err := db.Query(q, b.ID)
+	if err != nil {
+		return []Snap{}, err
+	}
+	defer rows.Close()
+
+	snaps := []Snap{}
+
+	for rows.Next() {
+		s := new(Snap)
+		rows.Scan(
+			&s.IDBackup,
+			&s.IDSnap,
+			&s.Date,
+			&s.Active,
+			&s.Duration,
+			&s.Size,
+		)
+		snaps = append(snaps, *s)
+	}
+	return snaps, nil
+}
+
+// Get JSON of all backup
 func apiGetBackups(w http.ResponseWriter, r *http.Request) {
-	allBackups, _ := new(Backup).GetAll()
-	response := generateJSONResponse(allBackups)
+	response := ""
+
+	allBackups, err := new(Backup).GetAll()
+	if err == nil {
+		response = generateJSONResponse(allBackups)
+	} else {
+		response = generateJSONResponse("")
+		logger.Println("Error getting backups")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	fmt.Fprintln(w, response)
+}
+
+// Get JSON of selected backup
+func apiGetBackup(w http.ResponseWriter, r *http.Request) {
+	receivedBackupID := getField(r, 0)
+	response := ""
+
+	backup := new(Backup)
+	err := backup.GetByID(receivedBackupID)
+	if err == nil {
+		response = generateJSONResponse(backup)
+	} else {
+		response = generateJSONResponse("")
+		logger.Println("Backup", receivedBackupID, "not found")
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	fmt.Fprintln(w, response)
+}
+
+// Get JSON of selected backup snaps
+func apiGetBackupSnaps(w http.ResponseWriter, r *http.Request) {
+	receivedBackupID := getField(r, 0)
+
+	backup := new(Backup)
+	err := backup.GetByID(receivedBackupID)
+	if err != nil {
+		logger.Println("Backup", receivedBackupID, "not found")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	response := ""
+	backupSnaps, err := backup.GetSnaps()
+
+	if err == nil {
+		response = generateJSONResponse(backupSnaps)
+	} else {
+		response = generateJSONResponse("")
+		logger.Println("Error getting snaps")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
 	fmt.Fprintln(w, response)
 }
