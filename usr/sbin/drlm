@@ -232,7 +232,6 @@ fi
 
 exec 2>> "$LOGFILE"
 
-Log ""
 Log "$PRODUCT $VERSION / $RELEASE_DATE"
 Log "Command line options: $0 ${CMD_OPTS[@]}"
 
