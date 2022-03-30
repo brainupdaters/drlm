@@ -69,7 +69,7 @@ function list_backup () {
 
   save_default_pretty_params_list_backup
 
-  for line in $(get_all_backups_dbdrv)
+  for line in $(get_all_backups_dbdrv "$CLI_ID")
   do
     local BAC_ID="$(echo $line|awk -F":" '{print $1}')"
     local CLI_BAC_ID="$(echo $line|awk -F":" '{print $2}')"
@@ -139,9 +139,7 @@ function list_backup () {
       BAC_STATUS_DEC="%-10s"
     fi
 
-    if [ "$CLI_NAME_REC" == "all" ] || [ $CLI_ID -eq $CLI_BAC_ID ]; then 
-      printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}"; 
-    fi
+    printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}"; 
 
     # Check if BAC_ID have snapshots and list them
     found_enabled=0
@@ -468,7 +466,7 @@ function extend_partition () {
 
   local partition_name="$(echo ${PARTITION} | awk -F'/' '{print $3}')"
   local number_of_blocks=$(cat /sys/class/block/$partition_name/size)
-  local partition_size_mb=$(echo "$number_of_blocks * 512 / 1000 / 1000" | bc)
+  local partition_size_mb=$(echo "$number_of_blocks * 512 / 1000 / 1000 + 10" | bc)
 
   if [ $PART_SIZE -gt $partition_size_mb ]; then
     my_udevsettle

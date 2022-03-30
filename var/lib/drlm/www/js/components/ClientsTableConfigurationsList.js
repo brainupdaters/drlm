@@ -3,7 +3,7 @@ var ClientsTableConfigurationsList = {
   template: `
     <div class="client-config">
       <li>
-        <a href="#" data-bs-toggle="modal" :data-bs-target="'#demo' + client.cli_id + config.config_name" v-on:click="update_client_config(client.cli_name,config.config_name)"> {{ config.config_name }} </a>
+        <a href="#" data-bs-toggle="modal" :data-bs-target="'#demo' + client.cli_id + config.config_name" v-on:click="update_client_config(client.cli_id,config.config_name)"> {{ config.config_name }} </a>
         <div class="modal fade" :id="'demo' + client.cli_id + config.config_name" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -22,7 +22,7 @@ var ClientsTableConfigurationsList = {
     update_client_config: async function(client, config){
       const response = await fetch("/api/clients/"+client+"/configs/"+config);
       const data = await response.json();
-      this.config.config_content = data.resultList.result.config_content
+      this.config.config_content = data.result.config_content
     }
   }
 }

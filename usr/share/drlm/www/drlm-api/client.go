@@ -11,26 +11,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"./models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Client struct {
-	ID          int            `json:"cli_id"`
-	Name        string         `json:"cli_name"`
-	Mac         string         `json:"cli_mac"`
-	IP          string         `json:"cli_ip"`
-	NetworkName string         `json:"cli_net"`
-	OS          string         `json:"cli_os"`
-	ReaR        string         `json:"cli_rear"`
-	Token       string         `json:"cli_token"`
-	Configs     []ClientConfig `json:"cli_configs"`
-}
-
-type ClientConfig struct {
-	Name    string `json:"config_name"`
-	File    string `json:"config_file"`
-	Content string `json:"config_content"`
-}
+type Client models.Client
+type ClientConfig = models.ClientConfig
 
 // Get slice with all clients from database
 func (c *Client) GetAll() ([]Client, error) {
@@ -41,6 +27,7 @@ func (c *Client) GetAll() ([]Client, error) {
 		return []Client{}, err
 	}
 	defer rows.Close()
+
 	clients := []Client{}
 	for rows.Next() {
 		rows.Scan(
@@ -60,12 +47,18 @@ func (c *Client) GetAll() ([]Client, error) {
 }
 
 // Get client from database by client id
-func (c *Client) GetByID(id int) error {
+func (c *Client) GetByID(id string) error {
 	db := GetConnection()
 	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients where idclient=?"
 
 	err := db.QueryRow(q, id).Scan(
-		&c.ID, &c.Name, &c.Mac, &c.IP, &c.NetworkName, &c.OS, &c.ReaR,
+		&c.ID,
+		&c.Name,
+		&c.Mac,
+		&c.IP,
+		&c.NetworkName,
+		&c.OS,
+		&c.ReaR,
 	)
 	if err != nil {
 		return err
@@ -85,7 +78,13 @@ func (c *Client) GetByName(name string) error {
 	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients where cliname=?"
 
 	err := db.QueryRow(q, name).Scan(
-		&c.ID, &c.Name, &c.Mac, &c.IP, &c.NetworkName, &c.OS, &c.ReaR,
+		&c.ID,
+		&c.Name,
+		&c.Mac,
+		&c.IP,
+		&c.NetworkName,
+		&c.OS,
+		&c.ReaR,
 	)
 	if err != nil {
 		return err
@@ -97,6 +96,40 @@ func (c *Client) GetByName(name string) error {
 	}
 
 	return nil
+}
+
+// Get backup from database by client id
+func (c *Client) GetBackups() ([]Backup, error) {
+	db := GetConnection()
+	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass FROM backups where clients_id=?"
+	rows, err := db.Query(q, c.ID)
+	if err != nil {
+		return []Backup{}, err
+	}
+	defer rows.Close()
+
+	backups := []Backup{}
+
+	for rows.Next() {
+		b := new(Backup)
+		rows.Scan(
+			&b.ID,
+			&b.Client,
+			&b.DR,
+			&b.Active,
+			&b.Duration,
+			&b.Size,
+			&b.Config,
+			&b.PXE,
+			&b.Type,
+			&b.Protocol,
+			&b.Date,
+			&b.Encrypted,
+			&b.EncrypPass,
+		)
+		backups = append(backups, *b)
+	}
+	return backups, nil
 }
 
 // Get Client Server IP
@@ -114,6 +147,7 @@ func (c *Client) getClientServerIP() (string, error) {
 	return serverIP, nil
 }
 
+// Get Client Token
 func (c *Client) getClientToken() (string, error) {
 	token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".token")
 	if err != nil {
@@ -124,6 +158,7 @@ func (c *Client) getClientToken() (string, error) {
 	return string(token), err
 }
 
+// Get Client Configurations
 func (c *Client) getClientConfigurations() ([]ClientConfig, error) {
 	var configs []ClientConfig
 
@@ -401,6 +436,8 @@ func apiGetClients(w http.ResponseWriter, r *http.Request) {
 		response = generateJSONResponse(allClients)
 	} else {
 		response = generateJSONResponse("")
+		logger.Println("Error getting clients")
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	fmt.Fprintln(w, response)
@@ -424,7 +461,8 @@ func apiPutClientLogLegacy(w http.ResponseWriter, r *http.Request) {
 func apiGetClientConfigLegacy(w http.ResponseWriter, r *http.Request) {
 	receivedClientName := getField(r, 0)
 	receivedConfig := ""
-	if len(r.Context().Value(ctxKey{}).([]string)) > 1 {
+
+	if len(r.Context().Value(ctxKey{}).(CtxValues).matches) > 1 {
 		receivedConfig = getField(r, 1)
 	}
 
@@ -438,39 +476,81 @@ func apiGetClientConfigLegacy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Get JSON of selected user
+// Get JSON of selected client
 func apiGetClient(w http.ResponseWriter, r *http.Request) {
-	receivedClientName := getField(r, 0)
-	response := ""
+	receivedClientID := getField(r, 0)
 
 	client := new(Client)
-	err := client.GetByName(receivedClientName)
+	err := client.GetByID(receivedClientID)
 	if err == nil {
-		response = generateJSONResponse(client)
+		fmt.Fprintln(w, generateJSONResponse(client))
 	} else {
-		response = generateJSONResponse("")
+		logger.Println("Client", receivedClientID, "not found")
+		w.WriteHeader(http.StatusNotFound)
 	}
-
-	fmt.Fprintln(w, response)
 }
 
+// Get all Configurations of the selected client name
 func apiGetClientConfigs(w http.ResponseWriter, r *http.Request) {
-	receivedClientName := getField(r, 0)
+	receivedClientID := getField(r, 0)
 	client := new(Client)
-	client.GetByName(receivedClientName)
-	fmt.Fprintln(w, generateJSONResponse(client.Configs))
+	err := client.GetByID(receivedClientID)
+	if err == nil {
+		fmt.Fprintln(w, generateJSONResponse(client.Configs))
+	} else {
+		logger.Println("Client", receivedClientID, "not found")
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
 
+// Get selected Configuration of the selected client ID
 func apiGetClientConfig(w http.ResponseWriter, r *http.Request) {
-	receivedClientName := getField(r, 0)
+	receivedClientID := getField(r, 0)
 	receivedClientConfig := getField(r, 1)
 
 	client := new(Client)
-	client.GetByName(receivedClientName)
+	err := client.GetByID(receivedClientID)
+	if err != nil {
+		logger.Println("Client", receivedClientID, "not found")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-	configName := "default"
-	configFile := configDRLM.CliConfigDir + "/" + receivedClientName + ".cfg"
-	configContent, _ := client.generateConfiguration(receivedClientConfig)
+	for i := range client.Configs {
+		if client.Configs[i].Name == receivedClientConfig {
+			configFileName := client.Configs[i].File
+			configContent := client.Configs[i].Content
+			fmt.Fprintln(w, generateJSONResponse(ClientConfig{Name: receivedClientConfig, File: configFileName, Content: configContent}))
+			return
+		}
+	}
 
-	fmt.Fprintln(w, generateJSONResponse(ClientConfig{Name: configName, File: configFile, Content: configContent}))
+	logger.Println("Config", receivedClientConfig, "not found in client", receivedClientID)
+	w.WriteHeader(http.StatusNotFound)
+}
+
+// Get all backups of the selected client ID
+func apiGetClientBackups(w http.ResponseWriter, r *http.Request) {
+	receivedClientID := getField(r, 0)
+
+	client := new(Client)
+	err := client.GetByID(receivedClientID)
+	if err != nil {
+		logger.Println("Client", receivedClientID, "not found")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	response := ""
+	clientBackups, err := client.GetBackups()
+
+	if err == nil {
+		response = generateJSONResponse(clientBackups)
+	} else {
+		response = generateJSONResponse("")
+		logger.Println("Error getting bakcups")
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	fmt.Fprintln(w, response)
 }

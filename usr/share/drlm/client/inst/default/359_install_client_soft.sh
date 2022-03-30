@@ -131,7 +131,7 @@ if [ -z "$CONFIG_ONLY" ]; then
         
           # Installing DRLM and ReaR dependencies
           LogPrint "Installing dependencies and ReaR"
-          if install_dependencies_yum  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_REDHAT"$CLI_VERSION")" "$SUDO"; then 
+          if install_dependencies_yum  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_REDHAT"$CLI_VERSION""$REP_ARCH")" "$SUDO"; then 
             Log "Dependencies have been installed"
           else 
             Error "Problem installing dependencies, check logfile" 

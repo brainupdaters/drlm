@@ -1,3 +1,4 @@
+//logger.go
 package main
 
 import (
@@ -6,7 +7,7 @@ import (
 	"os"
 )
 
-var apilog *os.File
+//var apilog *os.File
 var logger *log.Logger
 
 func init() {
