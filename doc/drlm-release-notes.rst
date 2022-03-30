@@ -74,6 +74,8 @@ DRLM Version 2.4.2 (March 2022) - Release Notes
 
   * drlm-api improvements
 
+  * Log improvements
+
 
 DRLM Version 2.4.1 (February 2022) - Release Notes
 --------------------------------------------------

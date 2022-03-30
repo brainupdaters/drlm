@@ -309,11 +309,12 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Thu Mar 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.2
+* Wed Mar 30 2022 Pau Roura <pau@brainupdaters.net> 2.4.2
 - DRLM Proxy added
 - Fixed listclient filtered by client
 - Fixed RHEL 8.5 ppc64le instclient dependency (issue #188)
 - drlm-api improvements
+- Log improvements
 
 * Tue Feb 22 2022 Pau Roura <pau@brainupdaters.net> 2.4.1
 - Fixed --skip-alias parameter in which command
