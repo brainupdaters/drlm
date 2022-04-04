@@ -186,6 +186,9 @@ function enable_nbd_ro () {
   local DR_FILE=$2
   local SNAP_ID=$3
 
+  # Getting the backup file format
+  local QCOW_FORMAT=$(qemu-img info ${ARCHDIR}/$DR_FILE | grep "file format" | awk '{ print $3 }')
+
   # It is important to put the parameters in this oder, with -r or -l at the end.
   # When we are trying to get the NBD or DR_FILE from a grep if the 
   # paremeters are in diferent order we can not obtain correctly them.
@@ -228,6 +231,9 @@ function enable_nbd_ro () {
 function enable_nbd_rw () {
   local NBD_DEV=$1
   local DR_FILE=$2
+  
+  # Getting the backup file format
+  local QCOW_FORMAT=$(qemu-img info ${ARCHDIR}/$DR_FILE | grep "file format" | awk '{ print $3 }')
 
   # It is important to put the parameters in this oder.
   # When we are trying to get the NBD or DR_FILE from a grep if the 
@@ -423,6 +429,15 @@ function make_img () {
 function make_snap () {
   local SNAP_ID=$1
   local DR_FILE=$2
+
+  # Getting the backup file format
+  local QCOW_FORMAT=$(qemu-img info ${ARCHDIR}/$DR_FILE | grep "file format" | awk '{ print $3 }')
+
+  # Only qcow2 format allows to create snaps
+  if [ $QCOW_FORMAT != "qcow2" ]; then
+    Log "Not possible to create a snap in a RAW qcow file format" 
+    return 1
+  fi
 
   if [ -n "$ARCHDIR" ] && [ -n "$SNAP_ID" ] && [ -n "$DR_FILE" ]; then
     if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
