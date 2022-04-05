@@ -238,12 +238,12 @@ function send_ssl_cert () {
 function send_drlm_hostname () {
   if [ -n "$SRV_NAME" ] && [ -n "$SRV_IP" ];then
     # Coment lines with same hostname as SRV_NAME and diferent ip SRV_IP
-    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_NAME" | grep -v "$SRV_IP" | awk -F':' '{print $1}'); do
+    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_NAME" | grep -vw "$SRV_IP" | awk -F':' '{print $1}'); do
       $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
     done
 
     # Coment lines with same ip as SRV_IP and diferent hostname SRV_NAME
-    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_IP" | grep -v "$SRV_NAME" | awk -F':' '{print $1}'); do
+    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_IP" | grep -vw "$SRV_NAME" | awk -F':' '{print $1}'); do
       $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
     done
 
