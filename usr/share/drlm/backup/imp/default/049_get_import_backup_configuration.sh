@@ -119,7 +119,7 @@ fi
 
 # At this point is available the content of the DR file
 # If exists *.*.drlm.cfg file in the mountpoint it means that is a backup done with a DRLM 2.4.0 or superior
-if [ -f $TMP_MOUNTPOINT/*.*.drlm.cfg ]; then
+if [ -f "$TMP_MOUNTPOINT/*.*.drlm.cfg" ]; then
 
   IMP_CFG_FILE="$(ls $TMP_MOUNTPOINT/*.*.drlm.cfg)"
   IMP_CLI_NAME="$(basename $(ls $TMP_MOUNTPOINT/*.*.drlm.cfg) | awk -F'.' {'print $1'})"
@@ -142,6 +142,12 @@ if [ -f $TMP_MOUNTPOINT/*.*.drlm.cfg ]; then
   temp="${IMP_BKP_PROG%\"}"
   IMP_BKP_PROG="${temp#\"}"
 
+  if grep "OUTPUT=PXE" $TMP_MOUNTPOINT/*.*.drlm.cfg >> /dev/null 2>&1; then
+    IMP_BKP_TYPE="PXE"
+    IMP_BKP_PROT="NETFS"
+    IMP_BKP_PROG="TAR"
+  fi
+  
   if [ -z "$IMP_BKP_TYPE" ]; then 
     IMP_BKP_TYPE="ISO"
   fi
