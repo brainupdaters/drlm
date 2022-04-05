@@ -228,6 +228,11 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				drlmBkpProt = varValue
 			} else if varName == "DRLM_BKP_PROG" {
 				drlmBkpProg = varValue
+			} else if varName == "OUTPUT" {
+				//Legacy mode
+				drlmBkpType = "PXE"
+				drlmBkpProt = "NETFS"
+				drlmBkpProg = "TAR"
 			}
 		}
 	}
@@ -403,24 +408,27 @@ func (c *Client) generateConfiguration(configName string) (string, error) {
 			// Have a new line from config file get the var name
 			varName := strings.TrimSpace(strings.Split(line, "=")[0])
 
-			scannerDefault := bufio.NewScanner(strings.NewReader(defaultConfig))
-			for scannerDefault.Scan() {
-				defaultVarName := strings.TrimSpace(strings.Split(scannerDefault.Text(), "=")[0])
-				// for line in default config if is diferent from var name attach to temp default config
-				if varName != defaultVarName || varName[len(varName)-1] == '+' {
-					tmpDefaultConfig += scannerDefault.Text() + "\n"
-				} else {
-					tmpDefaultConfig += strings.TrimSpace(scanner.Text()) + "\n"
-					found = true
+			//Ignore old configurations (< DRLM 2.4.0)
+			if varName != "OUTPUT" && varName != "OUTPUT_PREFIX" && varName != "OUTPUT_PREFIX_PXE" && varName != "OUTPUT_URL" && varName != "BACKUP" && varName != "NETFS_PREFIX" && varName != "BACKUP_URL" {
+				scannerDefault := bufio.NewScanner(strings.NewReader(defaultConfig))
+				for scannerDefault.Scan() {
+					defaultVarName := strings.TrimSpace(strings.Split(scannerDefault.Text(), "=")[0])
+					// for line in default config if is diferent from var name attach to temp default config
+					if varName != defaultVarName || varName[len(varName)-1] == '+' {
+						tmpDefaultConfig += scannerDefault.Text() + "\n"
+					} else {
+						tmpDefaultConfig += strings.TrimSpace(scanner.Text()) + "\n"
+						found = true
+					}
 				}
+				// attach var line at the end com temp default config
+				if !found {
+					tmpDefaultConfig += strings.TrimSpace(scanner.Text()) + "\n"
+				}
+				defaultConfig = tmpDefaultConfig
+				tmpDefaultConfig = ""
+				found = false
 			}
-			// attach var line at the end com temp default config
-			if !found {
-				tmpDefaultConfig += strings.TrimSpace(scanner.Text()) + "\n"
-			}
-			defaultConfig = tmpDefaultConfig
-			tmpDefaultConfig = ""
-			found = false
 		}
 	}
 
