@@ -28,16 +28,12 @@ if [ -z "$CONFIG_ONLY" ]; then
                   Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                   ;;
 
-                10*|11*)
+                *)
                   if install_rear_deb_repo "$USER" "$CLI_NAME" "$SUDO"; then 
                     Log "ReaR has been installed from repo"
                   else 
                     Error "Problem installing ReaR from repo, check logfile"
                   fi
-                  ;;
-
-                *)
-                  Error "Debian release not identified or unsupported!"
                   ;;
                     
               esac
@@ -87,16 +83,12 @@ if [ -z "$CONFIG_ONLY" ]; then
                 Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                 ;;
 
-              18|20)
+              *)
                 if install_rear_deb_repo "$USER" "$CLI_NAME" "$SUDO"; then 
                   Log "ReaR has been installed from repo"
                 else 
                   Error "Problem installing ReaR from repo, check logfile"
                 fi
-                ;;    
-
-              *)
-                Error "Ubuntu version not identified or unsupported!"
                 ;;
 
             esac
@@ -140,15 +132,12 @@ if [ -z "$CONFIG_ONLY" ]; then
           # if parameter -r/--repo in installclient try to install from oficial repositories
           if [ "$REPO_INST" == "true" ]; then
               case "$CLI_VERSION" in
-                [5*-8*])
+                *)
                   if install_rear_yum_repo "$USER" "$CLI_NAME" "$SUDO"; then 
                     Log "ReaR has been installed from repo"
                   else 
                     Error "Problem installing ReaR from repo, check logfile"
                   fi
-                  ;;
-                *)
-                  Error "$DISTRO Release not identified or unspported!"
                   ;;
               esac
 
@@ -199,16 +188,12 @@ if [ -z "$CONFIG_ONLY" ]; then
                   Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                   ;;
 
-                [15*-42*])
+                *)
                   if install_rear_zypper_repo "$USER" "$CLI_NAME" "$SUDO"; then 
                     Log "ReaR has been installed from repo"
                   else 
                     Error "Problem installing ReaR from repo, check logfile" 
                   fi
-                  ;;
-
-                *)
-                  Error "SUSE Release not identified or unsupported!"
                   ;;
 
             esac
