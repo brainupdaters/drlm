@@ -64,7 +64,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.2 (March 2022) - Release Notes
+DRLM Version 2.4.2 (April 2022) - Release Notes
 --------------------------------------------------
   * DRLM Proxy added
 
@@ -75,6 +75,10 @@ DRLM Version 2.4.2 (March 2022) - Release Notes
   * drlm-api improvements
 
   * Log improvements
+
+  * Bugfix importing old backups
+
+  * Ubuntu 22 client & server support
 
 
 DRLM Version 2.4.1 (February 2022) - Release Notes
