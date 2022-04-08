@@ -4,8 +4,10 @@ drlm (2.4.2) stable release; urgency=high
   * Fixed RHEL 8.5 ppc64le instclient dependency (issue #188)
   * drlm-api improvements
   * Log improvements
+  * Bugfix importing old backups
+  * Ubuntu 22 client & server support
 
- -- Pau Roura <pau@brainupdaters.net>  Wed, 30 Mar 2022 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Fri, 08 Apr 2022 00:00:00 +0100
 
 drlm (2.4.1) stable release; urgency=high
   * Fixed --skip-alias parameter in which command
