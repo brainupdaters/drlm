@@ -114,7 +114,7 @@ function get_all_client_names_dbdrv ()
 {
   local COMP=$1
   for client in $(echo $(echo "select cliname from clients where cliname like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)); do
-    if [[ "$client" == "Rear"* ]]; then 
+    if [[ "$client" == "${COMP}"* ]]; then 
       echo $client
     fi
   done
