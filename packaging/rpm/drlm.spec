@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.1
+Version: 2.4.2
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -110,7 +110,7 @@ Professional services and support are available.
 ### If --> is upgrade save old data and stop systemd services
 if [ "$1" == "2" ]; then
 
-drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
 
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
@@ -118,6 +118,9 @@ systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.
 
 systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
 systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
+
+systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
+systemctl is-enabled --quiet drlm-proxy.service && systemctl disable drlm-proxy.service
 
 systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
 systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
@@ -197,6 +200,7 @@ fi
 ### Save drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/tmp_drlm-stord.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-api.service /etc/systemd/system/tmp_drlm-api.service
+%{__cp} /usr/share/drlm/conf/systemd/drlm-proxy.service /etc/systemd/system/tmp_drlm-proxy.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/tmp_drlm-rsyncd.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/tmp_drlm-tftpd.service
 
@@ -216,6 +220,9 @@ systemctl is-enabled --quiet drlm-stord.service && systemctl disable drlm-stord.
 systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
 systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
 
+systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
+systemctl is-enabled --quiet drlm-proxy.service && systemctl disable drlm-proxy.service
+
 systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
 systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
 
@@ -225,6 +232,7 @@ systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
+%{__rm} -f /etc/systemd/system/drlm-proxy.service
 %{__rm} -f /etc/systemd/system/drlm-rsyncd.service
 %{__rm} -f /etc/systemd/system/drlm-tftpd.service
 
@@ -247,6 +255,7 @@ systemctl daemon-reload
 %{_sbindir}/drlm
 %{_sbindir}/drlm-stord
 %{_sbindir}/drlm-api
+%{_sbindir}/drlm-proxy
 
 %posttrans
 ### Rcover certificates post transaction
@@ -264,6 +273,11 @@ fi
 if [ -f /etc/systemd/system/tmp_drlm-api.service ]; then
   mv /etc/systemd/system/tmp_drlm-api.service /etc/systemd/system/drlm-api.service
   systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-proxy.service ]; then
+  mv /etc/systemd/system/tmp_drlm-proxy.service /etc/systemd/system/drlm-proxy.service
+  systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
 fi
 
 if [ -f /etc/systemd/system/tmp_drlm-rsyncd.service ]; then
@@ -284,6 +298,9 @@ systemctl start drlm-stord.service
 systemctl is-enabled --quiet drlm-api.service || systemctl enable drlm-api.service
 systemctl start drlm-api.service
 
+systemctl is-enabled --quiet drlm-proxy.service || systemctl enable drlm-proxy.service
+systemctl start drlm-proxy.service
+
 systemctl is-enabled --quiet drlm-rsyncd.service || systemctl enable drlm-rsyncd.service
 systemctl start drlm-rsyncd.service
 
@@ -291,6 +308,19 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Thu Apr 14 2022 Pau Roura <pau@brainupdaters.net> 2.4.2
+- NEW! DRLM Proxy added
+- NEW! Ubuntu 22 client & server support
+- NEW! New Hold backup feature
+- Fixed listclient filtered by client
+- Fixed RHEL 8.5 ppc64le instclient dependency (issue #188)
+- drlm-api improvements
+- Log improvements
+- Bugfix importing old backups
+- Bugfix non case-sensitive bash_completion 
+- Bugfix in upgrade drlm
+- Bugfix icreasing partition size
 
 * Tue Feb 22 2022 Pau Roura <pau@brainupdaters.net> 2.4.1
 - Fixed --skip-alias parameter in which command

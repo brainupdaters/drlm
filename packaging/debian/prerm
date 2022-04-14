@@ -11,6 +11,10 @@ case "$1" in
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
     systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
     [ -f /etc/systemd/system/drlm-api.service ] && rm /etc/systemd/system/drlm-api.service
+    # Stop, disable and remove drlm-proxy.service
+    systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
+    systemctl is-enabled --quiet drlm-proxy.service && systemctl disable drlm-proxy.service
+    [ -f /etc/systemd/system/drlm-proxy.service ] && rm /etc/systemd/system/drlm-proxy.service
     # Stop, disable and remove drlm-rsyncd.service
     systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
     systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
@@ -23,7 +27,7 @@ case "$1" in
     systemctl daemon-reload
 
     #Save the old database
-    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
     [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
     rm /etc/drlm/cert/drlm.*
     ;;
@@ -37,6 +41,10 @@ case "$1" in
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
     systemctl is-enabled --quiet drlm-api.service && systemctl disable drlm-api.service
     [ -f /etc/systemd/system/drlm-api.service ] && rm /etc/systemd/system/drlm-api.service
+    # Stop, disable and remove drlm-proxy.service
+    systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
+    systemctl is-enabled --quiet drlm-proxy.service && systemctl disable drlm-proxy.service
+    [ -f /etc/systemd/system/drlm-proxy.service ] && rm /etc/systemd/system/drlm-proxy.service
     # Stop, disable and remove drlm-rsyncd.service
     systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
     systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsyncd.service
@@ -49,7 +57,7 @@ case "$1" in
     systemctl daemon-reload
 
     #Save the old database
-    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
     [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
     ;;
 

@@ -11,7 +11,7 @@ if [ "$IMP_BKP_TYPE" == "PXE" ]; then
 
     for OLD_FILE in $( ls ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/); do
       Log "Renaming ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE to $(echo "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" | sed s/$OLD_CLINAME/$CLI_NAME/)"
-      mv "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" $(echo "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" | sed s/$OLD_CLINAME/$CLI_NAME/)
+      mv "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" $(echo "${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/$OLD_FILE" | sed s/$OLD_CLINAME/$CLI_NAME/) >> /dev/null 2>&1
     done
   fi
 fi

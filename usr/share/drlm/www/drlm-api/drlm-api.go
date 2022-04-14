@@ -30,7 +30,7 @@ func signin(w http.ResponseWriter, r *http.Request) {
 		new(Session).CleanSessions()
 
 		// Get the session from sessions with the token value
-		session := Session{"", c.Value, 0}
+		session := Session{"", c.Value, 0, "", ""}
 		session, err = session.Get()
 		if err != nil {
 			// If there is an error fetching from sessions, redirect to login
@@ -100,13 +100,18 @@ func middlewareUserToken(next http.HandlerFunc) http.HandlerFunc {
 		new(Session).CleanSessions()
 
 		// Get the session from sessions with the token value
-		session := Session{"", c.Value, 0}
+		session := Session{"", c.Value, 0, "", ""}
 		session, err = session.Get()
 		if err != nil {
 			// If there is an error fetching from sessions, redirect to login
 			signin(w, r)
 			return
 		}
+
+		ctxVal := r.Context().Value(ctxKey{}).(CtxValues)
+		ctxVal.version = session.Version
+		ctxVal.platform = session.Platform
+		ctx := context.WithValue(r.Context(), ctxKey{}, ctxVal)
 
 		session.Timestamp = time.Now().Unix()
 		session.Update()
@@ -120,7 +125,7 @@ func middlewareUserToken(next http.HandlerFunc) http.HandlerFunc {
 			Secure:  true,
 		})
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -171,12 +176,13 @@ type route struct {
 	handler http.HandlerFunc
 }
 
+// Creating Context variables
 type ctxKey struct{}
-
-// type spaHandler struct {
-// 	staticPath string
-// 	indexPath  string
-// }
+type CtxValues struct {
+	matches  []string
+	version  string
+	platform string
+}
 
 // Http Routing
 var routes = []route{
@@ -188,19 +194,46 @@ var routes = []route{
 	newRoute("GET", "/clients/([^/]+)/config", middlewareClientToken(apiGetClientConfigLegacy)),
 	newRoute("GET", "/clients/([^/]+)/config/([^/]+)", middlewareClientToken(apiGetClientConfigLegacy)),
 	newRoute("PUT", "/clients/([^/]+)/log/([^/]+)/([^/]+)", middlewareClientToken(apiPutClientLogLegacy)),
+
+	/////////////////////////////////////////////////
 	// API functions ////////////////////////////////
+	/////////////////////////////////////////////////
+
+	// NETWORK /////
 	newRoute("GET", "/api/networks", middlewareUserToken(apiGetNetworks)),
+	newRoute("GET", "/api/networks/([^/]+)", middlewareUserToken(apiGetNetwork)),
+	newRoute("GET", "/api/networks/name/([^/]+)", middlewareUserToken(apiGetNetworkByName)),
+
+	// CLIENT /////
+	// Unlike legacy functions, the new API client functions use ID client, not Cliet Name.
 	newRoute("GET", "/api/clients", middlewareUserToken(apiGetClients)),
 	newRoute("GET", "/api/clients/([^/]+)", middlewareUserToken(apiGetClient)),
 	newRoute("GET", "/api/clients/([^/]+)/configs", middlewareUserToken(apiGetClientConfigs)),
 	newRoute("GET", "/api/clients/([^/]+)/configs/([^/]+)", middlewareUserToken(apiGetClientConfig)),
+	newRoute("GET", "/api/clients/([^/]+)/backups", middlewareUserToken(apiGetClientBackups)),
+
+	// BACKUP /////
 	newRoute("GET", "/api/backups", middlewareUserToken(apiGetBackups)),
+	newRoute("GET", "/api/backups/([^/]+)", middlewareUserToken(apiGetBackup)),
+	newRoute("GET", "/api/backups/([^/]+)/snaps", middlewareUserToken(apiGetBackupSnaps)),
+
+	// JOBS /////
 	newRoute("GET", "/api/jobs", middlewareUserToken(apiGetJobs)),
+	newRoute("GET", "/api/jobs/([^/]+)", middlewareUserToken(apiGetJob)),
+
+	// SNAPS /////
 	newRoute("GET", "/api/snaps", middlewareUserToken(apiGetSnaps)),
+	newRoute("GET", "/api/snaps/([^/]+)", middlewareUserToken(apiGetSnap)),
+
+	// USERS /////
 	newRoute("GET", "/api/users", middlewareUserToken(apiGetUsers)),
 	newRoute("GET", "/api/users/([^/]+)", middlewareUserToken(apiGetUser)),
 	newRoute("PUT", "/api/users/([^/]+)", middlewareUserToken(apiUpdateUser)),
+
+	// SESSIONS /////
 	newRoute("GET", "/api/sessions", middlewareUserToken(apiGetSessions)),
+	/////////////////////////////////////////////////
+
 	// User Control Functions ///////////////////////
 	newRoute("POST", "/signin", userSignin),
 	newRoute("GET", "/signin", signin),
@@ -220,7 +253,14 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 				allow = append(allow, route.method)
 				continue
 			}
-			ctx := context.WithValue(r.Context(), ctxKey{}, matches[1:])
+
+			v := CtxValues{
+				matches[1:],
+				"",
+				"",
+			}
+			ctx := context.WithValue(r.Context(), ctxKey{}, v)
+
 			route.handler(w, r.WithContext(ctx))
 			return
 		}

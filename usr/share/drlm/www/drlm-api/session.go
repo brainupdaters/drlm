@@ -12,6 +12,8 @@ type Session struct {
 	Username  string `json:"username"`
 	Token     string `json:"token"`
 	Timestamp int64  `json:"timestamp"`
+	Version   string `json:"version"`
+	Platform  string `json:"platform"`
 }
 
 var sessions []Session
@@ -23,6 +25,8 @@ func (s *Session) Get() (Session, error) {
 				s.Username = session.Username
 				s.Token = session.Token
 				s.Timestamp = session.Timestamp
+				s.Version = session.Version
+				s.Platform = session.Platform
 				return *s, nil
 			}
 		}

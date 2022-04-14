@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"./models"
 )
 
 func validateHostname(h string) bool {
@@ -23,7 +25,7 @@ func check(e error) {
 }
 
 func getField(r *http.Request, index int) string {
-	fields := r.Context().Value(ctxKey{}).([]string)
+	fields := r.Context().Value(ctxKey{}).(CtxValues).matches
 	return fields[index]
 }
 
@@ -34,17 +36,15 @@ func GetMD5Hash(text string) string {
 }
 
 func generateJSONResponse(object interface{}) string {
-	b, _ := json.Marshal(object)
-	response := string(b)
 
-	if len(response) > 0 {
-		//response = "{\"resultList\":{\"result\":[" + response[:len(response)-1] + "]}}"
-		response = "{\"resultList\":{\"result\":" + string(response) + "}}"
-	} else {
-		response = "{\"resultList\":{\"result\":[]}}"
+	r := models.Response{
+		Version: "2.4.2",
+		Result:  object,
 	}
 
-	return response
+	b, _ := json.Marshal(r)
+	return string(b)
+
 }
 
 func fileNameWithoutExtension(fileName string) string {

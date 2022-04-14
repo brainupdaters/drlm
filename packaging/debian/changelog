@@ -1,3 +1,18 @@
+drlm (2.4.2) stable release; urgency=high
+  * NEW! DRLM Proxy added
+  * NEW! Ubuntu 22 client & server support
+  * NEW! New Hold backup feature
+  * Fixed listclient filtered by client
+  * Fixed RHEL 8.5 ppc64le instclient dependency (issue #188)
+  * drlm-api improvements
+  * Log improvements
+  * Bugfix importing old backups
+  * Bugfix non case-sensitive bash_completion 
+  * Bugfix in upgrade drlm
+  * Bugfix icreasing partition size
+
+ -- Pau Roura <pau@brainupdaters.net>  Thu, 14 Apr 2022 00:00:00 +0100
+
 drlm (2.4.1) stable release; urgency=high
   * Fixed --skip-alias parameter in which command
   * Fixed several typo errors 

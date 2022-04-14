@@ -9,6 +9,8 @@ var SessionsTable = {
             <th>User</th>
             <th>Token</th>
             <th>Timestamp</th>
+            <th>Version</th>
+            <th>Platform</th>
           </tr>
         </thead>
         <tbody v-for="session in sessions" v-bind:key="session.token">
@@ -19,6 +21,8 @@ var SessionsTable = {
               <span class="token2">************************************</span>
             </td>
             <td>{{ session.timestamp }}</td>
+            <td>{{ session.version }}</td>
+            <td>{{ session.platform }}</td>
           </tr>
         </tbody>
       </table>

@@ -29,6 +29,13 @@ case "$1" in
       rm /etc/systemd/system/drlm-api.service
     fi
 
+    # Stop, disable and remove drlm-proxy.service
+    if [ -f /etc/systemd/system/drlm-proxy.service ]; then
+      systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
+      systemctl is-enabled --quiet drlm-proxy.service && systemctl disable drlm-proxy.service
+      rm /etc/systemd/system/drlm-proxy.service
+    fi
+
     # Stop, disable and remove rsync service
     if [ -f /etc/systemd/system/drlm-rsyncd.service ]; then
       systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service

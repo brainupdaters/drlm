@@ -72,6 +72,10 @@ fi
 # If backup source is not empty means that the backup is not actually mounted
 # A temporal directory will be created and mounted there the DR file.
 if [ -n "$BKP_SRC" ]; then 
+
+  # Getting the imported backup file format
+  IMP_QCOW_FORMAT=$(qemu-img info $BKP_SRC | grep "file format" | awk '{ print $3 }')
+
   TMP_MOUNTPOINT="/tmp/drlm_$(date +"%Y%m%d%H%M%S")"
   mkdir $TMP_MOUNTPOINT &> /dev/null
   if [ $? -ne 0 ]; then Error "Error creating mountpoint directory $TMP_MOUNTPOINT"; fi
@@ -81,11 +85,11 @@ if [ -n "$BKP_SRC" ]; then
 
    # Attach DR file to a NBD
   if [ "$DRLM_ENCRYPTION" == "disabled" ]; then
-    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC} -r ${QEMU_NBD_OPTIONS} >> /dev/null 2>&1
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${IMP_QCOW_FORMAT},file.filename=${BKP_SRC} -r ${QEMU_NBD_OPTIONS} >> /dev/null 2>&1
     if [ $? -ne 0 ]; then Error "Error attching $BKP_SRC to $NBD_DEVICE"; fi
   else
     ENCRYPTION_KEY_FILE="$(generate_enctyption_key_file ${DRLM_ENCRYPTION_KEY})"
-    qemu-nbd -c $NBD_DEVICE --image-opts driver=${QCOW_FORMAT},file.filename=${BKP_SRC},encrypt.format=luks,encrypt.key-secret=sec0 -r ${QEMU_NBD_OPTIONS} --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
+    qemu-nbd -c $NBD_DEVICE --image-opts driver=${IMP_QCOW_FORMAT},file.filename=${BKP_SRC},encrypt.format=luks,encrypt.key-secret=sec0 -r ${QEMU_NBD_OPTIONS} --object secret,id=sec0,file=${ENCRYPTION_KEY_FILE},format=base64 >> /dev/null 2>&1
     if [ $? -ne 0 ]; then 
       rm "${ENCRYPTION_KEY_FILE}" >> /dev/null 2>&1
       Error "Error attching encrypted $BKP_SRC to $NBD_DEVICE"
@@ -115,7 +119,7 @@ fi
 
 # At this point is available the content of the DR file
 # If exists *.*.drlm.cfg file in the mountpoint it means that is a backup done with a DRLM 2.4.0 or superior
-if [ -f $TMP_MOUNTPOINT/*.*.drlm.cfg ]; then
+if [ -f "$TMP_MOUNTPOINT/*.*.drlm.cfg" ]; then
 
   IMP_CFG_FILE="$(ls $TMP_MOUNTPOINT/*.*.drlm.cfg)"
   IMP_CLI_NAME="$(basename $(ls $TMP_MOUNTPOINT/*.*.drlm.cfg) | awk -F'.' {'print $1'})"
@@ -138,6 +142,12 @@ if [ -f $TMP_MOUNTPOINT/*.*.drlm.cfg ]; then
   temp="${IMP_BKP_PROG%\"}"
   IMP_BKP_PROG="${temp#\"}"
 
+  if grep "OUTPUT=PXE" $TMP_MOUNTPOINT/*.*.drlm.cfg >> /dev/null 2>&1; then
+    IMP_BKP_TYPE="PXE"
+    IMP_BKP_PROT="NETFS"
+    IMP_BKP_PROG="TAR"
+  fi
+  
   if [ -z "$IMP_BKP_TYPE" ]; then 
     IMP_BKP_TYPE="ISO"
   fi

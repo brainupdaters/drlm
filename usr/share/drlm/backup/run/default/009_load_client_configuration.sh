@@ -55,6 +55,16 @@ else
   fi
 fi
 
+#Check < DRLM 2.4.0 Client configurations
+if [ ! -z ${OUTPUT+x} ] && [ "$OUTPUT" == "PXE" ] && [ ! -z ${OUTPUT_PREFIX+x} ] && [ ! -z ${OUTPUT_PREFIX_PXE+x} ]; then
+  if [ ! -z ${BACKUP+x} ] && [ "$BACKUP" == "NETFS"  ] && [ ! -z ${NETFS_PREFIX+x} ] && [ "$NETFS_PREFIX" == "BKP"  ]; then
+    #Is and old DRLM client configuration. Type PXE on NETFS. 
+    DRLM_BKP_TYPE="PXE"
+    DRLM_BKP_PROT="NETFS"
+    DRLM_BKP_PROG="TAR"
+  fi
+fi
+
 # Initialize backup protocol and backup program if empty in function of backup type after loading config files
 if [ "$DRLM_BKP_TYPE" == "ISO" ] || [ "$DRLM_BKP_TYPE" == "PXE" ] || [ "$DRLM_BKP_TYPE" == "DATA" ]; then
   if [ "$DRLM_BKP_PROT" == "" ]; then

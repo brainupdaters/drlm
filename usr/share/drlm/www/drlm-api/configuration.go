@@ -3,8 +3,6 @@ package main
 
 import (
 	"bufio"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"strings"
 )
@@ -67,34 +65,33 @@ func getConfigFileVar(configFile, varName string) (bool, string) {
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		// Handle the error
-	}
+	err := scanner.Err()
+	check(err)
 
 	return found, foundVAR
 }
 
-func getStringVar(configuration, varName string) (bool, string) {
+// func getStringVar(configuration, varName string) (bool, string) {
 
-	found := false
-	foundVAR := ""
+// 	found := false
+// 	foundVAR := ""
 
-	// Splits on newlines by default.
-	scanner := bufio.NewScanner(strings.NewReader(configuration))
+// 	// Splits on newlines by default.
+// 	scanner := bufio.NewScanner(strings.NewReader(configuration))
 
-	for scanner.Scan() {
-		if searchFound, tempoVAR := getVarValue(scanner.Text(), varName); searchFound {
-			found = true
-			foundVAR = tempoVAR
-		}
-	}
+// 	for scanner.Scan() {
+// 		if searchFound, tempoVAR := getVarValue(scanner.Text(), varName); searchFound {
+// 			found = true
+// 			foundVAR = tempoVAR
+// 		}
+// 	}
 
-	if err := scanner.Err(); err != nil {
-		// Handle the error
-	}
+// 	if err := scanner.Err(); err != nil {
+// 		// Handle the error
+// 	}
 
-	return found, foundVAR
-}
+// 	return found, foundVAR
+// }
 
 func loadDRLMConfiguration() {
 	// Find value for VAR_DIR //////
@@ -200,15 +197,15 @@ func updateDefaultAPIUser() {
 	check(err)
 }
 
-func sendConfigFile(w http.ResponseWriter, file string) {
-	if _, err := os.Stat(file); err == nil {
-		f, err := ioutil.ReadFile(file) // just pass the file name
-		check(err)
-		w.Write(f)
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusOK)
-	} else {
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusNotFound)
-	}
-}
+// func sendConfigFile(w http.ResponseWriter, file string) {
+// 	if _, err := os.Stat(file); err == nil {
+// 		f, err := ioutil.ReadFile(file) // just pass the file name
+// 		check(err)
+// 		w.Write(f)
+// 		w.Header().Set("Content-Type", "text/html")
+// 		w.WriteHeader(http.StatusOK)
+// 	} else {
+// 		w.Header().Set("Content-Type", "text/html")
+// 		w.WriteHeader(http.StatusNotFound)
+// 	}
+// }

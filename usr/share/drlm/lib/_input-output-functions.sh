@@ -192,9 +192,9 @@ Stamp() {
 
 Log() {
   if test $# -gt 0 ; then
-    echo "$(Stamp)$PROGRAM:$WORKFLOW: $*"
+    echo "$(Stamp)$BASHPID $WORKFLOW: $*"
   else
-    echo "$(Stamp)$PROGRAM:$WORKFLOW: $(cat)"
+    echo "$(Stamp)$BASHPID $WORKFLOW: $(cat)"
   fi >&2
 }
 
