@@ -66,7 +66,11 @@ The references pointing to fix #nr or issue #nr refer to our issues tracker
 
 DRLM Version 2.4.2 (April 2022) - Release Notes
 --------------------------------------------------
-  * DRLM Proxy added
+  * NEW! DRLM Proxy added
+
+  * NEW! Ubuntu 22 client & server support
+
+  * NEW! New Hold backup feature
 
   * Fixed listclient filtered by client
 
@@ -78,7 +82,11 @@ DRLM Version 2.4.2 (April 2022) - Release Notes
 
   * Bugfix importing old backups
 
-  * Ubuntu 22 client & server support
+  * Bugfix non case-sensitive bash_completion 
+
+  * Bugfix in upgrade drlm
+
+  * Bugfix icreasing partition size
 
 
 DRLM Version 2.4.1 (February 2022) - Release Notes

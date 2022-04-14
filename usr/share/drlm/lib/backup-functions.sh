@@ -92,6 +92,13 @@ function list_backup () {
     else
       BAC_ENCRYPT=""
     fi
+
+    local BAC_HOLD="$(echo $line|awk -F":" '{print $16}')"
+    if [ "$BAC_HOLD" == "1" ]; then
+      BAC_HOLD="(H)"
+    else
+      BAC_HOLD=""
+    fi
     
     if [ "$BAC_PXE" == "1" ]; then
       BAC_PXE=" *"
@@ -139,13 +146,11 @@ function list_backup () {
       BAC_STATUS_DEC="%-10s"
     fi
 
-    printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}"; 
+    printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}"; 
 
     # Check if BAC_ID have snapshots and list them
     found_enabled=0
-    #SNAP_TYPE="$BAC_TYPE (Snap)"
-    SNAP_TYPE="Snap"
-
+    
     for snap_line in $(get_all_snaps_by_backup_id_dbdrv $BAC_ID); do
       SNAP_ID="$(echo $snap_line | awk -F'|' '{print $2}')"
       SNAP_DATE="$(date --date "$(echo $snap_line | awk -F'|' '{print $3}' | sed 's/.\{8\}/& /g')" "+%Y-%m-%d %H:%M")"
@@ -153,6 +158,11 @@ function list_backup () {
       SNAP_DURA="$(echo $snap_line | awk -F'|' '{print $5}')"
       SNAP_SIZE="$(echo $snap_line | awk -F'|' '{print $6}')"
       SNAP_PXE=" "
+      SNAP_TYPE="Snap"
+      SNAP_HOLD="$(echo $snap_line | awk -F'|' '{print $7}')"
+      if [ "$SNAP_HOLD" == "1" ]; then
+        SNAP_TYPE=$SNAP_TYPE"(H)"
+      fi 
 
       if [ "$BAC_STATUS" == "disabled" ]; then
         SNAP_STATUS=""
@@ -481,7 +491,7 @@ function extend_partition () {
 
   local partition_name="$(echo ${PARTITION} | awk -F'/' '{print $3}')"
   local number_of_blocks=$(cat /sys/class/block/$partition_name/size)
-  local partition_size_mb=$(echo "$number_of_blocks * 512 / 1000 / 1000 + 10" | bc)
+  local partition_size_mb=$(echo "$number_of_blocks * 512 / 1000 / 1000 + 15" | bc)
 
   if [ $PART_SIZE -gt $partition_size_mb ]; then
     my_udevsettle
@@ -549,8 +559,9 @@ function register_backup () {
   local BKP_DATE="${11}"
   local BKP_ENCRYPTED="${12}"
   local BKP_ENCRYP_PASS="${13}"
+  local BKP_HOLD="${14}"
 
-  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD"
 }
 
 function register_snap () {
@@ -560,8 +571,9 @@ function register_snap () {
   local SNAP_IS_ACTIVE="$4"
   local SNAP_DURATION="$5"
   local SNAP_SIZE="$6"
+  local SNAP_HOLD="$7"
 
-  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" 
+  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD"
 }
 
 function del_backup () {
@@ -673,11 +685,11 @@ function del_all_db_client_backup () {
 function clean_snaps () {
   local BKP_ID=$1
   local N_SNAPSAVE=$2
-  local N_SNAPTOTAL=$(get_backup_count_snaps_by_backup_id $BKP_ID)
+  local N_SNAPTOTAL=$(get_backup_count_no_hold_snaps_by_backup_id_dbdrv $BKP_ID)
   local ERR=0
 
   while [ "$N_SNAPTOTAL" -gt "$N_SNAPSAVE" ]; do
-    SNAP2CLR=$(get_backup_older_snap_id_by_backup_id $BKP_ID)
+    SNAP2CLR=$(get_backup_older_snap_no_hold_id_by_backup_id_dbdrv $BKP_ID)
     del_snap $SNAP2CLR
     if [ $? -ne 0 ]; then ERR=1; fi
     (( N_SNAPTOTAL-- ))
@@ -693,11 +705,11 @@ function clean_backups () {
   local CLI_NAME=$1
   local N_BKPSAVE=$2
   local CLI_CFG=$3
-  local N_BKPTOTAL=$(get_count_backups_by_client_dbdrv $CLI_NAME $CLI_CFG)
+  local N_BKPTOTAL=$(get_count_no_hold_backups_by_client_dbdrv $CLI_NAME $CLI_CFG)
   local ERR=0
 
   while [[ $N_BKPTOTAL -gt $N_BKPSAVE ]]; do
-    BKPID2CLR=$(get_older_backup_by_client_dbdrv $CLI_NAME $CLI_CFG)
+    BKPID2CLR=$(get_older_backup_no_hold_by_client_dbdrv $CLI_NAME $CLI_CFG)
     clean_snaps $BKPID2CLR 0
     del_backup $BKPID2CLR
     if [ $? -ne 0 ]; then ERR=1; fi
@@ -904,6 +916,64 @@ function get_snap_size_by_snap_id ()
 function get_active_backups ()
 {
   get_active_backups_dbdrv
+}
+
+function get_backup_hold_by_backup_id () {
+  local BKP_ID=$1
+  local BKP_HOLD=$(get_backup_hold_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_HOLD
+}
+
+function disable_backup_hold_db () {
+  local BKP_ID=$1
+  disable_backup_hold_db_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function enable_backup_hold_db () {
+  local BKP_ID=$1
+  enable_backup_hold_db_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function toggle_backup_hold () {
+  local BKP_ID=$1
+  local BKP_HOLD=$(get_backup_hold_by_backup_id "$BKP_ID")
+
+  if [ "$BKP_HOLD" == "0" ]; then
+    enable_backup_hold_db "$BKP_ID"
+  else
+    disable_backup_hold_db "$BKP_ID"
+  fi
+}
+
+function get_snap_hold_by_snap_id () {
+  local BKP_ID=$1
+  local BKP_HOLD=$(get_snap_hold_by_snap_id_dbdrv "$BKP_ID")
+  echo $BKP_HOLD
+}
+
+function disable_snap_hold_db () {
+  local BKP_ID=$1
+  disable_snap_hold_db_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function enable_snap_hold_db () {
+  local BKP_ID=$1
+  enable_snap_hold_db_dbdrv "$BKP_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function toggle_snap_hold () {
+  local BKP_ID=$1
+  local BKP_HOLD=$(get_snap_hold_by_snap_id "$BKP_ID")
+
+  if [ "$BKP_HOLD" == "0" ]; then
+    enable_snap_hold_db "$BKP_ID"
+  else
+    disable_snap_hold_db "$BKP_ID"
+  fi
 }
 
 function get_fs_free_mb ()

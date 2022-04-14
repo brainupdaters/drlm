@@ -27,7 +27,7 @@ case "$1" in
     systemctl daemon-reload
 
     #Save the old database
-    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
     [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
     rm /etc/drlm/cert/drlm.*
     ;;
@@ -57,7 +57,7 @@ case "$1" in
     systemctl daemon-reload
 
     #Save the old database
-    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
     [ -f /var/lib/drlm/drlm.sqlite ] && mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
     ;;
 

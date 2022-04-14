@@ -110,7 +110,7 @@ Professional services and support are available.
 ### If --> is upgrade save old data and stop systemd services
 if [ "$1" == "2" ]; then
 
-drlm_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
 
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
@@ -309,14 +309,18 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Fri Apr 08 2022 Pau Roura <pau@brainupdaters.net> 2.4.2
-- DRLM Proxy added
+* Thu Apr 14 2022 Pau Roura <pau@brainupdaters.net> 2.4.2
+- NEW! DRLM Proxy added
+- NEW! Ubuntu 22 client & server support
+- NEW! New Hold backup feature
 - Fixed listclient filtered by client
 - Fixed RHEL 8.5 ppc64le instclient dependency (issue #188)
 - drlm-api improvements
 - Log improvements
 - Bugfix importing old backups
-- Ubuntu 22 client & server support
+- Bugfix non case-sensitive bash_completion 
+- Bugfix in upgrade drlm
+- Bugfix icreasing partition size
 
 * Tue Feb 22 2022 Pau Roura <pau@brainupdaters.net> 2.4.1
 - Fixed --skip-alias parameter in which command

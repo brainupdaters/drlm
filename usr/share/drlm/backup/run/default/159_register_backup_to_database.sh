@@ -62,6 +62,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   BKP_IS_ACTIVE=$ENABLE_MODE
   BKP_SIZE=$(du -h $ARCHDIR/$DR_FILE | cut -f1)
   BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )" 
+  BKP_HOLD=0
 
   if [ "$DRLM_BKP_TYPE" == "PXE" ] && [ "$DRLM_DEFAULT_BKP_STATUS" != "disabled" ]; then
     ACTIVE_PXE=1
@@ -69,7 +70,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
     ACTIVE_PXE=0
   fi
 
-  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY"; then
+  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY" "$BKP_HOLD"; then
     LogPrint "Registered backup $BKP_ID in the database"
   else
     Error "Problem registering backup $BKP_ID in database"
@@ -104,8 +105,9 @@ else
   SNAP_DURATION="$(get_backup_duration_by_backup_id $BKP_BASE_ID)"
   SNAP_SIZE="$(get_backup_size_by_backup_id $BKP_BASE_ID)"
   SNAP_DATE="$(get_backup_date_by_backup_id $BKP_BASE_ID)"
+  SNAP_HOLD=0
 
-  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE"; then
+  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD"; then
     LogPrint "Registered snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
   else
     Error "Problem registering snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"

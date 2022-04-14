@@ -12,7 +12,7 @@ drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 drlm_proxy = usr/sbin/drlm-proxy
 name = drlm
-version := $(shell awk 'BEGIN { FS="=" } /^readonly VERSION=/ { print $$2}' $(drlmbin))
+version := $(shell awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' $(drlmbin))
 
 ### Get the branch information from git
 ifeq ($(OFFICIAL),)
@@ -121,8 +121,8 @@ rewrite:
 		-e 's#^Version:.*#Version: $(version)-$(debrelease)#' \
 		$(dscfile)
 	sed -i.orig \
-		-e 's#^VERSION=.*#VERSION=$(distversion)#' \
-		-e 's#^RELEASE_DATE=.*#RELEASE_DATE="$(release_date)"#' \
+		-e 's#VERSION=.*#VERSION=$(distversion)#' \
+		-e 's#RELEASE_DATE=.*#RELEASE_DATE="$(release_date)"#' \
 		$(drlmbin)
 
 restore:
