@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} listjob )
 
 if [ "$WORKFLOW" == "listjob" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "J:c:edAh" -l "job_id:,client:,enabled,disabled,all,help" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "J:I:c:edAh" -l "job_id:,client:,enabled,disabled,all,help" -- "$@")"
 	if (( $? != 0 )); then
 	    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	    exit 1
@@ -35,7 +35,7 @@ if [ "$WORKFLOW" == "listjob" ]; then
 	eval set -- "$OPT"
 	while true; do
 		case "$1" in
-			(-J|--job_id)
+			(-J|-I|--job_id)
 				# We need to take the option argument
 				if [ -n "$2" ]; then 
 					JOB_ID="$2"
