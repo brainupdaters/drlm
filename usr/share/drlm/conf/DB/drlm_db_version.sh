@@ -2,7 +2,7 @@
 
 drlm_old_ver="0"
 drlm_old_file=""
-drlm_new_ver="$(awk 'BEGIN { FS="=" } /^VERSION=/ { print $$2}' /usr/sbin/drlm)"
+drlm_new_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
 
 #Loking for old databases, get the newest and convert version to numeric (2.1.10 --> 20110; 2.10.1 --> 21001)     
 for file in /var/lib/drlm/*sqlite.save; do
@@ -54,6 +54,9 @@ else
           BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )"
           /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite "update backups set date='$BKP_DATE' where idbackup='$BKP_ID';"
         done
+    fi
+    if [ $drlm_old_ver -lt 20402 ]; then
+        /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/2.4.2_db_update.sql
     fi
 fi
 

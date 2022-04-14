@@ -1,0 +1,11 @@
+[Unit]
+Description=DRLM Proxy Service
+After=drlm-stord.service
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/drlm-proxy
+
+[Install]
+WantedBy=multi-user.target
+

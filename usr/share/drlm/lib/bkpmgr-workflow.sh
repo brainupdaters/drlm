@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} bkpmgr )
 
 if [ "$WORKFLOW" == "bkpmgr" ]; then
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:I:edwWh" -l "client:,id:,enable,disable,write,full-write,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:I:edwWhH" -l "client:,id:,enable,disable,write,full-write,help,hold,hold-on,hold-off" -- "$@")"
 
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
@@ -48,6 +48,18 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
       
       (-W|--full-write) 
         WRITE_FULL_MODE="yes"
+        ;;
+
+      (-H|--hold) 
+        HOLD_MODE="toggle"
+        ;;
+
+      (--hold-on) 
+        HOLD_MODE="yes"
+        ;;
+
+      (--hold-off) 
+        HOLD_MODE="no"
         ;;
 
       # (-c|--client) option Not used! Only for compatibility with old versions or demos.
@@ -115,12 +127,16 @@ if [ "$WORKFLOW" == "bkpmgr" ]; then
       num_opts=$((num_opts+1))
     fi
 
+    if [ -n "$HOLD_MODE" ]; then
+      num_opts=$((num_opts+1))
+    fi
+
     if [ "$num_opts" -gt "1" ]; then
-      echo "$PROGRAM $WORKFLOW: Only one option (-d, -e, -w or -W) required!"
+      echo "$PROGRAM $WORKFLOW: Only one option (-d, -e, -w, -W or -H) required!"
       echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
       exit 1
-    elif [ -z "$ENABLE" ] && [ -z "$DISABLE" ] && [ -z "$WRITE_LOCAL_MODE" ] && [ -z "$WRITE_FULL_MODE" ]; then
-      echo "$PROGRAM $WORKFLOW: One option (-d, -e, -w or -W) required!"
+    elif [ -z "$ENABLE" ] && [ -z "$DISABLE" ] && [ -z "$WRITE_LOCAL_MODE" ] && [ -z "$WRITE_FULL_MODE" ] && [ -z "$HOLD_MODE" ]; then
+      echo "$PROGRAM $WORKFLOW: One option (-d, -e, -w, -W or -H) required!"
       echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
       exit 1
     fi

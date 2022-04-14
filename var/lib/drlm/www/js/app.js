@@ -28,25 +28,25 @@ const vm = new Vue({
     search: function () {
       fetch('/api/networks')
         .then(response => response.json())
-        .then(json => {this.networks = json.resultList.result;});
+        .then(json => {this.networks = json.result;});
       fetch('/api/clients')
         .then(response => response.json())
-        .then(json => {this.clients = json.resultList.result;});
+        .then(json => {this.clients = json.result;});
       fetch('/api/backups')
         .then(response => response.json())
-        .then(json => {this.backups = json.resultList.result;});
+        .then(json => {this.backups = json.result;});
       fetch('api/snaps')
         .then(response => response.json())
-        .then(json => {this.snaps = json.resultList.result;});
+        .then(json => {this.snaps = json.result;});
       fetch('/api/jobs')
         .then(response => response.json())
-        .then(json => {this.jobs = json.resultList.result;});
+        .then(json => {this.jobs = json.result;});
       fetch('/api/users')
         .then(response => response.json())
-        .then(json => {this.users = json.resultList.result;});
+        .then(json => {this.users = json.result;});
       fetch('/api/sessions')
         .then(response => response.json())
-        .then(json => {this.sessions = json.resultList.result;});
+        .then(json => {this.sessions = json.result;});
     }
   }
 });

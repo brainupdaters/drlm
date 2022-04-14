@@ -7,15 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"./models"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// User is an struct of api user
-type User struct {
-	Username string `json:"user_name"`
-	Password string `json:"user_password"`
-}
+type User models.User
 
 // GetAll get all api users from database
 func (u *User) GetAll() ([]User, error) {
@@ -75,7 +72,7 @@ func userSignin(w http.ResponseWriter, r *http.Request) {
 
 	// Create a new random session token
 	sessionToken := uuid.New().String()
-	sessions = append(sessions, Session{creds.Username, sessionToken, time.Now().Unix()})
+	sessions = append(sessions, Session{creds.Username, sessionToken, time.Now().Unix(), creds.Version, creds.Platform})
 
 	// Finally, we set the client cookie for "session_token" as the session token we just generated
 	// we also set an expiry time of 600 seconds, the same as the cache
@@ -99,7 +96,7 @@ func userLogout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the session from sessions with the token value
-	session := Session{"", c.Value, 0}
+	session := Session{"", c.Value, 0, "", ""}
 	session, err = session.Get()
 	if err != nil {
 		// If there is an error fetching from sessions, redirect to login

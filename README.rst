@@ -31,8 +31,9 @@ Also requires some system services in order to work properly:
 
   * isc-dhcpd
   * nfs-server
+  * rsync
   * tftpd
-  * qemu-img
+  * qemu-utils
   * sqlite3
 
 All other required programs (like sort, dd, grep, etc.) are so common, that
@@ -68,21 +69,6 @@ For more information about Disaster Recovery Linux Manager installation,
 please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
 
-On a Docker environment you can execute the command:
-::
-
-  $ make docker
-
-Docker engine 17.04+ needs to be installed on the host in order to run the docker container version.
-The docker version builds a debian 10 image with required services baked in.
-
-The host running docker engine will require the loops to be increased in:
-
-/etc/default/grub
-::
-  $ GRUB_CMDLINE_LINUX="quiet max_loop=1024" ##UPDATE THIS LINE
-
-
 CONFIGURATION
 -------------
 
@@ -90,79 +76,15 @@ To configure Disaster Recovery Linux Manager you have to edit the configuration
 files in '/etc/drlm/'. All '*.conf' files there are part of the configuration,
 but only 'local.conf' are intended for the user configuration.
 
-TFTP, HTTP are the services to be manually configured. The other sevices are
-automatically configured through DRLM commands.
-
-To configure the TFTP is needed to be defined the DRLM Store Dir as root and enable
-the TFTP service on system startup.
-
-Also is needed increment the loop limit devices in grub config in order to be
-able reach all DRLM clients.
-
 For more information about Disaster Recovery Linux Manager configuration,
 please read the Disaster Recovery Linux Manager `Documentation Page
 <http://docs.drlm.org/>`_.
-
-Docker configurations:
-
-Make sure the docker host has the loop limits increased in the /etc/default/grub!
-
-packaging/docker/etc/default = DHCP and NFS default settings
-
-Change the isc-dhcp-server INTERFACESV4 or V6 setting to the running host listening network interface
-
-Tweak the nfs-kernel-server if required (optional)
-
-packaging/docker/env.conf = DOCKER_IMAGE and DOCKER_TAG names and version change (optional)
-
-Host nfs and tftp locations can be changed to new locations i.e. /mnt/nfs or other external storage
-
-NFS_DIR
-TFTP_DIR
-
-Ports for internal container can be customised for each service
-
-Rpcbind
-
-PORT_111_TCP=
-
-Nfs Ports
-
-PORT_2049_TCP
-
-Dhcp
-
-PORT_67
-
-Tftp
-
-PORT_69
-
-Default container name = drlm-server (run.sh)
-
 
 USAGE
 -----
 
 To use Disaster Recovery Linux Manager you always call the main script
 '/usr/sbin/drlm':
-
-or
-
-Docker container start and run drlm command:
-::
-
-  $ packaging/docker/run.sh - to start the drlm container from the root of build folder
-
-To just run commands in the running container:
-::
-
-  $ docker exec -it drlm-server drlm
-
-To stop the container:
-::
-
-  $ docker stop drlm-server
 
 ::
 

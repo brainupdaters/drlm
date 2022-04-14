@@ -92,6 +92,9 @@ function bkpmgrhelp() {
   printf '%-25s %-45s\n' "-w|--write" "Enable local write Backup or Snap"
   printf '%-25s %-45s\n' "-W|--full-write" "Enable local and remote write Backup or Snap"
   printf '%-25s %-45s\n' "-d|--disable" "Disable Backup or Snap"
+  printf '%-25s %-45s\n' "-H" "Toggle hold backup or Snap"
+  printf '%-25s %-45s\n' "--hold-on" "Hold ON Backup or Snap"
+  printf '%-25s %-45s\n' "--hold-off" "Hold OFF Backup or Snap"
   printf "\n"
   printf "$(tput bold)Options:\n$(tput sgr0)"
   printf '%-25s %-45s\n' "-h|--help" "Show this help"
@@ -308,7 +311,7 @@ function deljobhelp() {
   printf "$(tput bold)Examples:\n$(tput sgr0)"
   printf "drlm deljob -c|--client <cli_name>\n"
   printf "         or\n"
-  printf "drlm deljob -J|--job_id <job_ID>\n"
+  printf "drlm deljob -I|--job_id <job_ID>\n"
   printf "\n"
 }
 

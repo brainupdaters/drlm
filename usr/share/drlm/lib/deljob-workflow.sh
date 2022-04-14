@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} deljob )
 
 if [ "$WORKFLOW" == "deljob" ]; then 
 	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:J:h" -l "client:,job_id:,help" -- "$@")"
+	OPT="$(getopt -n $WORKFLOW -o "c:J:I:h" -l "client:,job_id:,help" -- "$@")"
 	if (( $? != 0 )); then
 	    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
 	    exit 1
@@ -44,7 +44,7 @@ if [ "$WORKFLOW" == "deljob" ]; then
 			fi
 			shift 
 			;;
-	        (-J|--job_id)
+	        (-J|-I|--job_id)
 	            # We need to take the option argument
 	            if [ -n "$2" ] 
 			then 

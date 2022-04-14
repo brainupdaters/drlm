@@ -312,8 +312,10 @@ function has_jobs_scheduled () {
 
 function load_client_pretty_params_list_client () { 
   local CLI_NAME=$1
-  eval $(grep SSH_PORT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
-  eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  if [ -f $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg ]; then
+    eval $(grep SSH_PORT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+    eval $(grep CLIENT_LIST_TIMEOUT $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg | grep "^[^#;]")
+  fi
 }
 
 function save_default_pretty_params_list_client () {
