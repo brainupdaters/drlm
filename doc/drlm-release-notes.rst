@@ -64,8 +64,17 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.3 (April 2022) - Release Notes
+-----------------------------------------------
+  * New! RedHat 9 client & server support
+
+  * Bugfix database creation
+  
+  * Bugfix RedHat services configuration variable
+
+
 DRLM Version 2.4.2 (April 2022) - Release Notes
---------------------------------------------------
+-----------------------------------------------
   * NEW! DRLM Proxy added
 
   * NEW! Ubuntu 22 client & server support

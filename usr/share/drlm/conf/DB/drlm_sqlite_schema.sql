@@ -126,3 +126,11 @@ INSERT INTO users (user_name, user_password)
 VALUES ("admindrlm", "895a8bd10611c7a9297437c8aeebe0bf");
 
 COMMIT;
+
+-- 2.4.2 new 
+-- New columns in backups and snaps table
+ALTER TABLE backups ADD COLUMN "hold" tinyint(1);
+UPDATE backups SET hold=0 WHERE hold is null;
+
+ALTER TABLE snaps ADD COLUMN "hold" tinyint(1);
+UPDATE snaps SET hold=0 WHERE hold is null;
