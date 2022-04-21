@@ -1,3 +1,10 @@
+drlm (2.4.3) stable release; urgency=high
+  * New! RedHat 9 client & server support
+  * Bugfix database creation
+  * Bugfix RedHat services configuration variable
+  
+ -- Pau Roura <pau@brainupdaters.net>  Thu, 21 Apr 2022 00:00:00 +0100
+
 drlm (2.4.2) stable release; urgency=high
   * NEW! DRLM Proxy added
   * NEW! Ubuntu 22 client & server support

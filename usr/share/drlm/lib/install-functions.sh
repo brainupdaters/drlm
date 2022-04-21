@@ -15,7 +15,7 @@ function ssh_get_distro () {
 }
 
 function get_release () {
-  if [ -f /etc/dpkg/origins/ubuntu ]; then lsb_release -rs; 
+  if [ -f /etc/dpkg/origins/ubuntu ]; then $(grep "^VERSION_ID=" /etc/os-release | cut -d\" -f2 ); 
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;
   elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'} | cut -c 2-4;
   elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" {'print $2'} | cut -c 2-4;
