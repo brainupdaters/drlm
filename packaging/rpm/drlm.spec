@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.2
+Version: 2.4.3
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -39,7 +39,6 @@ Requires: qemu-tools
 Requires: tftp		
 Requires: dhcp-server		
 Requires: nfs-kernel-server
-Requires: lsb-release
 Requires: sqlite3
 %endif
 
@@ -49,7 +48,6 @@ Requires: openssh-clients
 Requires: tftp-server
 Requires: qemu-img
 Requires: crontabs
-Requires: redhat-lsb-core
 Requires: nfs-utils
 Requires: sqlite
 %endif
@@ -308,6 +306,11 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Thu Apr 21 2022 Pau Roura <pau@brainupdaters.net> 2.4.3
+- New! RedHat 9 client & server support
+- Bugfix database creation
+- Bugfix RedHat services configuration variable
 
 * Thu Apr 14 2022 Pau Roura <pau@brainupdaters.net> 2.4.2
 - NEW! DRLM Proxy added

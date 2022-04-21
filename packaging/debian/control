@@ -8,5 +8,5 @@ Package: drlm
 Architecture: all
 Provides: drlm
 Build-Depends: debhelper (>> 10.0.0)
-Depends: openssh-client, openssl, gzip, tar, gawk, sed, grep, coreutils, util-linux, nfs-kernel-server, rpcbind, isc-dhcp-server, tftpd-hpa, rsync, qemu-utils, sqlite3, lsb-release, ${shlibs:Depends}, ${misc:Depends}, bc, parted
+Depends: openssh-client, openssl, gzip, tar, gawk, sed, grep, coreutils, util-linux, nfs-kernel-server, rpcbind, isc-dhcp-server, tftpd-hpa, rsync, qemu-utils, sqlite3, ${shlibs:Depends}, ${misc:Depends}, bc, parted
 Description: Disaster Recovery Linux Manager

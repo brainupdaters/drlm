@@ -35,7 +35,7 @@ RUN apt-get update && \
         tftpd-hpa \
         nfs-kernel-server \
         openssh-client openssl bash-completion procps \
-        wget gawk qemu-utils sqlite3 lsb-release \
+        wget gawk qemu-utils sqlite3 \
         iproute2 cpio file iputils-ping nvi && \
     # Clean rootfs
     apt-get clean all && \
