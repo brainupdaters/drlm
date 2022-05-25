@@ -44,10 +44,13 @@ if [ -z "$CLI_NAME" ]; then
   fi
 fi
 
-# Check if the client name is in DRLM client database
+# Check if the client name is in DRLM client database and not localhost
 Log "Checking if client name: $CLI_NAME is registered in DRLM database ..."
 if ! valid_client_name "$CLI_NAME"; then
 	Error "Client name: $CLI_NAME has wrong format. [ Correct this and try again ]"
+fi
+if [ "$CLI_NAME" = "localhost" ]; then
+  Error "Client host can not be localhost"
 fi
 if exist_client_name "$CLI_NAME"; then
   Error "Client $CLINAME already registered!"
