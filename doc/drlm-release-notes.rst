@@ -64,6 +64,17 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.4 (May 2022) - Release Notes
+-----------------------------------------------
+  * Bugfix in installclient, new dependencies added
+
+  * Bugfix in logs maintenance
+
+  * Remove ReaR crontab file in install client
+
+  * Bugfix prevent hostnames from being localhost
+
+  
 DRLM Version 2.4.3 (April 2022) - Release Notes
 -----------------------------------------------
   * New! RedHat 9 client & server support

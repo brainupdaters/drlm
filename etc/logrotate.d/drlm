@@ -1,16 +1,7 @@
 /var/log/drlm/drlm.log
 /var/log/drlm/drlm-rsyncd.log
 /var/log/drlm/drlm-sched.log 
-/var/log/drlm/drlm-api.log {
-    missingok
-    weekly
-    rotate 3
-    size 10M
-    compress
-    delaycompress
-    create
-    copytruncate
-}
+/var/log/drlm/drlm-api.log 
 /var/log/drlm/drlm-proxy.log {
     missingok
     weekly
@@ -20,11 +11,4 @@
     delaycompress
     create
     copytruncate
-}
-/var/log/drlm/rear/*
-/var/log/drlm/debug/* {
-    missingok
-    rotate 0
-    daily
-    maxage 30
 }
