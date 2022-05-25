@@ -1,3 +1,11 @@
+drlm (2.4.4) stable release; urgency=high
+  * Bugfix in install client, new dependencies added
+  * Bugfix in logs maintenance
+  * Remove ReaR crontab file in install client
+  * Bugfix prevent hostnames from being localhost
+
+ -- Pau Roura <pau@brainupdaters.net>  Tue, 24 May 2022 00:00:00 +0100
+
 drlm (2.4.3) stable release; urgency=high
   * New! RedHat 9 client & server support
   * Bugfix database creation

@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.3
+Version: 2.4.4
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -88,6 +88,7 @@ DR images easily managed by DRLM.
 Professional services and support are available.
 
 %prep
+
 %setup -q
 
 ### Add a specific os.conf so we do not depend on LSB dependencies
@@ -103,6 +104,14 @@ Professional services and support are available.
 %install
 %{__rm} -rf %{buildroot}
 %{__make} install DESTDIR="%{buildroot}"
+
+%pretrans
+# check host name is not localhost
+currhostname="$(/usr/bin/hostname -s)"
+if [ "$currhostname" = "localhost" ]; then
+  echo "Its important that DRLM servers have a valid hostname. Please change \"localhost\" host name. "
+  exit 1
+fi
 
 %pre
 ### If --> is upgrade save old data and stop systemd services
@@ -306,6 +315,12 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Tue May 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.4
+- Bugfix in installclient, new dependencies added
+- Bugfix in logs maintenance
+- Remove ReaR crontab file in install client
+- Bugfix prevent hostnames from being localhost
 
 * Thu Apr 21 2022 Pau Roura <pau@brainupdaters.net> 2.4.3
 - New! RedHat 9 client & server support

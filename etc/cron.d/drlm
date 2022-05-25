@@ -1,1 +1,3 @@
 * * * * * root /usr/sbin/drlm sched --run
+0 1 * * * root /usr/bin/find /var/log/drlm/debug/ -type f -mtime +30 -delete;
+0 1 * * * root /usr/bin/find /var/log/drlm/rear/ -type f -mtime +30 -delete;
