@@ -537,7 +537,7 @@ function check_client_network () {
   local NET_SERVER_IP=$(ip route get $CLI_IP | grep -vE 'via|cache' | awk '{print $5}')
   
   if [ -n "$NET_SERVER_IP" ]; then
-    local NET_TMP="$(ip -o -f inet addr show | grep $NET_SERVER_IP | awk '/scope global/ {print $2 " " $4 " " $6}')"
+    local NET_TMP="$(ip -o -f inet addr show | grep $NET_SERVER_IP/ | awk '/scope global/ {print $2 " " $4 " " $6}')"
     local NET_CIDR="$(echo $NET_TMP | awk '{print $2}' | awk -F'/' '{print $2}')"
     local NET_BROADCAST="$(echo $NET_TMP | awk '{print $3}')"
   fi

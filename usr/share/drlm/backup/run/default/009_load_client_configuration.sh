@@ -8,6 +8,10 @@
 # Save initial exit tasks
 SAVE_EXIT_TASKS=( "${EXIT_TASKS[@]}" )
 
+if [ "$DRLM_IS_SCHEDULED" == "true" ]; then
+  set_running_job_status_db $DRLM_SCHED_JOB_ID
+fi
+
 # In order to get the client configration we have to make sure we have the client name ($CLI_NAME)
 if [ -n "$CLI_ID" ]; then
   if exist_client_id "$CLI_ID"; then

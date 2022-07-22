@@ -10,7 +10,7 @@ if [ -z "$JOB_ID" ]; then
       fi
     else
       CLI_ID=$(get_client_id_by_name $CLI_NAME)
-      list_jobs_by_client $CLI_ID
+      list_job_all $CLI_ID
     fi
   fi
 else

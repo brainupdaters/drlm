@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} sched )
 
 if [ "$WORKFLOW" == "sched" ]; then 
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "redh" -l "run,enable,disable,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "redI:h" -l "run,enable,disable,job_id:,help" -- "$@")"
   if (( $? != 0 )); then
       echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
       exit 1
@@ -36,22 +36,42 @@ if [ "$WORKFLOW" == "sched" ]; then
       (-r|--run)
         SCHED_MODE="run"
         ;;
+
       (-e|--enable)
         SCHED_MODE="enable"
         ;;
+
       (-d|--disable)
         SCHED_MODE="disable"
-        ;;  
+        ;;
+        
       (-h|--help)
         schedjobhelp
         exit 0
         ;;
-      (--) shift; break;;
+
+      (-I|--job_id)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          JOB_ID="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (--) 
+        shift
+        break
+        ;;
+
       (-*)
         echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
         echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
         exit 1
         ;;
+
     esac
     shift
   done
@@ -63,8 +83,8 @@ if [ "$WORKFLOW" == "sched" ]; then
   fi
 
   WORKFLOW_sched () {
-      #echo sched workflow
-      SourceStage "job/sched"
+    #echo sched workflow
+    SourceStage "job/sched"
   }
 
 fi

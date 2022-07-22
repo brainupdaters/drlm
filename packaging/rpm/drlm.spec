@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.4
+Version: 2.4.5
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -315,6 +315,14 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Fri Jul 22 2022 Pau Roura <pau@brainupdaters.net> 2.4.5
+- NEW! Improved jobs list with status feedback
+- NEW! Now is possible to enable and disable Jobs
+- Speedup list client
+- Bugfix in addclient (two MACs one IP)
+- Bugfix in addnetwork (two interface for one IP)
+- Improve run sched backups
 
 * Tue May 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.4
 - Bugfix in installclient, new dependencies added

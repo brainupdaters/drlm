@@ -14,6 +14,7 @@ var JobsTable = {
           <th>Next Date</th>
           <th>Repeat</th>
           <th>Enabled</th>
+          <th>Status</th>
           <th>Config</th>
         </tr>
       </thead>
@@ -26,7 +27,12 @@ var JobsTable = {
           <td>{{ job.last_date }}</td>
           <td>{{ job.next_date }}</td>
           <td>{{ job.repeat }}</td>
-          <td>{{ job.enabled }}</td>
+          <td v-if="job.enabled == 0">Disabled</td>
+          <td v-else>enabled</td>
+          <td v-if="job.status == 0">idle</td>
+          <td v-else-if="job.status == 1">running</td>
+          <td v-else-if="job.status == 2">error</td>
+          <td v-else>warning</td>
           <td>{{ job.config }}</td>
         </tr>
       </tbody>

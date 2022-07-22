@@ -17,16 +17,16 @@ function add_job ()
   local JOB_REPEAT=$4
   local CLI_CFG=$5
   local JOB_ENABLED=1
+  local JOB_STATUS=0  
 
-  add_job_dbdrv "$CLI_ID" "$JOB_SDATE" "$JOB_EDATE" "$JOB_REPEAT" "$JOB_ENABLED" "$CLI_CFG"
+  add_job_dbdrv "$CLI_ID" "$JOB_SDATE" "$JOB_EDATE" "$JOB_REPEAT" "$JOB_ENABLED" "$CLI_CFG" "$JOB_STATUS"
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function del_job_id ()
 {
   local JOB_ID=$1
-  if exist_job_id "$JOB_ID";
-  then
+  if exist_job_id "$JOB_ID"; then
     del_job_id_dbdrv "$JOB_ID"
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   else
@@ -38,8 +38,7 @@ function del_job_id ()
 function del_all_client_job ()
 {
   local CLI_ID=$1
-  for line in $(get_jobs_by_client_dbdrv "${CLI_ID}")
-  do
+  for line in $(get_all_jobs "${CLI_ID}"); do
     local JOB_ID=$(echo $line|awk -F"," '{print $1}')
     del_job_id_dbdrv "$JOB_ID"
   done
@@ -48,10 +47,11 @@ function del_all_client_job ()
 
 function list_job_all ()
 {
+  local CLI_ID=$1
+
   printf '%-15s\n' "$(tput bold)"
-  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
-  for line in $(get_all_jobs_dbdrv)
-  do
+  printf '%-5s %-10s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Status" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
+  for line in $(get_all_jobs "${CLI_ID}"); do
     local JOB_ID=$(echo $line|awk -F"," '{print $1}')
     local CLI_ID=$(echo $line|awk -F"," '{print $2}')
     local CLI_NAME=$(get_client_name "${CLI_ID}")
@@ -62,31 +62,34 @@ function list_job_all ()
     local JOB_REPEAT=$(echo $line|awk -F"," '{print $7}')
     local JOB_ENABLED=$(echo $line|awk -F"," '{print $8}')
     local CLI_CFG=$(echo $line|awk -F"," '{print $9}')
+    local JOB_STATUS=$(echo $line|awk -F"," '{print $10}')
 
-    printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
-  done
-  if [ $? -eq 0 ];then return 0; else return 1; fi
-}
-
-function list_jobs_by_client ()
-{
-  local CLI_ID=$1
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
-  for line in $(get_jobs_by_client_dbdrv "${CLI_ID}")
-  do
-    local JOB_ID=$(echo $line|awk -F"," '{print $1}')
-    #local CLI_ID=$(echo $line|awk -F"," '{print $2}')
-    local CLI_NAME=$(get_client_name "${CLI_ID}")
-    local JOB_SDATE=$(echo $line|awk -F"," '{print $3}')
-    local JOB_EDATE=$(echo $line|awk -F"," '{print $4}')
-    local JOB_LDATE=$(echo $line|awk -F"," '{print $5}')
-    local JOB_NDATE=$(echo $line|awk -F"," '{print $6}')
-    local JOB_REPEAT=$(echo $line|awk -F"," '{print $7}')
-    local JOB_ENABLED=$(echo $line|awk -F"," '{print $8}')
-    local CLI_CFG=$(echo $line|awk -F"," '{print $9}')
+    local STATUS_TEXT=""
+    if [ "$JOB_ENABLED" == "1" ]; then
+      STATUS_TEXT="(E)"
+    else
+      STATUS_TEXT="(D)"
+    fi
+    local JOB_STATUS_COLOR="%-10s"
+    if [ "$JOB_STATUS" == "1" ]; then
+      STATUS_TEXT="${STATUS_TEXT}Running"
+      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;34m%-10s\\e[0m"; fi
+    elif [ "$JOB_STATUS" == "2" ]; then
+      STATUS_TEXT="${STATUS_TEXT}Error"
+      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;31m%-10s\\e[0m"; fi
+    elif [ "$JOB_STATUS" == "3" ]; then
+      STATUS_TEXT="${STATUS_TEXT}Warning"
+      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;33m%-10s\\e[0m"; fi
+    else
+      if [ "$JOB_ENABLED" == "1" ]; then
+        STATUS_TEXT="Enabled"
+        if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;92m%-10s\\e[0m"; fi
+      else
+        STATUS_TEXT="Disabled"
+      fi
+    fi
     
-    printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
+    printf '%-5s '"$JOB_STATUS_COLOR"' %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$STATUS_TEXT" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
   done
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
@@ -104,10 +107,36 @@ function list_job ()
   local JOB_REPEAT=$(echo $JOB|awk -F"," '{print $7}')
   local JOB_ENABLED=$(echo $JOB|awk -F"," '{print $8}')
   local CLI_CFG=$(echo $JOB|awk -F"," '{print $9}')
+  local JOB_STATUS=$(echo $line|awk -F"," '{print $10}')
+
+    local STATUS_TEXT=""
+    if [ "$JOB_ENABLED" == "1" ]; then
+      STATUS_TEXT="(E)"
+    else
+      STATUS_TEXT="(D)"
+    fi
+    local JOB_STATUS_COLOR="%-10s"
+    if [ "$JOB_STATUS" == "1" ]; then
+      STATUS_TEXT="${STATUS_TEXT}Running"
+      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;34m%-10s\\e[0m"; fi
+    elif [ "$JOB_STATUS" == "2" ]; then
+      STATUS_TEXT="${STATUS_TEXT}Error"
+      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;31m%-10s\\e[0m"; fi
+    elif [ "$JOB_STATUS" == "3" ]; then
+      STATUS_TEXT="${STATUS_TEXT}Warning"
+      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;33m%-10s\\e[0m"; fi
+    else
+      if [ "$JOB_ENABLED" == "1" ]; then
+        STATUS_TEXT="Enabled"
+        if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;92m%-10s\\e[0m"; fi
+      else
+        STATUS_TEXT="Disabled"
+      fi
+    fi
 
   printf '%-15s\n' "$(tput bold)"
-  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
-  printf '%-5s %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
+  printf '%-5s %-10s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Status" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
+  printf '%-5s '"$JOB_STATUS_COLOR"' %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$STATUS_TEXT" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -119,13 +148,8 @@ function get_jobs_by_ndate ()
 
 function get_all_jobs ()
 {
-  get_all_jobs_dbdrv
-}
-
-function get_jobs_by_client ()
-{
   local CLI_ID=$1
-  get_jobs_by_client_dbdrv "$CLI_ID"
+  get_all_jobs_dbdrv "$CLI_ID"
 }
 
 function get_job_by_id ()
@@ -137,7 +161,7 @@ function get_job_by_id ()
 function check_date ()
 {
   local DATE=$(echo $1 | tr -d ":" | tr -d "-" | tr "T" " ")
-  date "+%Y-%m-%dT%H:%M" --date="$DATE"
+  date "+%Y-%m-%dT%H:%M" --date="$DATE" >> /dev/null 2>&1
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -153,6 +177,7 @@ function get_epoch_date ()
   echo "$DATE"
 }
 
+# Update job next date
 function update_job_ndate ()
 {
   local JOB_ID=$1
@@ -160,6 +185,7 @@ function update_job_ndate ()
   update_job_ndate_dbdrv "$JOB_ID" "$JOB_NDATE"
 }
 
+# Update job last date
 function update_job_ldate ()
 {
   local JOB_ID=$1
@@ -179,4 +205,52 @@ function sched_job() {
   # run command with setsid
     setsid "$@"
   ) &
+}
+
+function enable_job_db () 
+{
+  local JOB_ID=$1
+  enable_job_db_dbdrv "$JOB_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function disable_job_db () 
+{
+  local JOB_ID=$1
+  disable_job_db_dbdrv "$JOB_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function set_ok_job_status_db ()
+{
+  local JOB_ID=$1
+  set_ok_job_status_db_dbdrv "$JOB_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function set_running_job_status_db ()
+{
+  local JOB_ID=$1
+  set_running_job_status_db_dbdrv "$JOB_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function set_error_job_status_db ()
+{
+  local JOB_ID=$1
+  set_error_job_status_db_dbdrv "$JOB_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
+}
+
+function set_lost_job_status_db ()
+{
+  local JOB_ID=$1
+  set_lost_job_status_db_dbdrv "$JOB_ID"
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+  # Return 0 if OK or 1 if NOK
 }
