@@ -120,6 +120,16 @@ function get_all_client_names_dbdrv ()
   done
 }
 
+function get_all_client_list_dbdrv ()
+{
+  local CLI_NAME="$1"
+  if [ -z $CLI_NAME ]; then
+    echo "select clients.*, case when jobis.hasjobs is null then 'false' else jobis.hasjobs end from clients left join (select case when count(0) > 0 then 'true' else 'false' end hasjobs, clients_id from jobs group by clients_id) as jobis on jobis.clients_id = clients.idclient order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  else
+    echo "select clients.*, case when jobis.hasjobs is null then 'false' else jobis.hasjobs end from clients left join (select case when count(0) > 0 then 'true' else 'false' end hasjobs, clients_id from jobs group by clients_id) as jobis on jobis.clients_id = clients.idclient where clients.cliname='$CLI_NAME' order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  fi
+}
+
 function get_all_client_id_dbdrv ()
 {
   local COMP=$1
@@ -1111,27 +1121,46 @@ function exist_job_id_dbdrv ()
   if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
 }
 
-function get_jobs_by_client_dbdrv ()
+function get_count_jobs_by_client_dbdrv ()
 {
   local CLI_ID=$1
-  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end from jobs where clients_id=${CLI_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  local COUNT_JOBS=$(echo "select COUNT(*) from jobs where clients_id=${CLI_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $COUNT_JOBS
 }
 
 function get_job_by_id_dbdrv ()
 {
   local JOB_ID=$1
-  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end from jobs where idjob=${JOB_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs where idjob=${JOB_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function get_all_jobs_dbdrv ()
 {
-  echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  local CLI_ID=$1
+
+  if [  -z "$CLI_ID" ]; then
+    echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  else
+    echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs where clients_id=${CLI_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  fi
 }
 
 function get_all_jobs_id_dbdrv()
 {
   local COMP=$1
   local ID_LIST=$(echo "select idjob from jobs where idjob like '${COMP}%';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_enabled_jobs_id_dbdrv()
+{
+  local ID_LIST=$(echo "select idjob from jobs where enabled = '1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $ID_LIST
+}
+
+function get_all_disabled_jobs_id_dbdrv()
+{
+  local ID_LIST=$(echo "select idjob from jobs where enabled = '0';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $ID_LIST
 }
 
@@ -1153,7 +1182,8 @@ function get_all_client_names_in_jobs_dbdrv()
 function get_jobs_by_ndate_dbdrv ()
 {
   local DATE=$1
-  echo "$(echo -e ".separator "," \n select idjob,clients_id,next_date,end_date,repeat,enabled,case when config is null then 'default' else config end from jobs where datetime(next_date) <= datetime('${DATE}') and (end_date = '' or datetime(end_date) >= datetime('${DATE}'));" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  #echo "$(echo -e ".separator "," \n select idjob,clients_id,next_date,end_date,repeat,enabled,case when config is null then 'default' else config end from jobs where datetime(next_date) <= datetime('${DATE}') and (end_date = '' or datetime(end_date) >= datetime('${DATE}')) and enabled='1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  echo "$(echo -e ".separator "," \n select idjob,clients_id,next_date,end_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs where datetime(next_date) <= datetime('${DATE}') and enabled = '1' and status != '1';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 function add_job_dbdrv ()
@@ -1165,8 +1195,9 @@ function add_job_dbdrv ()
   local JOB_REPEAT=$4
   local JOB_ENABLED=$5
   local CLI_CFG=$6
+  local JOB_STATUS=$7
 
-  echo "INSERT INTO jobs (clients_id, start_date, end_date, next_date, repeat, enabled, config) VALUES (${CLI_ID}, '${JOB_SDATE}', '${JOB_EDATE}', '${JOB_NDATE}', '${JOB_REPEAT}', 1, '${CLI_CFG}'); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO jobs (clients_id, start_date, end_date, next_date, repeat, enabled, config, status) VALUES (${CLI_ID}, '${JOB_SDATE}', '${JOB_EDATE}', '${JOB_NDATE}', '${JOB_REPEAT}', 1, '${CLI_CFG}', 0); " | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0;else return 1; fi
 }
 
@@ -1174,5 +1205,47 @@ function del_job_id_dbdrv ()
 {
   local JOB_ID=$1
   echo "delete from jobs where idjob='${JOB_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function enable_job_db_dbdrv ()
+{
+  local JOB_ID=$1
+  echo "update jobs set enabled=1 where idjob='$JOB_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function disable_job_db_dbdrv ()
+{
+  local JOB_ID=$1
+  echo "update jobs set enabled=0 where idjob='$JOB_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function set_ok_job_status_db_dbdrv ()
+{
+  local JOB_ID=$1
+  echo "update jobs set status=0 where idjob='$JOB_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function set_running_job_status_db_dbdrv ()
+{
+  local JOB_ID=$1
+  echo "update jobs set status=1 where idjob='$JOB_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function set_error_job_status_db_dbdrv ()
+{
+  local JOB_ID=$1
+  echo "update jobs set status=2 where idjob='$JOB_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function set_lost_job_status_db_dbdrv ()
+{
+  local JOB_ID=$1
+  echo "update jobs set status=3 where idjob='$JOB_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }

@@ -38,7 +38,7 @@ func GetMD5Hash(text string) string {
 func generateJSONResponse(object interface{}) string {
 
 	r := models.Response{
-		Version: "2.4.4",
+		Version: "2.4.5",
 		Result:  object,
 	}
 

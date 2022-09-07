@@ -62,7 +62,7 @@ fi
 
 if [ -z "$CLI_MAC" ]; then
   Log "Searching for Client MAC address ..."
-  CLI_MAC=$(ip neigh show | grep "$CLI_IP" | awk '{print $5}')
+  CLI_MAC=$(ip neigh show | grep -w "$CLI_IP" | awk '{print $5}')
   if [ -z "$CLI_MAC" ]; then
     Log "Client MAC address not found over the network!"
   fi

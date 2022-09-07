@@ -8,8 +8,8 @@ if [ -n "$NET_SRV" ]; then
       Error "DRLM Server IP: $NET_SRV already registered in DB!"
     else
       Log "Network IP: $NET_SRV is not in use in DRLM DB..."
-      TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $NET_SRV | awk '/scope global/ {print $2}')"
-      TMP_NET_DATA="$(ip -o -f inet addr show | grep $NET_SRV | awk '/scope global/ {print $2 " " $4 " " $6}')"
+      TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $NET_SRV/ | awk '/scope global/ {print $2}')"
+      TMP_NET_DATA="$(ip -o -f inet addr show | grep $NET_SRV/ | awk '/scope global/ {print $2 " " $4 " " $6}')"
       TMP_NET_CIDR="$(echo $TMP_NET_DATA | awk '{print $2}' | awk -F'/' '{print $2}')"
       TMP_NET_BROADCAST="$(echo $TMP_NET_DATA | awk '{print $3}')"
       if [ "$TMP_NET_CIDR" ]; then
@@ -31,8 +31,8 @@ if [ -n "$NET_IP" ]; then
     else
       Log "Network IP: $NET_IP is not in use in DRLM DB..."
       TMP_NET_SRV=$(ip route list | grep "$NET_IP" | awk '{print $9}')
-      TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $TMP_NET_SRV | awk '/scope global/ {print $2}')"
-      TMP_NET_DATA="$(ip -o -f inet addr show | grep $TMP_NET_SRV | awk '/scope global/ {print $2 " " $4 " " $6}')"
+      TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $TMP_NET_SRV/ | awk '/scope global/ {print $2}')"
+      TMP_NET_DATA="$(ip -o -f inet addr show | grep $TMP_NET_SRV/ | awk '/scope global/ {print $2 " " $4 " " $6}')"
       TMP_NET_CIDR="$(echo $TMP_NET_DATA | awk '{print $2}' | awk -F'/' '{print $2}')"
       TMP_NET_BROADCAST="$(echo $TMP_NET_DATA | awk '{print $3}')"
       if [ "$TMP_NET_CIDR" ]; then

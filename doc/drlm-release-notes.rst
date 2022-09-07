@@ -64,8 +64,23 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.5 (July 2022) - Release Notes
+----------------------------------------------
+  * NEW! Improved jobs list with status feedback
+
+  * NEW! Now is possible to enable and disable Jobs
+
+  * Speedup list client
+  
+  * Bugfix in addclient (two MACs one IP)
+
+  * Bugfix in addnetwork (two interface for one IP)
+
+  * Improved run sched backups
+
+
 DRLM Version 2.4.4 (May 2022) - Release Notes
------------------------------------------------
+---------------------------------------------
   * Bugfix in installclient, new dependencies added
 
   * Bugfix in logs maintenance
