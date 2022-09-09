@@ -23,68 +23,72 @@ WORKFLOWS=( ${WORKFLOWS[@]} deljob )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} deljob )
 
 if [ "$WORKFLOW" == "deljob" ]; then 
-	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:J:I:h" -l "client:,job_id:,help" -- "$@")"
-	if (( $? != 0 )); then
-	    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	    exit 1
-	fi
-	
-	eval set -- "$OPT"
-	while true; do
-	    case "$1" in
-	        (-c|--client)
-	            # We need to take the option argument
-	            if [ -n "$2" ] 
-			then 
-				CLI_NAME="$2"
-			else
-				echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-				exit 1
-			fi
-			shift 
-			;;
-	        (-J|-I|--job_id)
-	            # We need to take the option argument
-	            if [ -n "$2" ] 
-			then 
-				JOB_ID="$2" 
-			else
-	                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-	               		exit 1
-			fi 
-			shift
-			;;
-            	(-h|--help)
-                	deljobhelp
-			exit 0
-                	;;
+  # Parse options
+  OPT="$(getopt -n $WORKFLOW -o "c:J:I:h" -l "client:,job_id:,help" -- "$@")"
+  if (( $? != 0 )); then
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+  
+  eval set -- "$OPT"
+  while true; do
+    case "$1" in
+      (-c|--client)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_NAME="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"  
+          exit 1
+        fi
+        shift 
+        ;;
 
-	        (--) shift; break;;
-	        (-*)
-	            echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-	            echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	            exit 1
-	            ;;
-	    esac
-	    shift
-	done
-	
-	if [ -n "$CLI_NAME" ] && [ -n "$JOB_ID" ]; then 
-		echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --job_id "
-	    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-	    exit 1
-	fi
+      (-J|-I|--job_id)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          JOB_ID="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
 
-	if [ -z "$CLI_NAME" ] && [ -z "$JOB_ID" ]; then
-		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-		exit 1
-	fi
+      (-h|--help)
+        deljobhelp
+        exit 0
+        ;;
 
-	WORKFLOW_deljob () {
-    	#echo deljob workflow
-    	SourceStage "job/del"
-	}
+      (--) 
+        shift
+        break
+        ;;
+      
+      (-*)
+        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+        exit 1
+        ;;
+    esac
+    shift
+  done
+
+  if [ -n "$CLI_NAME" ] && [ -n "$JOB_ID" ]; then 
+    echo "$PROGRAM $WORKFLOW: Only one option can be used: --client or --job_id "
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  if [ -z "$CLI_NAME" ] && [ -z "$JOB_ID" ]; then
+    echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  WORKFLOW_deljob () {
+    #echo deljob workflow
+    SourceStage "job/del"
+  }
 
 fi

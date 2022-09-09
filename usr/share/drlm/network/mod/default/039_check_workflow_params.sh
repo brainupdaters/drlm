@@ -101,7 +101,7 @@ fi
 
 # Check Network Interface
 TMP_NET_IFACE=$(get_network_interface "$NET_ID")
-NET_IFACE=$(ip -o -f inet addr show | grep $NET_SRV | awk '/scope global/ {print $2}')
+NET_IFACE=$(ip -o -f inet addr show | grep $NET_SRV/ | awk '/scope global/ {print $2}')
 if [ -z "$NET_IFACE" ]; then 
   LogPrint "WARNING: The Server IP $NET_SRV has not been configured on any interface"
   NET_IFACE=$(ip route get $NET_SRV | grep -vE 'via|cache' | awk '{print $3}'); 

@@ -982,24 +982,43 @@ __drlm_modnetwork ()
 
 __drlm_sched ()
 {
-  local options_s="-e -d -r -h"
-  local options_l="--enable --disable --run --help"
+  local options_s="-e -d -r -I -h"
+  local options_l="--enable --disable --run --job_id --help"
 
   if __drlm_exist_option "-h --help" "$workflow"; then
     local options_s="-h"
     local options_l="--help"
   elif __drlm_exist_option "-e --enable" "$workflow"; then
-    local options_s="-e"
-    local options_l="--enable"
+    local options_s="-e -I"
+    local options_l="--enable --job_id"
   elif __drlm_exist_option "-d --disable" "$workflow"; then
-    local options_s="-d"
-    local options_l="--disable"
+    local options_s="-d -I "
+    local options_l="--disable --job_id"
   elif __drlm_exist_option "-r --run" "$workflow"; then
     local options_s="-r"
     local options_l="--run"
   fi
 
-  __drlmcomp3 "$options_s" "$options_l"
+  case "$prev" in
+    -I | --job_id)
+      if __drlm_exist_option "-e --enable" "$workflow"; then
+        local i=0
+        query=$(get_all_disabled_jobs_id_dbdrv "$cur")
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      else
+        local i=0
+        query=$(get_all_enabled_jobs_id_dbdrv "$cur")
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      fi
+      ;;
+    *)
+      __drlmcomp3 "$options_s" "$options_l"
+      ;;
+  esac
 }
 
 __drlm_find_on_cmdline ()

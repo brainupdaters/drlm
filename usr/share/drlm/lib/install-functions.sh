@@ -248,7 +248,7 @@ function send_drlm_hostname () {
     done
 
     # If no exists "$SRV_IP" "$SRV_NAME" line in /etc/hosts attach it
-    grep -o '^[^#]*' /etc/hosts | grep "^$SRV_IP" | grep -w "$SRV_NAME" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$SRV_NAME" | $SUDO tee --append /etc/hosts >/dev/null
+    grep -o '^[^#]*' /etc/hosts | grep -w "^$SRV_IP" | grep -w "$SRV_NAME" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$SRV_NAME" | $SUDO tee --append /etc/hosts >/dev/null
   fi
 }
 

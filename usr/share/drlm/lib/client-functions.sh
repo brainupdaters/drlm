@@ -212,23 +212,19 @@ function list_client () {
 
   save_default_pretty_params_list_client
 
-  for client in $(get_all_client_names $CLI_NAME_PARAM); do
-    local CLI_NAME=$client
-    local CLI_ID=$(get_client_id_by_name $CLI_NAME)
-    local CLI_MAC=$(get_client_mac $CLI_ID)
-    local CLI_IP=$(get_client_ip $CLI_ID)
-    local CLI_OS=$(get_client_os $CLI_ID)
-    local CLI_NET=$(get_client_net $CLI_ID)
-    local CLI_REAR=$(get_client_rear $CLI_ID)
+  get_all_client_list_dbdrv $CLI_NAME_PARAM | while read line; do 
+  
+    local CLI_NAME=$(echo "$line" | awk '{split($0,client,"|"); print client[2]}')
+    local CLI_ID=$(echo "$line" | awk '{split($0,client,"|"); print client[1]}')
+    local CLI_MAC=$(echo "$line" | awk '{split($0,client,"|"); print client[3]}')
+    local CLI_IP=$(echo "$line" | awk '{split($0,client,"|"); print client[4]}')
+    local CLI_OS=$(echo "$line" | awk '{split($0,client,"|"); print client[6]}')
+    local CLI_NET=$(echo "$line" | awk '{split($0,client,"|"); print client[5]}')
+    local CLI_REAR=$(echo "$line" | awk '{split($0,client,"|"); print client[7]}')
+    local CLI_HAS_JOBS=$(echo "$line" | awk '{split($0,client,"|"); print client[8]}')
 
     load_default_pretty_params_list_client
     load_client_pretty_params_list_client $CLI_NAME
-
-    if [ -z "$(has_jobs_scheduled "$CLI_ID")" ]; then
-      local CLI_HAS_JOBS="false"
-    else
-      local CLI_HAS_JOBS="true"
-    fi
 
     if [ "$UNSHED_PARAM" == "false" ] || { [ "$UNSHED_PARAM" == "true" ] && [ "$CLI_HAS_JOBS" == "false" ]; } ; then
       if [ "$PRETTY_PARAM" == "true" ]; then
@@ -303,11 +299,10 @@ function generate_client_secrets () {
 function has_jobs_scheduled () {
   local CLI_ID="$1"
 
-  for line in $(get_all_jobs_dbdrv); do
-    if [ $(echo $line|awk -F"," '{print $2}') == "$CLI_ID" ]; then
-      echo "true"
-    fi
-  done
+  COUNT_JOBS=$(get_count_jobs_by_client_dbdrv $CLI_ID)
+  if [ "$COUNT_JOBS" -gt "0" ]; then
+    echo "true"
+  fi
 }
 
 function load_client_pretty_params_list_client () { 

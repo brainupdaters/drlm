@@ -10,6 +10,7 @@ type Job struct {
 	Repeat    string `json:"repeat"`
 	Enabled   string `json:"enabled"`
 	Config    string `json:"config"`
+	Status    string `json:"status"`
 }
 
 type JobResponse struct {

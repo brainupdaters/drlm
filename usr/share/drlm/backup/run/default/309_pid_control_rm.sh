@@ -54,6 +54,10 @@
 #     CLI_REAR_PXE_FILE (Client ReaR PXE file)
 #     CLI_KERNEL_OPTS   (Client Kernel options)
 
+if [ "$DRLM_IS_SCHEDULED" == "true" ]; then
+  set_ok_job_status_db $DRLM_SCHED_JOB_ID
+fi
+
 if [ -f $VAR_DIR/run/$CLI_NAME.pid ]; then
   rm $VAR_DIR/run/$CLI_NAME.pid
   Log "- Deleting runbackup PID file [ $VAR_DIR/run/$CLI_NAME.pid ]"

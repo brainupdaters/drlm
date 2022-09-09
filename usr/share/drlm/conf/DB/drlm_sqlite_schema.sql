@@ -134,3 +134,8 @@ UPDATE backups SET hold=0 WHERE hold is null;
 
 ALTER TABLE snaps ADD COLUMN "hold" tinyint(1);
 UPDATE snaps SET hold=0 WHERE hold is null;
+
+-- DRLM v2.4.5 new 
+-- New columns in jobs table
+ALTER TABLE jobs ADD COLUMN "status" tinyint(1);
+UPDATE jobs SET status=0 WHERE status is null;
