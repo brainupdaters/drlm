@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.5
+Version: 2.4.6
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -315,6 +315,9 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Wed Sep 21 2022 Pau Roura <pau@brainupdaters.net> 2.4.6
+- Bugfix in deb package update
 
 * Fri Jul 22 2022 Pau Roura <pau@brainupdaters.net> 2.4.5
 - NEW! Improved jobs list with status feedback

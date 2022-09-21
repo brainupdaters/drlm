@@ -1,3 +1,6 @@
+drlm (2.4.6) stable release; urgency=high
+  * Bugfix in deb package update
+
 drlm (2.4.5) stable release; urgency=high
   * NEW! Improved jobs list with status feedback
   * NEW! Now is possible to enable and disable Jobs

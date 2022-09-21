@@ -1,6 +1,6 @@
 Format: 1.0
 Source: drlm
-Version: 2.4.5
+Version: 2.4.6
 Binary: drlm
 Maintainer: Pau Roura (pau@brainupdaters.net)
 Architecture: all
