@@ -64,6 +64,11 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.6 (September 2022) - Release Notes
+---------------------------------------------------
+  * Bugfix in deb package update
+
+
 DRLM Version 2.4.5 (July 2022) - Release Notes
 ----------------------------------------------
   * NEW! Improved jobs list with status feedback
