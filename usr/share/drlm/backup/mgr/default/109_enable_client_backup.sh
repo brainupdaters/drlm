@@ -7,7 +7,7 @@ DR_FILE=$(get_backup_drfile_by_backup_id "$BKP_ID")
 if [ -n "$DR_FILE" ]; then
 
   # Get a free NBD device
-  NBD_DEVICE=$(get_free_nbd)
+  NBD_DEVICE=$(get_free_nbd $$)
 
   # If disable = "yes" and we are here, means that we have to disable this snap but not enable
   # for this reason SNAP_ID is set to empty value

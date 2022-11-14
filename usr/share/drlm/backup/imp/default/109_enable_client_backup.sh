@@ -12,7 +12,7 @@ if [ ! -d ${STORDIR}/${CLI_NAME}/${CLI_CFG} ]; then
 fi
 
 # Get next nbd device free
-local NBD_DEVICE="$(get_free_nbd)"
+local NBD_DEVICE="$(get_free_nbd $$)"
 
 Log "Enabling DR Backup Store $STORDIR/$CLI_NAME/$CLI_CFG (rw)"
 

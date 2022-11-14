@@ -2,6 +2,17 @@
 
 if [ -z "$CONFIG_ONLY" ]; then
 
+    # Reevaluate URL_REAR variables if URL_REAR_BASE is defined in site.conf or local.conf
+    if grep "URL_REAR_BASE=" $CONFIG_DIR/site.conf > /dev/null 2>&1 || grep "URL_REAR_BASE=" $CONFIG_DIR/local.conf > /dev/null 2>&1; then
+      eval $(grep '="$URL_REAR_BASE' $SHARE_DIR/conf/default.conf)
+      if grep "^URL_REAR_" $CONFIG_DIR/site.conf > /dev/null 2>&1; then
+        eval $(grep "^URL_REAR_" $CONFIG_DIR/site.conf)
+      fi
+      if grep "^URL_REAR_" $CONFIG_DIR/local.conf > /dev/null 2>&1; then
+        eval $(grep "^URL_REAR_" $CONFIG_DIR/local.conf)
+      fi
+    fi
+
     if [ "$ARCH" == "x86_64" ]; then
       REP_ARCH="_64"
     elif [ "$ARCH" == "i686" ]; then

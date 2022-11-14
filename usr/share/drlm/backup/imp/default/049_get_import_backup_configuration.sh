@@ -80,7 +80,7 @@ if [ -n "$BKP_SRC" ]; then
   mkdir $TMP_MOUNTPOINT &> /dev/null
   if [ $? -ne 0 ]; then Error "Error creating mountpoint directory $TMP_MOUNTPOINT"; fi
   # Get a free NBD device
-  NBD_DEVICE="$(get_free_nbd)"
+  NBD_DEVICE="$(get_free_nbd $$)"
   if [ $? -ne 0 ]; then Error "Error getting a free NBD"; fi
 
    # Attach DR file to a NBD
