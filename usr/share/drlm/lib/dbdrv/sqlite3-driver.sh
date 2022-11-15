@@ -123,11 +123,19 @@ function get_all_client_names_dbdrv ()
 function get_all_client_list_dbdrv ()
 {
   local CLI_NAME="$1"
-  if [ -z $CLI_NAME ]; then
-    echo "select clients.*, case when jobis.hasjobs is null then 'false' else jobis.hasjobs end from clients left join (select case when count(0) > 0 then 'true' else 'false' end hasjobs, clients_id from jobs group by clients_id) as jobis on jobis.clients_id = clients.idclient order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
-  else
-    echo "select clients.*, case when jobis.hasjobs is null then 'false' else jobis.hasjobs end from clients left join (select case when count(0) > 0 then 'true' else 'false' end hasjobs, clients_id from jobs group by clients_id) as jobis on jobis.clients_id = clients.idclient where clients.cliname='$CLI_NAME' order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  local CLI_UNSCHED="$2"
+
+  CLI_UNSCHED_SQL=""
+  if [ "$CLI_UNSCHED" == "true" ]; then 
+    CLI_UNSCHED_SQL="having count(j.clients_id) = 0"
   fi
+
+  CLI_NAME_SQL=""
+  if [ ! -z $CLI_NAME ]; then
+    CLI_NAME_SQL="where clients.cliname='$CLI_NAME'"
+  fi
+
+  echo "select clients.*, case when count(j.clients_id) = 0 then 'false' else 'true' end from clients left join jobs j on clients.idclient = clients_id $CLI_NAME_SQL group by clients.idclient $CLI_UNSCHED_SQL order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
 }
 
 function get_all_client_id_dbdrv ()
@@ -224,6 +232,36 @@ function mod_client_rear_dbdrv ()
   local CLI_REAR=$2
   echo "update clients set rear='$CLI_REAR' where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function get_max_client_id_length_dbdrv() {
+  echo "$(echo "select max(length(idclient)) from clients" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_client_name_length_dbdrv() {
+  if [ -z "$1" ]; then
+    echo "$(echo "select max(length(cliname)) from clients" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  elif [ "$1" == "backups" ]; then
+    echo "$(echo "select max(length(cliname)) from clients, backups where clients.idclient = backups.clients_id" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  elif [ "$1" == "jobs" ]; then
+    echo "$(echo "select max(length(cliname)) from clients, jobs where clients.idclient = jobs.clients_id" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  fi
+}
+
+function get_max_client_mac_length_dbdrv() {
+  echo "$(echo "select max(length(mac)) from clients" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_client_ip_length_dbdrv() {
+  echo "$(echo "select max(length(ip)) from clients" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_client_os_length_dbdrv() {
+  echo "$(echo "select max(length(os)) from clients" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_client_rear_length_dbdrv() {
+  echo "$(echo "select max(length(rear)) from clients" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 ##############################
@@ -509,6 +547,14 @@ function mod_network_interface_dbdrv ()
   local NET_INTERFACE=$2
   echo "update networks set interface='$NET_INTERFACE' where idnetwork='${NET_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function get_max_network_name_length_dbdrv() {
+  echo "$(echo "select max(length(netname)) from networks" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_network_id_length_dbdrv() {
+  echo "$(echo "select max(length(idnetwork)) from networks" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
 
 #############################
@@ -1093,10 +1139,29 @@ function enable_snap_hold_db_dbdrv () {
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function get_max_backup_id_length_dbdrv() {
+  echo "$(echo "select max(length(idbackup)) from backups" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_backup_duration_length_dbdrv() {
+  echo "$(echo "select max(length(duration)) from backups" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_backup_size_length_dbdrv() {
+  echo "$(echo "select max(length(size)) from backups" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_snap_size_length_dbdrv() {
+  echo "$(echo "select max(length(size)) from snaps" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_backup_configuration_length_dbdrv() {
+  echo "$(echo "select max(length(config)) from backups" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
 ##########################
 # Job database functions #
 ##########################
-
 
 function update_job_ndate_dbdrv ()
 {
@@ -1136,13 +1201,29 @@ function get_job_by_id_dbdrv ()
 
 function get_all_jobs_dbdrv ()
 {
-  local CLI_ID=$1
+  local PARAM_ID="$1"
+  local LIST_TYPE="$2"
 
-  if [  -z "$CLI_ID" ]; then
-    echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
-  else
-    echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs where clients_id=${CLI_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+  if [ -z "$PARAM_ID" ]; then
+    PARAM_ID="all"
   fi
+  
+  if [ -z "$LIST_TYPE" ]; then
+    LIST_TYPE="client"
+  fi
+
+  case "$LIST_TYPE" in
+    "client" )
+      if [ "$PARAM_ID" == "all" ]; then
+        echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+      else
+        echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs where clients_id=${PARAM_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+      fi
+      ;;
+    "job" )
+      echo "$(echo -e ".separator "," \n select idjob,clients_id,start_date,end_date,last_date,next_date,repeat,enabled,case when config is null then 'default' else config end,status from jobs where idjob=${PARAM_ID};" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+      ;;
+  esac
 }
 
 function get_all_jobs_id_dbdrv()
@@ -1248,4 +1329,12 @@ function set_lost_job_status_db_dbdrv ()
   local JOB_ID=$1
   echo "update jobs set status=3 where idjob='$JOB_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function get_max_job_id_length_dbdrv() {
+  echo "$(echo "select max(length(idjob)) from jobs" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+}
+
+function get_max_job_enddate_length_dbdrv() {
+  echo "$(echo "select max(length(end_date)) from jobs" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }

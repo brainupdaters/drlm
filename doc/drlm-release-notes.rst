@@ -64,6 +64,23 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.7 (November 2022) - Release Notes
+-------------------------------------------------
+  * Bugfix removing authorized keys
+  
+  * Bugfix in installclient DRLM Proxy (hostname unreachable)
+
+  * Improved unsched client sql select 
+
+  * Changed default QEMU_NBD_OPTIONS
+
+  * Mutex race solved in nbd assignment
+
+  * Improved network, client, backup and job lists
+
+  * Bugfix in DRLM PROXY ReaR URL generation
+
+
 DRLM Version 2.4.6 (September 2022) - Release Notes
 ---------------------------------------------------
   * Bugfix in deb package update

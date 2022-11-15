@@ -45,13 +45,30 @@ function del_all_client_job ()
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
-function list_job_all ()
+function list_job ()
 {
-  local CLI_ID=$1
+  local PARAM_ID="$1"
+  local LIST_TYPE="$2"
 
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-5s %-10s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Status" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
-  for line in $(get_all_jobs "${CLI_ID}"); do
+  local JOB_ID_LEN="$(get_max_job_id_length_dbdrv)"
+  if [ "$JOB_ID_LEN" -le "2" ]; then JOB_ID_LEN="2"; fi
+  JOB_ID_LEN=$((JOB_ID_LEN+1))
+
+  local JOB_CLI_LEN="$(get_max_client_name_length_dbdrv "jobs")"
+  if [ "$JOB_CLI_LEN" -le "7" ]; then JOB_CLI_LEN="7"; fi
+  JOB_CLI_LEN=$((JOB_CLI_LEN+1))
+  
+  local JOB_ENDDATE_LEN="$(get_max_job_enddate_length_dbdrv)"
+  if [ "$JOB_ENDDATE_LEN" != "0" ]; then JOB_ENDDATE_LEN="17"; fi
+
+  JOB_FORMAT="%-${JOB_ID_LEN}s %-10s %-${JOB_CLI_LEN}s %-17s %-17s %-${JOB_ENDDATE_LEN}s %-8s %-20s\n"
+  JOB_ENDDATE_HEAD="$([ "$JOB_ENDDATE_LEN" == "0" ] && echo ""|| echo "End Date")"
+
+  printf "$(tput bold)"
+  printf "$JOB_FORMAT" "Id" "Status" "Client" "Last Date" "Next Date" "$([ "$JOB_ENDDATE_LEN" == "0" ] && echo ""|| echo "End Date")" "Repeat" "Configuration"
+  printf "$(tput sgr0)"
+
+  for line in $(get_all_jobs "${PARAM_ID}" "${LIST_TYPE}"); do
     local JOB_ID=$(echo $line|awk -F"," '{print $1}')
     local CLI_ID=$(echo $line|awk -F"," '{print $2}')
     local CLI_NAME=$(get_client_name "${CLI_ID}")
@@ -89,54 +106,9 @@ function list_job_all ()
       fi
     fi
     
-    printf '%-5s '"$JOB_STATUS_COLOR"' %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$STATUS_TEXT" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
+    JOB_FORMAT="%-${JOB_ID_LEN}s ${JOB_STATUS_COLOR} %-${JOB_CLI_LEN}s %-17s %-17s %-${JOB_ENDDATE_LEN}s %-8s %-20s\n"
+    printf "$JOB_FORMAT" "$JOB_ID" "$STATUS_TEXT" "$CLI_NAME" "$JOB_LDATE" "$JOB_NDATE" "$JOB_EDATE" "$JOB_REPEAT" "$CLI_CFG"
   done
-  if [ $? -eq 0 ];then return 0; else return 1; fi
-}
-
-function list_job ()
-{
-  local JOB_ID=$1
-  local JOB=$(get_job_by_id_dbdrv "${JOB_ID}")
-  local CLI_ID=$(echo $JOB|awk -F"," '{print $2}')
-  local CLI_NAME=$(get_client_name "${CLI_ID}")
-  local JOB_SDATE=$(echo $JOB|awk -F"," '{print $3}')
-  local JOB_EDATE=$(echo $JOB|awk -F"," '{print $4}')
-  local JOB_LDATE=$(echo $JOB|awk -F"," '{print $5}')
-  local JOB_NDATE=$(echo $JOB|awk -F"," '{print $6}')
-  local JOB_REPEAT=$(echo $JOB|awk -F"," '{print $7}')
-  local JOB_ENABLED=$(echo $JOB|awk -F"," '{print $8}')
-  local CLI_CFG=$(echo $JOB|awk -F"," '{print $9}')
-  local JOB_STATUS=$(echo $line|awk -F"," '{print $10}')
-
-    local STATUS_TEXT=""
-    if [ "$JOB_ENABLED" == "1" ]; then
-      STATUS_TEXT="(E)"
-    else
-      STATUS_TEXT="(D)"
-    fi
-    local JOB_STATUS_COLOR="%-10s"
-    if [ "$JOB_STATUS" == "1" ]; then
-      STATUS_TEXT="${STATUS_TEXT}Running"
-      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;34m%-10s\\e[0m"; fi
-    elif [ "$JOB_STATUS" == "2" ]; then
-      STATUS_TEXT="${STATUS_TEXT}Error"
-      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;31m%-10s\\e[0m"; fi
-    elif [ "$JOB_STATUS" == "3" ]; then
-      STATUS_TEXT="${STATUS_TEXT}Warning"
-      if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;33m%-10s\\e[0m"; fi
-    else
-      if [ "$JOB_ENABLED" == "1" ]; then
-        STATUS_TEXT="Enabled"
-        if [ "$DEF_PRETTY" == "true" ]; then JOB_STATUS_COLOR="\\e[0;92m%-10s\\e[0m"; fi
-      else
-        STATUS_TEXT="Disabled"
-      fi
-    fi
-
-  printf '%-15s\n' "$(tput bold)"
-  printf '%-5s %-10s %-17s %-17s %-17s %-17s %-8s %-20s\n' "Id" "Status" "Client" "End Date" "Last Date" "Next Date" "Repeat" "Configuration$(tput sgr0)"
-  printf '%-5s '"$JOB_STATUS_COLOR"' %-17s %-17s %-17s %-17s %-8s %-20s\n' "$JOB_ID" "$STATUS_TEXT" "$CLI_NAME" "$JOB_EDATE" "$JOB_LDATE" "$JOB_NDATE" "$JOB_REPEAT" "$CLI_CFG"
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -148,8 +120,10 @@ function get_jobs_by_ndate ()
 
 function get_all_jobs ()
 {
-  local CLI_ID=$1
-  get_all_jobs_dbdrv "$CLI_ID"
+  local PARAM_ID="$1"
+  local LIST_TYPE="$2"
+
+  get_all_jobs_dbdrv "$PARAM_ID" "$LIST_TYPE"
 }
 
 function get_job_by_id ()

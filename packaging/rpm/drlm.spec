@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.6
+Version: 2.4.7
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -315,6 +315,15 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Mon Nov 14 2022 Pau Roura <pau@brainupdaters.net> 2.4.7
+- Bugfix removing authorized keys.
+- Bugfix in installclient DRLM Proxy (hostname unreachable).
+- Improved unsched client sql select 
+- Changed default QEMU_NBD_OPTIONS
+- Mutex race solved in nbd assignment
+- Improved network, client, backup and job lists
+- Bugfix in DRLM PROXY ReaR URL generation
 
 * Wed Sep 21 2022 Pau Roura <pau@brainupdaters.net> 2.4.6
 - Bugfix in deb package update

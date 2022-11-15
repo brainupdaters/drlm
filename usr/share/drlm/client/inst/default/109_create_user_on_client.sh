@@ -10,10 +10,17 @@ else
   if [ $? -ne 0  ]; then  
     Error "ssh-copy-id failed!"
   else 
-    Log "Key succesfully copied to $CLI_NAME" 
+    Log "Key succesfully copied to $CLI_NAME"
+    AddExitTask "ssh_remove_authorized_keys  ${USER} ${CLI_NAME}"  
   fi
   REMOVE_SSH_ID="true"
 fi
+
+# The execution of the ssh_dsend_drlm_hostname function has been advanced 
+# from de last stages of instclient to the firsts so that the hostname of 
+# the server is available in case packages have to be installed through 
+# the DRLM Proxy
+if ssh_send_drlm_hostname ${USER} ${CLI_NAME} ${SRV_IP} ${SUDO}; then LogPrint "Success to update DRLM hostname info to ${CLI_NAME}"; else Error "Error updating DRLM hostname information, check logfile"; fi
 
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)

@@ -65,7 +65,43 @@ function list_backup () {
   local PRETTY_PARAM=$2
   local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
 
-  printf '%-24s %-15s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' "$(tput bold)Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Configuration" "Type$(tput sgr0)"
+  local BAC_ID_LEN="$(get_max_backup_id_length_dbdrv)"
+  if [ "$BAC_ID_LEN" -le "9" ]; then BAC_ID_LEN="9"; fi
+  BAC_ID_LEN=$((BAC_ID_LEN+1))
+
+  local BAC_CLI_LEN="$(get_max_client_name_length_dbdrv "backups")"
+  if [ "$BAC_CLI_LEN" -le "11" ]; then BAC_CLI_LEN="11"; fi
+  BAC_CLI_LEN=$((BAC_CLI_LEN+1))
+
+  local BAC_DURA_LEN="$(get_max_backup_duration_length_dbdrv)"
+  if [ "$BAC_DURA_LEN" -le "8" ]; then BAC_DURA_LEN="8"; fi
+  BAC_DURA_LEN=$((BAC_DURA_LEN+1))
+
+  local BAC_SIZE_LEN="$(get_max_backup_size_length_dbdrv)"
+  if [ "$BAC_SIZE_LEN" -le "4" ]; then BAC_SIZE_LEN="4"; fi
+  BAC_SIZE_LEN=$((BAC_SIZE_LEN+1))
+
+  local BAC_CFG_LEN="$(get_max_backup_configuration_length_dbdrv)"
+  if [ "$BAC_CFG_LEN" -le "6" ]; then BAC_CFG_LEN="6"; fi
+  BAC_CFG_LEN=$((BAC_CFG_LEN+1))
+
+  SNP_ID_LEN=$((BAC_ID_LEN+BAC_CLI_LEN-4))
+  
+  local SNP_SIZE_LEN="$(get_max_snap_size_length_dbdrv)"
+  if [ -n "$SNP_SIZE_LEN" ]; then 
+    if [ "$BAC_SIZE_LEN" -gt "$SNP_SIZE_LEN" ]; then 
+      BAC_SIZE_LEN=$((BAC_SIZE_LEN+3))
+    else
+      BAC_SIZE_LEN=$((SNP_SIZE_LEN+3))
+    fi
+  fi
+
+  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s\n"
+  SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
+  
+  printf "$(tput bold)"
+  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type"
+  printf "$(tput sgr0)"
 
   save_default_pretty_params_list_backup
 
@@ -121,33 +157,34 @@ function list_backup () {
 
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
     if [ "$PRETTY_PARAM" == "true" ]; then
-      BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA)"
+      BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA $BAC_DURA_LEN)"
     else
-      BAC_DURA_DEC="%-11s"
+      BAC_DURA_DEC="%-${BAC_DURA_LEN}s"
     fi
 
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
     if [ "$PRETTY_PARAM" == "true" ]; then
-      BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE)"
+      BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE $BAC_SIZE_LEN)"
     else
-      BAC_SIZE_DEC="%-7s"
+      BAC_SIZE_DEC="%-${BAC_SIZE_LEN}s"
     fi
 
     # if Pretty mode is enabled show in green enabled backups and in red disabled backups
     if [ "$PRETTY_PARAM" == "true" ]; then
       if [ "$BAC_STATUS" == "enabled" ]; then 
-        BAC_STATUS_DEC="\\e[0;32m%-10s\\e[0m"
+        BAC_STATUS_DEC="\\e[0;32m%-9s\\e[0m"
       elif [ "$BAC_STATUS" == "disabled" ]; then 
-        BAC_STATUS_DEC="\\e[0;31m%-10s\\e[0m"
+        BAC_STATUS_DEC="\\e[0;31m%-9s\\e[0m"
       else
-        BAC_STATUS_DEC="\\e[0;33m%-10s\\e[0m"
+        BAC_STATUS_DEC="\\e[0;33m%-9s\\e[0m"
       fi
     else
-      BAC_STATUS_DEC="%-10s"
+      BAC_STATUS_DEC="%-9s"
     fi
 
-    printf '%-20s %-15s %-18s '"$BAC_STATUS_DEC"' '"$BAC_DURA_DEC"' '"$BAC_SIZE_DEC"' %-4s %-20s %-10s\n' "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}"; 
-
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s\n"
+    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}"; 
+    
     # Check if BAC_ID have snapshots and list them
     found_enabled=0
     
@@ -174,7 +211,7 @@ function list_backup () {
           [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
         fi
       fi
-      printf '%-4s %-31s %-18s %-10s %-11s %-7s %-4s %-20s %-10s\n' " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─$SNAP_TYPE";
+      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─$SNAP_TYPE";
     done
 
   done
@@ -182,13 +219,72 @@ function list_backup () {
 }
 
 function get_free_nbd() {
-  for dev in /sys/class/block/nbd*; do
-    size="$(cat "$dev"/size)"
-    if [ "$size" == "0" ]; then
-      echo "/dev/$(basename $dev)"
-      break
+  if [ ! -d $VAR_DIR/run ]; then
+    mkdir $VAR_DIR/run
+  fi  
+
+  if [ ! -f $VAR_DIR/run/nbd_assigs ]; then 
+    touch $VAR_DIR/run/nbd_assigs
+  fi
+
+  #wait mutex
+  while ! mkdir $VAR_DIR/run/mutex.lock 2>/dev/null; do
+    sleep 0.1
+    if [ ! -f $VAR_DIR/run/nbdmutex.pid ]; then
+      rm -rf $VAR_DIR/run/mutex.lock
+    else
+      current_mutex_pid="$(cat $VAR_DIR/run/nbdmutex.pid)"
+      if [ -z "$current_mutex_pid" ]; then
+        rm -rf $VAR_DIR/run/mutex.lock
+      else
+        NBDMUTEX_COM=$( ps -p $current_mutex_pid -o comm= 2>/dev/null)
+        if [ -z "$NBDMUTEX_COM" ]; then
+         rm -rf $VAR_DIR/run/mutex.lock
+        fi
+      fi
     fi
   done
+
+  echo "$$" > $VAR_DIR/run/nbdmutex.pid
+
+  while read NBDMUTEX_LINE; do
+    NBDMUTEX_PID=$(echo $NBDMUTEX_LINE | awk '{print $1}')
+    NBDMUTEX_COM=$( ps -p $NBDMUTEX_PID -o comm= 2>/dev/null)
+    if [ -z "$NBDMUTEX_COM" ]; then
+      sed -i "/$NBDMUTEX_PID/d" $VAR_DIR/run/nbd_assigs >> /dev/null 2>&1
+    fi  
+	done <$VAR_DIR/run/nbd_assigs
+   
+  for dev in /sys/class/block/nbd*; do
+    size="$(cat "$dev"/size)"
+    device="$(basename $dev)"
+    
+    if [ "$size" == "0" ]; then
+      rec_found="false"
+
+      while read nbdmutex_line; do
+        NBDMUTEX_DEV=$(echo $nbdmutex_line | awk '{print $2}')
+        if [ "$device" == "$NBDMUTEX_DEV" ]; then
+          rec_found="true"
+          break;
+        fi
+      done <$VAR_DIR/run/nbd_assigs
+
+      if [ "$rec_found" == "false" ]; then
+        echo "$1 $device" >> $VAR_DIR/run/nbd_assigs
+        FINAL_NBDMUTEX_DEV="/dev/$device"
+        echo "$FINAL_NBDMUTEX_DEV"
+        break;
+      fi
+    fi
+  done
+
+  #exit mutex
+  rm -rf $VAR_DIR/run/mutex.lock
+
+  if [ -z "$FINAL_NBDMUTEX_DEV" ]; then
+    Error "Not free NBD found."
+  fi
 }
 
 function enable_nbd_ro () {
@@ -1037,6 +1133,12 @@ function check_backup_size_status () {
     local input_size="$1"
   fi
 
+  if [ -z $2 ]; then
+    local size_len="7"
+  else 
+    local size_len="$2"
+  fi
+
   size_unit="${input_size:(-1)}"
   size_number="${input_size::-1}"
 
@@ -1047,13 +1149,13 @@ function check_backup_size_status () {
   fi
 
   if [ "$input_size" == "-" ]; then
-    echo -n "%-7s"
+    echo -n "%-${size_len}s"
   elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_FAILED" ]]; then
-    echo -n "\\e[0;31m%-7s\\e[0m"
+    echo -n "\\e[0;31m%-${size_len}s\\e[0m"
   elif [[ "$size_number" -le "$BACKUP_SIZE_STATUS_WARNING" ]]; then
-    echo -n "\\e[0;33m%-7s\\e[0m"
+    echo -n "\\e[0;33m%-${size_len}s\\e[0m"
   else
-    echo -n "%-7s"
+    echo -n "%-${size_len}s"
   fi
 }
 
@@ -1062,6 +1164,12 @@ function check_backup_time_status () {
     local duration="-"
   else
     local duration="$1"
+  fi
+
+  if [ -z $2 ]; then
+    local dura_len="11"
+  else 
+    local dura_len="$2"
   fi
 
   if [ "${duration:0:1}" != "-" ]; then
@@ -1075,15 +1183,15 @@ function check_backup_time_status () {
     total_seconds=$(( $hours*3600 + $minutes*60 + $seconds ))
 
     if [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_FAILED" ]]; then
-      echo -n "\\e[0;31m%-11s\\e[0m"
+      echo -n "\\e[0;31m%-${dura_len}s\\e[0m"
     elif [[ "$total_seconds" -le "$BACKUP_TIME_STATUS_WARNING" ]]; then
-      echo -n "\\e[0;33m%-11s\\e[0m"
+      echo -n "\\e[0;33m%-${dura_len}s\\e[0m"
     else
-      echo -n "%-11s"
+      echo -n "%-${dura_len}s"
     fi
 
   else
-    echo -n "%-11s"
+    echo -n "%-${dura_len}s"
   fi
 }
 
@@ -1301,7 +1409,7 @@ function enable_backup_store_ro () {
 
   # Create nbd:
   # Get next nbd device free
-  local NBD_DEVICE="$(get_free_nbd)"
+  local NBD_DEVICE="$(get_free_nbd $$)"
 
   local BKP_ID="$(get_backup_id_by_drfile $DR_FILE)"
   local BKP_PROTO="$(get_backup_protocol_by_backup_id $BKP_ID)"
@@ -1355,7 +1463,7 @@ function enable_backup_store_rw () {
 
   # Create nbd:
   # Get next nbd device free
-  local NBD_DEVICE="$(get_free_nbd)"
+  local NBD_DEVICE="$(get_free_nbd $$)"
 
   local BKP_ID="$(get_backup_id_by_drfile $DR_FILE)"
   local BKP_PROTO="$(get_backup_protocol_by_backup_id $BKP_ID)"
@@ -1409,7 +1517,7 @@ function enable_backup_store_rw_full () {
 
   # Create nbd:
   # Get next nbd device free
-  local NBD_DEVICE="$(get_free_nbd)"
+  local NBD_DEVICE="$(get_free_nbd $$)"
 
   local BKP_ID="$(get_backup_id_by_drfile $DR_FILE)"
   local BKP_PROTO="$(get_backup_protocol_by_backup_id $BKP_ID)"

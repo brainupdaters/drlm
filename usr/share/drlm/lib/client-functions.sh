@@ -201,19 +201,50 @@ function mod_client_rear ()
 
 function list_client () {
   local CLI_NAME_PARAM="$1"
-  local UNSHED_PARAM=$2
+  local UNSCHED_PARAM="$2"
   local PRETTY_PARAM="$3"
 
-  if [ "$CLI_NAME_PARAM" == "all" ]; then 
-    CLI_NAME_PARAM=""
-  fi
+  local CLI_ID_LEN="$(get_max_client_id_length_dbdrv)"
+  if [ "$CLI_ID_LEN" -le "2" ]; then CLI_ID_LEN="2"; fi
+  CLI_ID_LEN=$((CLI_ID_LEN+1))
+  
+  local CLI_NAME_LEN="$(get_max_client_name_length_dbdrv)"
+  if [ "$CLI_NAME_LEN" -le "4" ]; then CLI_NAME_LEN="4"; fi
+  CLI_NAME_LEN=$((CLI_NAME_LEN+1))
 
-  printf '%-10s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "$(tput bold)Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled$(tput sgr0)"
+  local CLI_MAC_LEN="$(get_max_client_mac_length_dbdrv)"
+  if [ "$CLI_MAC_LEN" -le "9" ]; then CLI_MAC_LEN="9"; fi
+  CLI_MAC_LEN=$((CLI_MAC_LEN+1))
+
+  local CLI_IP_LEN="$(get_max_client_ip_length_dbdrv)"
+  if [ "$CLI_IP_LEN" -le "2" ]; then CLI_IP_LEN="2"; fi
+  CLI_IP_LEN=$((CLI_IP_LEN+1))
+
+  local CLI_OS_LEN="$(get_max_client_os_length_dbdrv)"
+  if [ "$CLI_OS_LEN" -le "9" ]; then CLI_OS_LEN="9"; fi
+  CLI_OS_LEN=$((CLI_OS_LEN+1))
+
+  local CLI_REAR_LEN="$(get_max_client_rear_length_dbdrv)"
+  if [ "$CLI_REAR_LEN" -le "12" ]; then CLI_REAR_LEN="12"; fi
+  CLI_REAR_LEN=$((CLI_REAR_LEN+1))
+
+  local CLI_NET_LEN="$(get_max_network_name_length_dbdrv)"
+  if [ "$CLI_NET_LEN" -le "7" ]; then CLI_NET_LEN="7"; fi
+  CLI_NET_LEN=$((CLI_NET_LEN+1))
+
+  CLI_FORMAT="%-${CLI_ID_LEN}s %-${CLI_NAME_LEN}s %-${CLI_MAC_LEN}s %-${CLI_IP_LEN}s %-${CLI_OS_LEN}s %-${CLI_REAR_LEN}s %-${CLI_NET_LEN}s %-10s\n"
+
+  printf "$(tput bold)"
+  printf "$CLI_FORMAT" "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled"
+  printf "$(tput sgr0)"
 
   save_default_pretty_params_list_client
 
-  get_all_client_list_dbdrv $CLI_NAME_PARAM | while read line; do 
-  
+  if [ "$CLI_NAME_PARAM" == "all" ]; then
+    CLI_NAME_PARAM=""
+  fi
+
+  get_all_client_list_dbdrv "$CLI_NAME_PARAM" "$UNSCHED_PARAM" | while read line; do
     local CLI_NAME=$(echo "$line" | awk '{split($0,client,"|"); print client[2]}')
     local CLI_ID=$(echo "$line" | awk '{split($0,client,"|"); print client[1]}')
     local CLI_MAC=$(echo "$line" | awk '{split($0,client,"|"); print client[3]}')
@@ -226,18 +257,17 @@ function list_client () {
     load_default_pretty_params_list_client
     load_client_pretty_params_list_client $CLI_NAME
 
-    if [ "$UNSHED_PARAM" == "false" ] || { [ "$UNSHED_PARAM" == "true" ] && [ "$CLI_HAS_JOBS" == "false" ]; } ; then
-      if [ "$PRETTY_PARAM" == "true" ]; then
-        if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" == "open" ]; then
-          printf '%-6s '"\\e[0;32m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
-        else
-          printf '%-6s '"\\e[0;31m%-15s\\e[0m"' %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
-        fi
-      else  
-          printf '%-6s %-15s %-15s %-16s %-16s %-16s %-15s %-10s\n' "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
+    if [ "$PRETTY_PARAM" == "true" ]; then
+      if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" == "open" ]; then
+        CLI_FORMAT="%-${CLI_ID_LEN}s \\e[0;32m%-${CLI_NAME_LEN}s\\e[0m %-${CLI_MAC_LEN}s %-${CLI_IP_LEN}s %-${CLI_OS_LEN}s %-${CLI_REAR_LEN}s %-${CLI_NET_LEN}s %-10s\n"
+        printf "$CLI_FORMAT" "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
+      else
+        CLI_FORMAT="%-${CLI_ID_LEN}s \\e[0;31m%-${CLI_NAME_LEN}s\\e[0m %-${CLI_MAC_LEN}s %-${CLI_IP_LEN}s %-${CLI_OS_LEN}s %-${CLI_REAR_LEN}s %-${CLI_NET_LEN}s %-10s\n"
+        printf "$CLI_FORMAT" "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
       fi
+    else
+        printf "$CLI_FORMAT" "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"
     fi
-
   done
 }
 

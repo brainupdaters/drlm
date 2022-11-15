@@ -164,7 +164,7 @@ fi
 LogPrint "Enabling new DR store for client $CLI_NAME and $CLI_CFG"
 # Create nbd
 # Get next free nbd
-NBD_DEVICE=$(get_free_nbd)
+NBD_DEVICE=$(get_free_nbd $$)
 NBD_DEVICE_PART="${NBD_DEVICE}p1"
 
 # Attach DR file to a NBD
