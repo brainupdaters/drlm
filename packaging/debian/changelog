@@ -1,6 +1,19 @@
+drlm (2.4.7) stable release; urgency=high
+  * Bugfix removing authorized keys
+  * Bugfix in installclient DRLM Proxy (hostname unreachable)
+  * Improved unsched client sql select
+  * Changed default QEMU_NBD_OPTIONS
+  * Mutex race solved in nbd assignment
+  * Improved network, client, backup and job lists
+  * Bugfix in DRLM PROXY ReaR URL generation
+
+ -- Pau Roura <pau@brainupdaters.net>  Mon, 14 Nov 2022 00:00:00 +0100
+
 drlm (2.4.6) stable release; urgency=high
   * Bugfix in deb package update
   
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 21 Sep 2022 00:00:00 +0100
+
  -- Pau Roura <pau@brainupdaters.net>  Wed, 21 Sep 2022 00:00:00 +0100
 
 drlm (2.4.5) stable release; urgency=high

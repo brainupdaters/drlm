@@ -482,7 +482,20 @@ function list_network ()
     NET_NAME_PARAM=""
   fi
 
-  printf '%-10s %-15s %-8s %-15s %-15s %-15s %-15s %-15s %-15s\n' "$(tput bold)Id" "Name" "Status" "Server IP" "Mask" "Network Ip" "Broadcast" "Gateway" "Interface$(tput sgr0)"
+  local NET_ID_LEN="$(get_max_network_id_length_dbdrv)"
+  if [ "$NET_ID_LEN" -le "2" ]; then NET_ID_LEN="2"; fi
+  NET_ID_LEN=$((NET_ID_LEN+1))
+
+  local NET_NAME_LEN="$(get_max_network_name_length_dbdrv "backups")"
+  if [ "$NET_NAME_LEN" -le "4" ]; then NET_NAME_LEN="4"; fi
+  NET_NAME_LEN=$((NET_NAME_LEN+1))
+
+  NET_FORMAT="%-${NET_ID_LEN}s %-${NET_NAME_LEN}s %-8s %-15s %-15s %-15s %-15s %-15s %-15s\n"
+
+  printf "$(tput bold)"
+  printf "$NET_FORMAT" "Id" "Name" "Status" "Server IP" "Mask" "Network Ip" "Broadcast" "Gateway" "Interface"
+  printf "$(tput sgr0)"
+  
   for line in $(get_all_networks $NET_NAME_PARAM); do
     local NET_ID=$(echo $line|awk -F":" '{print $1}')
     local NET_IP=$(echo $line|awk -F":" '{print $2}')
@@ -504,7 +517,8 @@ function list_network ()
         if [ "$DEF_PRETTY" == "true" ]; then NET_ACTIVE_DEC="\\e[0;31m%-8s\\e[0m"; fi
     fi
 
-    printf '%-6s %-15s '"$NET_ACTIVE_DEC"' %-15s %-15s %-15s %-15s %-15s %-15s\n' "$NET_ID" "$NET_NAME" "$NET_STATUS" "$NET_SRV" "$NET_MASK" "$NET_IP" "$NET_BRO" "$NET_GW" "$NET_IFACE"
+    NET_FORMAT="%-${NET_ID_LEN}s %-${NET_NAME_LEN}s ${NET_ACTIVE_DEC} %-15s %-15s %-15s %-15s %-15s %-15s\n"
+    printf "$NET_FORMAT" "$NET_ID" "$NET_NAME" "$NET_STATUS" "$NET_SRV" "$NET_MASK" "$NET_IP" "$NET_BRO" "$NET_GW" "$NET_IFACE"
   done
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
