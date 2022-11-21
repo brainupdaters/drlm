@@ -1,3 +1,9 @@
+drlm (2.4.8) stable release; urgency=high
+  * RedHat 5 client support
+  * Avoiding Debian nbd detach errors with nbd-client
+
+ -- Pau Roura <pau@brainupdaters.net>  Mon, 21 Nov 2022 00:00:00 +0100
+
 drlm (2.4.7) stable release; urgency=high
   * Bugfix removing authorized keys
   * Bugfix in installclient DRLM Proxy (hostname unreachable)

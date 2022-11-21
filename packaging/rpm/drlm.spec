@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.7
+Version: 2.4.8
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -315,6 +315,10 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Mon Nov 21 2022 Pau Roura <pau@brainupdaters.net> 2.4.8
+- RedHat 5 client support
+- Avoiding Debian nbd detach errors with nbd-client
 
 * Mon Nov 14 2022 Pau Roura <pau@brainupdaters.net> 2.4.7
 - Bugfix removing authorized keys.

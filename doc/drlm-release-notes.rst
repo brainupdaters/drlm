@@ -64,8 +64,15 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.8 (November 2022) - Release Notes
+--------------------------------------------------
+  * RedHat 5 client support
+  
+  * Avoiding Debian nbd detach errors with nbd-client
+
+
 DRLM Version 2.4.7 (November 2022) - Release Notes
--------------------------------------------------
+--------------------------------------------------
   * Bugfix removing authorized keys
   
   * Bugfix in installclient DRLM Proxy (hostname unreachable)
