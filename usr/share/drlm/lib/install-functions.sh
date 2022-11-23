@@ -477,6 +477,12 @@ function remove_client_scripts () {
 }
 
 function tunning_rear () {
+
+  local REAR_VERSION=$(rear -V | awk '{print $2}')
+  if [ "$REAR_VERSION" == "2.00" ]; then
+    $SUDO sed -i 's%https://$DRLM_SERVER/clients/$DRLM_ID%https://$DRLM_SERVER/clients/$DRLM_ID/config/default%g' /usr/share/rear/lib/drlm-functions.sh
+  fi
+
   # remove cURL verbose to avoid infinite lines of Debug in some cURL versions
   if [ -f "/usr/share/rear/lib/drlm-functions.sh" ]; then
     $SUDO sed -i 's/ $verbose//g' /usr/share/rear/lib/drlm-functions.sh

@@ -364,8 +364,13 @@ function enable_nbd_rw () {
 
 function disable_nbd () {
   local NBD_DEV=$1
+  
+  if [ "$OS_VENDOR" == "Debian" ]; then
+    nbd-client -d ${NBD_DEV} >> /dev/null 2>&1
+  else
+    qemu-nbd -d ${NBD_DEV} >> /dev/null 2>&1
+  fi
 
-  qemu-nbd -d ${NBD_DEV} >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
