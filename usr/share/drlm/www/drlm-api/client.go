@@ -361,7 +361,18 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		}
 	}
 
-	clientConfig += "SSH_ROOT_PASSWORD='drlm'\n"
+	SSHRootPasswordValue := ""
+	if found, tmpValue := getConfigFileVar("/etc/drlm/local.conf", "SSH_ROOT_PASSWORD"); found {
+		SSHRootPasswordValue = tmpValue
+	}
+	if found, tmpValue := getConfigFileVar("/etc/drlm/site.conf", "SSH_ROOT_PASSWORD"); found {
+		SSHRootPasswordValue = tmpValue
+	}
+	if SSHRootPasswordValue != "" {
+		clientConfig += "SSH_ROOT_PASSWORD=" + SSHRootPasswordValue + "\n"
+	} else {
+		clientConfig += "SSH_ROOT_PASSWORD='drlm'\n"
+	}
 
 	return clientConfig
 }
@@ -405,7 +416,7 @@ func (c *Client) generateConfiguration(configName string) (string, error) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(strings.Split(scanner.Text(), "#")[0])
 		if line != "" {
-			// Have a new line from config file get the var name
+			//Have a new line from config file and get the var name
 			varName := strings.TrimSpace(strings.Split(line, "=")[0])
 
 			//Ignore old configurations (< DRLM 2.4.0)

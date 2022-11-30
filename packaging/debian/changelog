@@ -1,3 +1,11 @@
+drlm (2.4.9) stable release; urgency=high
+  * Bugfix in importbackup Debian nbd detach
+  * Bugfix getting Client OS version fixed
+  * Bugfix sending DRLM server hostname
+  * Bugfix getting SSH_ROOT_PASSWORD from local.conf or site.conf
+
+ -- Pau Roura <pau@brainupdaters.net>  Thu, 24 Nov 2022 00:00:00 +0100
+
 drlm (2.4.8) stable release; urgency=high
   * RedHat 5 client support
   * Avoiding Debian nbd detach errors with nbd-client
