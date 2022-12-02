@@ -316,6 +316,12 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
+* Thu Nov 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.9
+- Bugfix in importbackup Debian nbd detach
+- Bugfix getting Client OS version fixed
+- Bugfix sending DRLM server hostname
+- Bugfix getting SSH_ROOT_PASSWORD from local.conf or site.conf
+
 * Mon Nov 21 2022 Pau Roura <pau@brainupdaters.net> 2.4.8
 - RedHat 5 client support
 - Avoiding Debian nbd detach errors with nbd-client

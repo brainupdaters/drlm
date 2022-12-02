@@ -17,9 +17,9 @@ function ssh_get_distro () {
 function get_release () {
   if [ -f /etc/dpkg/origins/ubuntu ]; then grep "^VERSION_ID=" /etc/os-release | cut -d\" -f2; 
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" {'print $2'} | cut -c 2-4;
-  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" {'print $2'} | cut -c 2-4;
-  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" {'print $2'} | cut -c 2-4;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" '{print $2}' | awk '{print $1}';
   elif [ -f /etc/SuSE-release ]; then grep VERSION /etc/SuSE-release | awk '{print $3}';
   elif [ -f /etc/SUSE-brand ]; then grep VERSION /etc/SUSE-brand | awk '{print $3}';
   fi
@@ -236,19 +236,62 @@ function send_ssl_cert () {
 }
 
 function send_drlm_hostname () {
-  if [ -n "$SRV_NAME" ] && [ -n "$SRV_IP" ];then
-    # Coment lines with same hostname as SRV_NAME and diferent ip SRV_IP
-    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_NAME" | grep -vw "$SRV_IP" | awk -F':' '{print $1}'); do
-      $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
-    done
+  #make sure servername and fqdn are different
+  if [ "$SRV_NAME" == "$SRV_NAME_FQDN" ]; then
+    SRV_NAME_FQDN=""
+  fi
 
-    # Coment lines with same ip as SRV_IP and diferent hostname SRV_NAME
-    for HOSTS_LINE in $(grep -n -o '^[^#]*' /etc/hosts | grep -w "$SRV_IP" | grep -vw "$SRV_NAME" | awk -F':' '{print $1}'); do
-      $SUDO sed "$HOSTS_LINE {s/^/#/}" -i /etc/hosts
-    done
+  if [ -n "$SRV_IP" ] && [ -n "$SRV_NAME" ]; then
+    HOSTS_LINE_NUM=0
+    insert_host_line="true"
 
-    # If no exists "$SRV_IP" "$SRV_NAME" line in /etc/hosts attach it
-    grep -o '^[^#]*' /etc/hosts | grep -w "^$SRV_IP" | grep -w "$SRV_NAME" &> /dev/null || printf '%s\t%s\n' "$SRV_IP" "$SRV_NAME" | $SUDO tee --append /etc/hosts >/dev/null
+    #read each line of /etc/hosts
+    while read line; do 
+      HOSTS_LINE_NUM=$((HOSTS_LINE_NUM+1))
+      #if line is not commented
+      if [ -n "$(echo "$line" | grep -v "^#")" ]; then
+        #get number of line elements
+        line_num_elements="$(echo "$line" | wc -w)"
+
+        #Control var to increment if server ip, name or fqdn found in each line
+        found="0"
+
+        #for each line element
+        for (( j=1; j<=$line_num_elements; j++ )); do
+          line_cur_element="$(echo $line | awk -v var=$j '{print $var}')"
+          if [ "$line_cur_element" == "$SRV_IP" ]; then
+            found=$((found+1))
+          elif [ "$line_cur_element" == "$SRV_NAME" ]; then
+            found=$((found+1))
+          elif [ -n "$SRV_NAME_FQDN" ] && [ "$line_cur_element" == "$SRV_NAME_FQDN" ]; then
+            found=$((found+1))
+          fi
+        done
+
+        # if have fqdn and found 3 matches in a line, nothing to do and stop
+        if [ -n "$SRV_NAME_FQDN" ] && [ "$found" == "3" ]; then
+          insert_host_line="false"
+          break
+        # if don't have fqdn and found 2 matches in a line, nothing to do and stop
+        elif [ -z "$SRV_NAME_FQDN" ] && [ "$found" == "2" ]; then
+          insert_host_line="false"
+          break
+        # else if found something comment
+        elif [ "$found" -gt "0" ]; then
+          $SUDO sed "$HOSTS_LINE_NUM {s/^/#/}" -i /etc/hosts
+        fi
+      fi
+
+    done</etc/hosts
+
+    if [ "$insert_host_line" == "true" ]; then
+      if [ -n "$SRV_NAME_FQDN" ]; then
+        printf '%s\t%s %s\n' "$SRV_IP" "$SRV_NAME" "$SRV_NAME_FQDN" | $SUDO tee --append /etc/hosts >/dev/null
+      else
+        printf '%s\t%s\n' "$SRV_IP" "$SRV_NAME" | $SUDO tee --append /etc/hosts >/dev/null
+      fi
+    fi
+
   fi
 }
 
@@ -258,7 +301,8 @@ function ssh_send_drlm_hostname () {
   local SRV_IP=$3
   local SUDO=$4
   local SRV_NAME=$(hostname -s)
-  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SRV_NAME SRV_IP SUDO; declare -f send_drlm_hostname); send_drlm_hostname" &> /dev/null
+  local SRV_NAME_FQDN=$(hostname -f)
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SRV_NAME SRV_NAME_FQDN SRV_IP SUDO; declare -f send_drlm_hostname); send_drlm_hostname" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 

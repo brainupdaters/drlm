@@ -64,6 +64,17 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.9 (December 2022) - Release Notes
+--------------------------------------------------
+  * Bugfix in importbackup Debian nbd detach
+  
+  * Bugfix getting Client OS version fixed
+
+  * Bugfix sending DRLM server hostname
+
+  * Bugfix getting SSH_ROOT_PASSWORD from local.conf or site.conf
+
+
 DRLM Version 2.4.8 (November 2022) - Release Notes
 --------------------------------------------------
   * RedHat 5 client support

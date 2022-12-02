@@ -16,7 +16,7 @@ else
   REMOVE_SSH_ID="true"
 fi
 
-# The execution of the ssh_dsend_drlm_hostname function has been advanced 
+# The execution of the ssh_send_drlm_hostname function has been advanced 
 # from de last stages of instclient to the firsts so that the hostname of 
 # the server is available in case packages have to be installed through 
 # the DRLM Proxy

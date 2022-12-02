@@ -187,8 +187,14 @@ fi
 if [ -n "$BKP_SRC" ]; then 
   /bin/umount $TMP_MOUNTPOINT >> /dev/null 2>&1
   if [ $? -ne 0 ]; then Error "Error umounting $TMP_MOUNTPOINT"; fi
-  qemu-nbd -d $NBD_DEVICE >> /dev/null 2>&1
+  
+  if [ "$OS_VENDOR" == "Debian" ]; then
+    nbd-client -d ${NBD_DEV} >> /dev/null 2>&1
+  else
+    qemu-nbd -d ${NBD_DEV} >> /dev/null 2>&1
+  fi
   if [ $? -ne 0 ]; then Error "Error dettching $NBD_DEVICE"; fi
+  
   rm -rf $TMP_MOUNTPOINT >> /dev/null 2>&1
   if [ $? -ne 0 ]; then Error "Error deleting mountpoint directory $TMP_MOUNTPOINT"; fi
 fi
