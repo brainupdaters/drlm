@@ -1287,7 +1287,7 @@ function disable_backup () {
     # Detach NBD device
     if [ -n "$NBD_DEVICE" ]; then
       if disable_nbd $NBD_DEVICE; then
-        LogPrint "- ached NBD device ($NBD_DEVICE)"
+        LogPrint "- detached NBD device ($NBD_DEVICE)"
       else
         Error "- Problem detaching NBD device ($NBD_DEVICE)"
       fi
