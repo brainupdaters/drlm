@@ -337,8 +337,13 @@ function delete_drlm_user () {
   local CLI_NAME=$2
   local DRLM_USER=$3
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -r $DRLM_USER" &> /dev/null
-  if [ $? -eq 0 ];then return 0; else return 1; fi
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -f -r $DRLM_USER" &> /dev/null
+  if [ $? -eq 0 ];then return 0; 
+  else
+    sleep 0.5
+    ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER} &> /dev/null
+    if [ $? -eq 0 ]; then return 1; else return 0; fi
+  fi
 }
 
 function disable_drlm_user_login () {
