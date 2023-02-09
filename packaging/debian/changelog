@@ -1,3 +1,11 @@
+drlm (2.4.10) stable release; urgency=high
+  * Bugfix in installclient tunnig_rear function
+  * Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
+  * Bugfix in user deletion to skip error code 12
+  * NEW! XML error reporting supported
+
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 08 Feb 2022 00:00:00 +0100
+
 drlm (2.4.9) stable release; urgency=high
   * Bugfix in importbackup Debian nbd detach
   * Bugfix getting Client OS version fixed
@@ -26,8 +34,6 @@ drlm (2.4.7) stable release; urgency=high
 drlm (2.4.6) stable release; urgency=high
   * Bugfix in deb package update
   
- -- Pau Roura <pau@brainupdaters.net>  Wed, 21 Sep 2022 00:00:00 +0100
-
  -- Pau Roura <pau@brainupdaters.net>  Wed, 21 Sep 2022 00:00:00 +0100
 
 drlm (2.4.5) stable release; urgency=high

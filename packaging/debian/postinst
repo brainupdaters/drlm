@@ -91,10 +91,13 @@ case "$1" in
     # DRLM services #
     #################
 
-    # Set debian like DHCP an NFS service names
+    # Set debian like DHCP and NFS service names
     /usr/share/drlm/conf/DHCP/config-DHCP.sh install
-    [ -f /etc/drlm/local.conf ] && echo "NFS_SVC_NAME=\"nfs-kernel-server\"" >> /etc/drlm/local.conf
-
+    if [ -f /etc/drlm/local.conf ]; then 
+      if ! grep -v '^\s*$\|^\s*\#' /etc/drlm/local.conf | grep -q 'NFS_SVC_NAME="nfs-kernel-server"' ; then
+        echo "NFS_SVC_NAME=\"nfs-kernel-server\"" >> /etc/drlm/local.conf
+      fi
+    fi
     ;;
 
   *)
