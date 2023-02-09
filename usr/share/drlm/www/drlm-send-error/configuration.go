@@ -25,7 +25,7 @@ func loadDRLMSendErrorConfiguration() {
 	}
 
 	if configDRLMSendError.DRLMSendErrorURL == "" {
-		logger.Println("DRLM_SEND_ERROR_URL not found in DRLM config. Can not send XML error.")
+		logger.Println("DRLM_SEND_ERROR_URL not found in DRLM config. Can not send XML/JSON error.")
 		return
 	}
 }

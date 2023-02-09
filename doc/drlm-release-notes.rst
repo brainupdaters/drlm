@@ -72,7 +72,7 @@ DRLM Version 2.4.10 (February 2023) - Release Notes
 
   * Bugfix in user deletion to skip error code 12
 
-  * NEW! XML error reporting supported
+  * NEW! XML/JSON error reporting supported
 
 
 DRLM Version 2.4.9 (December 2022) - Release Notes
