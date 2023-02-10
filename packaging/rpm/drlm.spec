@@ -319,10 +319,11 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Wed Feb 08 2022 Pau Roura <pau@brainupdaters.net> 2.4.10
+* Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function
 - Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
 - Bugfix in user deletion to skip error code 12
+- Bugfix in impbackup client configuration
 
 * Thu Nov 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.9
 - Bugfix in importbackup Debian nbd detach

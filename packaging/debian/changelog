@@ -3,8 +3,9 @@ drlm (2.4.10) stable release; urgency=high
   * Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
   * Bugfix in user deletion to skip error code 12
   * NEW! XML/JSON error reporting supported
+  * Bugfix in impbackup client configuration
 
- -- Pau Roura <pau@brainupdaters.net>  Wed, 08 Feb 2022 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Fri, 10 Feb 2023 00:00:00 +0100
 
 drlm (2.4.9) stable release; urgency=high
   * Bugfix in importbackup Debian nbd detach

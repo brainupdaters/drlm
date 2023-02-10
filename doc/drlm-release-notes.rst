@@ -74,6 +74,8 @@ DRLM Version 2.4.10 (February 2023) - Release Notes
 
   * NEW! XML/JSON error reporting supported
 
+  * Bugfix in impbackup client configuration
+
 
 DRLM Version 2.4.9 (December 2022) - Release Notes
 --------------------------------------------------
