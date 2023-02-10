@@ -410,7 +410,7 @@ function do_umount ()
 {
   local DEVICE=$1
 
-  /bin/umount $DEVICE >> /dev/null 2>&1
+  /bin/umount -f $DEVICE >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
 }
