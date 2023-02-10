@@ -3,11 +3,12 @@
 package main
 
 import (
-	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type ErrorXML struct {
@@ -44,6 +45,8 @@ func main() {
 
 		var body []byte
 
+		//If only one argument is provided means that is an XML/JSON string
+		//else we recieve 9 parameters and have to be Marshalled
 		if os.Args[1] == "xml" {
 			if len(os.Args) == 3 {
 				body = []byte(os.Args[2])
@@ -79,29 +82,23 @@ func main() {
 			}
 		}
 
-		//If only one argument is provided means that is an XML string
-		//else we recieve 9 parameters and have to be Marshalled
-
-		client := &http.Client{}
-
 		//Log the sended error in /var/log/drlm/drlm-send-error-log
 		logger.Println("Sending " + os.Args[1] + " error " + string(body) + " to " + configDRLMSendError.DRLMSendErrorURL)
 
-		req, err := http.NewRequest("POST", configDRLMSendError.DRLMSendErrorURL, bytes.NewBuffer([]byte(body)))
-		if err != nil {
-			logger.Println(err)
-		}
+		var resp *http.Response
+		var err error
+
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		if os.Args[1] == "xml" {
-			req.Header.Add("Content-Type", "application/xml; charset=utf-8")
+			resp, err = http.Post(configDRLMSendError.DRLMSendErrorURL, "application/xml", strings.NewReader(string(body)))
 		} else {
-			req.Header.Add("Content-Type", "application/json; charset=utf-8")
+			resp, err = http.Post(configDRLMSendError.DRLMSendErrorURL, "application/json", strings.NewReader(string(body)))
 		}
 
-		//Send request to configDRLMSendError.DRLMSendErrorURL
-		resp, err := client.Do(req)
 		if err != nil {
 			logger.Println(err)
 		}
+
 		//Log the response
 		logger.Println(resp)
 	} else {

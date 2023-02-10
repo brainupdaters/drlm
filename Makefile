@@ -11,7 +11,7 @@ drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 drlm_proxy = usr/sbin/drlm-proxy
-drlm_send_error=usr/sbin/drlm-send-error
+drlm_send_error = usr/sbin/drlm-send-error
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' $(drlmbin))
 
