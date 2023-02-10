@@ -64,6 +64,19 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.10 (February 2023) - Release Notes
+---------------------------------------------------
+  * Bugfix in installclient tunnig_rear function
+
+  * Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
+
+  * Bugfix in user deletion to skip error code 12
+
+  * NEW! XML/JSON error reporting supported
+
+  * Bugfix in impbackup client configuration
+
+
 DRLM Version 2.4.9 (December 2022) - Release Notes
 --------------------------------------------------
   * Bugfix in importbackup Debian nbd detach

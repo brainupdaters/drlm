@@ -2,7 +2,8 @@
 /var/log/drlm/drlm-rsyncd.log
 /var/log/drlm/drlm-sched.log 
 /var/log/drlm/drlm-api.log 
-/var/log/drlm/drlm-proxy.log {
+/var/log/drlm/drlm-proxy.log 
+/var/log/drlm/drlm-send-error.log {
     missingok
     weekly
     rotate 3
