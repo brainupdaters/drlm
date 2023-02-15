@@ -323,7 +323,10 @@ systemctl start drlm-tftpd.service
 - Bugfix in installclient tunnig_rear function
 - Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
 - Bugfix in user deletion to skip error code 12
+- NEW! XML/JSON error reporting supported
 - Bugfix in impbackup client configuration
+- Bugfix runbackup umounting previous backups 
+- Bugfix runbackup rsync hidden warning errors
 
 * Thu Nov 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.9
 - Bugfix in importbackup Debian nbd detach

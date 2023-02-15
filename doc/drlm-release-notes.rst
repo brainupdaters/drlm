@@ -76,6 +76,10 @@ DRLM Version 2.4.10 (February 2023) - Release Notes
 
   * Bugfix in impbackup client configuration
 
+  * Bugfix runbackup umounting previous backups 
+
+  * Bugfix runbackup rsync hidden warning errors
+
 
 DRLM Version 2.4.9 (December 2022) - Release Notes
 --------------------------------------------------

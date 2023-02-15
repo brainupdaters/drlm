@@ -546,6 +546,14 @@ function tunning_rear () {
     fi
   fi
 
+  # If rsync reports an error, abort backup process. Only afects rear < 2.7
+  if [ -f "/usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh" ]; then
+      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh
+  fi
+  if [ -f "/usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh" ]; then
+      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
+  fi
+
   # remove rear cron file
   if $SUDO test -f "/etc/cron.d/rear"; then
     $SUDO rm -rf /etc/cron.d/rear
