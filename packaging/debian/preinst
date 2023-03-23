@@ -4,7 +4,7 @@ set -e
 case "$1" in
   install)
     # check host name is not localhost
-    currhostname="$(/usr/bin/hostname -s)"
+    currhostname="$(hostname -s)"
     if [ "$currhostname" = "localhost" ]; then
       echo "Its important that DRLM servers have a valid hostname. Please change \"localhost\" host name. "
       exit 1
