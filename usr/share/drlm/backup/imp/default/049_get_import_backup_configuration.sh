@@ -119,11 +119,11 @@ fi
 
 # At this point is available the content of the DR file
 # If exists *.*.drlm.cfg file in the mountpoint it means that is a backup done with a DRLM 2.4.0 or superior
-if [ -f "$TMP_MOUNTPOINT/*.*.drlm.cfg" ]; then
+IMP_CFG_FILE="$(ls $TMP_MOUNTPOINT/*.*.drlm.cfg)"
+if [ -f "$IMP_CFG_FILE" ]; then
 
-  IMP_CFG_FILE="$(ls $TMP_MOUNTPOINT/*.*.drlm.cfg)"
-  IMP_CLI_NAME="$(basename $(ls $TMP_MOUNTPOINT/*.*.drlm.cfg) | awk -F'.' {'print $1'})"
-  IMP_CLI_CFG="$(basename $(ls $TMP_MOUNTPOINT/*.*.drlm.cfg) | awk -F'.' {'print $2'})"
+  IMP_CLI_NAME="$(basename "$IMP_CFG_FILE" | awk -F'.' {'print $1'})"
+  IMP_CLI_CFG="$(basename "$IMP_CFG_FILE" | awk -F'.' {'print $2'})"
 
   IMPORT_CONFIGURATION_CONTENT="$(cat $IMP_CFG_FILE)"
 

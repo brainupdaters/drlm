@@ -187,7 +187,9 @@ fi
 /usr/share/drlm/conf/DHCP/config-DHCP.sh install
 
 ### Enable systemd services 
-echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
+if ! grep -v '^\s*$\|^\s*\#' /etc/drlm/local.conf | grep -q 'NFS_SVC_NAME="nfs-server"'; then
+  echo "NFS_SVC_NAME=\"nfs-server\"" >> /etc/drlm/local.conf
+fi
 systemctl enable rpcbind.service
 systemctl enable nfs-server.service
 systemctl enable dhcpd.service
@@ -199,8 +201,8 @@ systemctl is-active --quiet apache2.service && systemctl stop apache2.service
 systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
 %endif
 %if (0%{?centos} || 0%{?fedora} || 0%{?rhel} || 0%{?rocky} )
-systemctl is-active --quiet httpd.service && systemctl stop httpd.service
-systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
+systemctl list-units --full -all | grep -Fq httpd.service && systemctl is-active --quiet httpd.service && systemctl stop httpd.service
+systemctl list-units --full -all | grep -Fq httpd.service && systemctl is-enabled --quiet httpd.service && systemctl disable httpd.service
 %endif
 fi
 
@@ -263,6 +265,7 @@ systemctl daemon-reload
 %{_sbindir}/drlm-stord
 %{_sbindir}/drlm-api
 %{_sbindir}/drlm-proxy
+%{_sbindir}/drlm-send-error
 
 %posttrans
 ### Rcover certificates post transaction
@@ -315,6 +318,15 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
+- Bugfix in installclient tunnig_rear function
+- Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
+- Bugfix in user deletion to skip error code 12
+- NEW! XML/JSON error reporting supported
+- Bugfix in impbackup client configuration
+- Bugfix runbackup umounting previous backups 
+- Bugfix runbackup rsync hidden warning errors
 
 * Thu Nov 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.9
 - Bugfix in importbackup Debian nbd detach

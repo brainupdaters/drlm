@@ -132,20 +132,70 @@ function report_error_zabbix () {
 function report_error_mail () {
 # Report $ERR_MSG through mail
 # Return 0 for ok, return 1 not ok
-   local ERRMSG="$@"
-   local CMDOUT
+  local ERRMSG="$@"
+  local CMDOUT
 
-    if [[ -f "$MAILCONF" &&  -x "$MAILCMD" ]]; then 
-   		CMDOUT=$( echo "$ERRMSG" | env MAILRC="$MAILCONF" "$MAILCMD" -s "$MAILSUBJECT" -c "$MAIL_CC" -b "$MAIL_BCC" "$MAIL_TO" )   
-   		if [ $? -eq 0 ]; then
-   		   return 0
-   		else
-   		   echo "$CMDOUT"
-   		   return 1
-   		fi
+  if [[ -f "$MAILCONF" &&  -x "$MAILCMD" ]]; then 
+    CMDOUT=$( echo "$ERRMSG" | env MAILRC="$MAILCONF" "$MAILCMD" -s "$MAILSUBJECT" -c "$MAIL_CC" -b "$MAIL_BCC" "$MAIL_TO" )   
+    if [ $? -eq 0 ]; then
+      return 0
     else
-   		LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"
+      echo "$CMDOUT"
+      return 1
     fi
+  else
+    LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"
+  fi
+}
+
+function report_error_XML () {
+# Report $ERR_MSG through xml
+# Return 0 for ok, return 1 not ok
+  local ERRMSG="$@"
+  local CMDOUT
+  
+  if [[ -n "$DRLM_SEND_ERROR_URL" &&  -x "$DRLM_SEND_ERROR_BIN" ]]; then 
+
+    if [ -n "$DRLM_SEND_ERROR_MSG" ]; then
+      DRLM_SEND_ERROR_MSG=$(eval echo \"$DRLM_SEND_ERROR_MSG\")
+      CMDOUT=$("$DRLM_SEND_ERROR_BIN" "xml" "$DRLM_SEND_ERROR_MSG")
+    else
+      CMDOUT=$("$DRLM_SEND_ERROR_BIN" "xml" "$VERSION" "ERROR" "$HOSTNAME" "$CLI_NAME" "$CLI_CFG" "$CLI_DISTO $CLI_RELEASE" "$CLI_REAR" "$WORKFLOW" "$ERRMSG")
+    fi
+    if [ $? -eq 0 ]; then
+      return 0
+    else
+      echo "$CMDOUT"
+      return 1
+    fi
+  else
+    LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE:XML: Missing command and/or configuration file! Error cannot be sent!"
+  fi
+}
+
+function report_error_JSON () {
+# Report $ERR_MSG through json
+# Return 0 for ok, return 1 not ok
+  local ERRMSG="$@"
+  local CMDOUT
+  
+  if [[ -n "$DRLM_SEND_ERROR_URL" &&  -x "$DRLM_SEND_ERROR_BIN" ]]; then 
+
+    if [ -n "$DRLM_SEND_ERROR_MSG" ]; then
+      DRLM_SEND_ERROR_MSG=$(eval echo \"$DRLM_SEND_ERROR_MSG\")
+      CMDOUT=$("$DRLM_SEND_ERROR_BIN" "json" "$DRLM_SEND_ERROR_MSG")
+    else
+      CMDOUT=$("$DRLM_SEND_ERROR_BIN" "json" "$VERSION" "ERROR" "$HOSTNAME" "$CLI_NAME" "$CLI_CFG" "$CLI_DISTO $CLI_RELEASE" "$CLI_REAR" "$WORKFLOW" "$ERRMSG")
+    fi
+    if [ $? -eq 0 ]; then
+      return 0
+    else
+      echo "$CMDOUT"
+      return 1
+    fi
+  else
+    LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE:JSON: Missing command and/or configuration file! Error cannot be sent!"
+  fi
 }
 
 function report_error () {
@@ -172,6 +222,12 @@ function report_error () {
         ;;
       mail)
         return $(report_error_mail "$ERRMSG")
+        ;;
+      xml)
+        return $(report_error_XML "$ERRMSG")
+        ;;
+      json)
+        return $(report_error_JSON "$ERRMSG")
         ;;
       *)
         return 1

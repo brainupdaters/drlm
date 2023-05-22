@@ -337,8 +337,13 @@ function delete_drlm_user () {
   local CLI_NAME=$2
   local DRLM_USER=$3
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -r $DRLM_USER" &> /dev/null
-  if [ $? -eq 0 ];then return 0; else return 1; fi
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$SUDO /usr/sbin/userdel -f -r $DRLM_USER" &> /dev/null
+  if [ $? -eq 0 ];then return 0; 
+  else
+    sleep 0.5
+    ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} ${SUDO} id ${DRLM_USER} &> /dev/null
+    if [ $? -eq 0 ]; then return 1; else return 0; fi
+  fi
 }
 
 function disable_drlm_user_login () {
@@ -522,9 +527,11 @@ function remove_client_scripts () {
 
 function tunning_rear () {
 
-  local REAR_VERSION=$(rear -V | awk '{print $2}')
+  local REAR_VERSION=$($SUDO rear -V | awk '{print $2}')
   if [ "$REAR_VERSION" == "2.00" ]; then
-    $SUDO sed -i 's%https://$DRLM_SERVER/clients/$DRLM_ID%https://$DRLM_SERVER/clients/$DRLM_ID/config/default%g' /usr/share/rear/lib/drlm-functions.sh
+    if ! grep -q 'https://$DRLM_SERVER/clients/$DRLM_ID/config/default' /usr/share/rear/lib/drlm-functions.sh; then
+      $SUDO sed -i 's%https://$DRLM_SERVER/clients/$DRLM_ID%https://$DRLM_SERVER/clients/$DRLM_ID/config/default%g' /usr/share/rear/lib/drlm-functions.sh
+    fi
   fi
 
   # remove cURL verbose to avoid infinite lines of Debug in some cURL versions
@@ -534,11 +541,21 @@ function tunning_rear () {
   
   # Solve SELinux autorelabel after recover (RSYNC)
   if [ -f "/usr/share/rear/restore/default/500_selinux_autorelabel.sh" ]; then
-    $SUDO sed -i '/^touch \$TARGET_FS_ROOT\/\.autorelabel/i rm -rf \$TARGET_FS_ROOT\/\.autorelabel' /usr/share/rear/restore/default/500_selinux_autorelabel.sh
+    if ! grep -v '^\s*$\|^\s*\#' /usr/share/rear/restore/default/500_selinux_autorelabel.sh | grep -q 'rm -rf $TARGET_FS_ROOT/.autorelabel'; then
+      $SUDO sed -i '/^touch \$TARGET_FS_ROOT\/\.autorelabel/i rm -rf \$TARGET_FS_ROOT\/\.autorelabel' /usr/share/rear/restore/default/500_selinux_autorelabel.sh
+    fi
+  fi
+
+  # If rsync reports an error, abort backup process. Only afects rear < 2.7
+  if [ -f "/usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh" ]; then
+      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh
+  fi
+  if [ -f "/usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh" ]; then
+      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
   fi
 
   # remove rear cron file
-  if [ -f "/etc/cron.d/rear" ]; then
+  if $SUDO test -f "/etc/cron.d/rear"; then
     $SUDO rm -rf /etc/cron.d/rear
   fi
 }
