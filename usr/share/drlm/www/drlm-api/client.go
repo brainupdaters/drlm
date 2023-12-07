@@ -1,4 +1,4 @@
-//client.go
+// client.go
 package main
 
 import (
@@ -101,7 +101,7 @@ func (c *Client) GetByName(name string) error {
 // Get backup from database by client id
 func (c *Client) GetBackups() ([]Backup, error) {
 	db := GetConnection()
-	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass FROM backups where clients_id=?"
+	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass, hold FROM backups where clients_id=?"
 	rows, err := db.Query(q, c.ID)
 	if err != nil {
 		return []Backup{}, err
@@ -126,6 +126,7 @@ func (c *Client) GetBackups() ([]Backup, error) {
 			&b.Date,
 			&b.Encrypted,
 			&b.EncrypPass,
+			&b.Hold,
 		)
 		backups = append(backups, *b)
 	}
@@ -359,8 +360,41 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
 			}
 		}
+		/////////////
+		// RAWDISK
+		/////////////
+	} else if drlmBkpType == "RAWDISK" || drlmBkpType == "\"RAWDISK\"" {
+		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
+			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
+			clientConfig += "OUTPUT=RAWDISK\n"
+			clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
+			//clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+			clientConfig += "BACKUP=RSYNC\n"
+			clientConfig += "RSYNC_PREFIX=\n"
+			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
+			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
+			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
+				clientConfig = "OUTPUT=RAWDISK\n"
+				clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
+				clientConfig += "OUTPUT_PREFIX=\n"
+				//clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "NETFS_PREFIX=backup\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+			} else if drlmBkpProg == "RSYNC" || drlmBkpProg == "\"RSYNC\"" {
+				clientConfig = "OUTPUT=RAWDISK\n"
+				clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
+				clientConfig += "OUTPUT_PREFIX=\n"
+				//clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
+				clientConfig += "BACKUP=NETFS\n"
+				clientConfig += "BACKUP_PROG=rsync\n"
+				clientConfig += "NETFS_PREFIX=\n"
+				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+			}
+		}
 	}
-
 	SSHRootPasswordValue := ""
 	if found, tmpValue := getConfigFileVar("/etc/drlm/local.conf", "SSH_ROOT_PASSWORD"); found {
 		SSHRootPasswordValue = tmpValue

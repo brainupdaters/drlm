@@ -6,7 +6,7 @@
 # CLI_NAME       (Client Name)
 # CLI_CFG        (Client Configuration. If not set = "default"
 
-# DRLM_BKP_TYPE  (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ] 
+# DRLM_BKP_TYPE  (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA | RAWDISK ] 
 # DRLM_BKP_PROT  (Backup protocol) [ RSYNC | NETFS ]
 # DRLM_BKP_PROG  (Backup program)  [ RSYNC | TAR ]
 
@@ -142,6 +142,26 @@ elif [ "$DRLM_BKP_TYPE" == "DATA" ]; then
     fi
   else 
     Error "Backup protocol not supported for DATA. DRLM_BKP_PROT != [ RSYNC | NETFS ]"
+  fi
+###########
+# RAWDISK #
+###########
+elif [ "$DRLM_BKP_TYPE" == "RAWDISK" ]; then
+  if [ "$DRLM_BKP_PROT" == "RSYNC" ]; then
+    LogPrint "Running a RAWDISK backup with RSYNC protocol"
+    if [ "$DRLM_BKP_PROG" != "RSYNC" ]; then
+      LogPrint "WARNING! DRLM_BKP_PROG != RSYNC but will be ignored. Only RSYNC program is suported for RSYNC protocol"
+    fi
+  elif [ "$DRLM_BKP_PROT" == "NETFS" ]; then
+    if [ "$DRLM_BKP_PROG" == "TAR" ]; then
+      LogPrint "Running a RAWDISK backup with NETFS protocol and TAR program"
+    elif [ "$DRLM_BKP_PROG" == "RSYNC" ]; then
+      LogPrint "Running a RAWDISK backup with NETFS protocol and RSYNC program"
+    else
+      Error "Backup program $DRLM_BKP_PROG not supported for type RAWDISK and protocol NETFS. DRLM_BKP_PROT != [ TAR | RSYNC ]"
+    fi
+  else 
+    Error "Backup protocol not supported for RAWDISK backup type. DRLM_BKP_PROT != [ RSYNC | NETFS ]"
   fi
 #################
 # NOT SUPPORTED #

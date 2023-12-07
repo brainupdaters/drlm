@@ -1,4 +1,4 @@
-//backup.go
+// backup.go
 package main
 
 import (
@@ -14,7 +14,7 @@ type Backup models.Backup
 // Get all backup from database
 func (b *Backup) GetAll() ([]Backup, error) {
 	db := GetConnection()
-	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass FROM backups"
+	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass, hold FROM backups"
 	rows, err := db.Query(q)
 	if err != nil {
 		return []Backup{}, err
@@ -38,6 +38,7 @@ func (b *Backup) GetAll() ([]Backup, error) {
 			&b.Date,
 			&b.Encrypted,
 			&b.EncrypPass,
+			&b.Hold,
 		)
 		backups = append(backups, *b)
 	}
@@ -47,7 +48,7 @@ func (b *Backup) GetAll() ([]Backup, error) {
 // Get backup from database by backup id
 func (b *Backup) GetByID(id string) error {
 	db := GetConnection()
-	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass FROM backups where idbackup=?"
+	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass, hold FROM backups where idbackup=?"
 
 	err := db.QueryRow(q, id).Scan(
 		&b.ID,
@@ -63,6 +64,7 @@ func (b *Backup) GetByID(id string) error {
 		&b.Date,
 		&b.Encrypted,
 		&b.EncrypPass,
+		&b.Hold,
 	)
 	if err != nil {
 		return err

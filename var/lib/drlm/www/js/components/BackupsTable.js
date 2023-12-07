@@ -33,7 +33,7 @@ var BackupsTable = {
             <td v-if="backup.PXE == 1">*</td>
             <td v-else> </td>
             <td>{{ backup.config }}</td>
-            <td>{{ backup.type }}-{{ backup.protocol }} {{ backup.encrypted == '1' ? '(C)' : '' }}</td>
+            <td>{{ backup.type }}-{{ backup.protocol }} {{ backup.encrypted == '1' ? '(C)' : '' }}{{ backup.hold == '1' ? '(H)' : '' }}</td>
           </tr>
         </tbody>
       </table>
