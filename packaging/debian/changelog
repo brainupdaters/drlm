@@ -1,3 +1,11 @@
+drlm (2.4.11) stable release; urgency=high
+  * NEW! RAWDISK output backup type supported
+  * Updated Suse 15 ReaR repositories
+  * Bugfix in web, holded backups are not shown
+  * New install script
+
+ -- Pau Roura <pau@brainupdaters.net>  Thu, 07 Dec 2023 00:00:00 +0100
+
 drlm (2.4.10) stable release; urgency=high
   * Bugfix in installclient tunnig_rear function
   * Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
@@ -6,11 +14,8 @@ drlm (2.4.10) stable release; urgency=high
   * Bugfix in impbackup client configuration
   * Bugfix runbackup umounting previous backups 
   * Bugfix runbackup rsync hidden warning errors  
-  * NEW! RAWDISK output backup type supported
-  * Updated Suse 15 ReaR repositories
-  * Bugfix in web, holded backups are not shown
 
- -- Pau Roura <pau@brainupdaters.net>  Thu, 7 Dec 2023 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Fri, 10 Feb 2023 00:00:00 +0100
 
 drlm (2.4.9) stable release; urgency=high
   * Bugfix in importbackup Debian nbd detach
