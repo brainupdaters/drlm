@@ -11,7 +11,7 @@
 # CLI_RELEASE           (Client Linux CLI_RELEASE)
 # CLI_REAR              (Client ReaR Version)
     
-# DRLM_BKP_TYPE         (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ] 
+# DRLM_BKP_TYPE         (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA | RAWDISK ] 
 # DRLM_BKP_PROT         (Backup protocol) [ RSYNC | NETFS ]
 # DRLM_BKP_PROG         (Backup program)  [ RSYNC | TAR ]
 

@@ -319,7 +319,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
+* Thu Dec 07 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function
 - Bugfix avoid duplicate settings in /etc/drlm/local.conf during update or install process
 - Bugfix in user deletion to skip error code 12
@@ -327,6 +327,9 @@ systemctl start drlm-tftpd.service
 - Bugfix in impbackup client configuration
 - Bugfix runbackup umounting previous backups 
 - Bugfix runbackup rsync hidden warning errors
+- NEW! RAWDISK output backup type supported
+- Updated Suse 15 ReaR repositories
+- Bugfix in web, holded backups are not shown
 
 * Thu Nov 24 2022 Pau Roura <pau@brainupdaters.net> 2.4.9
 - Bugfix in importbackup Debian nbd detach

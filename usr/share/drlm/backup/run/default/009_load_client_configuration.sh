@@ -29,7 +29,7 @@ fi
 # Also since DRLM 2.4.0 the base configuration is set without config files.
 # For this in necessary to specify the default options for the workflow
 
-DRLM_BKP_TYPE="ISO"   #[ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ]
+DRLM_BKP_TYPE="ISO"   #[ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA | RAWDISK ]
 DRLM_BKP_PROT=""      #[ RSYNC | NETFS ]
 DRLM_BKP_PROG=""      #[ RSYNC | TAR ]
 
@@ -70,7 +70,7 @@ if [ ! -z ${OUTPUT+x} ] && [ "$OUTPUT" == "PXE" ] && [ ! -z ${OUTPUT_PREFIX+x} ]
 fi
 
 # Initialize backup protocol and backup program if empty in function of backup type after loading config files
-if [ "$DRLM_BKP_TYPE" == "ISO" ] || [ "$DRLM_BKP_TYPE" == "PXE" ] || [ "$DRLM_BKP_TYPE" == "DATA" ]; then
+if [ "$DRLM_BKP_TYPE" == "ISO" ] || [ "$DRLM_BKP_TYPE" == "PXE" ] || [ "$DRLM_BKP_TYPE" == "DATA" ] || [ "$DRLM_BKP_TYPE" == "RAWDISK" ]; then
   if [ "$DRLM_BKP_PROT" == "" ]; then
     DRLM_BKP_PROT="RSYNC"
     if [ "$DRLM_BKP_PROG" == "" ]; then
