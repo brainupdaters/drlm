@@ -64,7 +64,19 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.10 (December 2023) - Release Notes
+DRLM Version 2.4.11 (December 2023) - Release Notes
+---------------------------------------------------
+
+  * NEW! RAWDISK output backup type supported
+
+  * Updated Suse 15 ReaR repositories
+
+  * Bugfix in web, holded backups are not shown
+
+  * New install script
+
+
+DRLM Version 2.4.10 (February 2023) - Release Notes
 ---------------------------------------------------
   * Bugfix in installclient tunnig_rear function
 
@@ -79,12 +91,6 @@ DRLM Version 2.4.10 (December 2023) - Release Notes
   * Bugfix runbackup umounting previous backups 
 
   * Bugfix runbackup rsync hidden warning errors
-
-  * NEW! RAWDISK output backup type supported
-
-  * Updated Suse 15 ReaR repositories
-
-  * Bugfix in web, holded backups are not shown
 
 
 DRLM Version 2.4.9 (December 2022) - Release Notes
