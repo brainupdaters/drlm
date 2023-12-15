@@ -551,9 +551,20 @@ function check_client_network () {
   local NET_SERVER_IP=$(ip route get $CLI_IP | grep -vE 'via|cache' | awk '{print $5}')
   
   if [ -n "$NET_SERVER_IP" ]; then
-    local NET_TMP="$(ip -o -f inet addr show | grep $NET_SERVER_IP/ | awk '/scope global/ {print $2 " " $4 " " $6}')"
-    local NET_CIDR="$(echo $NET_TMP | awk '{print $2}' | awk -F'/' '{print $2}')"
-    local NET_BROADCAST="$(echo $NET_TMP | awk '{print $3}')"
+    TMP_NET_DATA="$(ip -o -f inet addr show | grep $NET_SERVER_IP/ | grep 'scope global')"
+    # Remove the interface name from the string
+    TMP_NET_DATA=$(echo $TMP_NET_DATA | sed 's/\<[^ ]*\\//g')
+    # Remove double spaces
+    TMP_NET_DATA=$(echo $TMP_NET_DATA)
+    # Convert the string to indexed array
+    declare -A TMP_NET_DATA_ARRAY
+    while read -r -d ' ' key && read -r -d ' ' value; do
+      TMP_NET_DATA_ARRAY["$key"]="$value"
+    done <<< "$TMP_NET_DATA"
+    NET_CIDR="${TMP_NET_DATA_ARRAY["inet"]}"
+    # get only the /value
+    NET_CIDR="$(echo $NET_CIDR | awk -F'/' '{print $2}')"
+    NET_BROADCAST="${TMP_NET_DATA_ARRAY["brd"]}"
   fi
 
   if [ -n "$NET_CIDR" ]; then
