@@ -75,6 +75,8 @@ DRLM Version 2.4.11 (December 2023) - Release Notes
 
   * New install script
 
+  * Bugfix in installclient adding network interface
+
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
 ---------------------------------------------------

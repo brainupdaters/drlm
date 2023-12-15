@@ -324,6 +324,7 @@ systemctl start drlm-tftpd.service
 - Updated Suse 15 ReaR repositories
 - Bugfix in web, holded backups are not shown
 - New install script
+- Bugfix in installclient adding network interface
 
 * Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function

@@ -9,9 +9,24 @@ if [ -n "$NET_SRV" ]; then
     else
       Log "Network IP: $NET_SRV is not in use in DRLM DB..."
       TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $NET_SRV/ | awk '/scope global/ {print $2}')"
-      TMP_NET_DATA="$(ip -o -f inet addr show | grep $NET_SRV/ | awk '/scope global/ {print $2 " " $4 " " $6}')"
-      TMP_NET_CIDR="$(echo $TMP_NET_DATA | awk '{print $2}' | awk -F'/' '{print $2}')"
-      TMP_NET_BROADCAST="$(echo $TMP_NET_DATA | awk '{print $3}')"
+      # Get the values of the network where appear the server ip
+      TMP_NET_DATA="$(ip -o -f inet addr show | grep $NET_SRV/ | grep 'scope global')"
+      # Remove the interface name from the string
+      TMP_NET_DATA=$(echo $TMP_NET_DATA | sed 's/\<[^ ]*\\//g')
+      # Remove double spaces
+      TMP_NET_DATA=$(echo $TMP_NET_DATA)
+
+      # Convert the string to indexed array
+      declare -A TMP_NET_DATA_ARRAY
+      while read -r -d ' ' key && read -r -d ' ' value; do
+        TMP_NET_DATA_ARRAY["$key"]="$value"
+      done <<< "$TMP_NET_DATA"
+
+      TMP_NET_CIDR="${TMP_NET_DATA_ARRAY["inet"]}"
+      # get only the /value
+      TMP_NET_CIDR="$(echo $TMP_NET_CIDR | awk -F'/' '{print $2}')"
+      TMP_NET_BROADCAST="${TMP_NET_DATA_ARRAY["brd"]}"     
+
       if [ "$TMP_NET_CIDR" ]; then
         TMP_NET_MASK="$(cidr_to_netmask $TMP_NET_CIDR)"
         TMP_NET_IP="$(get_netaddress $NET_SRV $TMP_NET_MASK )"
@@ -32,9 +47,23 @@ if [ -n "$NET_IP" ]; then
       Log "Network IP: $NET_IP is not in use in DRLM DB..."
       TMP_NET_SRV=$(ip route list | grep "$NET_IP" | awk '{print $9}')
       TMP_NET_INTERFACE="$(ip -o -f inet addr show | grep $TMP_NET_SRV/ | awk '/scope global/ {print $2}')"
-      TMP_NET_DATA="$(ip -o -f inet addr show | grep $TMP_NET_SRV/ | awk '/scope global/ {print $2 " " $4 " " $6}')"
-      TMP_NET_CIDR="$(echo $TMP_NET_DATA | awk '{print $2}' | awk -F'/' '{print $2}')"
-      TMP_NET_BROADCAST="$(echo $TMP_NET_DATA | awk '{print $3}')"
+      TMP_NET_DATA="$(ip -o -f inet addr show | grep $TMP_NET_SRV/ | grep 'scope global')"
+      # Remove the interface name from the string
+      TMP_NET_DATA=$(echo $TMP_NET_DATA | sed 's/\<[^ ]*\\//g')
+      # Remove double spaces
+      TMP_NET_DATA=$(echo $TMP_NET_DATA)
+
+      # Convert the string to indexed array
+      declare -A TMP_NET_DATA_ARRAY
+      while read -r -d ' ' key && read -r -d ' ' value; do
+        TMP_NET_DATA_ARRAY["$key"]="$value"
+      done <<< "$TMP_NET_DATA"
+
+      TMP_NET_CIDR="${TMP_NET_DATA_ARRAY["inet"]}"
+      # get only the /value
+      TMP_NET_CIDR="$(echo $TMP_NET_CIDR | awk -F'/' '{print $2}')"
+      TMP_NET_BROADCAST="${TMP_NET_DATA_ARRAY["brd"]}"
+
       if [ "$TMP_NET_CIDR" ]; then
         TMP_NET_MASK="$(cidr_to_netmask $TMP_NET_CIDR)"
       fi
@@ -42,7 +71,7 @@ if [ -n "$NET_IP" ]; then
   else
     Error "Network IP: $NET_IP is in wrong format. Correct this and try again."
   fi
-fi 
+fi
 
 # Apply the value of the variables with the information taken from the network 
 # NET_SRV and NET_IP must be set in order to perform the next checks
