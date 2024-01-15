@@ -77,6 +77,8 @@ DRLM Version 2.4.11 (December 2023) - Release Notes
 
   * Bugfix in installclient adding network interface
 
+  * Added ability to adjust client configs upon migrations on rescue startup
+
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
 ---------------------------------------------------
