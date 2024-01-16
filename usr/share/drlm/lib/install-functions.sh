@@ -560,7 +560,8 @@ function tunning_rear () {
   fi
 
   # add drlm setup script for rescue adjustments on migrations
-  $SUDO cat > /usr/share/rear/skel/default/etc/scripts/system-setup.d/98-drlm-setup-rescue.sh << EOF
+
+  $SUDO cat > /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh << EOF
 # Setting required environment for DRLM proper function
 
 is_true "\$DRLM_MANAGED" || return 0
@@ -583,6 +584,12 @@ if [ \$? -eq 0 ]; then
 
 fi
 EOF
+
+    $SUDO chmod 644 /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+    $SUDO chown root:root /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+    $SUDO cp -p /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh /usr/share/rear/skel/default/etc/scripts/system-setup.d/98-drlm-setup-rescue.sh
+    $SUDO rm -f /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+    if [ $? -eq 0 ]; then return 0; else return 1;fi
 
 }
 
