@@ -327,6 +327,7 @@ systemctl start drlm-tftpd.service
 - Bugfix in installclient adding network interface
 - Check client shell before installclient
 - Bugfix in DRLM pre and post runbackup script
+- Added ability to adjust client configs upon migrations on rescue startup
 
 * Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function

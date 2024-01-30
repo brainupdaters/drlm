@@ -81,6 +81,8 @@ DRLM Version 2.4.11 (January 2024) - Release Notes
 
   * Bugfix in DRLM pre and post runbackup script
 
+  * Added ability to adjust client configs upon migrations on rescue startup
+
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
 ---------------------------------------------------
