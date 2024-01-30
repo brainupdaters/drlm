@@ -319,7 +319,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Tue Jan 30 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
+* Thu Feb 08 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported
 - Updated Suse 15 ReaR repositories
 - Bugfix in web, holded backups are not shown
@@ -328,6 +328,7 @@ systemctl start drlm-tftpd.service
 - Check client shell before installclient
 - Bugfix in DRLM pre and post runbackup script
 - Added ability to adjust client configs upon migrations on rescue startup
+- Added ReaR tunning to avoid mac mapping on automatic restore
 
 * Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function

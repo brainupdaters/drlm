@@ -7,8 +7,9 @@ drlm (2.4.11) stable release; urgency=high
   * Check client shell before installclient
   * Bugfix in DRLM pre and post runbackup script
   * Added ability to adjust client configs upon migrations on rescue startup
+  * Added ReaR tunning to avoid mac mapping on automatic restore
 
- -- Pau Roura <pau@brainupdaters.net>  Tue, 30 Jan 2023 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Thu, 08 Feb 2024 00:00:00 +0100
 
 drlm (2.4.10) stable release; urgency=high
   * Bugfix in installclient tunnig_rear function

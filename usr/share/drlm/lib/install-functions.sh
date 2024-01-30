@@ -555,10 +555,10 @@ function tunning_rear () {
 
   # If rsync reports an error, abort backup process. Only afects rear < 2.7
   if [ -f "/usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh" ]; then
-      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh
+      $SUDO sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh
   fi
   if [ -f "/usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh" ]; then
-      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
+      $SUDO sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
   fi
 
   # remove rear cron file
@@ -567,7 +567,6 @@ function tunning_rear () {
   fi
 
   # add drlm setup script for rescue adjustments on migrations
-
   $SUDO cat > /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh << EOF
 # Setting required environment for DRLM proper function
 
@@ -577,10 +576,12 @@ read -r </proc/cmdline
 
 echo \$REPLY | grep -q "drlm="
 if [ \$? -eq 0 ]; then
-    drlm_cmdline=( \$(echo \${REPLY#*drlm=} | tr "," " ") )
+    drlm_cmdline=( \$(echo \${REPLY#*drlm=} | sed 's/drlm=//' | tr "," " ") )
     for i in \${drlm_cmdline[@]}
     do
-        eval \$i
+        if echo \$i | grep -q '^id=\|^server='; then
+          eval \$i
+        fi
     done
 
     echo "DRLM_MANAGED: Getting updated rescue configuration from DRLM ..."
@@ -591,6 +592,10 @@ if [ \$? -eq 0 ]; then
 
 fi
 EOF
+
+    if [ -f "/usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh" ]; then
+      $SUDO sed -i 's/if unattended_recovery \; then/if unattended_recovery \|\| automatic_recovery \; then/g' /usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh
+    fi
 
     $SUDO chmod 644 /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
     $SUDO chown root:root /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
