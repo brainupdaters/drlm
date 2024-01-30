@@ -87,6 +87,8 @@ DRLM Version 2.4.11 (February 2024) - Release Notes
   
   * NEW! Telegram error reporting supported
 
+  * NEW! Configurable error reporting message
+
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
 ---------------------------------------------------
