@@ -53,7 +53,7 @@ if test "$DRLM_PRE_RUNBACKUP_SCRIPT" ; then
   # Generate Pre Runbackup script
   echo '#!/bin/bash' > $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
   for command_pre in "${DRLM_PRE_RUNBACKUP_SCRIPT[@]}"; do
-    echo $command_pre >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
+    echo "$command_pre" >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
   done
 
   # Synchronize client scripts

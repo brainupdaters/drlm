@@ -167,7 +167,7 @@ elif [ "$DRLM_BKP_TYPE" == "RAWDISK" ]; then
 # NOT SUPPORTED #
 #################   
 else 
-  Error "Backup type not supported. DRLM_BKP_TYPE != [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ]"
+  Error "Backup type not supported. DRLM_BKP_TYPE != [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA | RAWDISK ]"
 fi
 
 # Check in DRLM server services are active
