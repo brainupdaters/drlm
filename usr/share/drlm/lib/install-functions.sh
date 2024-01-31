@@ -306,6 +306,13 @@ function ssh_send_drlm_hostname () {
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
+function ssh_check_shell () {
+  local USER=$1
+  local CLI_NAME=$2
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "getent passwd $USER | cut -d: -f7 | grep -w /bin/bash" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
 function create_drlm_var () {
   # ToDo: Check if client it's a DRLM server. If true, don't modify permissions or DRLM server 
   # because will broke functionality.
