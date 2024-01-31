@@ -76,7 +76,7 @@ if test "$DRLM_POST_RUNBACKUP_SCRIPT" ; then
   # Generate Post Runbackup script
   echo '#!/bin/bash' > $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_post_runbackup_script.sh
   for command_post in "${DRLM_POST_RUNBACKUP_SCRIPT[@]}"; do
-    echo $command_post >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_post_runbackup_script.sh
+    echo "$command_post" >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_post_runbackup_script.sh
   done
 
   # Synchronize client scripts
