@@ -126,3 +126,5 @@ To use Disaster Recovery Linux Manager you always call the main script
    sched           schedule planned jobs.
 
   Use 'drlm COMMAND --help' for more advanced commands.
+
+  ---
