@@ -244,6 +244,9 @@ function report_error () {
       json)
         return $(report_error_JSON "$ERRMSG")
         ;;
+     telegram)                                                                                                                          
+        return $(report_error_telegram "$ERRMSG")                                                                                       
+        ;;
       *)
         return 1
         ;;
