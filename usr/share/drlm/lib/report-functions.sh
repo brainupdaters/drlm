@@ -39,16 +39,16 @@ function report_error_nsca-ng () {
    local CMDOUT
 
     if [[ -f "$NAGCONF" &&  -x "$NAGCMD" ]]; then
-    	CMDOUT=$( printf "%s\t%s\t%s\t%s\n" "$NAGHOST" "$NAGSVC" "2" "$ERRMSG" | "$NAGCMD" -c "$NAGCONF" )
-   		if [ $? -eq 0 ]; then
-   		   return 0
-   		else
-   		   echo "$CMDOUT"
-   		   return 1
-   		fi
+	CMDOUT=$( printf "%s\t%s\t%s\t%s\n" "$NAGHOST" "$NAGSVC" "2" "$ERRMSG" | "$NAGCMD" -c "$NAGCONF" )
+   	if [ $? -eq 0 ]; then
+   	   return 0
    	else
-   		LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"
+   	   echo "$CMDOUT"
+   	   return 1
    	fi
+    else
+	LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"
+    fi
 }
 
 function report_error_nsca () {
@@ -198,6 +198,21 @@ function report_error_JSON () {
   fi
 }
 
+function report_error_telegram () {                                                                                                     
+    local ERRMSG=$( echo "$@" | tr "\\n" " - " )                                                                                        
+    local TELEGRAM_URL="https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage"                                                        
+    if [[ -f "$TELEGRAM_CMD" &&  -n "$TELEGRAM_TOKEN" && -n "$TELEGRAM_CHATID" ]]; then                       
+        CMDOUT=$( $TELEGRAM_CMD -s -X POST $TELEGRAM_URL -d chat_id=$TELEGRAM_CHATID -d text="$ERRMSG" )      
+        if [ $? -eq 0 ]; then                                                                                                   
+           return 0                                                                                                             
+        else                                                                                                                    
+           return 1                                                                                                             
+        fi                                                                                                                      
+    else                                                                                                                                
+        LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"    
+    fi                                                                                                                                  
+}
+
 function report_error () {
 # triggers the correct reporting type $REPORT_TYPE [ ovo|nsca-ng|nsca|zabbix|mail ]
 # Return 0 for ok return 1 not ok
@@ -228,6 +243,9 @@ function report_error () {
         ;;
       json)
         return $(report_error_JSON "$ERRMSG")
+        ;;
+     telegram)                                                                                                                          
+        return $(report_error_telegram "$ERRMSG")                                                                                       
         ;;
       *)
         return 1

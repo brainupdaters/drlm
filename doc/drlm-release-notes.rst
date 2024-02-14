@@ -84,6 +84,8 @@ DRLM Version 2.4.11 (February 2024) - Release Notes
   * Added ability to adjust client configs upon migrations on rescue startup
 
   * Added ReaR tunning to avoid mac mapping on automatic restore
+  
+  * NEW! Telegram error reporting supported
 
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
