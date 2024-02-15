@@ -331,6 +331,7 @@ systemctl start drlm-tftpd.service
 - Added ReaR tunning to avoid mac mapping on automatic restore
 - NEW! Telegram error reporting supported
 - NEW! Configurable error reporting message
+- NEW! Toggle pretty mode from command line in all lists
 
 * Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function
