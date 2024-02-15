@@ -202,7 +202,6 @@ function mod_client_rear ()
 function list_client () {
   local CLI_NAME_PARAM="$1"
   local UNSCHED_PARAM="$2"
-  local PRETTY_PARAM="$3"
 
   local CLI_ID_LEN="$(get_max_client_id_length_dbdrv)"
   if [ "$CLI_ID_LEN" -le "2" ]; then CLI_ID_LEN="2"; fi
@@ -234,9 +233,19 @@ function list_client () {
 
   CLI_FORMAT="%-${CLI_ID_LEN}s %-${CLI_NAME_LEN}s %-${CLI_MAC_LEN}s %-${CLI_IP_LEN}s %-${CLI_OS_LEN}s %-${CLI_REAR_LEN}s %-${CLI_NET_LEN}s %-10s\n"
 
-  printf "$(tput bold)"
+  # Check if pretty mode is enabled and toggle it if is called with -p option
+  if [ "$PRETTY_TOGGLE" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
+      DEF_PRETTY="false"
+    else
+      DEF_PRETTY="true"
+    fi
+  fi
+
+  # Print header in pretty mode if is enabled
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
   printf "$CLI_FORMAT" "Id" "Name" "MacAddres" "Ip" "Client OS" "ReaR Version" "Network" "Scheduled"
-  printf "$(tput sgr0)"
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
 
   save_default_pretty_params_list_client
 
@@ -257,7 +266,7 @@ function list_client () {
     load_default_pretty_params_list_client
     load_client_pretty_params_list_client $CLI_NAME
 
-    if [ "$PRETTY_PARAM" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
       if [ "$(timeout $CLIENT_LIST_TIMEOUT bash -c "</dev/tcp/$CLI_IP/$SSH_PORT" && echo open || echo closed)" == "open" ]; then
         CLI_FORMAT="%-${CLI_ID_LEN}s \\e[0;32m%-${CLI_NAME_LEN}s\\e[0m %-${CLI_MAC_LEN}s %-${CLI_IP_LEN}s %-${CLI_OS_LEN}s %-${CLI_REAR_LEN}s %-${CLI_NET_LEN}s %-10s\n"
         printf "$CLI_FORMAT" "$CLI_ID" "$CLI_NAME" "$CLI_MAC" "$CLI_IP" "$CLI_OS" "$CLI_REAR" "$CLI_NET" "$CLI_HAS_JOBS"

@@ -492,9 +492,19 @@ function list_network ()
 
   NET_FORMAT="%-${NET_ID_LEN}s %-${NET_NAME_LEN}s %-8s %-15s %-15s %-15s %-15s %-15s %-15s\n"
 
-  printf "$(tput bold)"
+  # Check if pretty mode is enabled and toggle it if is called with -p option
+  if [ "$PRETTY_TOGGLE" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
+      DEF_PRETTY="false"
+    else
+      DEF_PRETTY="true"
+    fi
+  fi
+
+  # Print header in pretty mode if is enabled
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
   printf "$NET_FORMAT" "Id" "Name" "Status" "Server IP" "Mask" "Network Ip" "Broadcast" "Gateway" "Interface"
-  printf "$(tput sgr0)"
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
   
   for line in $(get_all_networks $NET_NAME_PARAM); do
     local NET_ID=$(echo $line|awk -F":" '{print $1}')

@@ -87,6 +87,10 @@ DRLM Version 2.4.11 (February 2024) - Release Notes
   
   * NEW! Telegram error reporting supported
 
+  * NEW! Configurable error reporting message
+
+  * NEW! Toggle pretty mode from command line in all lists
+
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
 ---------------------------------------------------
