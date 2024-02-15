@@ -23,58 +23,65 @@ WORKFLOWS=( ${WORKFLOWS[@]} listclient )
 LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} listclient )
 
 if [ "$WORKFLOW" == "listclient" ]; then 
-	# Parse options
-	OPT="$(getopt -n $WORKFLOW -o "c:AUph" -l "client:,all,unsched,pretty,help" -- "$@")"
-	if (( $? != 0 )); then
-		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-		exit 1
-	fi
+  # Parse options
+  OPT="$(getopt -n $WORKFLOW -o "c:AUph" -l "client:,all,unsched,pretty,help" -- "$@")"
+  if (( $? != 0 )); then
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
 
-	CLI_NAME="all"
-	UNSCHED=false
+  CLI_NAME="all"
+  UNSCHED=false
 
-	eval set -- "$OPT"
-	while true; do
-		case "$1" in
-			(-c|--client)
-				# We need to take the option argument
-				if [ -n "$2" ];	then 
-					CLI_NAME="$2"
-				else
-					echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-					exit 1
-				fi
-				shift 
-				;;
-			(-A|--all)
-				CLI_NAME="all" 
-				;;
-			(-U|--unsched)
-				UNSCHED=true
-				;;
-			(-p|--pretty)
-				PRETTY=true
-				;;
-			(-h|--help)
-				listclienthelp
-				exit 0
-				;;
-			(--) 
-				shift 
-				break
-				;;
-			(-*)
-				echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-				echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-				exit 1
-				;;
-		esac
-		shift
-	done
+  eval set -- "$OPT"
+  while true; do
+    case "$1" in
+      (-c|--client)
+        # We need to take the option argument
+        if [ -n "$2" ];  then 
+          CLI_NAME="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"  
+          exit 1
+        fi
+        shift 
+        ;;
 
-	WORKFLOW_listclient () {
-		#echo listclient workflow
-		SourceStage "client/list"
-	}
+      (-A|--all)
+        CLI_NAME="all" 
+        ;;
+
+      (-U|--unsched)
+        UNSCHED=true
+        ;;
+
+      (-p|--pretty)
+        PRETTY_TOGGLE=true
+        ;;
+
+      (-h|--help)
+        listclienthelp
+        exit 0
+        ;;
+
+      (--) 
+        shift 
+        break
+        ;;
+
+      (-*)
+        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+        exit 1
+        ;;
+		
+    esac
+    shift
+  done
+
+  WORKFLOW_listclient () {
+    #echo listclient workflow
+    SourceStage "client/list"
+  }
 
 fi

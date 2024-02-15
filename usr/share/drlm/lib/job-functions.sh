@@ -64,9 +64,19 @@ function list_job ()
   JOB_FORMAT="%-${JOB_ID_LEN}s %-10s %-${JOB_CLI_LEN}s %-17s %-17s %-${JOB_ENDDATE_LEN}s %-8s %-20s\n"
   JOB_ENDDATE_HEAD="$([ "$JOB_ENDDATE_LEN" == "0" ] && echo ""|| echo "End Date")"
 
-  printf "$(tput bold)"
+  # Check if pretty mode is enabled and toggle it if is called with -p option
+  if [ "$PRETTY_TOGGLE" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
+      DEF_PRETTY="false"
+    else
+      DEF_PRETTY="true"
+    fi
+  fi
+
+  # Print header in pretty mode if is enabled
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
   printf "$JOB_FORMAT" "Id" "Status" "Client" "Last Date" "Next Date" "$([ "$JOB_ENDDATE_LEN" == "0" ] && echo ""|| echo "End Date")" "Repeat" "Configuration"
-  printf "$(tput sgr0)"
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
 
   for line in $(get_all_jobs "${PARAM_ID}" "${LIST_TYPE}"); do
     local JOB_ID=$(echo $line|awk -F"," '{print $1}')
