@@ -17,7 +17,7 @@ echo "GitHub: https://github.com/brainupdaters/drlm"
 echo ""
 
 
-Check if the script is being run as root
+# Check if the script is being run as root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run this script as root or using sudo"
     echo ""
