@@ -84,12 +84,14 @@ DRLM Version 2.4.11 (February 2024) - Release Notes
   * Added ability to adjust client configs upon migrations on rescue startup
 
   * Added ReaR tunning to avoid mac mapping on automatic restore
-  
+
   * NEW! Telegram error reporting supported
 
   * NEW! Configurable error reporting message
 
   * NEW! Toggle pretty mode from command line in all lists
+
+  * Bugfix in get_client_used_mb
 
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
