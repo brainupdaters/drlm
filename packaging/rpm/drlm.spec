@@ -319,7 +319,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Thu Feb 08 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
+* Mon Feb 26 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported
 - Updated Suse 15 ReaR repositories
 - Bugfix in web, holded backups are not shown
@@ -333,6 +333,8 @@ systemctl start drlm-tftpd.service
 - NEW! Configurable error reporting message
 - NEW! Toggle pretty mode from command line in all lists
 - Bugfix in get_client_used_mb
+- Bugfix in Debian12 scheduled jobs
+- Bugfix in install clients, force non-interactive installations
 
 * Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function
