@@ -72,7 +72,7 @@ function install_dependencies_apt () {
   local CLI_NAME=$2
   local REAR_DEPENDENCIES="$3"
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -129,12 +129,12 @@ function ssh_install_rear_yum () {
 }
 
 function install_rear_dpkg () {
-  $SUDO apt-get -y remove rear &> /dev/null
+  $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y remove rear &> /dev/null
   $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
   if [ $? -ne 0 ]; then
     echo "Error Downloading rear package"
   else
-    $SUDO /usr/bin/dpkg --install /tmp/rear.deb &> /dev/null
+    $SUDO DEBIAN_FRONTEND=noninteractive /usr/bin/dpkg --force-confold --install /tmp/rear.deb &> /dev/null
     if [ $? -ne 0 ]; then
       echo "Error Installing ReaR package"
     fi
@@ -145,7 +145,7 @@ function install_rear_deb_repo () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get -y remove rear; $SUDO apt-get -y install rear &>/dev/null )" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y remove rear; $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install rear &>/dev/null )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

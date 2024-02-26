@@ -178,17 +178,19 @@ function update_job_ldate ()
 }
 
 function sched_job() {
-  # run $@ command in a subshell
-  (
   # redirect tty fds to /dev/null
-    [[ -t 0 ]] && exec </dev/null
-    [[ -t 1 ]] && exec >/dev/null
-    [[ -t 2 ]] && exec 2>/dev/null
+  [[ -t 0 ]] && exec </dev/null
+  [[ -t 1 ]] && exec >/dev/null
+  [[ -t 2 ]] && exec 2>/dev/null
+  
   # close all non-std* fds
-    eval exec {3..255}\>\&-
+  eval exec {3..255}\>\&-
+  
   # run command with setsid
-    setsid "$@"
-  ) &
+  setsid "$@" &
+
+  # disown the job
+  disown
 }
 
 function enable_job_db () 

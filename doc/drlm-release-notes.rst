@@ -93,6 +93,10 @@ DRLM Version 2.4.11 (February 2024) - Release Notes
 
   * Bugfix in get_client_used_mb
 
+  * Bugfix in Debian12 scheduled jobs
+  
+  * Bugfix in install clients, force non-interactive installations
+
 
 DRLM Version 2.4.10 (February 2023) - Release Notes
 ---------------------------------------------------
