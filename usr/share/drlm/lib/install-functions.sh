@@ -72,7 +72,7 @@ function install_dependencies_apt () {
   local CLI_NAME=$2
   local REAR_DEPENDENCIES="$3"
   local SUDO=$4
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get update &> /dev/null; $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install ${REAR_DEPENDENCIES[@]} &> /dev/null)" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -129,12 +129,12 @@ function ssh_install_rear_yum () {
 }
 
 function install_rear_dpkg () {
-  $SUDO apt-get -y remove rear &> /dev/null
+  $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y remove rear &> /dev/null
   $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
   if [ $? -ne 0 ]; then
     echo "Error Downloading rear package"
   else
-    $SUDO /usr/bin/dpkg --install /tmp/rear.deb &> /dev/null
+    $SUDO DEBIAN_FRONTEND=noninteractive /usr/bin/dpkg --force-confold --install /tmp/rear.deb &> /dev/null
     if [ $? -ne 0 ]; then
       echo "Error Installing ReaR package"
     fi
@@ -145,7 +145,7 @@ function install_rear_deb_repo () {
   local USER=$1
   local CLI_NAME=$2
   local SUDO=$3
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO apt-get -y remove rear; $SUDO apt-get -y install rear &>/dev/null )" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y remove rear; $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install rear &>/dev/null )" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -303,6 +303,13 @@ function ssh_send_drlm_hostname () {
   local SRV_NAME=$(hostname -s)
   local SRV_NAME_FQDN=$(hostname -f)
   ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "$(declare -p SRV_NAME SRV_NAME_FQDN SRV_IP SUDO; declare -f send_drlm_hostname); send_drlm_hostname" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
+function ssh_check_shell () {
+  local USER=$1
+  local CLI_NAME=$2
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "getent passwd $USER | cut -d: -f7 | grep -w /bin/bash" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -548,16 +555,54 @@ function tunning_rear () {
 
   # If rsync reports an error, abort backup process. Only afects rear < 2.7
   if [ -f "/usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh" ]; then
-      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh
+      $SUDO sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh
   fi
   if [ -f "/usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh" ]; then
-      sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
+      $SUDO sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
   fi
 
   # remove rear cron file
   if $SUDO test -f "/etc/cron.d/rear"; then
     $SUDO rm -rf /etc/cron.d/rear
   fi
+
+  # add drlm setup script for rescue adjustments on migrations
+  $SUDO cat > /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh << EOF
+# Setting required environment for DRLM proper function
+
+is_true "\$DRLM_MANAGED" || return 0
+
+read -r </proc/cmdline
+
+echo \$REPLY | grep -q "drlm="
+if [ \$? -eq 0 ]; then
+    drlm_cmdline=( \$(echo \${REPLY#*drlm=} | sed 's/drlm=//' | tr "," " ") )
+    for i in \${drlm_cmdline[@]}
+    do
+        if echo \$i | grep -q '^id=\|^server='; then
+          eval \$i
+        fi
+    done
+
+    echo "DRLM_MANAGED: Getting updated rescue configuration from DRLM ..."
+
+    test -n "\$server" && echo "DRLM_SERVER=\$server" >> /etc/rear/rescue.conf
+    test -n "\$id" && echo "DRLM_ID=\$id" >> /etc/rear/rescue.conf
+    test -n "\$server" && echo 'DRLM_REST_OPTS="-H Authorization:\$(cat /etc/rear/drlm.token) -k"' >> /etc/rear/rescue.conf
+
+fi
+EOF
+
+    if [ -f "/usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh" ]; then
+      $SUDO sed -i 's/if unattended_recovery \; then/if unattended_recovery \|\| automatic_recovery \; then/g' /usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh
+    fi
+
+    $SUDO chmod 644 /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+    $SUDO chown root:root /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+    $SUDO cp -p /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh /usr/share/rear/skel/default/etc/scripts/system-setup.d/98-drlm-setup-rescue.sh
+    $SUDO rm -f /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+    if [ $? -eq 0 ]; then return 0; else return 1;fi
+
 }
 
 function ssh_tunning_rear () {

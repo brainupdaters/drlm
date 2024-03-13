@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.8
+Version: 2.4.11
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -318,6 +318,23 @@ systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.s
 systemctl start drlm-tftpd.service
 
 %changelog
+
+* Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
+- NEW! RAWDISK output backup type supported
+- Updated Suse 15 ReaR repositories
+- Bugfix in web, holded backups are not shown
+- New install script
+- Bugfix in installclient adding network interface
+- Check client shell before installclient
+- Bugfix in DRLM pre and post runbackup script
+- Added ability to adjust client configs upon migrations on rescue startup
+- Added ReaR tunning to avoid mac mapping on automatic restore
+- NEW! Telegram error reporting supported
+- NEW! Configurable error reporting message
+- NEW! Toggle pretty mode from command line in all lists
+- Bugfix in get_client_used_mb
+- Bugfix in Debian12 scheduled jobs
+- Bugfix in install clients, force non-interactive installations
 
 * Fri Feb 10 2023 Pau Roura <pau@brainupdaters.net> 2.4.10
 - Bugfix in installclient tunnig_rear function

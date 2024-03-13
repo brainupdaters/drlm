@@ -11,7 +11,7 @@
 # CLI_RELEASE           (Client Linux CLI_RELEASE)
 # CLI_REAR              (Client ReaR Version)
     
-# DRLM_BKP_TYPE         (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA ] 
+# DRLM_BKP_TYPE         (Backup type)     [ ISO | ISO_FULL | ISO_FULL_TMP | PXE | DATA | RAWDISK ] 
 # DRLM_BKP_PROT         (Backup protocol) [ RSYNC | NETFS ]
 # DRLM_BKP_PROG         (Backup program)  [ RSYNC | TAR ]
 
@@ -53,7 +53,7 @@ if test "$DRLM_PRE_RUNBACKUP_SCRIPT" ; then
   # Generate Pre Runbackup script
   echo '#!/bin/bash' > $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
   for command_pre in "${DRLM_PRE_RUNBACKUP_SCRIPT[@]}"; do
-    echo $command_pre >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
+    echo "$command_pre" >> $CONFIG_DIR/clients/$CLI_NAME.scripts/drlm_pre_runbackup_script.sh
   done
 
   # Synchronize client scripts

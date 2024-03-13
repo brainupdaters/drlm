@@ -16,11 +16,20 @@ else
   REMOVE_SSH_ID="true"
 fi
 
+# Check if client has /bin/bash shell in user $USER
+if ! ssh_check_shell ${USER} ${CLI_NAME}; then 
+  Error "Client ${CLI_NAME} has not /bin/bash shell for user ${USER}. Please, change it and try again."
+fi
+
 # The execution of the ssh_send_drlm_hostname function has been advanced 
 # from de last stages of instclient to the firsts so that the hostname of 
 # the server is available in case packages have to be installed through 
 # the DRLM Proxy
-if ssh_send_drlm_hostname ${USER} ${CLI_NAME} ${SRV_IP} ${SUDO}; then LogPrint "Success to update DRLM hostname info to ${CLI_NAME}"; else Error "Error updating DRLM hostname information, check logfile"; fi
+if ssh_send_drlm_hostname ${USER} ${CLI_NAME} ${SRV_IP} ${SUDO}; then 
+  LogPrint "Success to update DRLM hostname info to ${CLI_NAME}"; 
+else 
+  Error "Error updating DRLM hostname information, check logfile"; 
+fi
 
 DISTRO=$(ssh_get_distro $USER $CLI_NAME)
 RELEASE=$(ssh_get_release $USER $CLI_NAME)

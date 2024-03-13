@@ -62,7 +62,6 @@ function mod_pxe_link () {
 
 function list_backup () {
   local CLI_NAME_REC=$1 
-  local PRETTY_PARAM=$2
   local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
 
   local BAC_ID_LEN="$(get_max_backup_id_length_dbdrv)"
@@ -99,9 +98,19 @@ function list_backup () {
   BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s\n"
   SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
   
-  printf "$(tput bold)"
+   # Check if pretty mode is enabled and toggle it if is called with -p option
+  if [ "$PRETTY_TOGGLE" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
+      DEF_PRETTY="false"
+    else
+      DEF_PRETTY="true"
+    fi
+  fi
+
+  # Print header in pretty mode if is enabled
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
   printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type"
-  printf "$(tput sgr0)"
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
 
   save_default_pretty_params_list_backup
 
@@ -156,21 +165,21 @@ function list_backup () {
     load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
 
     local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
-    if [ "$PRETTY_PARAM" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
       BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA $BAC_DURA_LEN)"
     else
       BAC_DURA_DEC="%-${BAC_DURA_LEN}s"
     fi
 
     local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ "$PRETTY_PARAM" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
       BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE $BAC_SIZE_LEN)"
     else
       BAC_SIZE_DEC="%-${BAC_SIZE_LEN}s"
     fi
 
     # if Pretty mode is enabled show in green enabled backups and in red disabled backups
-    if [ "$PRETTY_PARAM" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
       if [ "$BAC_STATUS" == "enabled" ]; then 
         BAC_STATUS_DEC="\\e[0;32m%-9s\\e[0m"
       elif [ "$BAC_STATUS" == "disabled" ]; then 
@@ -1118,7 +1127,7 @@ function get_client_used_mb () {
 
     #FIXME: If any better way to get this info in future.
     # Get FS list excluding BTRFS filesystems if any.
-    FS_LIST=( $(sudo mount -l -t "$(echo $(egrep -v 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $3}') )
+    FS_LIST=( $(sudo mount -l -t "$(echo $(egrep -v 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | grep -v '/var/lib/snapd/*.snap' | awk '{print $3}') )
     # Now get reduced list of FS under BTRFS to get correct used space.
     ###FS_LIST=( ${FS_LIST[@]} $(sudo mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | egrep "subvolid=5|subvol=/@\)|subvol=/@/.snapshots/" | awk '{print $3}') )
     for btrfs in $(mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
