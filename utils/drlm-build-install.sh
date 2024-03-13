@@ -2,7 +2,7 @@
 
 # "DRLM build & install script"
 INSTALLER_VERSION="202312.01"
-DRLM_VERSION="2.4.11"
+DRLM_VERSION="2.4.12"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"

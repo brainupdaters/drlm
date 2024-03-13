@@ -1,3 +1,8 @@
+drlm (2.4.12) stable release; urgency=high
+  * Dummy line for 2.4.12 release notes
+  
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 13 Mar 2024 00:00:00 +0100
+
 drlm (2.4.11) stable release; urgency=high
   * NEW! RAWDISK output backup type supported
   * Updated Suse 15 ReaR repositories

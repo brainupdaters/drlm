@@ -64,9 +64,13 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.12 (March 2024) - Release Notes
+------------------------------------------------
+  * Dummy line for 2.4.12 release notes 
+
 
 DRLM Version 2.4.11 (March 2024) - Release Notes
----------------------------------------------------
+------------------------------------------------
   * NEW! RAWDISK output backup type supported
 
   * Updated Suse 15 ReaR repositories
