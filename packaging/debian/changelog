@@ -15,7 +15,7 @@ drlm (2.4.11) stable release; urgency=high
   * Bugfix in Debian12 scheduled jobs
   * Bugfix in install clients, force non-interactive installations
 
- -- Pau Roura <pau@brainupdaters.net>  Mon, 26 Feb 2024 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 13 Mar 2024 00:00:00 +0100
 
 drlm (2.4.10) stable release; urgency=high
   * Bugfix in installclient tunnig_rear function

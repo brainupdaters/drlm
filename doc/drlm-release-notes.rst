@@ -65,7 +65,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
 
-DRLM Version 2.4.11 (February 2024) - Release Notes
+DRLM Version 2.4.11 (March 2024) - Release Notes
 ---------------------------------------------------
   * NEW! RAWDISK output backup type supported
 

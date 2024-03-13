@@ -319,7 +319,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Mon Feb 26 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
+* Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported
 - Updated Suse 15 ReaR repositories
 - Bugfix in web, holded backups are not shown
