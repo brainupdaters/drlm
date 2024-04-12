@@ -483,11 +483,11 @@ function list_network ()
   fi
 
   local NET_ID_LEN="$(get_max_network_id_length_dbdrv)"
-  if [ "$NET_ID_LEN" -le "2" ]; then NET_ID_LEN="2"; fi
+  if [ -z "$NET_ID_LEN" ] || [ "$NET_ID_LEN" -le "2" ]; then NET_ID_LEN="2"; fi
   NET_ID_LEN=$((NET_ID_LEN+1))
 
   local NET_NAME_LEN="$(get_max_network_name_length_dbdrv "backups")"
-  if [ "$NET_NAME_LEN" -le "4" ]; then NET_NAME_LEN="4"; fi
+  if [ -z "$NET_NAME_LEN" ] || [ "$NET_NAME_LEN" -le "4" ]; then NET_NAME_LEN="4"; fi
   NET_NAME_LEN=$((NET_NAME_LEN+1))
 
   NET_FORMAT="%-${NET_ID_LEN}s %-${NET_NAME_LEN}s %-8s %-15s %-15s %-15s %-15s %-15s %-15s\n"

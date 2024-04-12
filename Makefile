@@ -73,7 +73,6 @@ help:
   dist            - Create tar file\n\
   deb             - Create DEB package\n\
   rpm             - Create RPM package\n\
-  docker          - Create Docker image\n\
 \n\
 DRLM make variables (optional):\n\
 \n\
@@ -84,7 +83,6 @@ DRLM make variables (optional):\n\
 clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
-	rm -f packaging/docker/src/drlm*.deb
 	rm -f usr/sbin/drlm-api
 	rm -f usr/sbin/drlm-proxy
 	rm -f usr/sbin/drlm-send-error
@@ -255,8 +253,3 @@ deb: dist
 	rm usr/sbin/drlm-api
 	rm usr/sbin/drlm-proxy
 	rm usr/sbin/drlm-send-error
-
-docker: dist
-	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
-	packaging/docker/setup.sh
-	echo "Docker DRLM image built, now start with 'packaging/docker/run.sh'"

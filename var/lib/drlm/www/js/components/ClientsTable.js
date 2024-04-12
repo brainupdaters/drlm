@@ -18,6 +18,7 @@ var ClientsTable = {
             <th>Network</th>
             <th>OS</th>
             <th>ReaR</th>
+            <th>VIP</th>
             <th>Token</th>
             <th>Configs</th>
           </tr>
@@ -31,6 +32,7 @@ var ClientsTable = {
             <td>{{ client.cli_net }}</td>
             <td>{{ client.cli_os }}</td>
             <td>{{ client.cli_rear }}</td>
+            <td>{{ client.cli_vip }}</td>
 
             <td class="hover">
               <span class="token1">{{ client.cli_token }}</span>

@@ -77,7 +77,7 @@ if [ -n "$CLI_MAC" ]; then
   fi
 
   if exist_client_mac "$CLI_MAC"; then
-    Error "Client MAC: $CLI_MAC already registered!"
+    LogPrint "WARNING!Client MAC: $CLI_MAC already registered!"
   fi
 fi
 

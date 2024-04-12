@@ -64,9 +64,19 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.12 (March 2024) - Release Notes
+DRLM Version 2.4.12 (April 2024) - Release Notes
 ------------------------------------------------
-  * Dummy line for 2.4.12 release notes 
+  * Bugfix in listbackup when no backups are available
+
+  * Bugfix in listclient when no clients are available
+
+  * Bugfix in listnetwork when no networks are available
+
+  * Bugfix in listjob when no jobs are available 
+
+  * NEW! Virtual IP support to backup active cluster services
+
+  * Removed unmaintained Docker support
 
 
 DRLM Version 2.4.11 (March 2024) - Release Notes

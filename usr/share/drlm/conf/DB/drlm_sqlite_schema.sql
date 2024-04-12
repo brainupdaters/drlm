@@ -2,7 +2,7 @@ PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS "clients" (
-  "idclient" int(11) NOT NULL ,
+  "idclient" int(11) NOT NULL,
   "cliname" varchar(45) NOT NULL,
   "mac" varchar(17) NOT NULL,
   "ip" varchar(15) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS "clients" (
 );
 
 CREATE TABLE IF NOT EXISTS "networks" (
-  "idnetwork" int(11) NOT NULL ,
+  "idnetwork" int(11) NOT NULL,
   "netip" varchar(15) NOT NULL,
   "mask" varchar(15) NOT NULL,
   "gw" varchar(15) NOT NULL,
@@ -139,3 +139,10 @@ UPDATE snaps SET hold=0 WHERE hold is null;
 -- New column in jobs table
 ALTER TABLE jobs ADD COLUMN "status" tinyint(1);
 UPDATE jobs SET status=0 WHERE status is null;
+
+-- DRLM v2.4.12 new
+-- Create new table vipclients
+CREATE TABLE IF NOT EXISTS vipclients (
+  "idvipclient" int(11) NOT NULL,
+  "idclient" int(11)
+);

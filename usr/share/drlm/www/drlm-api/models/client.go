@@ -8,6 +8,7 @@ type Client struct {
 	NetworkName string         `json:"cli_net"`
 	OS          string         `json:"cli_os"`
 	ReaR        string         `json:"cli_rear"`
+	VIP         string         `json:"cli_vip"`
 	Token       string         `json:"cli_token"`
 	Configs     []ClientConfig `json:"cli_configs"`
 }

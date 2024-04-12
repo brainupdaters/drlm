@@ -23,6 +23,14 @@ function exist_client_id_dbdrv ()
   if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
 }
 
+function exist_client_vip_id_dbdrv ()
+{
+  local CLI_VIP_ID=$1
+  local CLI_ID=$2
+  COUNT=$(echo "select count(*) from vipclients where idvipclient='${CLI_VIP_ID}' and idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
 function exist_client_name_dbdrv ()
 {
   local CLI_NAME=$1
@@ -63,6 +71,13 @@ function get_client_name_dbdrv ()
   local CLI_ID=$1
   CLI_NAME=$(echo "select cliname from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo "$CLI_NAME"
+}
+
+function get_client_vip_names_by_name_dbdrv () {
+  local CLI_NAME=$1
+  local CLI_ID=$(get_client_id_by_name_dbdrv $CLI_NAME)
+
+  echo $(echo "select GROUP_CONCAT(clients.cliname, ' ') from clients where clients.idclient in (select vipclients.idclient from vipclients where vipclients.idvipclient = '${CLI_ID}');" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
 function get_client_mac_dbdrv ()
@@ -135,7 +150,7 @@ function get_all_client_list_dbdrv ()
     CLI_NAME_SQL="where clients.cliname='$CLI_NAME'"
   fi
 
-  echo "select clients.*, case when count(j.clients_id) = 0 then 'false' else 'true' end from clients left join jobs j on clients.idclient = clients_id $CLI_NAME_SQL group by clients.idclient $CLI_UNSCHED_SQL order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "select clients.*, case when count(j.clients_id) = 0 then 'false' else 'true' end, (select GROUP_CONCAT( idclient, ',') from vipclients WHERE vipclients.idvipclient = clients.idclient) from clients left join jobs j on clients.idclient = clients_id $CLI_NAME_SQL group by clients.idclient $CLI_UNSCHED_SQL order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
 }
 
 function get_all_client_id_dbdrv ()
@@ -167,6 +182,14 @@ function add_client_dbdrv ()
     fi
 }
 
+function add_client_vip_id_dbdrv () {
+    local CLI_VIP_ID=$1
+    local CLI_ID=$2
+
+    echo "INSERT INTO vipclients (idvipclient, idclient) VALUES (${CLI_VIP_ID}, ${CLI_ID});" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function generate_client_id_dbdrv () {
     local CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     if [ $CLI_ID -eq  0 ]; then
@@ -179,10 +202,22 @@ function generate_client_id_dbdrv () {
     echo $CLI_ID
 }
 
-function del_client_id_dbdrv ()
-{
+function del_client_id_dbdrv () {
   local CLI_ID=$1
   echo "delete from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function del_client_vip_id_dbdrv () {
+  local CLI_VIP_ID=$1
+  local CLI_ID=$2
+  echo "delete from vipclients where idvipclient='${CLI_VIP_ID}' and idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function del_client_vip_dbdrv () {
+  local CLI_ID=$1
+  echo "delete from vipclients where idclient='${CLI_ID}' or idvipclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 

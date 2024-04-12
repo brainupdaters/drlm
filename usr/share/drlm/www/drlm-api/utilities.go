@@ -1,4 +1,4 @@
-//utilities.go
+// utilities.go
 package main
 
 import (
@@ -49,6 +49,15 @@ func generateJSONResponse(object interface{}) string {
 
 func fileNameWithoutExtension(fileName string) string {
 	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
+}
+
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }
 
 //////////////// DEBUG BODY /////////////////////////////////////////
