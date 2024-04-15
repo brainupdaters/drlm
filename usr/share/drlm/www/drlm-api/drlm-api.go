@@ -137,7 +137,7 @@ func middlewareClientToken(next http.HandlerFunc) http.HandlerFunc {
 		receivedToken := r.Header.Get("Authorization")
 		receivedClientName := getField(r, 0)
 
-		// Check if the recived Client Name is a valid client name
+		// Check if the received Client Name is a valid client name
 		if !validateHostname(receivedClientName) {
 			w.Header().Set("Content-Type", "text/html")
 			w.WriteHeader(http.StatusBadRequest)
@@ -149,17 +149,22 @@ func middlewareClientToken(next http.HandlerFunc) http.HandlerFunc {
 		client := new(Client)
 		client.GetByName(receivedClientName)
 
-		// Check if recieved token is a valid token.
-		if receivedToken != client.Token {
+		// Get vip tokens
+		vipTokens, _ := client.getClientVipTokens()
+
+		// Check if received token is a valid token.
+		if receivedToken != client.Token && !contains(vipTokens, receivedToken) {
 			w.Header().Set("Content-Type", "text/html")
 			w.WriteHeader(http.StatusForbidden)
 			fmt.Fprintln(w, "invalid token")
 			return
 		}
 
-		recivedClientip, _, _ := net.SplitHostPort(r.RemoteAddr)
+		receivedClientip, _, _ := net.SplitHostPort(r.RemoteAddr)
 
-		if client.IP != recivedClientip {
+		vipIPs, _ := client.getClientVipIPs()
+
+		if client.IP != receivedClientip && !contains(vipIPs, receivedClientip) {
 			w.Header().Set("Content-Type", "text/html")
 			w.WriteHeader(http.StatusForbidden)
 			return

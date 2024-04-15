@@ -51,11 +51,11 @@ function list_job ()
   local LIST_TYPE="$2"
 
   local JOB_ID_LEN="$(get_max_job_id_length_dbdrv)"
-  if [ "$JOB_ID_LEN" -le "2" ]; then JOB_ID_LEN="2"; fi
+  if [ -z "$JOB_ID_LEN" ] || [ "$JOB_ID_LEN" -le "2" ]; then JOB_ID_LEN="2"; fi
   JOB_ID_LEN=$((JOB_ID_LEN+1))
 
   local JOB_CLI_LEN="$(get_max_client_name_length_dbdrv "jobs")"
-  if [ "$JOB_CLI_LEN" -le "7" ]; then JOB_CLI_LEN="7"; fi
+  if [ -z "$JOB_CLI_LEN" ] || [ "$JOB_CLI_LEN" -le "7" ]; then JOB_CLI_LEN="7"; fi
   JOB_CLI_LEN=$((JOB_CLI_LEN+1))
   
   local JOB_ENDDATE_LEN="$(get_max_job_enddate_length_dbdrv)"

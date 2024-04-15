@@ -871,8 +871,8 @@ __drlm_bkpmgr ()
 
 __drlm_modclient ()
 {
-  local options_s="-c -I -i -M -n -h"
-  local options_l="--client --id --ip --macaddr --netname --help"
+  local options_s="-c -I -i -M -n -h -a -d"
+  local options_l="--client --id --ip --macaddr --netname --help --add --del"
 
   if __drlm_exist_option "-h --help" "$workflow"; then
     local options_s="-h"
@@ -881,11 +881,17 @@ __drlm_modclient ()
     local options_s="-c -i -M -n"
     local options_l="--client --ip --macaddr --netname"
   elif __drlm_exist_option "-I --id" "$workflow"; then
-    local options_s="-I -i -M -n"
-    local options_l="--id --ip --macaddr --netname"
+    local options_s="-I -i -M -n -a -d"
+    local options_l="--id --ip --macaddr --netname --add --del"
+  elif __drlm_exist_option "-a --add" "$workflow"; then
+    local options_s="-I -a"
+    local options_l="--id --add"
+  elif __drlm_exist_option "-d --del" "$workflow"; then
+    local options_s="-I -d"
+    local options_l="--id --del"
   elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-    local options_s="-c -I -i -M -n"
-    local options_l="--client --id --ip --macaddr --netname"
+    local options_s="-c -I -i -M -n -a -d"
+    local options_l="--client --id --ip --macaddr --netname --add --del"
   fi
 
   case "$prev" in
@@ -896,7 +902,7 @@ __drlm_modclient ()
         COMPREPLY[i++]="$result"
       done
       ;;
-    -I | --id)
+    -I | --id | -a | --add | -d | --del)
       local i=0
       query=$(get_all_client_id_dbdrv "$cur")
       for result in $query; do

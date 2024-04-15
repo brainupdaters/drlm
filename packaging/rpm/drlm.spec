@@ -319,8 +319,13 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
-- Dummy line for 2.4.12 release notes
+* Fri Apr 12 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
+- Bugfix in listbackup when no backups are available
+- Bugfix in listclient when no clients are available
+- Bugfix in listnetwork when no networks are available
+- Bugfix in listjob when no jobs are available 
+- NEW! Virtual IP support to backup active cluster services
+- Removed unmaintained Docker support
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported

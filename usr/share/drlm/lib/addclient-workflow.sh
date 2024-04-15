@@ -67,7 +67,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
         ;;
 
       (-I|--installclient)
-        INSTALL="Y"
+        INSTALL=true
         ;;
 
       (-C|--config)
@@ -129,7 +129,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
 
   WORKFLOW_addclient () {
     SourceStage "client/add"
-    if [ "$INSTALL" == "Y" ]; then
+    if [ "$INSTALL" == "true" ]; then
       SourceStage "client/inst"
     fi
   }

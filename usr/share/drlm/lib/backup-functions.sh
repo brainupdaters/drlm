@@ -65,23 +65,23 @@ function list_backup () {
   local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
 
   local BAC_ID_LEN="$(get_max_backup_id_length_dbdrv)"
-  if [ "$BAC_ID_LEN" -le "9" ]; then BAC_ID_LEN="9"; fi
+  if [ -z "$BAC_ID_LEN" ] || [ "$BAC_ID_LEN" -le "9" ]; then BAC_ID_LEN="9"; fi
   BAC_ID_LEN=$((BAC_ID_LEN+1))
 
   local BAC_CLI_LEN="$(get_max_client_name_length_dbdrv "backups")"
-  if [ "$BAC_CLI_LEN" -le "11" ]; then BAC_CLI_LEN="11"; fi
+  if [ -z "$BAC_CLI_LEN" ] || [ "$BAC_CLI_LEN" -le "11" ]; then BAC_CLI_LEN="11"; fi
   BAC_CLI_LEN=$((BAC_CLI_LEN+1))
 
   local BAC_DURA_LEN="$(get_max_backup_duration_length_dbdrv)"
-  if [ "$BAC_DURA_LEN" -le "8" ]; then BAC_DURA_LEN="8"; fi
+  if [ -z "$BAC_DURA_LEN" ] || [ "$BAC_DURA_LEN" -le "8" ]; then BAC_DURA_LEN="8"; fi
   BAC_DURA_LEN=$((BAC_DURA_LEN+1))
 
   local BAC_SIZE_LEN="$(get_max_backup_size_length_dbdrv)"
-  if [ "$BAC_SIZE_LEN" -le "4" ]; then BAC_SIZE_LEN="4"; fi
+  if [ -z "$BAC_SIZE_LEN" ] || [ "$BAC_SIZE_LEN" -le "4" ]; then BAC_SIZE_LEN="4"; fi
   BAC_SIZE_LEN=$((BAC_SIZE_LEN+1))
 
   local BAC_CFG_LEN="$(get_max_backup_configuration_length_dbdrv)"
-  if [ "$BAC_CFG_LEN" -le "6" ]; then BAC_CFG_LEN="6"; fi
+  if [ -z "$BAC_CFG_LEN" ] || [ "$BAC_CFG_LEN" -le "6" ]; then BAC_CFG_LEN="6"; fi
   BAC_CFG_LEN=$((BAC_CFG_LEN+1))
 
   SNP_ID_LEN=$((BAC_ID_LEN+BAC_CLI_LEN-4))

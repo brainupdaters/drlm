@@ -14,6 +14,8 @@ function modclienthelp() {
   printf '%-25s %-45s\n' "-i|--ipaddr <IP>" "Set new IP address to client"
   printf '%-25s %-45s\n' "-M|--macaddr <MAC>" "Set new MAC address to client"
   printf '%-25s %-45s\n' "-n|--netname <NET>" "Assign new NETWORK to client"
+  printf '%-25s %-45s\n' "-a|--add <CLI_ID>" "Add VIP client to client"
+  printf '%-25s %-45s\n' "-d|--del <CLI_ID>" "Delete VIP client from client"
   printf '%-25s %-45s\n' "-h|--help" "Show this help"
   printf "\n"
   printf "$(tput bold)Examples:\n$(tput sgr0)"
