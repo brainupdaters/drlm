@@ -14,7 +14,7 @@ type Backup models.Backup
 // Get all backup from database
 func (b *Backup) GetAll() ([]Backup, error) {
 	db := GetConnection()
-	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass, hold FROM backups"
+	q := "SELECT backups.idbackup, backups.clients_id, backups.drfile, backups.active, backups.duration, backups.size, backups.config, backups.PXE, backups.type, backups.protocol, backups.date, backups.encrypted, backups.encryp_pass, backups.hold, policy.saved_by FROM backups LEFT JOIN policy ON backups.idbackup = policy.idbackup and policy.idsnap = ''"
 	rows, err := db.Query(q)
 	if err != nil {
 		return []Backup{}, err
@@ -24,6 +24,7 @@ func (b *Backup) GetAll() ([]Backup, error) {
 	backups := []Backup{}
 
 	for rows.Next() {
+		b := new(Backup)
 		rows.Scan(
 			&b.ID,
 			&b.Client,
@@ -39,6 +40,7 @@ func (b *Backup) GetAll() ([]Backup, error) {
 			&b.Encrypted,
 			&b.EncrypPass,
 			&b.Hold,
+			&b.Saved_by,
 		)
 		backups = append(backups, *b)
 	}
@@ -48,7 +50,7 @@ func (b *Backup) GetAll() ([]Backup, error) {
 // Get backup from database by backup id
 func (b *Backup) GetByID(id string) error {
 	db := GetConnection()
-	q := "SELECT idbackup, clients_id, drfile, active, duration, size, config, PXE, type, protocol, date, encrypted, encryp_pass, hold FROM backups where idbackup=?"
+	q := "SELECT backups.idbackup, backups.clients_id, backups.drfile, backups.active, backups.duration, backups.size, backups.config, backups.PXE, backups.type, backups.protocol, backups.date, backups.encrypted, backups.encryp_pass, backups.hold, policy.saved_by FROM backups LEFT JOIN policy ON backups.idbackup = policy.idbackup and policy.idsnap = '' WHERE backups.idbackup=?"
 
 	err := db.QueryRow(q, id).Scan(
 		&b.ID,
@@ -65,6 +67,7 @@ func (b *Backup) GetByID(id string) error {
 		&b.Encrypted,
 		&b.EncrypPass,
 		&b.Hold,
+		&b.Saved_by,
 	)
 	if err != nil {
 		return err
@@ -76,7 +79,7 @@ func (b *Backup) GetByID(id string) error {
 // Get all snaps from database
 func (b *Backup) GetSnaps() ([]Snap, error) {
 	db := GetConnection()
-	q := "SELECT idbackup, idsnap, date, active, duration, size FROM snaps WHERE idbackup=?"
+	q := "SELECT snaps.idbackup, snaps.idsnap, snaps.date, snaps.active, snaps.duration, snaps.size, snaps.hold, policy.saved_by FROM snaps LEFT JOIN policy ON snaps.idsnap = policy.idsnap WHERE snaps.idbackup=?"
 	rows, err := db.Query(q, b.ID)
 	if err != nil {
 		return []Snap{}, err
@@ -94,6 +97,8 @@ func (b *Backup) GetSnaps() ([]Snap, error) {
 			&s.Active,
 			&s.Duration,
 			&s.Size,
+			&s.Hold,
+			&s.Saved_by,
 		)
 		snaps = append(snaps, *s)
 	}

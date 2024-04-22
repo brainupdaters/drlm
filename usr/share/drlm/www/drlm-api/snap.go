@@ -1,4 +1,4 @@
-//snaps.go
+// snaps.go
 package main
 
 import (
@@ -13,7 +13,7 @@ type Snap models.Snap
 
 func (s *Snap) GetAll() ([]Snap, error) {
 	db := GetConnection()
-	q := "SELECT idbackup, idsnap, date, active, duration, size FROM snaps"
+	q := "SELECT snaps.idbackup, snaps.idsnap, snaps.date, snaps.active, snaps.duration, snaps.size, snaps.hold, policy.saved_by FROM snaps LEFT JOIN policy ON snaps.idsnap = policy.idsnap and snaps.idbackup = policy.idbackup"
 	rows, err := db.Query(q)
 	if err != nil {
 		return []Snap{}, err
@@ -21,6 +21,7 @@ func (s *Snap) GetAll() ([]Snap, error) {
 	defer rows.Close()
 	snaps := []Snap{}
 	for rows.Next() {
+		s = new(Snap)
 		rows.Scan(
 			&s.IDBackup,
 			&s.IDSnap,
@@ -28,6 +29,8 @@ func (s *Snap) GetAll() ([]Snap, error) {
 			&s.Active,
 			&s.Duration,
 			&s.Size,
+			&s.Hold,
+			&s.Saved_by,
 		)
 		snaps = append(snaps, *s)
 	}
@@ -36,7 +39,7 @@ func (s *Snap) GetAll() ([]Snap, error) {
 
 func (s *Snap) GetByID(id string) error {
 	db := GetConnection()
-	q := "SELECT idbackup, idsnap, date, active, duration, size FROM snaps where idsnap=?"
+	q := "SELECT snaps.idbackup, snaps.idsnap, snaps.date, snaps.active, snaps.duration, snaps.size, snaps.hold, policy.saved_by FROM snaps LEFT JOIN policy ON snaps.idsnap = policy.idsnap and snaps.idbackup = policy.idbackup WHERE snaps.idsnap=?"
 
 	err := db.QueryRow(q, id).Scan(
 		&s.IDBackup,
@@ -45,6 +48,8 @@ func (s *Snap) GetByID(id string) error {
 		&s.Active,
 		&s.Duration,
 		&s.Size,
+		&s.Hold,
+		&s.Saved_by,
 	)
 	if err != nil {
 		return err

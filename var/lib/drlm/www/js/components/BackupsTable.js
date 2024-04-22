@@ -16,6 +16,7 @@ var BackupsTable = {
             <th>PXE</th>
             <th>Config</th>
             <th>Type</th>
+            <th>Info</th>
           </tr>
         </thead>
         <tbody v-for="backup in backups" v-bind:key="backup.idbackup">
@@ -33,7 +34,8 @@ var BackupsTable = {
             <td v-if="backup.PXE == 1">*</td>
             <td v-else> </td>
             <td>{{ backup.config }}</td>
-            <td>{{ backup.type }}-{{ backup.protocol }} {{ backup.encrypted == '1' ? '(C)' : '' }}{{ backup.hold == '1' ? '(H)' : '' }}</td>
+            <td>{{ backup.type }}-{{ backup.protocol }}</td>
+            <td>{{ backup.encrypted == '1' ? '(C)' : '' }}{{ backup.hold == '1' ? '(H)' : '' }}{{ backup.saved_by }}</td>
           </tr>
         </tbody>
       </table>

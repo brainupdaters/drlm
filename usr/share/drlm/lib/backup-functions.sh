@@ -77,8 +77,8 @@ function list_backup () {
   BAC_DURA_LEN=$((BAC_DURA_LEN+1))
 
   local BAC_SIZE_LEN="$(get_max_backup_size_length_dbdrv)"
-  if [ -z "$BAC_SIZE_LEN" ] || [ "$BAC_SIZE_LEN" -le "4" ]; then BAC_SIZE_LEN="4"; fi
-  BAC_SIZE_LEN=$((BAC_SIZE_LEN+1))
+  if [ -z "$BAC_SIZE_LEN" ] || [ "$BAC_SIZE_LEN" -le "6" ]; then BAC_SIZE_LEN="6"; fi
+  BAC_SIZE_LEN=$((BAC_SIZE_LEN+2))
 
   local BAC_CFG_LEN="$(get_max_backup_configuration_length_dbdrv)"
   if [ -z "$BAC_CFG_LEN" ] || [ "$BAC_CFG_LEN" -le "6" ]; then BAC_CFG_LEN="6"; fi
@@ -114,8 +114,15 @@ function list_backup () {
 
   save_default_pretty_params_list_backup
 
-  for line in $(get_all_backups_dbdrv "$CLI_ID")
-  do
+  if [ "$POLICY_TOGGLE" == "true" ]; then 
+    if [ "$BKP_POLICY_LIST" == "true" ]; then
+      BKP_POLICY_LIST="false"
+    else
+      BKP_POLICY_LIST="true"
+    fi
+  fi
+
+  for line in $(get_all_backups_dbdrv "$CLI_ID"); do
     local BAC_ID="$(echo $line|awk -F":" '{print $1}')"
     local CLI_BAC_ID="$(echo $line|awk -F":" '{print $2}')"
     local CLI_NAME="$(get_client_name $CLI_BAC_ID)"
@@ -150,6 +157,17 @@ function list_backup () {
     else 
       BAC_PXE=""
     fi 
+   
+    BAC_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" "")"
+  
+    if [ -n "$BAC_POLICY_RULES" ]; then
+      BAC_POLICY="(P)"
+      if [ "$BKP_POLICY_LIST" == "true" ]; then
+        BAC_POLICY="(P)${BAC_POLICY_RULES}"
+      fi
+    else
+      BAC_POLICY=""
+    fi
 
     if [ "$BAC_STATUS" == "0" ]; then
       BAC_STATUS="disabled"
@@ -192,7 +210,7 @@ function list_backup () {
     fi
 
     BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s\n"
-    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}"; 
+    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}"; 
     
     # Check if BAC_ID have snapshots and list them
     found_enabled=0
@@ -207,8 +225,21 @@ function list_backup () {
       SNAP_TYPE="Snap"
       SNAP_HOLD="$(echo $snap_line | awk -F'|' '{print $7}')"
       if [ "$SNAP_HOLD" == "1" ]; then
-        SNAP_TYPE=$SNAP_TYPE"(H)"
+        SNAP_HOLD="(H)"
+      else
+        SNAP_HOLD=""
       fi 
+
+      SNAP_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" ""$SNAP_ID)"
+  
+      if [ -n "$SNAP_POLICY_RULES" ]; then
+        SNAP_POLICY="(P)"
+        if [ "$BKP_POLICY_LIST" == "true" ]; then
+          SNAP_POLICY="(P)${SNAP_POLICY_RULES}"
+        fi
+      else
+        SNAP_POLICY=""
+      fi
 
       if [ "$BAC_STATUS" == "disabled" ]; then
         SNAP_STATUS=""
@@ -220,7 +251,7 @@ function list_backup () {
           [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
         fi
       fi
-      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─$SNAP_TYPE";
+      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}";
     done
 
   done
