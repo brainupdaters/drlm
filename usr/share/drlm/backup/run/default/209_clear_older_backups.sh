@@ -58,18 +58,28 @@
 
 disable_backup_store $DR_FILE $CLI_NAME $CLI_CFG
 
-if clean_backups $CLI_NAME $HISTBKPMAX $CLI_CFG; then
-	LogPrint "Removed oldest $CLI_CFG backup"
-else
-	Error "Problem removing oldest backup"
-fi
-
-if [ "$DRLM_INCREMENTAL" == "yes" ]; then
-  if clean_snaps $BKP_BASE_ID $DRLM_INCREMENTAL_HIST; then
-    LogPrint "Removed oldest $CLI_CFG snap"
-  else
-    Error "Problem removing oldest snap"
+# if there are backup policies defined, apply them
+if [ -n "$BKP_POLICY_RULES" ]; then
+  calculate_policy "$CLI_ID" "$CLI_CFG" "$HISTBKPMAX" "$DRLM_INCREMENTAL_HIST"
+  if [ "$BKP_POLICY_AUTO_APPLY" == "true" ]; then
+    apply_policy "$CLI_ID" "$CLI_CFG"
   fi
+else
+
+  if clean_backups $CLI_NAME $HISTBKPMAX $CLI_CFG; then
+    LogPrint "Removed oldest $CLI_CFG backup"
+  else
+    Error "Problem removing oldest backup"
+  fi
+
+  if [ "$DRLM_INCREMENTAL" == "yes" ]; then
+    if clean_snaps $BKP_BASE_ID $DRLM_INCREMENTAL_HIST; then
+      LogPrint "Removed oldest $CLI_CFG snap"
+    else
+      Error "Problem removing oldest snap"
+    fi
+  fi
+
 fi
 
 # Enable current backup in DRLM_DEFAULT_BKP_STATUS mode 

@@ -5,8 +5,10 @@ drlm (2.4.12) stable release; urgency=high
   * Bugfix in listjob when no jobs are available 
   * NEW! Virtual IP support to backup active cluster services
   * Removed unmaintained Docker support
+  * NEW! Backup Policy support
+  * Bugfix in API listing holded snaps
   
- -- Pau Roura <pau@brainupdaters.net>  Fri, 12 Apr 2024 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Mon, 22 Apr 2024 00:00:00 +0100
 
 drlm (2.4.11) stable release; urgency=high
   * NEW! RAWDISK output backup type supported

@@ -182,6 +182,7 @@ function listbackuphelp() {
   printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client to list its backups"
   printf '%-25s %-45s\n' "-A|--all" "List all backups"
   printf '%-25s %-45s\n' "-p|--pretty" "Marks those backups that might have failed with colors"
+  printf '%-25s %-45s\n' "-P|--policy" "List backups with policy"
   printf '%-25s %-45s\n' "-h|--help" "Show this help"
   printf "\n"
   printf "$(tput bold)Examples:\n$(tput sgr0)"

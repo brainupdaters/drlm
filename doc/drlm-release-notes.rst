@@ -77,7 +77,11 @@ DRLM Version 2.4.12 (April 2024) - Release Notes
   * NEW! Virtual IP support to backup active cluster services
 
   * Removed unmaintained Docker support
+  
+  * NEW! Backup Policy support 
 
+  * Bugfix in API listing holded snaps
+ 
 
 DRLM Version 2.4.11 (March 2024) - Release Notes
 ------------------------------------------------

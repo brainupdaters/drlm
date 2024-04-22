@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} listbackup )
 
 if [ "$WORKFLOW" == "listbackup" ]; then 
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:pAh" -l "client:,pretty,all,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:pAPh" -l "client:,pretty,all,policy,help" -- "$@")"
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
@@ -54,6 +54,10 @@ if [ "$WORKFLOW" == "listbackup" ]; then
         PRETTY_TOGGLE=true
         ;;
 
+      (-P|--policy)
+        POLICY_TOGGLE=true
+        ;;
+        
       (-h|--help)
         listbackuphelp
         exit 0
