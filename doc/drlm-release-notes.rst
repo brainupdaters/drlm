@@ -30,7 +30,7 @@ chapter that details each release.
   * Command line interface. DRLM doesnot require a graphical
     interface to run. (console is enough).
 
-  * Multiarch netboot client support (x86_64-efi, i386-efi, i386-pc)
+  * Multiarch netboot client support (x86_64-efi, i386-efi, i386-pc, powerpc-ieee1275)
 
   * Automatic client intallation from DRLM server
 
@@ -46,9 +46,15 @@ chapter that details each release.
 
       - Mail
 
-  * Centralized backup scheduling with a job scheduler
+      - XML/JSON
+
+      - Telegram
+
+  * Centralized backup scheduling with a job scheduler and backup policy
 
   * Export and Import backup between DRLM servers or DRLM clients
+
+  * Real time clients log in DRLM server
 
 
 NOTE: Features marked experimental are prone to change with future releases.
@@ -81,7 +87,9 @@ DRLM Version 2.4.12 (April 2024) - Release Notes
   * NEW! Backup Policy support 
 
   * Bugfix in API listing holded snaps
- 
+
+  * NEW! Ubuntu 24.04 client & server support
+
 
 DRLM Version 2.4.11 (March 2024) - Release Notes
 ------------------------------------------------
