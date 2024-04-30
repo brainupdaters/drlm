@@ -40,7 +40,7 @@ chapter that details each release.
 
       - HP OpenView
 
-      - Nagios (NSCA & NSCA-ng)
+      - Nagios (NSCA, NSCA-ng & NRDP)
 
       - Zabbix
 
