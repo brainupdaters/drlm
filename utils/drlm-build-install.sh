@@ -124,8 +124,8 @@ case "$linux_distro" in
 
     # Check if the linux_distro is "Debian" or "Ubuntu"
     Debian | Ubuntu )
-        # Update and upgrade the system packages
-        apt update && apt -y upgrade
+        # Update the system packages
+        apt update
         # Install necessary packages
         apt -y install git build-essential debhelper curl bash-completion
          # Check Go Installation
