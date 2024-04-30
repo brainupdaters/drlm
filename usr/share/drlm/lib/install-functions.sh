@@ -132,13 +132,14 @@ function install_rear_dpkg () {
   $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y remove rear &> /dev/null
   $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.deb $URL_REAR &> /dev/null
   if [ $? -ne 0 ]; then
-    echo "Error Downloading rear package"
+    return 1
   else
-    $SUDO DEBIAN_FRONTEND=noninteractive /usr/bin/dpkg --force-confold --install /tmp/rear.deb &> /dev/null
+    $SUDO /usr/bin/dpkg --force-confold --install /tmp/rear.deb &> /dev/null
     if [ $? -ne 0 ]; then
-      echo "Error Installing ReaR package"
+      return 1
     fi
   fi
+  return 0
 }
 
 function install_rear_deb_repo () {
