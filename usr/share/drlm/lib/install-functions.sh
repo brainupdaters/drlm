@@ -515,7 +515,7 @@ function sync_client_scripts () {
   scripts=($CONFIG_DIR/clients/$CLI_NAME.scripts/*)
   if [ ${#scripts[@]} -gt 0 ]; then 
     # Copy the files to the remote client
-    scp $CONFIG_DIR/clients/$CLI_NAME.scripts/* ${DRLM_USER}@${CLI_NAME}:/var/lib/drlm/scripts/ &> /dev/null
+    scp $SCP_OPTS -P $SSH_PORT $CONFIG_DIR/clients/$CLI_NAME.scripts/* ${DRLM_USER}@${CLI_NAME}:/var/lib/drlm/scripts/ &> /dev/null
     if [ $? -eq 0 ]; then 
       # Give execution permissions to sctipts
       ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod -R 700 /var/lib/drlm/scripts" &> /dev/null
