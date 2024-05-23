@@ -70,7 +70,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.12 (April 2024) - Release Notes
+DRLM Version 2.4.12 (May 2024) - Release Notes
 ------------------------------------------------
   * Bugfix in listbackup when no backups are available
 
@@ -89,6 +89,8 @@ DRLM Version 2.4.12 (April 2024) - Release Notes
   * Bugfix in API listing holded snaps
 
   * NEW! Ubuntu 24.04 client & server support
+
+  * NEW! Configurable extra partition size on runbackup
 
 
 DRLM Version 2.4.11 (March 2024) - Release Notes

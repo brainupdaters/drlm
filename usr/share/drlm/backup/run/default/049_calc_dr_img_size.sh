@@ -28,7 +28,7 @@ EXCLUDE_LIST=( ${EXCLUDE_MOUNTPOINTS[@]} ${BACKUP_PROG_EXCLUDE[@]} )
 
 if DR_IMG_SIZE_MB=$(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "$(declare -p EXCLUDE_LIST INCLUDE_LIST_VG EXCLUDE_LIST_VG ; declare -f get_fs_free_mb get_fs_size_mb get_fs_used_mb get_client_used_mb); get_client_used_mb" 2>/dev/null) ; then
     Log "Remote space collection returned $DR_IMG_SIZE_MB MB for $CLI_NAME backup."
-    let "DR_IMG_SIZE_MB+=DR_IMG_SIZE_MB*10/100"
+    let "DR_IMG_SIZE_MB+=DR_IMG_SIZE_MB*DR_PERCENT_INC/100"
 else
     Error "Problem collecting remote space"
 fi
