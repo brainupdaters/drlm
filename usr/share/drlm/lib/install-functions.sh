@@ -518,7 +518,8 @@ function sync_client_scripts () {
     scp $SCP_OPTS -P $SSH_PORT $CONFIG_DIR/clients/$CLI_NAME.scripts/* ${DRLM_USER}@${CLI_NAME}:/var/lib/drlm/scripts/ &> /dev/null
     if [ $? -eq 0 ]; then 
       # Give execution permissions to sctipts
-      ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod -R 700 /var/lib/drlm/scripts" &> /dev/null
+      ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod 700 /var/lib/drlm/scripts" &> /dev/null
+      ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "chmod 700 /var/lib/drlm/scripts/drlm_*_runbackup_script.sh" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1; fi
     else 
       return 1; 
