@@ -9,6 +9,7 @@ drlm (2.4.12) stable release; urgency=high
   * Bugfix in API listing holded snaps
   * NEW! Ubuntu 24.04 client & server support
   * NEW! Configurable extra partition size on runbackup
+  * Improvement in remove_client_scripts. Avoid removal of other content.
   
  -- Pau Roura <pau@brainupdaters.net>  Mon, 20 May 2024 00:00:00 +0100
 

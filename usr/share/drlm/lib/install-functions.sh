@@ -529,7 +529,7 @@ function sync_client_scripts () {
 
 function remove_client_scripts () {
   local CLI_NAME=$1
-  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "rm -rf /var/lib/drlm/scripts/*" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "rm -rf /var/lib/drlm/scripts/drlm_*_runbackup_script.sh" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
