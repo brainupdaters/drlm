@@ -330,6 +330,7 @@ systemctl start drlm-tftpd.service
 - Bugfix in API listing holded snaps
 - NEW! Ubuntu 24.04 client & server support
 - NEW! Configurable extra partition size on runbackup
+- Improvement in remove_client_scripts. Avoid removal of other content.
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported

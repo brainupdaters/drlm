@@ -92,6 +92,8 @@ DRLM Version 2.4.12 (May 2024) - Release Notes
 
   * NEW! Configurable extra partition size on runbackup
 
+  * Improvement in remove_client_scripts. Avoid removal of other content.
+
 
 DRLM Version 2.4.11 (March 2024) - Release Notes
 ------------------------------------------------
