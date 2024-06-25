@@ -10,8 +10,9 @@ drlm (2.4.12) stable release; urgency=high
   * NEW! Ubuntu 24.04 client & server support
   * NEW! Configurable extra partition size on runbackup
   * Improvement in remove_client_scripts. Avoid removal of other content.
+  * Bugfix storing logs in incremental backups
   
- -- Pau Roura <pau@brainupdaters.net>  Mon, 20 May 2024 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Tue, 25 Jun 2024 00:00:00 +0100
 
 drlm (2.4.11) stable release; urgency=high
   * NEW! RAWDISK output backup type supported

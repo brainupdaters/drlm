@@ -70,7 +70,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.12 (May 2024) - Release Notes
+DRLM Version 2.4.12 (June 2024) - Release Notes
 ------------------------------------------------
   * Bugfix in listbackup when no backups are available
 
@@ -93,6 +93,8 @@ DRLM Version 2.4.12 (May 2024) - Release Notes
   * NEW! Configurable extra partition size on runbackup
 
   * Improvement in remove_client_scripts. Avoid removal of other content.
+
+  * Bugfix storing logs in incremental backups
 
 
 DRLM Version 2.4.11 (March 2024) - Release Notes
