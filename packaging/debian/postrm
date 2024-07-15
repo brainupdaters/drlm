@@ -50,6 +50,13 @@ case "$1" in
       rm /etc/systemd/system/drlm-tftpd.service 
     fi
 
+    # Stop, disable and remove stunnel service
+    if [ -f /etc/systemd/system/drlm-stunnel.service ]; then
+      systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+      systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
+      rm /etc/systemd/system/drlm-stunnel.service 
+    fi
+
     systemctl daemon-reload
 
     # Remove all backups stored and archived

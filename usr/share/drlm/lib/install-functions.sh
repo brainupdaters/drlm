@@ -217,6 +217,33 @@ function send_drlm_token () {
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
+function send_drlm_stunnel_cfg () {
+  local USER="$1"
+  local CLI_NAME="$2"
+  local SUDO="$3"
+
+  
+local STUNNEL_CFG=$(/bin/cat <<EOF
+client = yes
+verify = 1
+CApath = /etc/rear/cert
+verifyPeer = yes
+options = NO_SSLv3
+sslVersionMin = TLSv1.2
+sslVersionMax = TLSv1.3
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
+debug = 0
+foreground = yes
+connect = $(hostname -s):874
+TIMEOUTclose = 1
+EOF
+)
+
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( mkdir -vp /etc/rear/stunnel && echo '$STUNNEL_CFG' | ${SUDO} tee /etc/rear/stunnel/drlm.conf >/dev/null && ${SUDO} chmod 600 /etc/rear/stunnel/drlm.conf )" &> /dev/null
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+
 function make_ssl_capath () {
   local USER=$1
   local CLI_NAME=$2
@@ -605,6 +632,11 @@ EOF
     $SUDO rm -f /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
     if [ $? -eq 0 ]; then return 0; else return 1;fi
 
+  # control Rsync Port 
+  if [ -f "/usr/share/rear/lib/rsync-functions.sh" ]; then
+    $SUDO sed -i 's/echo 873/echo ${RSYNC_PORT:-874}/g' /usr/share/rear/lib/rsync-functions.sh
+  fi
+
 }
 
 function ssh_tunning_rear () {
@@ -615,6 +647,26 @@ function ssh_tunning_rear () {
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO; declare -f tunning_rear); tunning_rear" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
+
+function ssh_rear_drlm_extra () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+
+  # add drlm extras
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); $SUDO tar -xvf /tmp/restorefiles-workflow.tar -C / && $SUDO rm -vf /tmp/restorefiles-workflow.tar"
+  if [ $? -eq 0 ]; then return 0; else return 1;fi
+    
+}
+
+function send_rear_drlm_extra () {
+
+  local USER=$1
+  local CLI_NAME=$2
+  scp $SCP_OPTS -P $SSH_PORT /usr/share/drlm/conf/rear-extra/restorefiles-workflow.tar ${USER}@${CLI_NAME}:/tmp/ &> /dev/null
+
+}
+
 
 function authors () {
     echo "MMMMMMMMMMMMMMMMMMMMMMWXNMMMMMMMMMMMMMMMMMMWXXNMMMMMMMMMMMMMMMMMMMMWXMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"

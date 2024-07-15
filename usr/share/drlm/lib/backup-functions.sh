@@ -1,4 +1,39 @@
 # file with default backup functions to implement.
+function run_restorefiles_ssh_remote () {
+  #returns stdo of ssh
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local CLI_NAME=$(get_client_name $CLI_ID)
+  #local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
+  local BKPOUT
+
+  #Get the global options and generate GLOB_OPT string var to pass it to ReaR
+  if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
+    GLOB_OPT="-"
+    if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
+    if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
+    if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
+  fi
+
+  if [ "$CLI_CFG" != "default" ]; then
+    GLOB_OPT="$GLOB_OPT -C $CLI_CFG"
+  fi
+
+  if [ "$DRLM_BKP_TYPE" == "DATA" ]; then
+    REAR_RUN="restorefiles"
+  else
+    REAR_RUN="restorefiles"
+  fi
+
+  BKPOUT=$(ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1)
+  if [ $? -ne 0 ]; then
+    BKPOUT=$( echo $BKPOUT | tr -d "\r" )
+    echo "$BKPOUT"
+    return 1
+  else
+    return 0
+  fi
+}
 
 function run_mkbackup_ssh_remote () {
   #returns stdo of ssh

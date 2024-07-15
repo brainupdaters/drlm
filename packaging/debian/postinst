@@ -52,7 +52,8 @@ case "$1" in
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
     systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
     systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
-    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-rsyncd.service
+    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+    systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
 
     # Add systemd drlm services
     cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
@@ -63,6 +64,7 @@ case "$1" in
     cp /usr/share/drlm/conf/systemd/drlm-proxy.service /etc/systemd/system/
     cp /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/
     cp /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-stunnel.service /etc/systemd/system/
 
     # Reload systemd services
     systemctl daemon-reload
@@ -78,14 +80,15 @@ case "$1" in
     systemctl enable drlm-proxy.service
     systemctl enable drlm-rsyncd.service
     systemctl enable drlm-tftpd.service
-
+    systemctl enable drlm-stunnel.service
 
     # Start drlm services
     systemctl start drlm-stord.service
     systemctl start drlm-api.service
     systemctl start drlm-proxy.service
-    systemctl start drlm-rsyncd.service  
-    systemctl start drlm-tftpd.service  
+    systemctl start drlm-rsyncd.service
+    systemctl start drlm-tftpd.service
+    systemctl start drlm-stunnel.service
 
     #################
     # DRLM services #
