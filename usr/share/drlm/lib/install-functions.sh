@@ -240,7 +240,7 @@ TIMEOUTclose = 1
 EOF
 )
 
-  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( mkdir -vp /etc/rear/stunnel && echo '$STUNNEL_CFG' | ${SUDO} tee /etc/rear/stunnel/drlm.conf >/dev/null && ${SUDO} chmod 600 /etc/rear/stunnel/drlm.conf )" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT ${USER}@${CLI_NAME} "( ${SUDO} mkdir -vp /etc/rear/stunnel && echo '$STUNNEL_CFG' | ${SUDO} tee /etc/rear/stunnel/drlm.conf >/dev/null && ${SUDO} chmod 600 /etc/rear/stunnel/drlm.conf )" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
