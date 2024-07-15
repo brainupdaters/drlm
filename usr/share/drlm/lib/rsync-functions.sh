@@ -32,7 +32,7 @@ function enable_rsync_fs_rw ()
   list = false
   auth users = ${CLI_NAME} ${VIP_CLIENTS}
   secrets file = /etc/drlm/clients/${CLI_NAME}.secrets
-  hosts allow = ${CLI_NAME} ${VIP_CLIENTS}
+  hosts allow = localhost ${CLI_NAME} ${VIP_CLIENTS}
 EOF
 
   if [ ${?} -eq 0 ]; then return 0; else return 1; fi
@@ -57,7 +57,7 @@ function enable_rsync_fs_ro ()
   list = false
   auth users = ${CLI_NAME} ${VIP_CLIENTS}
   secrets file = /etc/drlm/clients/${CLI_NAME}.secrets
-  hosts allow = ${CLI_NAME} ${VIP_CLIENTS}
+  hosts allow = localhost ${CLI_NAME} ${VIP_CLIENTS}
 EOF
 
   if [ ${?} -eq 0 ]; then return 0; else return 1; fi
