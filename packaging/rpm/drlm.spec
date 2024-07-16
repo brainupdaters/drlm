@@ -319,7 +319,7 @@ systemctl start drlm-tftpd.service
 
 %changelog
 
-* Mon May 20 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
+* Tue Jun 25 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available
 - Bugfix in listclient when no clients are available
 - Bugfix in listnetwork when no networks are available
@@ -331,6 +331,7 @@ systemctl start drlm-tftpd.service
 - NEW! Ubuntu 24.04 client & server support
 - NEW! Configurable extra partition size on runbackup
 - Improvement in remove_client_scripts. Avoid removal of other content.
+- Bugfix storing logs in incremental backups
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported
