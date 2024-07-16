@@ -1,0 +1,1 @@
+/usr/share/rear/verify/RSYNC/default/550_check_remote_backup_archive.sh

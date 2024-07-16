@@ -575,67 +575,67 @@ function tunning_rear () {
     $SUDO sed -i 's/ $verbose//g' /usr/share/rear/lib/drlm-functions.sh
   fi
   
-  # Solve SELinux autorelabel after recover (RSYNC)
-  if [ -f "/usr/share/rear/restore/default/500_selinux_autorelabel.sh" ]; then
-    if ! grep -v '^\s*$\|^\s*\#' /usr/share/rear/restore/default/500_selinux_autorelabel.sh | grep -q 'rm -rf $TARGET_FS_ROOT/.autorelabel'; then
-      $SUDO sed -i '/^touch \$TARGET_FS_ROOT\/\.autorelabel/i rm -rf \$TARGET_FS_ROOT\/\.autorelabel' /usr/share/rear/restore/default/500_selinux_autorelabel.sh
-    fi
-  fi
+#  # Solve SELinux autorelabel after recover (RSYNC)
+#  if [ -f "/usr/share/rear/restore/default/500_selinux_autorelabel.sh" ]; then
+#    if ! grep -v '^\s*$\|^\s*\#' /usr/share/rear/restore/default/500_selinux_autorelabel.sh | grep -q 'rm -rf $TARGET_FS_ROOT/.autorelabel'; then
+#      $SUDO sed -i '/^touch \$TARGET_FS_ROOT\/\.autorelabel/i rm -rf \$TARGET_FS_ROOT\/\.autorelabel' /usr/share/rear/restore/default/500_selinux_autorelabel.sh
+#    fi
+#  fi
 
-  # If rsync reports an error, abort backup process. Only afects rear < 2.7
+  # If rsync reports an error, abort backup process. Only afects rear < 2.0
   if [ -f "/usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh" ]; then
       $SUDO sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/50_make_rsync_backup.sh
   fi
-  if [ -f "/usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh" ]; then
-      $SUDO sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
-  fi
+#  if [ -f "/usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh" ]; then
+#      $SUDO sed -i 's/test \"\$_rc\" -gt 0 \&\& VERBOSE\=1 LogPrint \"WARNING !/test \"\$_rc\" -gt 0 \&\& Error \"/g' /usr/share/rear/backup/RSYNC/default/500_make_rsync_backup.sh
+#  fi
 
-  # remove rear cron file
+  # remove rear cron file (ReaR < 2.5)
   if $SUDO test -f "/etc/cron.d/rear"; then
     $SUDO rm -rf /etc/cron.d/rear
   fi
 
-  # add drlm setup script for rescue adjustments on migrations
-  $SUDO cat > /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh << EOF
-# Setting required environment for DRLM proper function
+#  # add drlm setup script for rescue adjustments on migrations
+#  $SUDO cat > /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh << EOF
+## Setting required environment for DRLM proper function
+#
+#is_true "\$DRLM_MANAGED" || return 0
+#
+#read -r </proc/cmdline
+#
+#echo \$REPLY | grep -q "drlm="
+#if [ \$? -eq 0 ]; then
+#    drlm_cmdline=( \$(echo \${REPLY#*drlm=} | sed 's/drlm=//' | tr "," " ") )
+#    for i in \${drlm_cmdline[@]}
+#    do
+#        if echo \$i | grep -q '^id=\|^server='; then
+#          eval \$i
+#        fi
+#    done
+#
+#    echo "DRLM_MANAGED: Getting updated rescue configuration from DRLM ..."
+#
+#    test -n "\$server" && echo "DRLM_SERVER=\$server" >> /etc/rear/rescue.conf
+#    test -n "\$id" && echo "DRLM_ID=\$id" >> /etc/rear/rescue.conf
+#    test -n "\$server" && echo 'DRLM_REST_OPTS="-H Authorization:\$(cat /etc/rear/drlm.token) -k"' >> /etc/rear/rescue.conf
+#
+#fi
+#EOF
 
-is_true "\$DRLM_MANAGED" || return 0
+#    if [ -f "/usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh" ]; then
+#      $SUDO sed -i 's/if unattended_recovery \; then/if unattended_recovery \|\| automatic_recovery \; then/g' /usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh
+#    fi
 
-read -r </proc/cmdline
+#    $SUDO chmod 644 /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+#    $SUDO chown root:root /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+#    $SUDO cp -p /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh /usr/share/rear/skel/default/etc/scripts/system-setup.d/98-drlm-setup-rescue.sh
+#    $SUDO rm -f /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
+#    if [ $? -eq 0 ]; then return 0; else return 1;fi
 
-echo \$REPLY | grep -q "drlm="
-if [ \$? -eq 0 ]; then
-    drlm_cmdline=( \$(echo \${REPLY#*drlm=} | sed 's/drlm=//' | tr "," " ") )
-    for i in \${drlm_cmdline[@]}
-    do
-        if echo \$i | grep -q '^id=\|^server='; then
-          eval \$i
-        fi
-    done
-
-    echo "DRLM_MANAGED: Getting updated rescue configuration from DRLM ..."
-
-    test -n "\$server" && echo "DRLM_SERVER=\$server" >> /etc/rear/rescue.conf
-    test -n "\$id" && echo "DRLM_ID=\$id" >> /etc/rear/rescue.conf
-    test -n "\$server" && echo 'DRLM_REST_OPTS="-H Authorization:\$(cat /etc/rear/drlm.token) -k"' >> /etc/rear/rescue.conf
-
-fi
-EOF
-
-    if [ -f "/usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh" ]; then
-      $SUDO sed -i 's/if unattended_recovery \; then/if unattended_recovery \|\| automatic_recovery \; then/g' /usr/share/rear/skel/default/etc/scripts/system-setup.d/55-migrate-network-devices.sh
-    fi
-
-    $SUDO chmod 644 /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
-    $SUDO chown root:root /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
-    $SUDO cp -p /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh /usr/share/rear/skel/default/etc/scripts/system-setup.d/98-drlm-setup-rescue.sh
-    $SUDO rm -f /tmp/usr_share_rear_skel_default_etc_scripts_system-setup.d_98-drlm-setup-rescue.sh
-    if [ $? -eq 0 ]; then return 0; else return 1;fi
-
-  # control Rsync Port 
-  if [ -f "/usr/share/rear/lib/rsync-functions.sh" ]; then
-    $SUDO sed -i 's/echo 873/echo ${RSYNC_PORT:-874}/g' /usr/share/rear/lib/rsync-functions.sh
-  fi
+#  # control Rsync Port 
+#  if [ -f "/usr/share/rear/lib/rsync-functions.sh" ]; then
+#    $SUDO sed -i 's/echo 873/echo ${RSYNC_PORT:-874}/g' /usr/share/rear/lib/rsync-functions.sh
+#  fi
 
 }
 
@@ -654,7 +654,7 @@ function ssh_rear_drlm_extra () {
   local SUDO=$3
 
   # add drlm extras
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); $SUDO tar -xf /tmp/restorefiles-workflow.tar -C / && $SUDO rm -vf /tmp/restorefiles-workflow.tar"
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); $SUDO tar -xf /tmp/drlm-extra.tar -C / && $SUDO rm -vf /tmp/drlm-extra.tar"
   if [ $? -eq 0 ]; then return 0; else return 1;fi
     
 }
@@ -663,7 +663,9 @@ function send_rear_drlm_extra () {
 
   local USER=$1
   local CLI_NAME=$2
-  scp $SCP_OPTS -P $SSH_PORT /usr/share/drlm/conf/rear-extra/restorefiles-workflow.tar ${USER}@${CLI_NAME}:/tmp/ &> /dev/null
+  tar -cf /tmp/drlm-extra.tar -C /usr/share/drlm/conf/rear-extra .
+  scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${USER}@${CLI_NAME}:/tmp/ &> /dev/null
+  rm -f /tmp/drlm-extra.tar
 
 }
 
