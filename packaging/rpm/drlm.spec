@@ -347,10 +347,11 @@ systemctl start drlm-stunnel.service
 - NEW! Ubuntu 24.04 client & server support
 - NEW! Configurable extra partition size on runbackup
 - Improvement in remove_client_scripts. Avoid removal of other content.
-- Added TLS secure transport to DRLM rsync Backups
-- Added ReaR restorefiles workflow
-- Added DRLM restore workflow
+- NEW! Added TLS secure transport to DRLM rsync Backups
+- NEW! Added ReaR restorefiles workflow
+- NEW! Added DRLM restore workflow
 - Bugfix storing logs in incremental backups
+- NEW! Added drlm-extra interface to patch/extend rear integrations
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported

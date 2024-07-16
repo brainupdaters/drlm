@@ -10,10 +10,11 @@ drlm (2.4.12) stable release; urgency=high
   * NEW! Ubuntu 24.04 client & server support
   * NEW! Configurable extra partition size on runbackup
   * Improvement in remove_client_scripts. Avoid removal of other content.
-  * Added TLS secure transport to DRLM rsync Backups
-  * Added ReaR restorefiles workflow
-  * Added DRLM restore workflow
+  * NEW! Added TLS secure transport to DRLM rsync Backups
+  * NEW! Added ReaR restorefiles workflow
+  * NEW! Added DRLM restore workflow
   * Bugfix storing logs in incremental backups
+  * NEW! Added drlm-extra interface to patch/extend rear integrations
   
  -- Pau Roura <pau@brainupdaters.net>  Tue, 25 Jun 2024 00:00:00 +0100
 
