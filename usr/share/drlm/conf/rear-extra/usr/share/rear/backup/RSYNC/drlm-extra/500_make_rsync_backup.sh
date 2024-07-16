@@ -38,6 +38,7 @@ ProgressStart "Running backup operation"
 					;;
 
 				(rsync)
+					Log $BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" $(cat $TMP_DIR/backup-include.txt) "$(rsync_remote_full "$BACKUP_URL")/backup"
 					$BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" $(cat $TMP_DIR/backup-include.txt) \
 					"$(rsync_remote_full "$BACKUP_URL")/backup"
 					;;
@@ -59,18 +60,9 @@ starttime=$SECONDS
 sleep 3 # Give the backup software a good chance to start working
 
 get_size() {
-	echo $(stat --format '%s' "/$1" 2>/dev/null)
+	echo $($BACKUP_PROG '-e stunnel /etc/rear/stunnel/drlm.conf' --list-only --stats -r "$(rsync_remote_full "$BACKUP_URL")/backup" | tail -1 | awk '{print $4}' | tr -d ',') 2>/dev/null
 }
 
-check_remote_df() {
-	echo $(ssh $(rsync_remote_ssh "$BACKUP_URL") df -P ${path} 2>/dev/null | tail -1 | awk '{print $5}' | sed -e 's/%//')
-}
-
-check_remote_du() {
-	x=$(ssh $(rsync_remote_ssh "$BACKUP_URL") du -sb $(rsync_path_full "$BACKUP_URL")/backup 2>/dev/null | awk '{print $1}')
-	[[ -z "${x}" ]] && x=0
-	echo $x
-}
 
 # make sure that we don't fall for an old size info
 unset size
@@ -79,32 +71,10 @@ test "$PROGRESS_WAIT_SECONDS" || PROGRESS_WAIT_SECONDS=1
 case "$(basename $BACKUP_PROG)" in
 
 	(rsync)
-		ofile=""
-		i=0
 		while sleep $PROGRESS_WAIT_SECONDS ; kill -0 $BackupPID 2>/dev/null ; do
-			i=$((i+1))
-			[[ $i -gt 300 ]] && i=0
-			case $i in
 
-			300)
-			[[ $(check_remote_df) -eq 100 ]] && Error "Disk is full on system ${host}"
-			;;
-
-			15|30|45|60|75|90|105|120|135|150|165|180|195|210|225|240|255|270|285)
-			size=$(check_remote_du)
-			;;
-
-			* )
-			nfile="$(tail -1 "${TMP_DIR}/${BACKUP_PROG_ARCHIVE}.log")"
-			#fsize="$(get_size $(tail -1 "${TMP_DIR}/${BACKUP_PROG_ARCHIVE}.log"))"
-			[[ "$nfile" != "$ofile" ]] && {
-				fsize="$(get_size "$nfile")"
-				size=$((size+fsize))
-				ofile="$nfile"
-				}
-			;;
-			esac
-
+			fsize="$(get_size)"
+			size=$((size+fsize))
 			ProgressInfo "Backed up $((size/1024/1024)) MiB [avg $((size/1024/(SECONDS-starttime))) KiB/sec]"
 		done
 		;;
