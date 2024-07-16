@@ -278,6 +278,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 
 	drlmBkpType := ""
 	drlmBkpProt := ""
+	drlmBkpSecProt := ""
 	drlmBkpProg := ""
 
 	// Splits on newlines by default.
@@ -297,6 +298,8 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				drlmBkpType = varValue
 			} else if varName == "DRLM_BKP_PROT" {
 				drlmBkpProt = varValue
+			} else if varName == "DRLM_BKP_SEC_PROT" {
+				drlmBkpSecProt = varValue
 			} else if varName == "DRLM_BKP_PROG" {
 				drlmBkpProg = varValue
 			} else if varName == "OUTPUT" {
@@ -323,6 +326,11 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=ISO\n"
@@ -377,6 +385,11 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\"\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=PXE\n"
@@ -409,6 +422,11 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 			clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=ISO\n"
@@ -430,6 +448,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
 			}
 		}
+		clientConfig += "TARGET_FS_DATA=/var/tmp/drlm/restored\n"
 		/////////////
 		// RAWDISK
 		/////////////
@@ -442,6 +461,11 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=RAWDISK\n"

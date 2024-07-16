@@ -298,6 +298,27 @@ function runbackuphelp() {
   printf "\n"
 }
 
+function restorehelp() {
+  printf "\n"
+  printf "\n"
+  printf "$(tput bold)Usage:\n$(tput sgr0)"
+  printf '%-25s %-45s\n' "drlm restore [OPTARGS]" "Run remote client restore from DRLM"
+  printf "\n"
+  printf "$(tput bold)Required Options:\n$(tput sgr0)"
+  printf '%-25s %-45s\n' "-c|--client <CLI_NAME>" "Select Client to run restore by name"
+  printf '%-25s %-45s\n' "-I|--id <CLI_ID>" "Select Client to run restore by ID"
+  printf "\n"
+  printf "$(tput bold)Options:\n$(tput sgr0)"
+  printf '%-25s %-45s\n' "-C|--config" "Select Client backup configuration"
+  printf '%-25s %-45s\n' "-h|--help" "Show this help" 
+  printf "\n"
+  printf "$(tput bold)Examples:\n$(tput sgr0)"
+  printf "drlm restore -c|--client <cli_name>\n"
+  printf "        or\n"
+  printf "drlm restore -I|--id <cli_id>\n"
+  printf "\n"
+}
+
 function deljobhelp() {
   printf "\n"
   printf "\n"

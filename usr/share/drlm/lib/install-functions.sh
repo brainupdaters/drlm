@@ -654,7 +654,7 @@ function ssh_rear_drlm_extra () {
   local SUDO=$3
 
   # add drlm extras
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); $SUDO tar -xvf /tmp/restorefiles-workflow.tar -C / && $SUDO rm -vf /tmp/restorefiles-workflow.tar"
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); $SUDO tar -xf /tmp/restorefiles-workflow.tar -C / && $SUDO rm -vf /tmp/restorefiles-workflow.tar"
   if [ $? -eq 0 ]; then return 0; else return 1;fi
     
 }

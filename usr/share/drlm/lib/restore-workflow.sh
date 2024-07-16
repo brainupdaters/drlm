@@ -72,7 +72,7 @@ if [ "$WORKFLOW" == "restore" ]; then
         ;;
 
       (-h|--help)
-        runbackuphelp
+        restorehelp
         exit 0
         ;;
       
