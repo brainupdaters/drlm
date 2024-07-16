@@ -40,6 +40,11 @@
 # Stuff to do in the client before execute runbakcup
 Log "Pre run remote ReaR backup on client ${CLI_NAME} ..."
 
+# If incremental clean old logs
+if [ "$DRLM_INCREMENTAL" == "yes" ]; then
+  rm -rf $STORDIR/$CLI_NAME/${CLI_CFG}/backup-*.log.gz
+  rm -rf $STORDIR/$CLI_NAME/${CLI_CFG}/rear-*.log
+fi
 
 # Check for DRLM_PRE_RUNBACKUP_SCRIPTs
 if test "$DRLM_PRE_RUNBACKUP_SCRIPT" ; then

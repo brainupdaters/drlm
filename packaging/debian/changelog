@@ -13,8 +13,9 @@ drlm (2.4.12) stable release; urgency=high
   * Added TLS secure transport to DRLM rsync Backups
   * Added ReaR restorefiles workflow
   * Added DRLM restore workflow
+  * Bugfix storing logs in incremental backups
   
- -- Pau Roura <pau@brainupdaters.net>  Mon, 20 May 2024 00:00:00 +0100
+ -- Pau Roura <pau@brainupdaters.net>  Tue, 25 Jun 2024 00:00:00 +0100
 
 drlm (2.4.11) stable release; urgency=high
   * NEW! RAWDISK output backup type supported

@@ -335,7 +335,7 @@ systemctl start drlm-stunnel.service
 
 %changelog
 
-* Mon May 20 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
+* Tue Jun 25 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available
 - Bugfix in listclient when no clients are available
 - Bugfix in listnetwork when no networks are available
@@ -350,6 +350,7 @@ systemctl start drlm-stunnel.service
 - Added TLS secure transport to DRLM rsync Backups
 - Added ReaR restorefiles workflow
 - Added DRLM restore workflow
+- Bugfix storing logs in incremental backups
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported
