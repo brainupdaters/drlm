@@ -53,10 +53,11 @@ function SourceStage () {
             done
         done
     fi
+	local script_list=( $( ls -d ${scripts[@]} ${drlm_extra_scripts[@]} | sed -e 's#/\([0-9][0-9][0-9]\)_#/!\1!_#g' | sort -u -t \! -k 2 | tr -d \!) )
 
     local script=''
     # Source() the scripts one by one:
-    for script in "${scripts[@]}" ; do
+    for script in "${script_list[@]}" ; do
         # Tell the user about unexpected named scripts.
         # All sripts must be named with a leading three-digit number NNN_something.sh
         # otherwise the above sorting by the 3-digit number may not work as intended
