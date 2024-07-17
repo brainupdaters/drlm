@@ -199,18 +199,27 @@ function report_error_JSON () {
 }
 
 function report_error_telegram () {                                                                                                     
-    local ERRMSG=$( echo "$@" | tr "\\n" " - " )                                                                                        
-    local TELEGRAM_URL="https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage"                                                        
-    if [[ -f "$TELEGRAM_CMD" &&  -n "$TELEGRAM_TOKEN" && -n "$TELEGRAM_CHATID" ]]; then                       
-        CMDOUT=$( $TELEGRAM_CMD -s -X POST $TELEGRAM_URL -d chat_id=$TELEGRAM_CHATID -d text="$ERRMSG" )      
-        if [ $? -eq 0 ]; then                                                                                                   
-           return 0                                                                                                             
-        else                                                                                                                    
-           return 1                                                                                                             
-        fi                                                                                                                      
-    else                                                                                                                                
-        LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"    
-    fi                                                                                                                                  
+    local ERRMSG=$( echo "$@" | tr "\\n" " - " )           
+    local loop_index=0
+    local return_value=0
+
+    for TeleToken in "${TELEGRAM_TOKEN[@]}"; do
+      local TELEGRAM_TOKEN_LOOP="$TeleToken"
+      local TELEGRAM_CHATID_LOOP="${TELEGRAM_CHATID[$loop_index]}"
+      local TELEGRAM_URL_LOOP="https://api.telegram.org/bot$TELEGRAM_TOKEN_LOOP/sendMessage"
+
+      if [[ -f "$TELEGRAM_CMD" &&  -n "$TELEGRAM_TOKEN_LOOP" && -n "$TELEGRAM_CHATID_LOOP" ]]; then  
+          CMDOUT=$( $TELEGRAM_CMD -s -X POST $TELEGRAM_URL_LOOP -d chat_id=$TELEGRAM_CHATID_LOOP -d text="$ERRMSG" )      
+          if [ $? -ne 0 ]; then
+            return_value=1
+          fi                                                                                                                                   
+      else                                                                                                                                
+          LogPrint "WARNING:$PROGRAM:REPORTING:$REPORT_TYPE: Missing command and/or configuration file! Error cannot be sent!"    
+      fi    
+      loop_index=$((loop_index+1))
+    done
+
+    return $return_value
 }
 
 function report_error () {
