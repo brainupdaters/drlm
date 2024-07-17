@@ -1,5 +1,5 @@
 # make backup using the RSYNC method
-# This file is part of Relax-and-Recover, licensed under the GNU General
+# This file is part of drlm-extra for Relax-and-Recover, licensed under the GNU General
 # Public License. Refer to the included COPYING for full text of license.
 
 local backup_prog_rc
@@ -38,6 +38,9 @@ ProgressStart "Running backup operation"
 					;;
 
 				(rsync)
+					### drlm-extra:
+					# Added same Log output as ssh rsync_proto
+					#
 					Log $BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" $(cat $TMP_DIR/backup-include.txt) "$(rsync_remote_full "$BACKUP_URL")/backup"
 					$BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" $(cat $TMP_DIR/backup-include.txt) \
 					"$(rsync_remote_full "$BACKUP_URL")/backup"
@@ -59,6 +62,9 @@ starttime=$SECONDS
 
 sleep 3 # Give the backup software a good chance to start working
 
+### drlm-extra:
+#    New get_size working function
+#
 get_size() {
 	echo $($BACKUP_PROG '-e stunnel /etc/rear/stunnel/drlm.conf' --list-only --stats -r "$(rsync_remote_full "$BACKUP_URL")/backup" | tail -1 | awk '{print $4}' | tr -d ',') 2>/dev/null
 }
@@ -72,7 +78,9 @@ case "$(basename $BACKUP_PROG)" in
 
 	(rsync)
 		while sleep $PROGRESS_WAIT_SECONDS ; kill -0 $BackupPID 2>/dev/null ; do
-
+			### drlm-extra:
+			# Working progress info
+			#
 			fsize="$(get_size)"
 			size=$((size+fsize))
 			ProgressInfo "Backed up $((size/1024/1024)) MiB [avg $((size/1024/(SECONDS-starttime))) KiB/sec]"
@@ -96,6 +104,10 @@ backup_prog_rc="$(cat $TMP_DIR/retval)"
 
 sleep 1
 # everyone should see this warning, even if not verbose
+
+### drlm-extra
+# If rsync reports an error, abort backup process.
+#
 test "$backup_prog_rc" -gt 0 && Error "
 There was an error (${rsync_err_msg[$backup_prog_rc]}) during backup creation.
 Please check the destination and see '$RUNTIME_LOGFILE' for more information.

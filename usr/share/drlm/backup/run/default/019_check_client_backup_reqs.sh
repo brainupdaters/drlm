@@ -173,7 +173,7 @@ fi
 # Check in DRLM server services are active
 if [ "$DRLM_BKP_PROT" == "RSYNC"  ]; then
   check_drlm_rsyncd_service
-  check_drlm_stunnel_service
+  [[ "$DRLM_BKP_SEC_PROT" == "yes" || "$DRLM_BKP_SEC_PROT" == "" ]] && check_drlm_stunnel_service
 elif [ "$DRLM_BKP_PROT" == "NETFS" ]; then
   check_nfs_service
 fi

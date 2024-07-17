@@ -35,6 +35,7 @@ function SourceStage () {
         return 0
     fi
 
+    local script_list=''
     local drlm_extra_scripts=( $( cd $SHARE_DIR/$stage
                  ls -d  "drlm-extra"/*.sh \
               "$BACKUP"/"drlm-extra"/*.sh \
@@ -44,6 +45,7 @@ function SourceStage () {
     # If no script is found, then the scripts array contains only one element '.'
     if test "$drlm_extra_scripts" = '.' ; then
         Log "No drlm-extra scripts present in stage '$stage' to apply ..."
+        script_list=( "${scripts[@]}" )
     else
         for i in "${!scripts[@]}"; do 
 	    for j in "${!drlm_extra_scripts[@]}"; do 
@@ -52,8 +54,8 @@ function SourceStage () {
 	        fi
             done
         done
+        script_list=( $( printf '%s\n' "${scripts[@]}" "${drlm_extra_scripts[@]}" | sed -e 's#/\([0-9][0-9][0-9]\)_#/!\1!_#g' | sort -u -t \! -k 2 | tr -d \! ) )
     fi
-	local script_list=( $( ls -d ${scripts[@]} ${drlm_extra_scripts[@]} | sed -e 's#/\([0-9][0-9][0-9]\)_#/!\1!_#g' | sort -u -t \! -k 2 | tr -d \!) )
 
     local script=''
     # Source() the scripts one by one:

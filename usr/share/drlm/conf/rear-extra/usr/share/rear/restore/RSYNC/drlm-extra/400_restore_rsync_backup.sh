@@ -1,5 +1,11 @@
+# This file is part of drlm-extra for Relax-and-Recover, licensed under the GNU General
+# Public License. Refer to the included COPYING for full text of license.
+
 # Restore the remote backup via RSYNC from DRLM
 
+### drlm-extra:
+# function get_size corrected
+#
 get_size() {
 	echo $( du -sk "$TARGET_FS_ROOT/" | awk '{print $1}' )
 }
@@ -31,6 +37,9 @@ ProgressStart "Restore operation"
 					;;
 
 				(rsync)
+					### drlm-extra:
+					# Added same Log output as ssh rsync_proto
+					#
 					Log $BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" "$(rsync_remote_full "$BACKUP_URL")/backup"/ $TARGET_FS_ROOT/
 					$BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" \
 					"$(rsync_remote_full "$BACKUP_URL")/backup"/ $TARGET_FS_ROOT/ 
@@ -60,6 +69,9 @@ case "$(basename $BACKUP_PROG)" in
 	(rsync)
 		
 		while sleep $PROGRESS_WAIT_SECONDS ; kill -0 $BackupPID 2>/dev/null ; do
+			### drlm-extra:
+			# Working progress info
+			#
 			size=$( get_size )
 			size=$((size-fsize))
 			ProgressInfo "Restored $((size/1024)) MiB [avg $((size/(SECONDS-starttime))) KiB/sec]"

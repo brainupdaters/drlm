@@ -1,4 +1,11 @@
 # Restore the remote backup via RSYNC from DRLM
+# This file is part of drlm-extra for Relax-and-Recover, licensed under the GNU General
+# Public License. Refer to the included COPYING for full text of license.
+
+### drlm-extra:
+# New script for new drlm-extra restorefiles workflow.
+# Almost same as restore/RSYNC/default/400_restore_rsync_backup.sh but modified to suit DRLM needs for restorefiles workflow.
+#
 
 get_size() {
 	echo $( du -sk "$TARGET_FS_DATA/" | awk '{print $1}' )

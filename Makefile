@@ -94,7 +94,7 @@ validate:
 	find etc/ usr/share/drlm/conf/ -name '*.conf' ! -path etc/drlm/rsyncd/rsyncd.conf | xargs bash -n
 	bash -n $(drlmbin)
 	bash -n $(drlm_store_svc)
-	for file in $$(find . -name '*.sh'); do bash -n $$file || exit 1; done
+	for file in $$(find . -type f -name '*.sh'); do bash -n $$file || exit 1; done
 
 ifneq ($(shell which gofmt),)
 	#Validating GO Syntax

@@ -1,4 +1,4 @@
-# This file is part of Relax-and-Recover, licensed under the GNU General
+# This file is part of drlm-extra for Relax-and-Recover, licensed under the GNU General
 # Public License. Refer to the included COPYING for full text of license.
 
 # In the /usr/share/rear/conf/default.conf file the variable to temporary disasble SELinux during backup is
@@ -10,6 +10,10 @@ is_true "$BACKUP_SELINUX_DISABLE" || return 0
 
 # When BACKUP_SELINUX_DISABLE=1 has been defined we force a rebaling of all files after recovery (including reboot).
 # Force SELinux relabeling of all files after reboot of the recovered system:
+
+### drlm-extra:
+# Solve SELinux autorelabel after recover (RSYNC)
+#
 rm -rf $TARGET_FS_ROOT/.autorelabel
 touch $TARGET_FS_ROOT/.autorelabel
 LogPrint "Created SELinux $TARGET_FS_ROOT/.autorelabel file : after reboot SELinux will relabel all files"

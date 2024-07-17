@@ -1,3 +1,6 @@
+# This file is part of drlm-extra for Relax-and-Recover, licensed under the GNU General
+# Public License. Refer to the included COPYING for full text of license.
+
 # Setting required environment for DRLM proper function
 
 is_true "$DRLM_MANAGED" || return 0

@@ -108,6 +108,9 @@ if read_and_strip_file $MAC_MAPPING_FILE ; then
     done < $ORIG_MACS_FILE
 fi
 
+### drlm-extra:
+#    Added automatic_recovery to the MANUAL_MAC_MAPPING=unattended conditions
+#
 if unattended_recovery || automatic_recovery ; then
     # we gonna cheat a bit and say we have map made (but we did not and just hope that the interfaces
     # will be in the same order on the recover vm as on the client vm)
