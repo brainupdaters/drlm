@@ -11,10 +11,10 @@ case $(rsync_proto "$BACKUP_URL") in
                 ;;
 
         (rsync)
+                ### drlm-extra:
+                #    Added check for secure transport 
+                #
                 $BACKUP_PROG "$(rsync_remote_full "$BACKUP_URL")/backup" >/dev/null 2>&1 \
-					### drlm-extra:
-					#    Added check for secure transport 
-					#
                     || [[ "$DRLM_MANAGED" == "y" ]] && $BACKUP_PROG '-e stunnel /etc/rear/stunnel/drlm.conf' --list-only "$(rsync_remote_full "$BACKUP_URL")/backup" 2>/dev/null 2>&1 \
                     || Error "Archive not found on [$(rsync_remote_full "$BACKUP_URL")/backup ]"
                 ;;
