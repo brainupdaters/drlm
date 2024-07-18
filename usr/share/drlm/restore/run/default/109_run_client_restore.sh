@@ -16,19 +16,22 @@
 # DRLM_BKP_PROG         (Backup program)  [ RSYNC | TAR ]
 
 LogPrint "Starting remote ReaR restore on client ${CLI_NAME} ..."
+Print "-- START: --------------- [ Client Output ] --------------------"
 
 BKP_DURATION=$(date +%s)
 
-if OUT=$(run_restorefiles_ssh_remote $CLI_ID $CLI_CFG); then
+if run_restorefiles_ssh_remote $CLI_ID $CLI_CFG; then
   #Getting the backup duration in seconds 
   BKP_DURATION=$(echo "$(($(date +%s) - $BKP_DURATION))")
   #From seconds to hours:minuts:seconds
   BKP_DURATION=$(printf '%dh.%dm.%ds\n' $(($BKP_DURATION/3600)) $(($BKP_DURATION%3600/60)) $(($BKP_DURATION%60)))
+  Print "-- END: ----------------- [ Client Output ] --------------------"
   LogPrint "- Remote ReaR restore Success!"
 
   # Reset exit tasks
   EXIT_TASKS=( "${SAVE_EXIT_TASKS[@]}" )
 else
+  Print "-- END: ----------------- [ Client Output ] --------------------"
   LogPrint "- Problem running remote restorefiles"
   Error "Problem running remote restorefiles"
 fi

@@ -25,10 +25,8 @@ function run_restorefiles_ssh_remote () {
     REAR_RUN="restorefiles"
   fi
 
-  BKPOUT=$(ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1)
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1
   if [ $? -ne 0 ]; then
-    BKPOUT=$( echo $BKPOUT | tr -d "\r" )
-    echo "$BKPOUT"
     return 1
   else
     return 0
@@ -61,10 +59,8 @@ function run_mkbackup_ssh_remote () {
     REAR_RUN="mkbackup"
   fi
 
-  BKPOUT=$(ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1)
+  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1
   if [ $? -ne 0 ]; then
-    BKPOUT=$( echo $BKPOUT | tr -d "\r" )
-    echo "$BKPOUT"
     return 1
   else
     return 0

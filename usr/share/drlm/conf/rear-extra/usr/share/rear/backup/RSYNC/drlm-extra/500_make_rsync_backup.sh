@@ -117,7 +117,7 @@ $BACKUP_PROG, they should be excluded from the backup.
 
 "
 
-backup_log_message="$(tail -14 ${TMP_DIR}/${BACKUP_PROG_ARCHIVE}.log)"
+backup_log_message="$(tail -1 ${TMP_DIR}/${BACKUP_PROG_ARCHIVE}.log)"
 if [ $backup_prog_rc -eq 0 -a "$backup_log_message" ] ; then
 	LogPrint "$backup_log_message in $transfertime seconds."
 elif [ "$size" ]; then
