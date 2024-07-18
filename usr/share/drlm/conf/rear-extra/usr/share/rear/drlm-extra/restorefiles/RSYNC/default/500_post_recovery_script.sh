@@ -1,1 +1,1 @@
-/usr/share/rear/wrapup/default/500_post_recovery_script.sh
+../../../../../wrapup/default/500_post_recovery_script.sh

@@ -1,1 +1,1 @@
-/usr/share/rear/verify/RSYNC/default/050_prep_rsync.sh
+../../../../../verify/RSYNC/default/050_prep_rsync.sh
