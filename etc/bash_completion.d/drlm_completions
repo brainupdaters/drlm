@@ -34,6 +34,10 @@ _drlm()
       __drlm_runbackup
       return
       ;;
+    restore)
+      __drlm_restore
+      return
+      ;;
     addjob)
       __drlm_addjob
       return
@@ -160,6 +164,67 @@ __drlm_addclient ()
 }
 
 __drlm_runbackup ()
+{
+  local options_s="-c -C -I -h"
+  local options_l="--client --config --id --help"
+
+  if __drlm_exist_option "-h --help" "$workflow"; then
+    local options_s="-h"
+    local options_l="--help"
+  elif __drlm_exist_option "-I --id" "$workflow"; then
+    local options_s="-I -C"
+    local options_l="--id --config"
+  elif __drlm_exist_option "-c --client" "$workflow"; then
+    local options_s="-c -C"
+    local options_l="--client --config"
+  elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
+    local options_s="-c -I"
+    local options_l="--client --id"
+  fi
+
+  case "$prev" in
+    -c | --client)
+      local i=0
+      query=$(get_all_client_names_dbdrv "$cur")
+      for result in $query; do
+        COMPREPLY[i++]="$result"
+      done
+      ;;
+    -I | --id)
+      local i=0
+      query=$(get_all_client_id_dbdrv "$cur")
+      for result in $query; do
+        COMPREPLY[i++]="$result"
+      done
+      ;;
+    -C | --config)
+      local i=0
+      prev3="${COMP_WORDS[COMP_CWORD-3]}"
+      if [ "$prev3" == "-c" ]; then
+        local client="${COMP_WORDS[COMP_CWORD-2]}"
+        query=$(ls /etc/drlm/clients/$client.cfg.d/"$cur"*.cfg 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      elif [ "$prev3" == "-I" ]; then
+        local client_id="${COMP_WORDS[COMP_CWORD-2]}"
+        client=$(get_client_name_dbdrv "$client_id")
+        query=$(ls -1 /etc/drlm/clients/$client.cfg.d/"$cur"*.cfg 2>/dev/null | xargs -n 1 basename 2>/dev/null | sed -e 's/\.cfg$//')
+        for result in $query; do
+          COMPREPLY[i++]="$result"
+        done
+      fi
+      ;;
+    "-"*)
+      COMPREPLY=()
+      ;;
+    *)
+      __drlmcomp3 "$options_s" "$options_l"
+      ;;
+  esac
+}
+
+__drlm_restore ()
 {
   local options_s="-c -C -I -h"
   local options_l="--client --config --id --help"

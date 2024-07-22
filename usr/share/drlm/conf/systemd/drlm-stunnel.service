@@ -1,0 +1,13 @@
+[Unit]
+Description=DRLM Stunnel Service
+After=drlm-stord.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/stunnel /etc/drlm/stunnel/rsync.conf
+
+[Install]
+WantedBy=multi-user.target
+

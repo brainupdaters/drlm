@@ -135,6 +135,9 @@ systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsync
 systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
 systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
 
+systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
+
 systemctl daemon-reload
 fi
 
@@ -212,6 +215,7 @@ fi
 %{__cp} /usr/share/drlm/conf/systemd/drlm-proxy.service /etc/systemd/system/tmp_drlm-proxy.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/tmp_drlm-rsyncd.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/tmp_drlm-tftpd.service
+%{__cp} /usr/share/drlm/conf/systemd/drlm-stunnel.service /etc/systemd/system/tmp_drlm-stunnel.service
 
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
@@ -238,12 +242,16 @@ systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsync
 systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
 systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
 
+systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
+
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
 %{__rm} -f /etc/systemd/system/drlm-proxy.service
 %{__rm} -f /etc/systemd/system/drlm-rsyncd.service
 %{__rm} -f /etc/systemd/system/drlm-tftpd.service
+%{__rm} -f /etc/systemd/system/drlm-stunnel.service
 
 # Unconfigure nbd
 /usr/share/drlm/conf/nbd/config-nbd.sh remove
@@ -300,6 +308,11 @@ if [ -f /etc/systemd/system/tmp_drlm-tftpd.service ]; then
   systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
 fi
 
+if [ -f /etc/systemd/system/tmp_drlm-stunnel.service ]; then
+  mv /etc/systemd/system/tmp_drlm-stunnel.service /etc/systemd/system/drlm-stunnel.service
+  systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+fi
+
 systemctl daemon-reload
 
 systemctl is-enabled --quiet drlm-stord.service || systemctl enable drlm-stord.service
@@ -317,6 +330,9 @@ systemctl start drlm-rsyncd.service
 systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.service
 systemctl start drlm-tftpd.service
 
+systemctl is-enabled --quiet drlm-stunnel.service || systemctl enable drlm-stunnel.service
+systemctl start drlm-stunnel.service
+
 %changelog
 
 * Tue Jun 25 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
@@ -331,7 +347,11 @@ systemctl start drlm-tftpd.service
 - NEW! Ubuntu 24.04 client & server support
 - NEW! Configurable extra partition size on runbackup
 - Improvement in remove_client_scripts. Avoid removal of other content.
+- NEW! Added TLS secure transport to DRLM rsync Backups
+- NEW! Added ReaR restorefiles workflow
+- NEW! Added DRLM restore workflow
 - Bugfix storing logs in incremental backups
+- NEW! Added drlm-extra interface to patch/extend rear integrations
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported

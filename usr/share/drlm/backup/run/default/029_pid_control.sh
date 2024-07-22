@@ -27,14 +27,15 @@ if [ -f $VAR_DIR/run/$CLI_NAME.pid ]; then
   if [ "$CLI_PID" != "" ]; then
     COMMAND=$( ps -p $CLI_PID -o comm= )
     if [ -n "$COMMAND" ]; then
-      LogPrint "Backup of client [ $CLI_NAME ] already running with PID: $CLI_PID Command: $COMMAND."
-      Error "Skipping runbackup of client [ $CLI_NAME ]."
+      LogPrint "Operation [ $WORKFLOW ] for client [ $CLI_NAME ] already running with PID: $CLI_PID Command: $COMMAND."
+      Error "Skipping operation [ $WORKFLOW ] for client [ $CLI_NAME ]."
     else
       echo $BASHPID > $VAR_DIR/run/$CLI_NAME.pid
-      Log "Running backup for client [ $CLI_NAME ] with PID: $BASHPID."
+      Log "Operation [ $WORKFLOW ] for client [ $CLI_NAME ] with PID: $BASHPID."
     fi
   fi
 else
   echo $BASHPID > $VAR_DIR/run/$CLI_NAME.pid
-  Log "Running backup for client [ $CLI_NAME ] with PID: $BASHPID."
+  Log "Operation [ $WORKFLOW ] for client [ $CLI_NAME ] with PID: $BASHPID."
 fi
+
