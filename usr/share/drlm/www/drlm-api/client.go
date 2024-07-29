@@ -379,8 +379,9 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
 			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
 			clientConfig += "OUTPUT=PXE\n"
-			clientConfig += "OUTPUT_PREFIX_PXE=\"" + c.Name + "/" + configName + "\n"
-			clientConfig += "OUTPUT_URL=\"rsync://" + c.Name + "@" + serverIP + "/" + c.Name + "_" + configName + "\n"
+			clientConfig += "OUTPUT_PREFIX=PXE\n"
+			clientConfig += "OUTPUT_PREFIX_PXE=\"" + c.Name + "/" + configName + "/PXE\n"
+			clientConfig += "OUTPUT_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\"\n"
