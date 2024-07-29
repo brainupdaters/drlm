@@ -395,7 +395,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=PXE\n"
 				clientConfig += "OUTPUT_PREFIX=PXE\n"
-				clientConfig += "OUTPUT_PREFIX_PXE=" + c.Name + "/" + configName + "/PXE\n"
+				clientConfig += "OUTPUT_PREFIX_PXE=\"" + c.Name + "/" + configName + "/PXE\n"
 				clientConfig += "BACKUP=NETFS\n"
 				clientConfig += "NETFS_PREFIX=backup\n"
 				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
