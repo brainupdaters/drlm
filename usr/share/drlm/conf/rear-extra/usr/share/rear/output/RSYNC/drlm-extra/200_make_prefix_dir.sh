@@ -19,7 +19,7 @@ host="$(rsync_host "$OUTPUT_URL")"
 ### drlm-extra:
 #    Added PXE subdir creation
 #
-mkdir -p $v -m0750 "${TMP_DIR}/rsync/${RSYNC_PREFIX}/PXE" >&2 || Error "Could not mkdir '${TMP_DIR}/rsync/${RSYNC_PREFIX}/PXE'"
+mkdir -p $v -m0750 "${TMP_DIR}/rsync/${RSYNC_PREFIX}/${OUTPUT_PREFIX}" >&2 || Error "Could not mkdir '${TMP_DIR}/rsync/${RSYNC_PREFIX}/${OUTPUT_PREFIX}'"
 
 case $proto in
 

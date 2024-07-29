@@ -23,7 +23,7 @@ if test "$RESULT_FILES" ; then
     ### drlm-extra:
     #    Added PXE subdir to dest resultfiles
     #
-    cp $v "${RESULT_FILES[@]}" "${TMP_DIR}/rsync/${RSYNC_PREFIX}/PXE" \
+    cp $v "${RESULT_FILES[@]}" "${TMP_DIR}/rsync/${RSYNC_PREFIX}/${OUTPUT_PREFIX}" \
         || Error "Could not copy files to local rsync location"
 fi
 
