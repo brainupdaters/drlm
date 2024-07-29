@@ -380,11 +380,11 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
 			clientConfig += "OUTPUT=PXE\n"
 			clientConfig += "OUTPUT_PREFIX=PXE\n"
-			clientConfig += "OUTPUT_PREFIX_PXE=\"" + c.Name + "/" + configName + "/PXE\n"
-			clientConfig += "OUTPUT_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
+			clientConfig += "OUTPUT_PREFIX_PXE=" + c.Name + "/" + configName + "/PXE\n"
+			clientConfig += "OUTPUT_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
-			clientConfig += "BACKUP_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\"\n"
+			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
 				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
@@ -395,7 +395,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=PXE\n"
 				clientConfig += "OUTPUT_PREFIX=PXE\n"
-				clientConfig += "OUTPUT_PREFIX_PXE=\"" + c.Name + "/" + configName + "/PXE\n"
+				clientConfig += "OUTPUT_PREFIX_PXE=" + c.Name + "/" + configName + "/PXE\n"
 				clientConfig += "BACKUP=NETFS\n"
 				clientConfig += "NETFS_PREFIX=backup\n"
 				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"

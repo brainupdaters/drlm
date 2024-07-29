@@ -48,7 +48,7 @@ if [ "$DRLM_BKP_TYPE" == "PXE" ]; then
   CLI_KERNEL_FILE=$(ls ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/*kernel | xargs -n 1 basename)
   CLI_INITRD_FILE=$(ls ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/*initrd* | xargs -n 1 basename)
   CLI_REAR_PXE_FILE=$(grep -l -w append ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/rear* | xargs -n 1 basename)
-  CLI_KERNEL_OPTS=$(grep -h -w initrd ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/${CLI_REAR_PXE_FILE} | awk '{$1=""; print $0}' | sed 's/vga/gfxpayload=vga/' | grep -v "initrd=")
+  CLI_KERNEL_OPTS=$(grep -h -w append ${STORDIR}/${CLI_NAME}/${CLI_CFG}/PXE/${CLI_REAR_PXE_FILE} | awk '{print substr($0, index($0,$3))}' | sed 's/vga/gfxpayload=vga/')
 
   if [ $(stat -c %a ${STORDIR}/${CLI_NAME}) != "755" ]; then
     chmod 755 ${STORDIR}/${CLI_NAME}
