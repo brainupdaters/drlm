@@ -2,7 +2,7 @@
 
 function rsync_port () {
     # Setting rsync port 
-    echo "${RSYNC_PORT:-874}"
+    echo "${RSYNC_PORT:-873}"
 }
 
 # Source() the scripts one by one:

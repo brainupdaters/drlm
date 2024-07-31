@@ -24,8 +24,11 @@ function run_restorefiles_ssh_remote () {
   else
     REAR_RUN="restorefiles"
   fi
-
-  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1
+  if [[ "$VERBOSE" -eq 1 ]]; then
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1
+  else
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" >/dev/null 2>&1
+  fi
   if [ $? -ne 0 ]; then
     return 1
   else
@@ -59,7 +62,11 @@ function run_mkbackup_ssh_remote () {
     REAR_RUN="mkbackup"
   fi
 
-  ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1
+  if [[ "$VERBOSE" -eq 1 ]]; then
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1
+  else
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" >/dev/null 2>&1
+  fi
   if [ $? -ne 0 ]; then
     return 1
   else
