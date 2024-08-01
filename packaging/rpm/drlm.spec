@@ -117,7 +117,7 @@ fi
 ### If --> is upgrade save old data and stop systemd services
 if [ "$1" == "2" ]; then
 
-drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
+[ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
 
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
@@ -139,6 +139,26 @@ systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.
 systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
 
 systemctl daemon-reload
+
+### Check if older versions than 2.4.12
+[ -f /usr/sbin/drlm ] && drlm_ver_num="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
+if [[ -n "$drlm_ver_num" ]]; then
+  if [[ "$drlm_ver_num" < "020412" ]]; then
+    echo "INFO: Since DRLM 2.4.12 the RSYNC protocol transport is secure by default!!!"
+    echo "      Setting insecure transport to all current configuirations using RSYNC."
+    echo "      To secure it run [ drlm instclient -c <cli_name> -C ] to each client "
+    echo "      and comment out DRLM_BKP_SEC_PROT=no in all required client configurations."
+    echo "      New installed clients will be secure by default!"
+    for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do
+    PROT=$(grep -v "^#" $cfg | grep DRLM_BKP_PROT=NETFS)
+    [[ "$PROT" == "" ]] && echo "DRLM_BKP_SEC_PROT=no" >> $cfg
+    done
+  fi
+else
+  echo "INFO: Unable to identify DRLM version, keeping configurations."
+fi
+
+
 fi
 
 %post
