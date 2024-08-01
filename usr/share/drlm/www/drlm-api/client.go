@@ -321,6 +321,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
 			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
 			clientConfig += "OUTPUT=ISO\n"
+			clientConfig += "OUTPUT_PREFIX=ISO\n"
 			clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
@@ -334,7 +335,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=ISO\n"
-				clientConfig += "OUTPUT_PREFIX=\n"
+				clientConfig += "OUTPUT_PREFIX=ISO\n"
 				clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 				clientConfig += "BACKUP=NETFS\n"
 				clientConfig += "NETFS_PREFIX=backup\n"
@@ -457,6 +458,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
 			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
 			clientConfig += "OUTPUT=RAWDISK\n"
+			clientConfig += "OUTPUT_PREFIX=RAWDISK\n"
 			clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
@@ -470,8 +472,8 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=RAWDISK\n"
+				clientConfig += "OUTPUT_PREFIX=RAWDISK\n"
 				clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
-				clientConfig += "OUTPUT_PREFIX=\n"
 				clientConfig += "BACKUP=NETFS\n"
 				clientConfig += "NETFS_PREFIX=backup\n"
 				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
