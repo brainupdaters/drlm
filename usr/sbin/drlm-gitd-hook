@@ -1,0 +1,61 @@
+#!/bin/bash
+#         
+# drlm-gitd-hook     This shell script takes care of Access Contol to ReaR install repo
+#                                                                  
+# Description:       DRLM is a central Disaster Recovery Manager  
+#                    for Linux OS. This Hook controls access to 
+#                    the ReaR software from drlm-gitd Service 
+#                    to all configured clients.                    
+                                                                
+# What is this?
+DESC="DRLM Git Daemon access hook"
+SHARE_DIR="/usr/share/drlm"
+CONFIG_DIR="/etc/drlm"
+LOGFILE="/var/log/drlm/drlm-gitd.log"
+                                                                                                                                                                                                                                                                                                                               
+# Source DRLM configurations and functions                                                                                                                                                                                                                                                                                     
+source $SHARE_DIR/conf/default.conf
+[ -f /etc/drlm/site.conf  ] && source /etc/drlm/site.conf
+[ -f /etc/drlm/local.conf ] && source /etc/drlm/local.conf
+                                  
+source $SHARE_DIR/lib/dbdrv/$DB_BACKEND-driver.sh
+source $SHARE_DIR/lib/client-functions.sh
+
+# Returned value
+RETVAL="0"                     
+                              
+# Only root can run the command
+uid=`id | cut -d\( -f1 | cut -d= -f2`
+[ $uid -ne 0 ] && exit 4
+
+# Exit if required binaries are missing.                                                                                                                                                                                                                                                                                       
+[ -x /usr/bin/git   ] || exit 0
+                                                                                                                                                                                                                                                                                                                               
+# Exit if required files are missing.
+[ -f /var/lib/drlm/drlm.sqlite ] || exit 0
+
+# Log and Error functions                                                                                                                                                                                                                                                                                                      
+function Stamp() {          
+  date +"%Y-%m-%d %H:%M:%S " 
+}
+
+function Error () {
+  echo "$(Stamp) Error: $*" | tee -a $LOGFILE
+  RETVAL=1
+}
+
+function Log () {
+  echo "$(Stamp)$*" | tee -a $LOGFILE
+}
+
+echo "$(Stamp)Command: drlm-gitd-hook ${@:1:3} ..." >> $LOGFILE
+
+exist_client_ip "${REMOTE_ADDR}"
+if [ $? -eq 0 ]; then
+  Log "Access Allowed to [ ${REMOTE_ADDR} ]. The request comes from existent DRLM Client!!"
+else
+  Error "Access Denied to [ ${REMOTE_ADDR} ]. The request does not come from a DRLM Client!!"
+fi
+
+exit $RETVAL
+

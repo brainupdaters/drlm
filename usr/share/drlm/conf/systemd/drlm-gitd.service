@@ -1,0 +1,18 @@
+[Unit]
+Description=DRLM Git Daemon
+
+[Service]
+ExecStart=/usr/bin/git daemon --access-hook=/usr/sbin/drlm-gitd-hook \
+                                --reuseaddr --verbose --log-destination=stderr \
+                                --export-all --base-path=/var/lib/drlm/dist \
+                                /var/lib/drlm/dist/rear
+
+Restart=always
+RestartSec=500ms
+
+StandardOutput=append:/var/log/drlm/drlm-gitd.log
+StandardError=append:/var/log/drlm/drlm-gitd.log
+
+[Install]
+WantedBy=multi-user.target
+

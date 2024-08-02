@@ -669,6 +669,63 @@ function send_rear_drlm_extra () {
 
 }
 
+function setup_rear_git_dist () {
+
+local GIT_URL=$1
+  # check rear-git present or clone mirror ReaR github repo
+  $(git -C /var/lib/drlm/dist/rear branch --show-current >/dev/null 2>&1) || git clone --mirror $GIT_URL /var/lib/drlm/dist/rear >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    # Hold specific commits to go as far as a working codebase permits to have working ReaR point-in-time working builds
+    # instead of tagged releases/branches with some missing patches. Interesting for clients with old versions.
+    # commit 94016e7 - rear 2.7 date 20240724
+    $(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
+    if [ $? -eq 0 ]; then return 0; else return 1;fi
+  else
+    return 1
+  fi
+}
+
+function install_rear_git () {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  local GIT_TAG=$4
+  local DISTRO=$5
+
+  # clone rear git drlm dist
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null)" &> /dev/null
+  if [ $? -eq 0 ]; then 
+    # install rear git drlm dist
+    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( cd /var/lib/drlm/rear-$GIT_TAG && $SUDO make install &> /dev/null )" &> /dev/null 
+    if [ $? -eq 0 ]; then 
+      case "$DISTRO" in
+        Debian|Ubuntu)
+          # install deps with apt
+          ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \"$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g')\" &> /dev/null)" &> /dev/null
+          if [ $? -eq 0 ]; then return 0; else return 1;fi
+          ;;
+        CentOS|RedHat|Rocky)
+          # install deps with yum
+          ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO yum -y install \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+          if [ $? -eq 0 ]; then return 0; else return 1;fi
+          ;;
+        Suse)
+          # install deps with zypper
+          ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO zypper --no-gpg-checks in -y \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+          if [ $? -eq 0 ]; then return 0; else return 1;fi
+          ;;
+        *)
+          return 1
+          ;;
+      esac
+    else
+      return 1
+    fi
+  else
+    return 1
+  fi
+
+}
 
 function authors () {
     echo "MMMMMMMMMMMMMMMMMMMMMMWXNMMMMMMMMMMMMMMMMMMWXXNMMMMMMMMMMMMMMMMMMMMWXMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"

@@ -57,6 +57,13 @@ case "$1" in
       rm /etc/systemd/system/drlm-stunnel.service 
     fi
 
+    # Stop, disable and remove gitd service
+    if [ -f /etc/systemd/system/drlm-gitd.service ]; then
+      systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+      systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.service
+      rm /etc/systemd/system/drlm-gitd.service 
+    fi
+
     systemctl daemon-reload
 
     # Remove all backups stored and archived

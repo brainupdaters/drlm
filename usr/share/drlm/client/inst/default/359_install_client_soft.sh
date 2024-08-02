@@ -57,17 +57,17 @@ if [ -z "$CONFIG_ONLY" ]; then
                 Error "Problem installing ReaR, check logfile" 
               fi
 
-            # if not -r or -U install proposed ReaR package by DRLM
+            # if not -r or -U install ReaR from DRLM Git dist.
             else
-              eval URL_REAR=\$URL_REAR_DEBIAN"$CLI_VERSION""$REP_ARCH"
+              eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
 
-              if [ "$URL_REAR" == "" ]; then 
-                Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
-              else
-                if ssh_install_rear_dpkg "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
+              if [ "$GIT_REAR" == "" ]; then
+                Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
+              elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
+                if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
                   Log "ReaR has been installed"
-                else 
-                  Error "Problem installing ReaR, check logfile" 
+                else
+                  Error "Problem installing ReaR, check logfile"
                 fi
               fi
             fi
@@ -103,6 +103,7 @@ if [ -z "$CONFIG_ONLY" ]; then
                 ;;
 
             esac
+
           # if parameter -U/--url_rear in installclient try to install from specified URL
           elif [ "$URL_REAR" != "" ]; then
             if ssh_install_rear_dpkg "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
@@ -110,16 +111,17 @@ if [ -z "$CONFIG_ONLY" ]; then
             else 
               Error "Problem installing ReaR, check logfile" 
             fi
-          # if not -r or -U install proposed ReaR package by DRLM    
-          else
-            eval URL_REAR=\$URL_REAR_UBUNTU"$CLI_VERSION""$REP_ARCH"
 
-            if [ "$URL_REAR" == "" ]; then 
-              Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
-            else
-              if ssh_install_rear_dpkg "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
-                Log "ReaR has been installed" 
-              else    
+            # if not -r or -U install ReaR from DRLM Git dist.
+          else
+            eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
+
+            if [ "$GIT_REAR" == "" ]; then
+              Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
+            elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
+                Log "ReaR has been installed"
+              else
                 Error "Problem installing ReaR, check logfile"
               fi
             fi
@@ -160,17 +162,17 @@ if [ -z "$CONFIG_ONLY" ]; then
               Error "Problem installing ReaR, check logfile" 
             fi
 
-          # if not -r or -U install proposed ReaR package by DRLM        
+          # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval URL_REAR=\$URL_REAR_REDHAT"$CLI_VERSION""$REP_ARCH"
+            eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
 
-            if [ "$URL_REAR" == "" ]; then 
-              Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
-            else
-              if ssh_install_rear_yum "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
+            if [ "$GIT_REAR" == "" ]; then
+              Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
+            elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
                 Log "ReaR has been installed"
-              else 
-                Error "Problem installing ReaR, check logfile" 
+              else
+                Error "Problem installing ReaR, check logfile"
               fi
             fi
           fi
@@ -216,19 +218,20 @@ if [ -z "$CONFIG_ONLY" ]; then
             else 
               Error "Problem installing ReaR, check logfile"
             fi  
-          # if not -r or -U install proposed ReaR package by DRLM        
-          else
-            eval URL_REAR=\$URL_REAR_SUSE"$CLI_VERSION""$REP_ARCH"
 
-            if [ "$URL_REAR" == "" ]; then 
-              Error "No URL for $DISTRO $CLI_VERSION $REP_ARCH in default.conf"
-            else
-              if ssh_install_rear_zypper "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then 
-                Log "ReaR has been installed" 
-              else 
+          # if not -r or -U install ReaR from DRLM Git dist.
+          else
+            eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
+
+            if [ "$GIT_REAR" == "" ]; then
+              Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
+            elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
+                Log "ReaR has been installed"
+              else
                 Error "Problem installing ReaR, check logfile"
-              fi   
-            fi              
+              fi
+            fi
           fi
         else
             Error "zypper problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"

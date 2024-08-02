@@ -31,6 +31,7 @@ Requires: rpcbind
 Requires: rsync
 Requires: bc
 Requires: parted
+Requires: git
 
 ### SUSE packages
 %if %{?suse_version:1}0
@@ -138,6 +139,9 @@ systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.
 systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
 systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
 
+systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.service
+
 systemctl daemon-reload
 
 ### Check if older versions than 2.4.12
@@ -236,6 +240,7 @@ fi
 %{__cp} /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/tmp_drlm-rsyncd.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/tmp_drlm-tftpd.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-stunnel.service /etc/systemd/system/tmp_drlm-stunnel.service
+%{__cp} /usr/share/drlm/conf/systemd/drlm-gitd.service /etc/systemd/system/tmp_drlm-gitd.service
 
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
@@ -265,6 +270,9 @@ systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.
 systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
 systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
 
+systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.service
+
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
@@ -272,6 +280,7 @@ systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-rsyncd.service
 %{__rm} -f /etc/systemd/system/drlm-tftpd.service
 %{__rm} -f /etc/systemd/system/drlm-stunnel.service
+%{__rm} -f /etc/systemd/system/drlm-gitd.service
 
 # Unconfigure nbd
 /usr/share/drlm/conf/nbd/config-nbd.sh remove
@@ -294,6 +303,7 @@ systemctl daemon-reload
 %{_sbindir}/drlm-api
 %{_sbindir}/drlm-proxy
 %{_sbindir}/drlm-send-error
+%{_sbindir}/drlm-gitd-hook
 
 %posttrans
 ### Rcover certificates post transaction
@@ -333,6 +343,11 @@ if [ -f /etc/systemd/system/tmp_drlm-stunnel.service ]; then
   systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
 fi
 
+if [ -f /etc/systemd/system/tmp_drlm-gitd.service ]; then
+  mv /etc/systemd/system/tmp_drlm-gitd.service /etc/systemd/system/drlm-gitd.service
+  systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+fi
+
 systemctl daemon-reload
 
 systemctl is-enabled --quiet drlm-stord.service || systemctl enable drlm-stord.service
@@ -353,9 +368,12 @@ systemctl start drlm-tftpd.service
 systemctl is-enabled --quiet drlm-stunnel.service || systemctl enable drlm-stunnel.service
 systemctl start drlm-stunnel.service
 
+systemctl is-enabled --quiet drlm-gitd.service || systemctl enable drlm-gitd.service
+systemctl start drlm-gitd.service
+
 %changelog
 
-* Tue Jun 25 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
+* Fri Aug 02 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available
 - Bugfix in listclient when no clients are available
 - Bugfix in listnetwork when no networks are available
@@ -372,6 +390,7 @@ systemctl start drlm-stunnel.service
 - NEW! Added DRLM restore workflow
 - Bugfix storing logs in incremental backups
 - NEW! Added drlm-extra interface to patch/extend rear integrations
+- NEW! Added new client git install method as default. (-r/-U keeps old style install)
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported
