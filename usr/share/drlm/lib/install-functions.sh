@@ -674,15 +674,12 @@ function setup_rear_git_dist () {
 local GIT_URL=$1
   # check rear-git present or clone mirror ReaR github repo
   $(git -C /var/lib/drlm/dist/rear branch --show-current >/dev/null 2>&1) || git clone --mirror $GIT_URL /var/lib/drlm/dist/rear >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    # Hold specific commits to go as far as a working codebase permits to have working ReaR point-in-time working builds
-    # instead of tagged releases/branches with some missing patches. Interesting for clients with old versions.
-    # commit 94016e7 - rear 2.7 date 20240724
-    $(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
-    if [ $? -eq 0 ]; then return 0; else return 1;fi
-  else
-    return 1
-  fi
+  if [ $? -ne 0 ]; then return 1; fi
+  # Hold specific commits to go as far as a working codebase permits to have working ReaR point-in-time working builds
+  # instead of tagged releases/branches with some missing patches. Interesting for clients with old versions.
+  # commit 94016e7 - rear 2.7 date 20240724
+  $(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
+  if [ $? -eq 0 ]; then return 0; else return 1;fi
 }
 
 function install_rear_git () {
@@ -696,8 +693,11 @@ function install_rear_git () {
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null)" &> /dev/null
   if [ $? -eq 0 ]; then 
     # install rear git drlm dist
+    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( cd /var/lib/drlm/rear-$GIT_TAG && $SUDO make uninstall &> /dev/null )" &> /dev/null 
+    if [ $? -ne 0 ]; then return 1; fi
+    # install rear git drlm dist
     ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( cd /var/lib/drlm/rear-$GIT_TAG && $SUDO make install &> /dev/null )" &> /dev/null 
-    if [ $? -eq 0 ]; then 
+    if [ $? -ne 0 ]; then return 1; fi
       case "$DISTRO" in
         Debian|Ubuntu)
           # install deps with apt
@@ -718,9 +718,6 @@ function install_rear_git () {
           return 1
           ;;
       esac
-    else
-      return 1
-    fi
   else
     return 1
   fi
