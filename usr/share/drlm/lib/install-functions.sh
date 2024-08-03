@@ -693,10 +693,10 @@ function install_rear_git () {
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null)" &> /dev/null
   if [ $? -eq 0 ]; then 
     # install rear git drlm dist
-    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( cd /var/lib/drlm/rear-$GIT_TAG && $SUDO make uninstall &> /dev/null )" &> /dev/null 
+    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG uninstall &> /dev/null )" &> /dev/null 
     if [ $? -ne 0 ]; then return 1; fi
     # install rear git drlm dist
-    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( cd /var/lib/drlm/rear-$GIT_TAG && $SUDO make install &> /dev/null )" &> /dev/null 
+    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG install &> /dev/null )" &> /dev/null 
     if [ $? -ne 0 ]; then return 1; fi
       case "$DISTRO" in
         Debian|Ubuntu)
