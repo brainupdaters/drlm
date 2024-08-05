@@ -59,12 +59,12 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install ReaR from DRLM Git dist.
             else
-              eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
+              eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
 
               if [ "$GIT_REAR" == "" ]; then
                 Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
               elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
-                if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
+                if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
                   Log "ReaR has been installed"
                 else
                   Error "Problem installing ReaR, check logfile"
@@ -114,12 +114,12 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
+            eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
 
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
             elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
-              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
                 Log "ReaR has been installed"
               else
                 Error "Problem installing ReaR, check logfile"
@@ -164,12 +164,12 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
+            eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
 
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
             elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
-              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
                 Log "ReaR has been installed"
               else
                 Error "Problem installing ReaR, check logfile"
@@ -221,12 +221,12 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_REDHAT"$CLI_VERSION"
+            eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
 
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
             elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
-              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
                 Log "ReaR has been installed"
               else
                 Error "Problem installing ReaR, check logfile"
