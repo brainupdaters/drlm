@@ -691,36 +691,33 @@ function install_rear_git () {
 
   # clone rear git drlm dist
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null)" &> /dev/null
-  if [ $? -eq 0 ]; then 
-    # install rear git drlm dist
-    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG uninstall &> /dev/null )" &> /dev/null 
-    if [ $? -ne 0 ]; then return 1; fi
-    # install rear git drlm dist
-    ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG install &> /dev/null )" &> /dev/null 
-    if [ $? -ne 0 ]; then return 1; fi
-      case "$DISTRO" in
-        Debian|Ubuntu)
-          # install deps with apt
-          ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \"$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g')\" &> /dev/null)" &> /dev/null
-          if [ $? -eq 0 ]; then return 0; else return 1;fi
-          ;;
-        CentOS|RedHat|Rocky)
-          # install deps with yum
-          ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO yum -y install \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
-          if [ $? -eq 0 ]; then return 0; else return 1;fi
-          ;;
-        Suse)
-          # install deps with zypper
-          ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO zypper --no-gpg-checks in -y \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
-          if [ $? -eq 0 ]; then return 0; else return 1;fi
-          ;;
-        *)
-          return 1
-          ;;
-      esac
-  else
-    return 1
-  fi
+  if [ $? -ne 0 ]; then return 1; fi
+  # install rear git drlm dist
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG uninstall &> /dev/null )" &> /dev/null 
+  if [ $? -ne 0 ]; then return 1; fi
+  # install rear git drlm dist
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG install &> /dev/null )" &> /dev/null 
+  if [ $? -ne 0 ]; then return 1; fi
+    case "$DISTRO" in
+      Debian|Ubuntu)
+        # install deps with apt
+        ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \"$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g')\" &> /dev/null)" &> /dev/null
+        if [ $? -eq 0 ]; then return 0; else return 1;fi
+        ;;
+      CentOS|RedHat|Rocky)
+        # install deps with yum
+        ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO yum -y install \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+        if [ $? -eq 0 ]; then return 0; else return 1;fi
+        ;;
+      Suse)
+        # install deps with zypper
+        ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO zypper --no-gpg-checks in -y \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+        if [ $? -eq 0 ]; then return 0; else return 1;fi
+        ;;
+      *)
+        return 1
+        ;;
+    esac
 
 }
 
