@@ -29,9 +29,9 @@ case "$1" in
     systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
 
     # Check if older versions than 2.4.12
-    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
-    if [[ -n "$drlm_ver" ]]; then
-      if [[ "$drlm_ver" < "020412" ]]; then 
+    drlm_ver_num="$(echo "$drlm_ver" | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
+    if [ -n $drlm_ver_num ]; then
+      if [ $drlm_ver_num -lt 020412 ]; then 
         echo "INFO: Since DRLM 2.4.12 the RSYNC protocol transport is secure by default!!!"
         echo "      Setting insecure transport to all current configuirations using RSYNC."
         echo "      To secure it run [ drlm instclient -c <cli_name> -C ] to each client "
@@ -39,7 +39,7 @@ case "$1" in
         echo "      New installed clients will be secure by default!"
         for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do 
         PROT=$(grep -v "^#" $cfg | grep DRLM_BKP_PROT=NETFS)
-        [[ "$PROT" == "" ]] && echo "DRLM_BKP_SEC_PROT=no" >> $cfg
+        [ "$PROT" == "" ] && echo "DRLM_BKP_SEC_PROT=no" >> $cfg
         done
       fi
     else
