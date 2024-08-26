@@ -29,8 +29,7 @@ case "$1" in
     #systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
 
     # Check if older versions than 2.4.12
-    [ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
-    drlm_ver_num="$(echo "$drlm_ver" | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
+    [ -f /usr/sbin/drlm ] && drlm_ver_num="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
     if [ -n $drlm_ver_num ]; then
       if [ $drlm_ver_num -lt 020412 ]; then 
         echo "INFO: Since DRLM 2.4.12 the RSYNC protocol transport is secure by default!!!"
