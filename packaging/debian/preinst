@@ -25,8 +25,8 @@ case "$1" in
     fi
     
     #Stop apache2 server of older drlm versions
-    systemctl is-active --quiet apache2.service && systemctl stop apache2.service
-    systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
+    #systemctl is-active --quiet apache2.service && systemctl stop apache2.service
+    #systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
 
     # Check if older versions than 2.4.12
     drlm_ver_num="$(echo "$drlm_ver" | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
