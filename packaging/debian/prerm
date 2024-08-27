@@ -27,6 +27,10 @@ case "$1" in
     systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
     systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
     [ -f /etc/systemd/system/drlm-stunnel.service ] && rm /etc/systemd/system/drlm-stunnel.service
+    # Stop, disable and remove drlm-gitd.service
+    systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+    systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.service
+    [ -f /etc/systemd/system/drlm-gitd.service ] && rm /etc/systemd/system/drlm-gitd.service
 
     systemctl daemon-reload
 
@@ -61,6 +65,10 @@ case "$1" in
     systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
     systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
     [ -f /etc/systemd/system/drlm-stunnel.service ] && rm /etc/systemd/system/drlm-stunnel.service
+    # Stop, disable and remove drlm-gitd.service
+    systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+    systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.service
+    [ -f /etc/systemd/system/drlm-gitd.service ] && rm /etc/systemd/system/drlm-gitd.service
 
     systemctl daemon-reload
 
@@ -70,7 +78,7 @@ case "$1" in
     ;;
 
   purge)
-    # Uncongigure nbd
+    # Unconfigure nbd
     /usr/share/drlm/conf/nbd/config-nbd.sh remove
     ;;
 
