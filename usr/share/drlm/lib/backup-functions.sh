@@ -1,4 +1,34 @@
 # file with default backup functions to implement.
+
+function run_backup_config () {
+  #returns stdo of ssh
+  local CLI_ID=$1
+  local CLI_NAME=$(get_client_name $CLI_ID)
+  local BKPOUT
+
+  #Get the global options and generate GLOB_OPT string var to pass it to ReaR
+  if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
+    GLOB_OPT="-"
+    if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
+    if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
+    if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
+  fi
+
+  if [ "$CLI_CFG" != "default" ]; then
+    GLOB_OPT="$GLOB_OPT -C $CLI_CFG"
+  fi
+
+  REAR_RUN="mkbackuponly"
+
+  /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" 2>&1
+  #BKPOUT=$( /usr/sbin/rear "$GLOB_OPT" -C internal backupfiles 2>&1)
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 function run_restorefiles_ssh_remote () {
   #returns stdo of ssh
   local CLI_ID=$1
