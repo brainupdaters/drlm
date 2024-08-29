@@ -107,6 +107,36 @@ case "$1" in
     fi
     ;;
 
+    #################
+    # DRLM internal #
+    #################
+
+    # Create internal client to DB
+    echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (0, 'internal', '', '127.0.0.1', 'lo', '', '' ); " | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite
+    # Generate client token to improve drlm-api security
+    /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > /etc/drlm/clients/internal.token
+    chmod 600 /etc/drlm/clients/internal.token
+    # Generate client secrets
+    echo "internal:$(cat /etc/drlm/clients/internal.token)" >> /etc/drlm/clients/internal.secrets
+    chmod 600 /etc/drlm/clients/internal.secrets
+    # Generate default configs
+    cp /usr/share/drlm/conf/samples/drlm_internal_config-data_default.cfg /etc/drlm/clients/internal.cfg
+    chmod 644 /etc/drlm/clients/internal.cfg
+    cp /usr/share/drlm/conf/samples/client_default.drlm.cfg /etc/drlm/clients/internal.drlm.cfg
+    chmod 644 /etc/drlm/clients/internal.drlm.cfg
+    mkdir /etc/drlm/clients/internal.cfg.d
+    chmod 755 /etc/drlm/clients/internal.cfg.d
+    cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_iso.cfg /etc/drlm/clients/internal.cfg.d/drlm_iso.cfg
+    chmod 644 /etc/drlm/clients/internal.cfg.d/drlm_iso.cfg
+    # Set internal network resolution
+    sed -i '/127.0.0.1/s/localhost/localhost\tinternal/g' /etc/hosts
+    # install & configure all client reqs.
+    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys 
+    drlm instclient -c internal
+    drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
+    drlm addjob -c internal -C drlm_iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
+    for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+
   *)
     echo "postinst called with unknown argument \`$1'" >&2
     exit 0
