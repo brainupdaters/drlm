@@ -83,7 +83,7 @@ if [ "$WORKFLOW" == "restore" ]; then
         ;;
 
       (-O|--overwrite)
-        TARGET_FS_DATA="/"
+        TARGET_FS_DATA="overwrite"
         ;;
 
       (-h|--help)
@@ -119,10 +119,6 @@ if [ "$WORKFLOW" == "restore" ]; then
 
   if [ -z "$CLI_CFG" ]; then
     CLI_CFG="default"
-  fi
-
-    if [ -z "$TARGET_FS_DATA" ]; then
-    TARGET_FS_DATA="/var/tmp/drlm/restored"
   fi
 
   if [ -z "$FILES_TO_RECOVER" ]; then
