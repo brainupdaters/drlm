@@ -29,7 +29,7 @@ check_drlm_api_service
 if [ "$WORKFLOW" == "restore" ]; then 
   
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:C:I:h" -l "client:,config:,id:,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:C:I:f:Oh" -l "client:,config:,id:,files:,overwrite,help" -- "$@")"
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
@@ -71,6 +71,21 @@ if [ "$WORKFLOW" == "restore" ]; then
         shift
         ;;
 
+      (-f|--files)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          FILES_TO_RECOVER="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-O|--overwrite)
+        TARGET_FS_DATA="/"
+        ;;
+
       (-h|--help)
         restorehelp
         exit 0
@@ -104,6 +119,14 @@ if [ "$WORKFLOW" == "restore" ]; then
 
   if [ -z "$CLI_CFG" ]; then
     CLI_CFG="default"
+  fi
+
+    if [ -z "$TARGET_FS_DATA" ]; then
+    TARGET_FS_DATA="/var/tmp/drlm/restored"
+  fi
+
+  if [ -z "$FILES_TO_RECOVER" ]; then
+    FILES_TO_RECOVER=""
   fi
 
   WORKFLOW_restore () {

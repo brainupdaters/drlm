@@ -13,7 +13,7 @@ _drlm()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched"
+    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched"
 
     local workflow="$(__drlm_find_on_cmdline "$workflows")"
   if [ -z "$workflow" ]; then
