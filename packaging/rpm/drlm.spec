@@ -146,14 +146,11 @@ systemctl daemon-reload
 
 [ -f /usr/sbin/drlm ] && drlm_ver_num="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
 if [ -n $drlm_ver_num ]; then
-  ### Check if older versions than 2.4.0
-  if [ $drlm_ver_num -lt 020400 ]; then 
+  ### Check if older versions than 2.4.12
+  if [ $drlm_ver_num -lt 020412 ]; then
     for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do 
       sed -i '/^OUTPUT\|^OUTPUT_PREFIX\|^OUTPUT_PREFIX_PXE\|^OUTPUT_URL\|^BACKUP\|^NETFS_PREFIX\|^BACKUP_URL/s/^/#/g' $cfg
     done
-  fi
-  ### Check if older versions than 2.4.12
-  if [ $drlm_ver_num -lt 020412 ]; then
     echo "INFO: Since DRLM 2.4.12 the RSYNC protocol transport is secure by default!!!"
     echo "      Setting insecure transport to all current configuirations using RSYNC."
     echo "      To secure it run [ drlm instclient -c <cli_name> -C ] to each client "
