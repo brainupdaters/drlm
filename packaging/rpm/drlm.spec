@@ -255,7 +255,10 @@ fi
 #################
 
 # Create internal client to DB
-echo "INSERT OR IGNORE INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (0, 'internal', '', '127.0.0.1', 'lo', '', '' ); " | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite
+num_cli=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite)
+if [ $num_cli -eq 0 ]; then
+  echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (0, 'internal', '', '127.0.0.1', 'lo', '', '' ); " | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite
+fi
 # Generate client token to improve drlm-api security
 [ -f /etc/drlm/clients/internal.token ] || /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > /etc/drlm/clients/internal.token
 chmod 600 /etc/drlm/clients/internal.token
