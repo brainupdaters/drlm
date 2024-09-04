@@ -111,9 +111,9 @@ case "$1" in
     #################
 
     # Create internal client to DB
-    num_cli=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite)
+    num_cli=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
     if [ $num_cli -eq 0 ]; then
-      echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (0, 'internal', '', '127.0.0.1', 'lo', '', '' ); " | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite
+      echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (0, 'internal', '', '127.0.0.1', 'lo', '', '' ); " | sqlite3 /var/lib/drlm/drlm.sqlite
     fi
     # Generate client token to improve drlm-api security
     [ -f /etc/drlm/clients/internal.token ] || /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > /etc/drlm/clients/internal.token
@@ -137,7 +137,7 @@ case "$1" in
     drlm instclient -c internal
     [ -f /etc/rear/site.conf ] || cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_site_conf.cfg /etc/rear/site.conf
     chmod 600 /etc/rear/site.conf
-    num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite)
+    num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
     if [ $num_jobs -eq 0 ]; then
       drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
       drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
