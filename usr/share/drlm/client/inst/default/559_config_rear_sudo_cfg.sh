@@ -35,3 +35,14 @@ if [ "$REMOVE_SSH_ID" == "true" ]; then
     Error "Error removing ${USER} authorized_keys from client ${CLI_NAME}" 
   fi
 fi
+
+if [ "$CLI_NAME" == "internal" ]; then
+  [ -f /etc/rear/site.conf ] || cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_site_conf.cfg /etc/rear/site.conf
+  chmod 600 /etc/rear/site.conf
+  num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+  if [ $num_jobs -eq 0 ]; then
+    drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
+    drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
+    for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+  fi
+fi

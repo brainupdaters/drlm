@@ -682,9 +682,9 @@ local GIT_URL=$1
   # Hold specific commits to go as far as a working codebase permits to have working ReaR point-in-time working builds
   # instead of tagged releases/branches with some missing patches. Interesting for clients with old versions.
   # commit 94016e7 - rear 2.7 date 20240724
-  $(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
-  #branch=$(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm)
-  #[[ -n $branch ]] || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
+  #$(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
+  branch=$(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm)
+  [[ -n $branch ]] || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
   if [ $? -eq 0 ]; then return 0; else return 1;fi
 }
 
