@@ -22,8 +22,10 @@ else
 fi
 
 if [ "$CLI_NAME" == "internal" ]; then
-    # install & configure all client reqs.
-    cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+  if [ ! -f /root/.ssh/id_rsa.pub ]]; then 
+    ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -P ""
+  fi
+  cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 fi
 
 # DRLM 2.4.0 - Imports client configurations
