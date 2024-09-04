@@ -35,3 +35,8 @@ if [ "$REMOVE_SSH_ID" == "true" ]; then
     Error "Error removing ${USER} authorized_keys from client ${CLI_NAME}" 
   fi
 fi
+
+if [ "$CLI_NAME" == "internal" ]; then
+  [ -f /etc/rear/site.conf ] || cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_site_conf.cfg /etc/rear/site.conf
+  chmod 600 /etc/rear/site.conf
+fi

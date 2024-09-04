@@ -433,20 +433,35 @@ function ssh_start_services () {
 function config_sudo () {
   export PATH="$PATH:/sbin:/usr/sbin"
 
+  set -o noglob
   if [ -z "$SUDO" ]; then 
     for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
       commands="$(echo "$sudo_element" | awk '{print $1}')"
-      args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
-      if [ -n "$(which $commands --skip-alias)" ]; then
-        SUDO_COMMANDS+=( , "$(which $commands --skip-alias) $args")
+      args=$(echo $sudo_element | awk '{$1=""; print $0}')
+      neg=$(echo $commands | cut -c1)
+      if [ "$neg" == "!" ]; then
+        commands=$(echo $commands | awk -F'!' '{print $2}')
+      else
+        neg=''
+      fi
+      commands=$(which $commands --skip-alias)
+      if [ -n "$commands" ]; then
+        SUDO_COMMANDS+=( , $neg$commands $args )
       fi
     done
   else 
     for sudo_element in "${SUDO_CMDS_DRLM[@]}"; do
       commands="$(echo "$sudo_element" | awk '{print $1}')"
-      args="$(echo "$sudo_element" | awk '{ for (i=2; i<=NF; i++) print $i }')"
-      if [ -n "$($SUDO "PATH=$PATH" which $commands --skip-alias)" ]; then
-        SUDO_COMMANDS+=( , "$($SUDO "PATH=$PATH" which $commands --skip-alias) $args")
+      args=$(echo $sudo_element | awk '{$1=""; print $0}')
+      neg=$(echo $commands | cut -c1)
+      if [ "$neg" == "!" ]; then
+        commands=$(echo $commands | awk -F'!' '{print $2}')
+      else
+        neg=''
+      fi
+      commands=$($SUDO "PATH=$PATH" which $commands --skip-alias)
+      if [ -n "$commands" ]; then
+        SUDO_COMMANDS+=( , $neg$commands $args )
       fi
     done
   fi
@@ -465,6 +480,7 @@ function config_sudo () {
   Cmnd_Alias DRLM = /usr/sbin/rear ${SUDO_COMMANDS[@]}
   $DRLM_USER    ALL=(root)      NOPASSWD: DRLM
 EOF
+  set +o noglob
 
   if [ -d /etc/sudoers.d/ ]; then
     $SUDO chmod 440 /tmp/etc_sudoers.d_drlm.sudo
@@ -682,9 +698,9 @@ local GIT_URL=$1
   # Hold specific commits to go as far as a working codebase permits to have working ReaR point-in-time working builds
   # instead of tagged releases/branches with some missing patches. Interesting for clients with old versions.
   # commit 94016e7 - rear 2.7 date 20240724
-  $(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
-  #branch=$(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm)
-  #[[ -n $branch ]] || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
+  #$(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
+  branch=$(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm)
+  [[ -n $branch ]] || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
   if [ $? -eq 0 ]; then return 0; else return 1;fi
 }
 

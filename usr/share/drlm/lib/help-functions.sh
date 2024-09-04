@@ -47,6 +47,7 @@ function addclienthelp() {
   printf "\n"
   printf "$(tput bold)Options:\n$(tput sgr0)"
   printf '%-25s %-45s\n' "-h|--help" "Show this help"
+  printf '%-25s %-45s\n' "--internal" "Add drlm as a self internal client"
   printf "\n"
   printf "$(tput bold)Examples:\n$(tput sgr0)"
   printf "drlm addclient -i|--ipaddr <cli_ip>/<cidr>\n"
