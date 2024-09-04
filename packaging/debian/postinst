@@ -109,8 +109,23 @@ case "$1" in
     #################
     # DRLM internal #
     #################
-    #drlm addclient --internal
-    #drlm instclient -c internal
+    drlm addclient --internal
+    num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+    if [ $num_jobs -eq 0 ]; then
+      drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
+      drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
+      for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+    fi
+    ((
+       # wait for install to finish
+       while pgrep -x 'dpkg|apt|apt-get' > /dev/null; do sleep 1; done
+       # clear environment
+       eval $(env|grep -E 'DPKG|DEB'|awk -F= '{print "unset "$1}')
+       export DEBIAN_FRONTEND=noninteractive
+       # make sure no one else is locking the dpkg database
+       flock --exclusive --close /var/lib/dpkg/lock \
+       drlm instclient -c internal
+    ) 2>&1 >/dev/null </dev/null &)
     ;;
 
   *)
