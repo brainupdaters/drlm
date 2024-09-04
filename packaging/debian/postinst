@@ -105,7 +105,6 @@ case "$1" in
         echo "NFS_SVC_NAME=\"nfs-kernel-server\"" >> /etc/drlm/local.conf
       fi
     fi
-    ;;
 
     #################
     # DRLM internal #
@@ -144,6 +143,7 @@ case "$1" in
       drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
       for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
     fi
+    ;;
 
   *)
     echo "postinst called with unknown argument \`$1'" >&2
