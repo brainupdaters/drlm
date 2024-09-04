@@ -321,13 +321,19 @@ function get_clients_by_network () {
 function config_client_cfg () {
   local CLI_NAME="$1"
   
-  cp $SHARE_DIR/conf/samples/client_default.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg
-  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
-
-  cp $SHARE_DIR/conf/samples/client_default.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
-  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
-
   mkdir $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
+  cp $SHARE_DIR/conf/samples/client_default.drlm.cfg $CONFIG_DIR/clients/$CLI_NAME.drlm.cfg
+
+  if [ "$CLI_NAME" == "internal" ]; then
+    # Generate internaldefault configs
+    [ -f /etc/drlm/clients/internal.cfg ] || cp /usr/share/drlm/conf/samples/drlm_internal_config-data_default.cfg /etc/drlm/clients/internal.cfg
+    [ -f /etc/drlm/clients/internal.cfg.d/iso.cfg ] || cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_iso.cfg /etc/drlm/clients/internal.cfg.d/iso.cfg
+  else
+    cp $SHARE_DIR/conf/samples/client_default.cfg $CONFIG_DIR/clients/$CLI_NAME.cfg 
+  fi
+
+  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
+  chmod 644 $CONFIG_DIR/clients/$CLI_NAME.cfg
   chmod 755 $CONFIG_DIR/clients/${CLI_NAME}.cfg.d
 
   generate_client_token $CLI_NAME

@@ -6,6 +6,13 @@ function hosts_add(){
 	local CLI_NAME=$1
 	local CLI_IP=$2
 	local EXIST=$(grep -w ${CLI_IP} ${HOSTS_FILE} | grep -w ${CLI_NAME})
+
+	if [ "$CLI_NAME" == "internal" ]; then   
+		# Set internal network resolution
+		sed -i '/127.0.0.1/s/localhost.*/localhost\tinternal/g' /etc/hosts
+		return 0
+	fi
+
 	if [ -z "${EXIST}" ]; then
 		printf "${CLI_IP}\t${CLI_NAME}\n" | tee -a ${HOSTS_FILE} > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
