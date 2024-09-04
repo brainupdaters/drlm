@@ -144,10 +144,13 @@ systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.se
 
 systemctl daemon-reload
 
-### Check if older versions than 2.4.12
 [ -f /usr/sbin/drlm ] && drlm_ver_num="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
 if [ -n $drlm_ver_num ]; then
+  ### Check if older versions than 2.4.12
   if [ $drlm_ver_num -lt 020412 ]; then
+    for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do 
+      sed -i '/^OUTPUT\|^OUTPUT_PREFIX\|^OUTPUT_PREFIX_PXE\|^OUTPUT_URL\|^BACKUP\|^NETFS_PREFIX\|^BACKUP_URL/s/^/#/g' $cfg
+    done
     echo "INFO: Since DRLM 2.4.12 the RSYNC protocol transport is secure by default!!!"
     echo "      Setting insecure transport to all current configuirations using RSYNC."
     echo "      To secure it run [ drlm instclient -c <cli_name> -C ] to each client "
@@ -246,6 +249,44 @@ fi
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
 %{__sed} -i "s/TimeoutSec=infinity/TimeoutSec=0/g" /etc/systemd/system/tmp_drlm-stord.service
 %endif
+
+#################
+# DRLM internal #
+#################
+
+# Create internal client to DB
+num_cli=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite)
+if [ $num_cli -eq 0 ]; then
+  echo "INSERT INTO clients (idclient, cliname, mac, ip, networks_netname, os, rear) VALUES (0, 'internal', '', '127.0.0.1', 'lo', '', '' ); " | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite
+fi
+# Generate client token to improve drlm-api security
+[ -f /etc/drlm/clients/internal.token ] || /usr/bin/tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30 > /etc/drlm/clients/internal.token
+chmod 600 /etc/drlm/clients/internal.token
+# Generate client secrets
+[ -f /etc/drlm/clients/internal.secrets ] || echo "internal:$(cat /etc/drlm/clients/internal.token)" >> /etc/drlm/clients/internal.secrets
+chmod 600 /etc/drlm/clients/internal.secrets
+# Generate default configs
+[ -f /etc/drlm/clients/internal.cfg ] || cp /usr/share/drlm/conf/samples/drlm_internal_config-data_default.cfg /etc/drlm/clients/internal.cfg
+chmod 644 /etc/drlm/clients/internal.cfg
+[ -f /etc/drlm/clients/internal.drlm.cfg] || cp /usr/share/drlm/conf/samples/client_default.drlm.cfg /etc/drlm/clients/internal.drlm.cfg
+chmod 644 /etc/drlm/clients/internal.drlm.cfg
+[ -d /etc/drlm/clients/internal.cfg.d ] || mkdir /etc/drlm/clients/internal.cfg.d
+chmod 755 /etc/drlm/clients/internal.cfg.d
+[ -f /etc/drlm/clients/internal.cfg.d/iso.cfg ] || cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_iso.cfg /etc/drlm/clients/internal.cfg.d/iso.cfg
+chmod 644 /etc/drlm/clients/internal.cfg.d/iso.cfg
+# Set internal network resolution
+sed -i '/127.0.0.1/s/localhost.*/localhost\tinternal/g' /etc/hosts
+# install & configure all client reqs.
+cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys 
+drlm instclient -c internal
+[ -f /etc/rear/site.conf ] || cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_site_conf.cfg /etc/rear/site.conf
+chmod 600 /etc/rear/site.conf
+num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite)
+if [ $num_jobs -eq 0 ]; then
+  drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
+  drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
+  for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+fi
 
 %preun
 ### Remove certificates

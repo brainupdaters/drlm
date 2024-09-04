@@ -59,7 +59,7 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install ReaR from DRLM Git dist.
             else
-              eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
+              eval GIT_REAR=\$GIT_REAR_"${DISTRO^^}$CLI_VERSION"
 
               if [ "$GIT_REAR" == "" ]; then
                 Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
@@ -114,7 +114,7 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
+            eval GIT_REAR=\$GIT_REAR_"${DISTRO^^}$CLI_VERSION"
 
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
@@ -164,7 +164,7 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
+            eval GIT_REAR=\$GIT_REAR_"${DISTRO^^}$CLI_VERSION"
 
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
@@ -221,7 +221,7 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_"$DISTRO$CLI_VERSION"
+            eval GIT_REAR=\$GIT_REAR_"${DISTRO^^}$CLI_VERSION"
 
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"

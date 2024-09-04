@@ -8,7 +8,7 @@
 #
 
 get_size() {
-	echo $( du -sk "$TARGET_FS_DATA/" | awk '{print $1}' )
+	echo $( du -sk "$TARGET_FS_DATA/" 2>/dev/null | awk '{print $1}' )
 }
 
 local backup_prog_rc
@@ -18,12 +18,9 @@ local host path
 host="$(rsync_host "$BACKUP_URL")"
 path="$(rsync_path "$BACKUP_URL")"
 
-# Allow to select known files to restore via ( rear restorefiles [ -C <conf> ] FILES_TO_RECOVER="<full_path_of_file_or_dir>"
-# This is only allowed from the client! Restore from DRLM will run a full restore to $TARGET_FS_DATA.
-# Will be improved over time, but for now is a great option to restore subset of files or dirs form backup.
 
 # Prevent restore subset of backups to not known destination dir, can be dangerous.
-[[ "$TARGET_FS_DATA" != "/var/tmp/drlm/restored" ]] && DRLM_FILES_TO_RECOVER=""
+#[[ "$TARGET_FS_DATA" != "/var/tmp/drlm/restored" ]] && DRLM_FILES_TO_RECOVER=""
 # if not defined just initialize to avoid problems.
 [[ -z DRLM_FILES_TO_RECOVER ]] && DRLM_FILES_TO_RECOVER=""
 
@@ -47,9 +44,18 @@ ProgressStart "Restore operation"
 					;;
 
 				(rsync)
-					Log $BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" "$(rsync_remote_full "$BACKUP_URL")/backup/$DRLM_FILES_TO_RECOVER" $TARGET_FS_DATA/
-					$BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" \
-					"$(rsync_remote_full "$BACKUP_URL")/backup/$DRLM_FILES_TO_RECOVER" $TARGET_FS_DATA/ 
+					# Allow to select known files to restore via ( rear restorefiles [ -C <conf> ] FILES_TO_RECOVER="<full_path_of_file_or_dir>,<full_path_of_file_or_dir2>,<full_path_of_file_or_dirN>"
+					if [ "$DRLM_FILES_TO_RECOVER" != "" ]; then
+						Log $BACKUP_PROG "--files-from=- ${BACKUP_RSYNC_OPTIONS[@]}" "$(rsync_remote_full "$BACKUP_URL")/backup"/ $TARGET_FS_DATA/
+						Log " - list of files to restore (specified by the user):"
+						Log "$(echo "$DRLM_FILES_TO_RECOVER" | tr ',' '\n' | sed 's/^/ -- /g')"
+						echo "$DRLM_FILES_TO_RECOVER" | tr ',' '\n' | $BACKUP_PROG --files-from=- "${BACKUP_RSYNC_OPTIONS[@]}" \
+						"$(rsync_remote_full "$BACKUP_URL")/backup"/ $TARGET_FS_DATA/
+					else
+						Log $BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" "$(rsync_remote_full "$BACKUP_URL")/backup"/ $TARGET_FS_DATA/
+						$BACKUP_PROG "${BACKUP_RSYNC_OPTIONS[@]}" \
+						"$(rsync_remote_full "$BACKUP_URL")/backup"/ $TARGET_FS_DATA/
+					fi
 					;;
 
 			esac

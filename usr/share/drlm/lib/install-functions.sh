@@ -342,11 +342,13 @@ function ssh_check_shell () {
 }
 
 function create_drlm_var () {
-  # ToDo: Check if client it's a DRLM server. If true, don't modify permissions or DRLM server 
-  # because will broke functionality.
   $SUDO mkdir -p /var/lib/drlm/scripts
-  $SUDO chown -R drlm:drlm /var/lib/drlm
-  $SUDO chmod -R 700 /var/lib/drlm
+  # Check if client it's a DRLM server. If true, don't modify permissions 
+  # because will broke functionality.
+  if [ ! -x /usr/sbin/drlm -a ! -f /var/lib/drlm/drlm.sqlite ]; then
+    $SUDO chown -R drlm:drlm /var/lib/drlm
+    $SUDO chmod -R 700 /var/lib/drlm
+  fi
 }
 
 function ssh_create_drlm_var () {
@@ -665,7 +667,7 @@ function send_rear_drlm_extra () {
   local CLI_NAME=$2
   tar -cf /tmp/drlm-extra.tar -C /usr/share/drlm/conf/rear-extra .
   scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${USER}@${CLI_NAME}:/tmp/ &> /dev/null
-  rm -f /tmp/drlm-extra.tar
+  if [ $? -eq 0 ]; then AddExitTask "rm -f /tmp/drlm-extra.tar"; return 0; else return 1;fi
 
 }
 
@@ -675,10 +677,14 @@ local GIT_URL=$1
   # check rear-git present or clone mirror ReaR github repo
   $(git -C /var/lib/drlm/dist/rear branch --show-current >/dev/null 2>&1) || git clone --mirror $GIT_URL /var/lib/drlm/dist/rear >/dev/null 2>&1
   if [ $? -ne 0 ]; then return 1; fi
+  git -C /var/lib/drlm/dist/rear remote update >/dev/null 2>&1
+  if [ $? -ne 0 ]; then return 1; fi
   # Hold specific commits to go as far as a working codebase permits to have working ReaR point-in-time working builds
   # instead of tagged releases/branches with some missing patches. Interesting for clients with old versions.
   # commit 94016e7 - rear 2.7 date 20240724
   $(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm >/dev/null 2>&1) || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
+  #branch=$(git -C /var/lib/drlm/dist/rear branch --list 2.7_20240724_drlm)
+  #[[ -n $branch ]] || git -C /var/lib/drlm/dist/rear branch 2.7_20240724_drlm 94016e7 >/dev/null 2>&1
   if [ $? -eq 0 ]; then return 0; else return 1;fi
 }
 

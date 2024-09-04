@@ -310,6 +310,8 @@ function restorehelp() {
   printf "\n"
   printf "$(tput bold)Options:\n$(tput sgr0)"
   printf '%-25s %-45s\n' "-C|--config" "Select Client backup configuration"
+  printf '%-25s %-45s\n' "-f|--files" "Select comma separated list of files/dirs to restore (no regex!)"
+  printf '%-25s %-45s\n' "-O|--overwrite" "Overwrite files to original dest. Use it with caution!" 
   printf '%-25s %-45s\n' "-h|--help" "Show this help" 
   printf "\n"
   printf "$(tput bold)Examples:\n$(tput sgr0)"
@@ -445,3 +447,4 @@ function impbackuphelp() {
   printf "drlm impbackup --client <CLI_NAME> --file <FILE_NAME> -t 0 -C DataOnlyHomeBackups\n"
   printf "\n"
 }
+

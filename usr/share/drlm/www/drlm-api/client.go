@@ -561,7 +561,7 @@ func (c *Client) generateConfiguration(configName string) (string, error) {
 			varName := strings.TrimSpace(strings.Split(line, "=")[0])
 
 			//Ignore old configurations (< DRLM 2.4.0)
-			if varName != "OUTPUT" && varName != "OUTPUT_PREFIX" && varName != "OUTPUT_PREFIX_PXE" && varName != "OUTPUT_URL" && varName != "BACKUP" && varName != "NETFS_PREFIX" && varName != "BACKUP_URL" {
+			//if varName != "OUTPUT" && varName != "OUTPUT_PREFIX" && varName != "OUTPUT_PREFIX_PXE" && varName != "OUTPUT_URL" && varName != "BACKUP" && varName != "NETFS_PREFIX" && varName != "BACKUP_URL" {
 				scannerDefault := bufio.NewScanner(strings.NewReader(defaultConfig))
 				for scannerDefault.Scan() {
 					defaultVarName := strings.TrimSpace(strings.Split(scannerDefault.Text(), "=")[0])
@@ -580,7 +580,7 @@ func (c *Client) generateConfiguration(configName string) (string, error) {
 				defaultConfig = tmpDefaultConfig
 				tmpDefaultConfig = ""
 				found = false
-			}
+			//}
 		}
 	}
 
