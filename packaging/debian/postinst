@@ -141,7 +141,7 @@ case "$1" in
     if [ $num_jobs -eq 0 ]; then
       drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
       drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
-      for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+      for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
     fi
     ;;
 
