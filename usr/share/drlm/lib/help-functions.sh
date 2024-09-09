@@ -290,6 +290,7 @@ function runbackuphelp() {
   printf "\n"
   printf "$(tput bold)Options:\n$(tput sgr0)"
   printf '%-25s %-45s\n' "-C|--config" "Select Client backup configuration"
+  printf '%-25s %-45s\n' "-S|--scan" "Perform scan after backup (only Enterprise)"
   printf '%-25s %-45s\n' "-h|--help" "Show this help" 
   printf "\n"
   printf "$(tput bold)Examples:\n$(tput sgr0)"

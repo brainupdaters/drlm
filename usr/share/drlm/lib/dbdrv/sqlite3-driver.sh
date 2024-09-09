@@ -962,6 +962,26 @@ function get_backup_client_id_by_backup_id_dbdrv () {
   echo $CLI_ID
 }
 
+function get_backup_client_name_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local CLI_ID=$(echo "select clients_id from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_NAME=$(echo "select cliname from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_NAME
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+function get_backup_config_file_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local CLI_CFG=$(echo "select config from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_CFG
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+function register_scan_db_dbdrv () {
+  local BKP_ID=$1
+  local SCAN_STATUS="$2"
+  echo "update  backups set scan='${SCAN_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function get_backup_drfile_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local BKP_DR=$(echo "select drfile from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
