@@ -964,8 +964,7 @@ function get_backup_client_id_by_backup_id_dbdrv () {
 
 function get_backup_client_name_by_backup_id_dbdrv () {
   local BKP_ID=$1
-  local CLI_ID=$(echo "select clients_id from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
-  local CLI_NAME=$(echo "select cliname from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  local CLI_NAME=$(echo "SELECT c.cliname FROM clients c INNER JOIN backups b ON c.idclient = b.clients_id WHERE b.idbackup = '${BKP_ID}';"  | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $CLI_NAME
 }                                                                                                                                                                                                                                                     
                                                                                                                                                                                                                                                       
