@@ -29,7 +29,7 @@ check_drlm_api_service
 if [ "$WORKFLOW" == "runbackup" ]; then 
   
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:C:I:h" -l "client:,config:,id:,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:C:I:Sh" -l "client:,config:,id:,scan,help" -- "$@")"
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
@@ -70,6 +70,10 @@ if [ "$WORKFLOW" == "runbackup" ]; then
         fi 
         shift
         ;;
+                                                                                                                                       
+      (-S|--scan)
+         CLAMAV_SCAN=yes
+         ;;
 
       (-h|--help)
         runbackuphelp
@@ -109,6 +113,7 @@ if [ "$WORKFLOW" == "runbackup" ]; then
   WORKFLOW_runbackup () {
     #echo runbackup workflow
     SourceStage "backup/run"
+    [ -d $SHARE_DIR/backup/scan ] && SourceStage "backup/scan"
   }
 
 fi
