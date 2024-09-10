@@ -804,7 +804,7 @@ function register_backup_dbdrv () {
     BKP_ENCRYPTED="0"
   fi
 
-  echo "INSERT INTO backups VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO backups (idbackup,clients_id,drfile,active,duration,size,config,PXE,type,protocol,date,encrypted,encryp_pass,hold) VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -817,7 +817,7 @@ function register_snap_dbdrv (){
   local SNAP_SIZE="$6"
   local SNAP_HOLD="$7"
   
-  echo "INSERT INTO snaps VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO snaps (idbackup,idsnap,date,active,duration,size,hold) VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -960,6 +960,25 @@ function get_backup_client_id_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local CLI_ID=$(echo "select clients_id from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $CLI_ID
+}
+
+function get_backup_client_name_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local CLI_NAME=$(echo "SELECT c.cliname FROM clients c INNER JOIN backups b ON c.idclient = b.clients_id WHERE b.idbackup = '${BKP_ID}';"  | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_NAME
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+function get_backup_config_file_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local CLI_CFG=$(echo "select config from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_CFG
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+function register_scan_db_dbdrv () {
+  local BKP_ID=$1
+  local SCAN_STATUS="$2"
+  echo "update  backups set scan='${SCAN_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_backup_drfile_by_backup_id_dbdrv () {
