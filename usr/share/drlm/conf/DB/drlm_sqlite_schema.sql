@@ -156,3 +156,7 @@ CREATE TABLE IF NOT EXISTS policy (
   "date" varchar(16) NOT NULL,
   "saved_by" TEXT 
 );
+
+-- New column scan for feature ClamAV (backups)
+ALTER TABLE backups ADD COLUMN "scan" tinyint(1);
+UPDATE backups SET scan=0 WHERE scan is null;
