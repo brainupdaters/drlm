@@ -22,7 +22,7 @@ else
 fi
 
 if [ "$CLI_NAME" == "internal" ]; then
-  if [ ! -f /root/.ssh/id_rsa.pub ]]; then 
+  if [ ! -f /root/.ssh/id_rsa.pub ]; then 
     ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -P ""
   fi
   cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
