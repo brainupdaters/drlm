@@ -682,7 +682,8 @@ function send_rear_drlm_extra () {
   local USER=$1
   local CLI_NAME=$2
   tar -cf /tmp/drlm-extra.tar -C /usr/share/drlm/conf/rear-extra .
-  scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${USER}@${CLI_NAME}:/tmp/ &> /dev/null
+  [ "$CLI_NAME" == "internal" ] && chmod o+rw /tmp/drlm-extra.tar
+  scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${DRLM_USER}@${CLI_NAME}:/tmp/ &> /dev/null
   if [ $? -eq 0 ]; then AddExitTask "rm -f /tmp/drlm-extra.tar"; return 0; else return 1;fi
 
 }
@@ -712,7 +713,7 @@ function install_rear_git () {
   local DISTRO=$5
 
   # clone rear git drlm dist
-  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null)" &> /dev/null
+  ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO bash -c '( [ -d /var/lib/drlm/rear-$GIT_TAG ] && chown -R root:root /var/lib/drlm/rear-$GIT_TAG; git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 ) || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null' )" &> /dev/null
   if [ $? -ne 0 ]; then return 1; fi
   # install rear git drlm dist
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG uninstall &> /dev/null )" &> /dev/null 
