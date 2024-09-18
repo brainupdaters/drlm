@@ -683,7 +683,7 @@ function send_rear_drlm_extra () {
   local CLI_NAME=$2
   tar -cf /tmp/drlm-extra.tar -C /usr/share/drlm/conf/rear-extra .
   [ "$CLI_NAME" == "internal" ] && chmod o+rw /tmp/drlm-extra.tar
-  scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${USER}@${CLI_NAME}:/tmp/ &> /dev/null
+  scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${DRLM_USER}@${CLI_NAME}:/tmp/ &> /dev/null
   if [ $? -eq 0 ]; then AddExitTask "rm -f /tmp/drlm-extra.tar"; return 0; else return 1;fi
 
 }
