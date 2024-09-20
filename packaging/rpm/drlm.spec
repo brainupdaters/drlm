@@ -414,7 +414,7 @@ systemctl start drlm-gitd.service
 
 %changelog
 
-* Fri Aug 02 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
+* Fri Sep 20 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available
 - Bugfix in listclient when no clients are available
 - Bugfix in listnetwork when no networks are available
@@ -426,12 +426,13 @@ systemctl start drlm-gitd.service
 - NEW! Ubuntu 24.04 client & server support
 - NEW! Configurable extra partition size on runbackup
 - Improvement in remove_client_scripts. Avoid removal of other content.
+- Bugfix storing logs in incremental backups
 - NEW! Added TLS secure transport to DRLM rsync Backups
 - NEW! Added ReaR restorefiles workflow
 - NEW! Added DRLM restore workflow
-- Bugfix storing logs in incremental backups
 - NEW! Added drlm-extra interface to patch/extend rear integrations
 - NEW! Added new client git install method as default. (-r/-U keeps old style install)
+- Updated install script
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported

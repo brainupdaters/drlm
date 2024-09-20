@@ -1,12 +1,17 @@
 #!/bin/bash
 
 # "DRLM build & install script"
-INSTALLER_VERSION="202312.01"
+INSTALLER_VERSION="202409.01"
 DRLM_VERSION="2.4.12"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"
 # "GitHub: https://github.com/brainupdaters/drlm"
+
+
+# Set default Repository and Branch
+DRLM_GIT_REPOSITORY="${DRLM_GIT_REPOSITORY:-https://github.com/brainupdaters/drlm}"
+DRLM_GIT_BRANCH="${DRLM_GIT_BRANCH:-develop}"
 
 
 # Show information about the script
@@ -118,6 +123,17 @@ install_golang() {
 }
 
 
+# Function to clone DRLM repository
+drlm_clon_repo() {
+    # Clone the DRLM project
+    git clone $DRLM_GIT_REPOSITORY
+    # Navigate into the project directory
+    cd drlm
+    # Checkout Branch/Commit
+    git checkout $DRLM_GIT_BRANCH
+}
+
+
 echo "Installing DRLM on $linux_distro $linux_distro_version"
 case "$linux_distro" in
 
@@ -131,9 +147,7 @@ case "$linux_distro" in
          # Check Go Installation
         check_go
         # Clone the DRLM project
-        git clone https://github.com/brainupdaters/drlm
-        # Navigate into the project directory
-        cd drlm
+        drlm_clon_repo
         # Build the Debian package
         make deb
         # Navigate back to the parent directory
@@ -186,9 +200,7 @@ case "$linux_distro" in
          # Check Go Installation
         check_go
         # Clone the DRLM project
-        git clone https://github.com/brainupdaters/drlm
-        # Navigate into the project directory
-        cd drlm
+        drlm_clon_repo
         # Build the RPM package
         make rpm
         # Install the built RPM package
@@ -220,9 +232,7 @@ case "$linux_distro" in
         # Check Go Installation
         check_go
         # Clone the DRLM project
-        git clone https://github.com/brainupdaters/drlm
-        # Navigate into the project directory
-        cd drlm
+        drlm_clon_repo
         # Build the RPM package
         make rpm
         # Install the built RPM package
