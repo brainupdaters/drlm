@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # "DRLM build & install script"
-INSTALLER_VERSION="202409.01"
-DRLM_VERSION="2.4.12"
+INSTALLER_VERSION="202409.02"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"
@@ -10,7 +9,8 @@ GOLANG_VERSION="1.21.5"
 
 
 # Set default Repository and Branch
-DRLM_GIT_REPOSITORY="${DRLM_GIT_REPOSITORY:-https://github.com/brainupdaters/drlm}"
+DRLM_GIT_BASE_URL="${DRLM_GIT_BASE_URL:-https://github.com/}"
+DRLM_GIT_REPOSITORY="${DRLM_GIT_REPOSITORY:-brainupdaters/drlm}"
 DRLM_GIT_BRANCH="${DRLM_GIT_BRANCH:-develop}"
 
 
@@ -122,11 +122,17 @@ install_golang() {
     rm -rf go${GOLANG_VERSION}.linux-amd64.tar.gz
 }
 
+# Function to get DRLM version
+get_drlm_version() {
+    DRLM_VERSION="$(curl https://raw.githubusercontent.com/${DRLM_GIT_REPOSITORY}/${DRLM_GIT_BRANCH}/usr/sbin/drlm | grep "readonly VERSION=" | awk -F= '{print $2}')"
+}
 
 # Function to clone DRLM repository
 drlm_clon_repo() {
+    # Get DRLM version
+    get_drlm_version
     # Clone the DRLM project
-    git clone $DRLM_GIT_REPOSITORY
+    git clone ${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY}
     # Navigate into the project directory
     cd drlm
     # Checkout Branch/Commit
@@ -258,4 +264,3 @@ else
     echo "DRLM installation failed"
     echo "Please visit https://drlm.org for more information"
 fi
-
