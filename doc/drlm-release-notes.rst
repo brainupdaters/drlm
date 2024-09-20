@@ -70,7 +70,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.12 (June 2024) - Release Notes
+DRLM Version 2.4.12 (September 2024) - Release Notes
 ------------------------------------------------
   * Bugfix in listbackup when no backups are available
 
@@ -95,6 +95,18 @@ DRLM Version 2.4.12 (June 2024) - Release Notes
   * Improvement in remove_client_scripts. Avoid removal of other content.
 
   * Bugfix storing logs in incremental backups
+
+  * NEW! Added TLS secure transport to DRLM rsync Backups
+
+  * NEW! Added ReaR restorefiles workflow
+
+  * NEW! Added DRLM restore workflow
+
+  * NEW! Added drlm-extra interface to patch/extend rear integrations
+
+  * NEW! Added new client git install method as default. (-r/-U keeps old style install)
+
+  * Updated install script
 
 
 DRLM Version 2.4.11 (March 2024) - Release Notes
