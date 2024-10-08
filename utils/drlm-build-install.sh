@@ -139,6 +139,27 @@ drlm_clon_repo() {
     git checkout $DRLM_GIT_BRANCH
 }
 
+# Functino to add DRLM internal client
+add_drlm_internal_client() {
+    # check if drlm.sqlite exists
+    if [ ! -f "/var/lib/drlm/drlm.sqlite" ]; then return; fi
+
+    # Checkl if client internal exists
+    num_internals=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+    if [ $num_internals -eq 0 ]; then
+        # add and install drlm internal client
+        drlm addclient --internal -I 
+    fi
+    
+    # add drlm internal client jobs and disable
+    num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+    if [ $num_jobs -eq 0 ]; then
+        drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
+        drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
+        
+        for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+    fi
+}
 
 echo "Installing DRLM on $linux_distro $linux_distro_version"
 case "$linux_distro" in
@@ -257,6 +278,9 @@ esac
 
 # Check if the DRLM installation was successful
 if [ -f /usr/sbin/drlm ]; then
+    echo "Adding DRLM internal client"
+    add_drlm_internal_client
+
     echo "DRLM installed successfully"
     echo "You can now start using DRLM"
     echo "Please visit https://drlm.org for more information"
