@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # "DRLM build & install script"
-INSTALLER_VERSION="202409.02"
+INSTALLER_VERSION="202409.03"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"
@@ -18,7 +18,7 @@ DRLM_GIT_BRANCH="${DRLM_GIT_BRANCH:-develop}"
 echo "DRLM build & installation script"
 echo "Version: $INSTALLER_VERSION"
 echo "Website: https://drlm.org"
-echo "GitHub: https://github.com/brainupdaters/drlm"
+echo "Git: https://${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY} -- Branch: ${DRLM_GIT_BRANCH}"
 echo ""
 
 
