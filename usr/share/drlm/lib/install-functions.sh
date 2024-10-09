@@ -690,7 +690,7 @@ function send_rear_drlm_extra () {
 
 function setup_rear_git_dist () {
 
-local GIT_URL=$1
+  local GIT_URL=$1
   # check rear-git present or clone mirror ReaR github repo
   $(git -C /var/lib/drlm/dist/rear branch --show-current >/dev/null 2>&1) || git clone --mirror $GIT_URL /var/lib/drlm/dist/rear >/dev/null 2>&1
   if [ $? -ne 0 ]; then return 1; fi
