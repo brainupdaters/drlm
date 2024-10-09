@@ -139,7 +139,7 @@ drlm_clon_repo() {
     git checkout $DRLM_GIT_BRANCH
 }
 
-# Functino to add DRLM internal client
+# Function to add DRLM internal client
 add_drlm_internal_client() {
     # check if drlm.sqlite exists
     if [ ! -f "/var/lib/drlm/drlm.sqlite" ]; then return; fi
