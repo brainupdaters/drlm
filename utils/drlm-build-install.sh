@@ -18,7 +18,7 @@ DRLM_GIT_BRANCH="${DRLM_GIT_BRANCH:-develop}"
 echo "DRLM build & installation script"
 echo "Version: $INSTALLER_VERSION"
 echo "Website: https://drlm.org"
-echo "Git: https://${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY} -- Branch: ${DRLM_GIT_BRANCH}"
+echo "Git: ${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY} -- Branch: ${DRLM_GIT_BRANCH}"
 echo ""
 
 
