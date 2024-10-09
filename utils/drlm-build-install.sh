@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # "DRLM build & install script"
-INSTALLER_VERSION="202409.02"
+INSTALLER_VERSION="202409.03"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"
@@ -18,7 +18,7 @@ DRLM_GIT_BRANCH="${DRLM_GIT_BRANCH:-develop}"
 echo "DRLM build & installation script"
 echo "Version: $INSTALLER_VERSION"
 echo "Website: https://drlm.org"
-echo "GitHub: https://github.com/brainupdaters/drlm"
+echo "Git: ${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY} -- Branch: ${DRLM_GIT_BRANCH}"
 echo ""
 
 
@@ -139,6 +139,27 @@ drlm_clon_repo() {
     git checkout $DRLM_GIT_BRANCH
 }
 
+# Function to add DRLM internal client
+add_drlm_internal_client() {
+    # check if drlm.sqlite exists
+    if [ ! -f "/var/lib/drlm/drlm.sqlite" ]; then return; fi
+
+    # Checkl if client internal exists
+    num_internals=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+    if [ $num_internals -eq 0 ]; then
+        # add and install drlm internal client
+        drlm addclient --internal -I 
+    fi
+    
+    # add drlm internal client jobs and disable
+    num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+    if [ $num_jobs -eq 0 ]; then
+        drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
+        drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
+        
+        for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+    fi
+}
 
 echo "Installing DRLM on $linux_distro $linux_distro_version"
 case "$linux_distro" in
@@ -257,6 +278,9 @@ esac
 
 # Check if the DRLM installation was successful
 if [ -f /usr/sbin/drlm ]; then
+    echo "Adding DRLM internal client"
+    add_drlm_internal_client
+
     echo "DRLM installed successfully"
     echo "You can now start using DRLM"
     echo "Please visit https://drlm.org for more information"
