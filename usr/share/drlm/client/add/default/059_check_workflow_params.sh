@@ -2,10 +2,18 @@
 
 
 if [ "$ADD_INTERNAL" == "true" ]; then
+  
   CLI_NAME="internal"
   CLI_IP="127.0.0.1"
   CLI_NET="lo"
   CLI_ID=0
+
+  # Check if the client name is in DRLM client database 
+  Log "Checking if client name: $CLI_NAME is registered in DRLM database ..."
+  if exist_client_name "$CLI_NAME"; then
+    Error "Client $CLINAME already registered!"
+  fi
+
 else
 
   #############

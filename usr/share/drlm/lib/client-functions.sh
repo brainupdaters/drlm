@@ -399,12 +399,8 @@ function load_default_pretty_params_list_client () {
 function ssh_access_enabled () {
   local USER="$1"
   local CLI_NAME="$2"
-
-  if ssh $SSH_OPTS -p $SSH_PORT -q -o "BatchMode=yes" "$USER"@"$CLI_NAME" exit; then 
-    return 0 
-  else 
-    return 1 
-  fi
+  ssh $SSH_OPTS -p $SSH_PORT -q -o "BatchMode=yes" ${USER}@${CLI_NAME} "true;" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function mount_remote_tmp_nfs () {
@@ -412,12 +408,12 @@ function mount_remote_tmp_nfs () {
   local NFS_EXPORT=$2
   local TMP_MOUNT_POINT=$3
   ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /usr/bin/rm -rf /tmp/drlm; sudo /usr/bin/mkdir /tmp/drlm; sudo /usr/bin/mount -t nfs $(hostname -s):$NFS_EXPORT $TMP_MOUNT_POINT;" &> /dev/null
-  if [ $? -eq 0 ];then return 0; else return 1; fi
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function umount_remote_tmp_nfs () {
   local CLI_NAME=$1
   local TMP_MOUNT_POINT=$2
   ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} "sudo /usr/bin/umount $TMP_MOUNT_POINT; sudo /usr/bin/rm -rf /tmp/drlm;" &> /dev/null
-  if [ $? -eq 0 ];then return 0; else return 1; fi
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
