@@ -131,7 +131,57 @@ if [ -z "$CONFIG_ONLY" ]; then
         fi
         ;;
 
-      CentOS|RedHat|Rocky)
+      Fedora)
+        if check_yum "$USER" "$CLI_NAME" "$SUDO"; then
+
+          # Installing DRLM and ReaR dependencies
+          LogPrint "Installing dependencies and ReaR"
+          if install_dependencies_yum  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_FEDORA"$CLI_VERSION""$REP_ARCH")" "$SUDO"; then
+            Log "Dependencies have been installed"
+          else
+            Error "Problem installing dependencies, check logfile"
+          fi
+
+          # if parameter -r/--repo in installclient try to install from oficial repositories
+          if [ "$REPO_INST" == "true" ]; then
+              case "$CLI_VERSION" in
+                *)
+                  if install_rear_yum_repo "$USER" "$CLI_NAME" "$SUDO"; then
+                    Log "ReaR has been installed from repo"
+                  else
+                    Error "Problem installing ReaR from repo, check logfile"
+                  fi
+                  ;;
+              esac
+
+          # if parameter -U/--url_rear in installclient try to install from specified URL
+          elif [ "$URL_REAR" != "" ] ; then
+            if ssh_install_rear_yum "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then
+              Log "ReaR has been installed"
+            else
+              Error "Problem installing ReaR, check logfile"
+            fi
+
+          # if not -r or -U install ReaR from DRLM Git dist.
+          else
+            eval GIT_REAR=\$GIT_REAR_FEDORA"$CLI_VERSION"
+
+            if [ "$GIT_REAR" == "" ]; then
+              Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
+            elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
+                Log "ReaR has been installed"
+              else
+                Error "Problem installing ReaR, check logfile"
+              fi
+            fi
+          fi
+        else
+            Error "yum problem, some dependencies are missing, check requisites on http://drlm-docs.readthedocs.org/en/latest/ClientConfig.html"
+        fi
+        ;;
+
+      CentOS|RedHat|Rocky|Alma|OEL)
         if check_yum "$USER" "$CLI_NAME" "$SUDO"; then
         
           # Installing DRLM and ReaR dependencies

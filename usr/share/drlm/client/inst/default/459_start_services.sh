@@ -25,7 +25,19 @@ case "$DISTRO" in
     fi
     ;;
 
-  CentOS|RedHat|Rocky)
+  Fedora)
+    if eval "[ -z \"\$REAR_SERVICES_FEDORA$CLI_VERSION\" ]"; then
+      Error "$DISTRO - $CLI_VERSION release not identified or unsupported!"
+    else
+      if ssh_start_services "$USER" "$CLI_NAME" "$(eval echo \$REAR_SERVICES_FEDORA"$CLI_VERSION")" "$DISTRO" "$SUDO"; then
+        LogPrint "Services have been started succesfully"
+      else
+        Error "Problem starting services"
+      fi
+    fi
+    ;;
+
+  CentOS|RedHat|Rocky|Alma|OEL)
     if eval "[ -z \"\$REAR_SERVICES_REDHAT$CLI_VERSION\" ]"; then
       Error "$DISTRO - $CLI_VERSION release not identified or unsupported!"
     else

@@ -1,8 +1,11 @@
 function get_distro () {
   if [ -f /etc/dpkg/origins/ubuntu ]; then echo Ubuntu;
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then echo RedHat;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ] && [ ! -f /etc/almalinux-release ] && [ ! -f /etc/oracle-release ] && [ ! -f /etc/fedora-release ]; then echo RedHat;
+  elif [ -f /etc/fedora-release ] && [ -f /etc/redhat-release ]; then  echo Fedora;
   elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then  echo Rocky;
+  elif [ -f /etc/almalinux-release ] && [ -f /etc/redhat-release ]; then  echo Alma;
+  elif [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ]; then  echo OEL;
   elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;
   elif [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo Suse; 
   fi
@@ -17,8 +20,11 @@ function ssh_get_distro () {
 function get_release () {
   if [ -f /etc/dpkg/origins/ubuntu ]; then grep "^VERSION_ID=" /etc/os-release | cut -d\" -f2; 
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ] && [ ! -f /etc/almalinux-release ] && [ ! -f /etc/oracle-release ] && [ ! -f /etc/fedora-release ]; then cat /etc/redhat-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/fedora-release ] && [ -f /etc/redhat-release ]; then cat /etc/fedora-release | awk -F"release" '{print $2}' | awk '{print $1}';
   elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/almalinux-release ] && [ -f /etc/redhat-release ]; then cat /etc/almalinux-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ]; then cat /etc/oracle-release | awk -F"release" '{print $2}' | awk '{print $1}';
   elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" '{print $2}' | awk '{print $1}';
   elif [ -f /etc/SuSE-release ]; then grep VERSION /etc/SuSE-release | awk '{print $3}';
   elif [ -f /etc/SUSE-brand ]; then grep VERSION /etc/SUSE-brand | awk '{print $3}';
@@ -725,12 +731,13 @@ function install_rear_git () {
     Debian|Ubuntu)
       # install deps with apt
       #ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \"$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g')\" &> /dev/null)" &> /dev/null
-      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && for pkg in $(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g'); do $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install $pkg &> /dev/null; done )" &> /dev/null
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && for pkg in \$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g'); do $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \$pkg &> /dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
-    CentOS|RedHat|Rocky)
+    CentOS|RedHat|Rocky|Alma|OEL|Fedora)
       # install deps with yum
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO yum -y install \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( for pkg in \$(repoquery --queryformat=%{name} --depends --resolve rear); do $SUDO yum -y install \$pkg &>/dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
     Suse)
