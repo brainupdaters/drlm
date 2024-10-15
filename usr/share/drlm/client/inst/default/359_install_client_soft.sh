@@ -20,19 +20,20 @@ if [ -z "$CONFIG_ONLY" ]; then
     elif [ "$ARCH" == "ppc64le" ] || [ "$ARCH" == "ppc64" ]; then
       REP_ARCH="_PPC64"
     fi
-    
-    case "$DISTRO" in
-      Debian|Ubuntu)
-        if check_apt "$USER" "$CLI_NAME" "$SUDO"; then
 
-            if [ "$DISTRO" == "Debian" ]; then
-              DISTRO_LIKE=Debian
-            else
-              DISTRO_LIKE=Ubuntu
-            fi
+    REAR_DEPS="$(eval echo \$REAR_DEP_"${DISTRO_LIKE^^}$CLI_VERSION$REP_ARCH")"
+    [[ -z $REAR_DEPS ]] && REAR_DEPS="$(eval echo \$REAR_DEP_"${DISTRO_LIKE^^}$CLI_VERSION")"
+    [[ -z $REAR_DEPS ]] && REAR_DEPS="$(eval echo \$REAR_DEP_"${DISTRO_LIKE^^}")"
+
+    GIT_REAR="$(eval echo \$GIT_REAR_"${DISTRO_LIKE^^}$CLI_VERSION")"
+    [[ -z $GIT_REAR ]] && GIT_REAR="$(eval echo \$GIT_REAR_"${DISTRO_LIKE^^}")"
+
+    case "$DISTRO_LIKE" in
+      debian|ubuntu)
+        if check_apt "$USER" "$CLI_NAME" "$SUDO"; then
             # Installing DRLM and ReaR dependencies
             LogPrint "Installing dependencies and ReaR"
-            if install_dependencies_apt "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_"${DISTRO_LIKE^^}$CLI_VERSION")" "$SUDO"; then 
+            if install_dependencies_apt "$USER" "$CLI_NAME" "$REAR_DEPS" "$SUDO"; then 
               Log "Dependencies have been installed" 
             else 
               Error "Problem installing dependencies, check logfile"
@@ -41,7 +42,7 @@ if [ -z "$CONFIG_ONLY" ]; then
             # if parameter -r/--repo in installclient try to install from oficial repositories
             if [ "$REPO_INST" == "true" ]; then
               case "$DISTRO_LIKE" in
-                Ubuntu)
+                ubuntu)
                   case "$CLI_VERSION" in
                     1[2-6])
                       Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
@@ -55,7 +56,7 @@ if [ -z "$CONFIG_ONLY" ]; then
                       ;;
                   esac
                   ;;
-                Debian)
+                debian)
                   case "$CLI_VERSION" in
                     [6*-9*])
                       Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
@@ -81,12 +82,10 @@ if [ -z "$CONFIG_ONLY" ]; then
 
             # if not -r or -U install ReaR from DRLM Git dist.
             else
-              eval GIT_REAR=\$GIT_REAR_"${DISTRO_LIKE^^}$CLI_VERSION"
-
               if [ "$GIT_REAR" == "" ]; then
                 Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
               elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
-                if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
+                if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO_LIKE"; then
                   Log "ReaR has been installed"
                 else
                   Error "Problem installing ReaR, check logfile"
@@ -98,21 +97,16 @@ if [ -z "$CONFIG_ONLY" ]; then
         fi
         ;;
 
-      CentOS|RedHat|Rocky|Alma|OEL|Fedora)
+      rhel|fedora|centos)
         if check_yum "$USER" "$CLI_NAME" "$SUDO"; then
-          if [ "$DISTRO" == "Fedora" ]; then
-            DISTRO_LIKE=Fedora
-          else
-            DISTRO_LIKE=RedHat
-          fi
           # Installing DRLM and ReaR dependencies
           LogPrint "Installing dependencies and ReaR"
-          if install_dependencies_yum  "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_"${DISTRO_LIKE^^}""$CLI_VERSION""$REP_ARCH")" "$SUDO"; then 
+          if install_dependencies_yum  "$USER" "$CLI_NAME" "$REAR_DEPS" "$SUDO"; then 
             Log "Dependencies have been installed"
           else 
             Error "Problem installing dependencies, check logfile" 
           fi
-          
+
           # if parameter -r/--repo in installclient try to install from oficial repositories
           if [ "$REPO_INST" == "true" ]; then
               case "$CLI_VERSION" in
@@ -135,12 +129,10 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_"${DISTRO_LIKE^^}$CLI_VERSION"
-
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
             elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
-              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO_LIKE"; then
                 Log "ReaR has been installed"
               else
                 Error "Problem installing ReaR, check logfile"
@@ -153,13 +145,12 @@ if [ -z "$CONFIG_ONLY" ]; then
     
         ;;
 
-      Suse)
+      suse)
        if check_zypper "$USER" "$CLI_NAME" "$SUDO"; then
-           
           # Installing DRLM and ReaR dependencies
           LogPrint "Installing dependencies and ReaR"
-          
-          if install_dependencies_zypper "$USER" "$CLI_NAME" "$(eval echo \$REAR_DEP_SUSE"$CLI_VERSION")" "$SUDO"; then
+
+          if install_dependencies_zypper "$USER" "$CLI_NAME" "$REAR_DEPS" "$SUDO"; then
             Log "Dependencies have been installed"
           else
             Error "Error installing dependencies, check logfile"
@@ -171,7 +162,6 @@ if [ -z "$CONFIG_ONLY" ]; then
                 [11*-12*-13*-])
                   Error "$DISTRO $CLI_VERSION has not ReaR package available in repositories!"
                   ;;
-
                 *)
                   if install_rear_zypper_repo "$USER" "$CLI_NAME" "$SUDO"; then 
                     Log "ReaR has been installed from repo"
@@ -179,7 +169,6 @@ if [ -z "$CONFIG_ONLY" ]; then
                     Error "Problem installing ReaR from repo, check logfile" 
                   fi
                   ;;
-
             esac
 
           # if parameter -U/--url_rear in installclient try to install from specified URL
@@ -192,12 +181,10 @@ if [ -z "$CONFIG_ONLY" ]; then
 
           # if not -r or -U install ReaR from DRLM Git dist.
           else
-            eval GIT_REAR=\$GIT_REAR_"${DISTRO^^}$CLI_VERSION"
-
             if [ "$GIT_REAR" == "" ]; then
               Error "No GIT branch/tag for $DISTRO $CLI_VERSION in default.conf"
             elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
-              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO_LIKE"; then
                 Log "ReaR has been installed"
               else
                 Error "Problem installing ReaR, check logfile"

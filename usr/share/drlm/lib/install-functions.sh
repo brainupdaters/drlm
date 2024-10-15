@@ -1,13 +1,46 @@
+
+function get_client_os () {
+
+  local DISTRO_LIST="rhel fedora centos debian ubuntu"
+
+  if [ -f /etc/os-release ]; then
+    source <(grep -E "ID|VERSION_ID|ID_LIKE" /etc/os-release)
+
+    echo "DISTRO=$ID"
+    echo "RELEASE=$VERSION_ID"
+    echo "CLI_VERSION=${VERSION_ID%%.*}"
+    echo "ARCH=$(uname -m)"
+    if [[ $DISTRO_LIST =~ $ID ]]; then echo "DISTRO_LIKE=$ID";
+    elif [[ $ID_LIKE =~ rhel || $ID == ol ]]; then echo "DISTRO_LIKE=rhel";
+    elif [[ $ID_LIKE =~ fedora ]]; then echo "DISTRO_LIKE=fedora";
+    elif [[ $ID_LIKE =~ centos ]]; then echo "DISTRO_LIKE=centos";
+    elif [[ $ID_LIKE =~ debian ]]; then echo "DISTRO_LIKE=debian";
+    elif [[ $ID_LIKE =~ ubuntu ]]; then echo "DISTRO_LIKE=ubuntu";
+    elif [[ $ID_LIKE =~ suse ]]; then echo "DISTRO_LIKE=suse";
+    else echo "DISTRO_LIKE=unknown";
+    fi
+  else
+    echo "DISTRO=old"
+  fi
+
+}
+
+function ssh_get_client_os () {
+  local USER=$1
+  local CLI_NAME=$2
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -f get_client_os); get_client_os" | tr -d '\r' | tr -d '\$'
+}
+
 function get_distro () {
-  if [ -f /etc/dpkg/origins/ubuntu ]; then echo Ubuntu;
-  elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ] && [ ! -f /etc/almalinux-release ] && [ ! -f /etc/oracle-release ] && [ ! -f /etc/fedora-release ]; then echo RedHat;
-  elif [ -f /etc/fedora-release ] && [ -f /etc/redhat-release ]; then  echo Fedora;
-  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then  echo Rocky;
-  elif [ -f /etc/almalinux-release ] && [ -f /etc/redhat-release ]; then  echo Alma;
-  elif [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ]; then  echo OEL;
-  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;
-  elif [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo Suse; 
+  if [ -f /etc/dpkg/origins/ubuntu ]; then echo ubuntu;
+  elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo debian;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ] && [ ! -f /etc/almalinux-release ] && [ ! -f /etc/oracle-release ] && [ ! -f /etc/fedora-release ]; then echo rhel;
+  elif [ -f /etc/fedora-release ] && [ -f /etc/redhat-release ]; then  echo fedora;
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then  echo rocky;
+  elif [ -f /etc/almalinux-release ] && [ -f /etc/redhat-release ]; then  echo alma;
+  elif [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ]; then  echo ol;
+  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo centos;
+  elif [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo suse; 
   fi
 }
 
@@ -415,7 +448,7 @@ function start_services () {
       $SUDO systemctl start $service.service
       $SUDO systemctl enable $service.service
     else
-      if [ "$DISTRO" == "Debian" ] || [ "$DISTRO" == "Ubuntu" ]; then
+      if [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "ubuntu" ]; then
         $SUDO /usr/sbin/service $service start
         $SUDO /usr/sbin/update-rc.d $service enable
       else
@@ -716,7 +749,7 @@ function install_rear_git () {
   local CLI_NAME=$2
   local SUDO=$3
   local GIT_TAG=$4
-  local DISTRO=$5
+  local DISTRO_LIKE=$5
 
   # clone rear git drlm dist
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO bash -c '( [ -d /var/lib/drlm/rear-$GIT_TAG ] && chown -R root:root /var/lib/drlm/rear-$GIT_TAG; git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 ) || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null' )" &> /dev/null
@@ -727,20 +760,20 @@ function install_rear_git () {
   # install rear git drlm dist
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG install &> /dev/null )" &> /dev/null 
   if [ $? -ne 0 ]; then return 1; fi
-  case "$DISTRO" in
-    Debian|Ubuntu)
+  case "$DISTRO_LIKE" in
+    debian|ubuntu)
       # install deps with apt
       #ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \"$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g')\" &> /dev/null)" &> /dev/null
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && for pkg in \$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g'); do $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \$pkg &> /dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
-    CentOS|RedHat|Rocky|Alma|OEL|Fedora)
+    rhel|fedora|centos)
       # install deps with yum
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO yum -y install \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( for pkg in \$(repoquery --queryformat=%{name} --depends --resolve rear); do $SUDO yum -y install \$pkg &>/dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
-    Suse)
+    suse)
       # install deps with zypper
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO zypper --no-gpg-checks in -y \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
