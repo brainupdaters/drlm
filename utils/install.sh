@@ -13,8 +13,11 @@ tmp_dir=$(mktemp -d -t drlm-XXXXXXXXXX)
 # push directory
 pushd $tmp_dir
 
+# Set default Repository and Branch
+DRLM_GIT_BUILD_INSTALL_URL="${DRLM_GIT_BUILD_INSTALL_URL:-https://raw.githubusercontent.com/brainupdaters/drlm/develop/utils/drlm-build-install.sh}"
+
 # download script
-curl -O https://raw.githubusercontent.com/brainupdaters/drlm/develop/utils/drlm-build-install.sh
+curl -O $DRLM_GIT_BUILD_INSTALL_URL
 
 # execute script
 bash drlm-build-install.sh
