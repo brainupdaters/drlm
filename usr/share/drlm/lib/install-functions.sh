@@ -16,7 +16,7 @@ function get_client_os () {
     elif [[ $ID_LIKE =~ centos ]]; then echo "DISTRO_LIKE=centos";
     elif [[ $ID_LIKE =~ debian ]]; then echo "DISTRO_LIKE=debian";
     elif [[ $ID_LIKE =~ ubuntu ]]; then echo "DISTRO_LIKE=ubuntu";
-    elif [[ $ID_LIKE =~ suse ]]; then echo "DISTRO_LIKE=suse";
+    elif [[ $ID_LIKE =~ suse || $ID == sled || $ID == sles || $ID == sles_sap ]]; then echo "DISTRO_LIKE=suse";
     else echo "DISTRO_LIKE=unknown";
     fi
   else
