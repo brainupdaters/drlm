@@ -725,7 +725,7 @@ function install_rear_git () {
     Debian|Ubuntu)
       # install deps with apt
       #ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \"$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g')\" &> /dev/null)" &> /dev/null
-      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && for pkg in $(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g'); do $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install $pkg &> /dev/null; done )" &> /dev/null
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && for pkg in $(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=""; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g'); do $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install $pkg &> /dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
     CentOS|RedHat|Rocky)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # "DRLM build & install script"
-INSTALLER_VERSION="202409.03"
+INSTALLER_VERSION="202409.04"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"
@@ -109,7 +109,9 @@ check_go() {
 # Function to install golang
 install_golang() {
     # Download Go binary
-    curl -OL https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
+    GOLANG_URL="https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz"
+    echo "Downloading $GOLANG_URL"
+    curl -OL $GOLANG_URL
     # Remove any existing Go installation and extract the downloaded Go binary
     rm -rf /usr/local/go && tar -C /usr/local -xzf go${GOLANG_VERSION}.linux-amd64.tar.gz
     # Add Go binary to PATH
@@ -131,8 +133,11 @@ get_drlm_version() {
 drlm_clon_repo() {
     # Get DRLM version
     get_drlm_version
+    # DRLM URL
+    DRLM_CLONE_URL="${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY}"
+    echo "Clonning $DRLM_CLONE_URL"
     # Clone the DRLM project
-    git clone ${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY}
+    git clone $DRLM_CLONE_URL
     # Navigate into the project directory
     cd drlm
     # Checkout Branch/Commit
@@ -148,7 +153,7 @@ add_drlm_internal_client() {
     num_internals=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
     if [ $num_internals -eq 0 ]; then
         # add and install drlm internal client
-        drlm addclient --internal -I 
+        drlm -vD addclient --internal -I 
     fi
     
     # add drlm internal client jobs and disable
