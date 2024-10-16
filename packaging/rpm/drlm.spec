@@ -191,7 +191,8 @@ tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_
 
 ### If --> is install create keys
 if [ "$1" == "1" ]; then
-openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+openssl ecparam -name secp521r1 -genkey -out /etc/drlm/cert/drlm.key
+openssl req -new -x509 -key /etc/drlm/cert/drlm.key -out /etc/drlm/cert/drlm.crt -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)"
 ### Else --> is update save keys
 else
   if [ -f /etc/drlm/cert/drlm.key ]; then

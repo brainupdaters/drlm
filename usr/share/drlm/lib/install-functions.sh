@@ -1,10 +1,48 @@
+
+function get_client_os () {
+
+  local DISTRO_LIST="rhel fedora centos debian ubuntu arch gentoo"
+
+  if [ -f /etc/os-release ]; then
+    source <(grep -E "ID|VERSION_ID|ID_LIKE" /etc/os-release)
+
+    echo "DISTRO=$ID"
+    echo "RELEASE=$VERSION_ID"
+    echo "CLI_VERSION=${VERSION_ID%%.*}"
+    echo "ARCH=$(uname -m)"
+    if [[ $DISTRO_LIST =~ $ID ]]; then echo "DISTRO_LIKE=$ID";
+    elif [[ $ID_LIKE =~ rhel || $ID == ol ]]; then echo "DISTRO_LIKE=rhel";
+    elif [[ $ID_LIKE =~ fedora ]]; then echo "DISTRO_LIKE=fedora";
+    elif [[ $ID_LIKE =~ centos ]]; then echo "DISTRO_LIKE=centos";
+    elif [[ $ID_LIKE =~ debian ]]; then echo "DISTRO_LIKE=debian";
+    elif [[ $ID_LIKE =~ ubuntu ]]; then echo "DISTRO_LIKE=ubuntu";
+    elif [[ $ID_LIKE =~ suse || $ID == sled || $ID == sles || $ID == sles_sap ]]; then echo "DISTRO_LIKE=suse";
+    elif [[ $ID_LIKE =~ arch ]]; then echo "DISTRO_LIKE=arch";
+    elif [[ $ID_LIKE =~ gentoo ]]; then echo "DISTRO_LIKE=gentoo";
+    else echo "DISTRO_LIKE=unknown";
+    fi
+  else
+    echo "DISTRO=old"
+  fi
+
+}
+
+function ssh_get_client_os () {
+  local USER=$1
+  local CLI_NAME=$2
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -f get_client_os); get_client_os" | tr -d '\r' | tr -d '\$'
+}
+
 function get_distro () {
-  if [ -f /etc/dpkg/origins/ubuntu ]; then echo Ubuntu;
-  elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo Debian;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then echo RedHat;
-  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then  echo Rocky;
-  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo CentOS;
-  elif [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo Suse; 
+  if [ -f /etc/dpkg/origins/ubuntu ]; then echo ubuntu;
+  elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then echo debian;
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ] && [ ! -f /etc/almalinux-release ] && [ ! -f /etc/oracle-release ] && [ ! -f /etc/fedora-release ]; then echo rhel;
+  elif [ -f /etc/fedora-release ] && [ -f /etc/redhat-release ]; then  echo fedora;
+  elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then  echo rocky;
+  elif [ -f /etc/almalinux-release ] && [ -f /etc/redhat-release ]; then  echo alma;
+  elif [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ]; then  echo ol;
+  elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then  echo centos;
+  elif [ -f /etc/SuSE-release ] || [ -f /etc/SUSE-brand ]; then echo suse; 
   fi
 }
 
@@ -17,8 +55,11 @@ function ssh_get_distro () {
 function get_release () {
   if [ -f /etc/dpkg/origins/ubuntu ]; then grep "^VERSION_ID=" /etc/os-release | cut -d\" -f2; 
   elif [ -f /etc/debian_version ] && [ ! -f /etc/dpkg/origins/ubuntu ]; then cat /etc/debian_version;
-  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ]; then cat /etc/redhat-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/redhat-release ] && [ ! -f /etc/centos-release ] && [ ! -f /etc/rocky-release ] && [ ! -f /etc/almalinux-release ] && [ ! -f /etc/oracle-release ] && [ ! -f /etc/fedora-release ]; then cat /etc/redhat-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/fedora-release ] && [ -f /etc/redhat-release ]; then cat /etc/fedora-release | awk -F"release" '{print $2}' | awk '{print $1}';
   elif [ -f /etc/rocky-release ] && [ -f /etc/redhat-release ]; then cat /etc/rocky-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/almalinux-release ] && [ -f /etc/redhat-release ]; then cat /etc/almalinux-release | awk -F"release" '{print $2}' | awk '{print $1}';
+  elif [ -f /etc/oracle-release ] && [ -f /etc/redhat-release ]; then cat /etc/oracle-release | awk -F"release" '{print $2}' | awk '{print $1}';
   elif [ -f /etc/centos-release ] && [ -f /etc/redhat-release ]; then cat /etc/centos-release | awk -F"release" '{print $2}' | awk '{print $1}';
   elif [ -f /etc/SuSE-release ]; then grep VERSION /etc/SuSE-release | awk '{print $3}';
   elif [ -f /etc/SUSE-brand ]; then grep VERSION /etc/SUSE-brand | awk '{print $3}';
@@ -67,6 +108,22 @@ function check_zypper () {
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function check_pacman() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "($SUDO pacman -Ss netcat | grep -w netcat &>/dev/null)" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function check_emerge() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "($SUDO emerge --search netcat | grep -w netcat &>/dev/null)" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function install_dependencies_apt () {
   local USER=$1
   local CLI_NAME=$2
@@ -96,6 +153,26 @@ function install_dependencies_zypper () {
     ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO zypper --no-gpg-checks in -y $REAR_DEP_SUSE &>/dev/null )" &> /dev/null
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   fi
+}
+
+function install_dependencies_pacman() {
+  local USER=$1
+  local CLI_NAME=$2
+  local DEPENDENCIES="$3"
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$( $SUDO pacman -Syu --noconfirm ${DEPENDENCIES[@]} &> /dev/null )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_dependencies_emerge() {
+  local USER=$1
+  local CLI_NAME=$2
+  local DEPENDENCIES="$3"
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$( $SUDO emerge --sync && $SUDO emerge --quiet --ask=n ${DEPENDENCIES[@]} &> /dev/null )" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_rear_yum () {
@@ -186,6 +263,71 @@ function ssh_install_rear_zypper () {
   local URL_REAR=$3
   local SUDO=$4
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_rear_pacman() {
+  $SUDO pacman -Rns --noconfirm rear &>/dev/null
+  $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.pkg.tar.zst "$URL_REAR" &>/dev/null
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    $SUDO pacman -U --noconfirm /tmp/rear.pkg.tar.zst &>/dev/null
+    if [ $? -ne 0 ]; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
+function install_rear_pacman_repo() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "( $SUDO pacman -Rns --noconfirm rear; $SUDO pacman -Syu --noconfirm rear &>/dev/null )" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function ssh_install_rear_pacman() {
+  local USER=$1
+  local CLI_NAME=$2
+  local URL_REAR=$3
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -p SUDO URL_REAR; declare -f install_rear_pacman); install_rear_pacman" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_rear_emerge() {
+  $SUDO emerge --unmerge rear &>/dev/null
+  $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.tbz2 "$URL_REAR" &>/dev/null
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    $SUDO emerge /tmp/rear.tbz2 &>/dev/null
+    if [ $? -ne 0 ]; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
+function install_rear_emerge_repo() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "( $SUDO emerge --unmerge rear; $SUDO emerge --quiet rear &>/dev/null )" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function ssh_install_rear_emerge() {
+  local USER=$1
+  local CLI_NAME=$2
+  local URL_REAR=$3
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -p SUDO URL_REAR; declare -f install_rear_emerge); install_rear_emerge" &>/dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -409,7 +551,7 @@ function start_services () {
       $SUDO systemctl start $service.service
       $SUDO systemctl enable $service.service
     else
-      if [ "$DISTRO" == "Debian" ] || [ "$DISTRO" == "Ubuntu" ]; then
+      if [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "ubuntu" ]; then
         $SUDO /usr/sbin/service $service start
         $SUDO /usr/sbin/update-rc.d $service enable
       else
@@ -710,7 +852,7 @@ function install_rear_git () {
   local CLI_NAME=$2
   local SUDO=$3
   local GIT_TAG=$4
-  local DISTRO=$5
+  local DISTRO_LIKE=$5
 
   # clone rear git drlm dist
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO bash -c '( [ -d /var/lib/drlm/rear-$GIT_TAG ] && chown -R root:root /var/lib/drlm/rear-$GIT_TAG; git -C /var/lib/drlm/rear-$GIT_TAG branch --show-current >/dev/null 2>&1 ) || $SUDO git clone --branch $GIT_TAG git://$(hostname -s)/rear /var/lib/drlm/rear-$GIT_TAG &> /dev/null' )" &> /dev/null
@@ -721,21 +863,32 @@ function install_rear_git () {
   # install rear git drlm dist
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO make -C /var/lib/drlm/rear-$GIT_TAG install &> /dev/null )" &> /dev/null 
   if [ $? -ne 0 ]; then return 1; fi
-  case "$DISTRO" in
-    Debian|Ubuntu)
+  case "$DISTRO_LIKE" in
+    debian|ubuntu)
       # install deps with apt
       #ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \"$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g')\" &> /dev/null)" &> /dev/null
-      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && for pkg in $(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=""; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g'); do $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install $pkg &> /dev/null; done )" &> /dev/null
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO GIT_TAG); ( $SUDO apt-get update &> /dev/null && for pkg in \$(cd /var/lib/drlm/rear-$GIT_TAG/packaging; dpkg-gencontrol -cdebian/control -O 2>/dev/null| egrep 'Depends|Suggests' | awk '{$1=''; print }'| tr -d '\n' | sed 's/ (>= 0)//g;s/,//g;s/ |//g'); do $SUDO DEBIAN_FRONTEND=noninteractive apt-get -y install \$pkg &> /dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
-    CentOS|RedHat|Rocky)
+    rhel|fedora|centos)
       # install deps with yum
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO yum -y install \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( for pkg in \$(repoquery --queryformat=%{name} --depends --resolve rear); do $SUDO yum -y install \$pkg &>/dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
-    Suse)
+    suse)
       # install deps with zypper
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO zypper --no-gpg-checks in -y \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+      if [ $? -eq 0 ]; then return 0; else return 1;fi
+      ;;
+    arch)
+      # Install dependencies with pacman
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO pacman -Sy --noconfirm; for pkg in \$(pactree -u rear | tail -n +2); do $SUDO pacman -S --noconfirm \$pkg &>/dev/null; done )" &> /dev/null
+      if [ $? -eq 0 ]; then return 0; else return 1;fi
+      ;;
+    gentoo)
+      # Install dependencies with emerge
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( for pkg in \$(equery depgraph rear --quiet | awk '{print \$1}'); do $SUDO emerge --quiet \$pkg &>/dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
     *)
