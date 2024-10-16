@@ -81,7 +81,9 @@ function ssh_get_release () {
 
 function ssh_get_rear_version () {
   local CLI_NAME=$1
-  echo $(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//'
+  local REAR_VERSION="$(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V 2> /dev/null"  2> /dev/null)"
+  REAR_VERSION="$(echo $REAR_VERSION | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//')"
+  echo "$REAR_VERSION"
 }
 
 function check_apt () {
