@@ -542,7 +542,7 @@ function remove_authorized_keys () {
 function ssh_remove_authorized_keys () {
   local USER=$1
   local CLI_NAME=$2
-  local AUTH_KEY=$(cat ~/.ssh/id_rsa.pub|awk '{print $3}')
+  local AUTH_KEY=$(cat /root/.ssh/id_rsa.pub|awk '{print $3}')
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p AUTH_KEY ; declare -f remove_authorized_keys); remove_authorized_keys" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
@@ -652,7 +652,7 @@ function copy_ssh_id () {
   local DRLM_USER=$3
   local SUDO=$4
 
-  PUBKEY=$(<~/.ssh/id_rsa.pub)
+  PUBKEY=$(</root/.ssh/id_rsa.pub)
 
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "DRLM_USER_HOME_DIR=\"\$(getent passwd \"$DRLM_USER\" | cut -d: -f6)\" ;
       DRLM_USER_GROUP=\"\$(id -gn $DRLM_USER)\" ;
