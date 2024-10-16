@@ -190,7 +190,7 @@ function ssh_install_rear_zypper () {
 }
 
 function ssh_keygen () {
-  ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N '' &> /dev/null
+  ssh-keygen -t rsa -b 2048 -f /root/.ssh/id_rsa -N '' &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 

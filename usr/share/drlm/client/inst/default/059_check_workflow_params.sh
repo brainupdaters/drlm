@@ -21,12 +21,12 @@ else
   fi
 fi
 
-if [ "$CLI_NAME" == "internal" ]; then
-  if [ ! -f /root/.ssh/id_rsa.pub ]; then 
-    ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -P ""
-  fi
-  cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
-fi
+# if [ "$CLI_NAME" == "internal" ]; then
+#   if [ ! -f /root/.ssh/id_rsa.pub ]; then 
+#     ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -P ""
+#   fi
+#   cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+# fi
 
 # DRLM 2.4.0 - Imports client configurations
 # Now you can define DRLM options, like SSH options (SSH_OPTS, SSH_PORT, ...), for each client.
@@ -52,13 +52,14 @@ if ! check_ssh_port $CLI_IP; then
 fi
 
 Log "Checking id_rsa.pub key "
-if [ ! -f ~/.ssh/id_rsa.pub ]; then
+if [ ! -f /root/.ssh/id_rsa.pub ]; then
   ssh_keygen
   if [ $? -eq 0  ]; then 
     Log " .ssh/id_rsa.pub key have been created"; 
   else 
     Error "Error creating .ssh/id_rsa.pub key"; 
   fi
+  cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 fi 
 
 CLI_NET=$(get_client_net ${CLI_ID})
