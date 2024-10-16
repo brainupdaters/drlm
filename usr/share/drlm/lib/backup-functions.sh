@@ -988,7 +988,8 @@ function get_fs_used_mb ()
 function get_client_used_mb () {
     export PATH="$PATH:/sbin:/usr/sbin" # vgs is located in diferent places depending of the version this allows to find the command
     if [[ -n ${INCLUDE_LIST_VG} ]]; then
-        EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
+        #EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
+        EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | grep -Ev "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
     fi
 
     EXCLUDE_LIST=( ${EXCLUDE_LIST[@]} ${EXCLUDE_LIST_VG[@]} )
@@ -999,10 +1000,12 @@ function get_client_used_mb () {
 
     #FIXME: If any better way to get this info in future.
     # Get FS list excluding BTRFS filesystems if any.
-    FS_LIST=( $(sudo mount -l -t "$(echo $(egrep -v 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | grep -v '/var/lib/snapd/*.snap' | awk '{print $3}') )
+    #FS_LIST=( $(sudo mount -l -t "$(echo $(egrep -v 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | grep -v '/var/lib/snapd/*.snap' | awk '{print $3}') )
+    FS_LIST=( $(sudo mount -l -t "$(echo $(grep -Ev 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | grep -Ev "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | grep -v '/var/lib/snapd/*.snap' | awk '{print $3}') )
     # Now get reduced list of FS under BTRFS to get correct used space.
     ###FS_LIST=( ${FS_LIST[@]} $(sudo mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | egrep "subvolid=5|subvol=/@\)|subvol=/@/.snapshots/" | awk '{print $3}') )
-    for btrfs in $(mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
+    #for btrfs in $(mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
+    for btrfs in $(mount -l -t btrfs | grep -Ev "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
 
     for fs in ${FS_LIST[@]}
     do
