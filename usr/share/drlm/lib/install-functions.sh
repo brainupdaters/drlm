@@ -81,7 +81,9 @@ function ssh_get_release () {
 
 function ssh_get_rear_version () {
   local CLI_NAME=$1
-  echo $(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V 2> /dev/null"  2> /dev/null) | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//'
+  local REAR_VERSION="$(ssh $SSH_OPTS -p $SSH_PORT $DRLM_USER@$CLI_NAME "/usr/sbin/rear -V 2> /dev/null"  2> /dev/null)"
+  REAR_VERSION="$(echo $REAR_VERSION | tr -dc '[:alnum:][:punct:]' | sed 's/Relax-and-Recover//')"
+  echo "$REAR_VERSION"
 }
 
 function check_apt () {
@@ -332,7 +334,7 @@ function ssh_install_rear_emerge() {
 }
 
 function ssh_keygen () {
-  ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N '' &> /dev/null
+  ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -P "" &> /dev/null
   if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
@@ -540,7 +542,7 @@ function remove_authorized_keys () {
 function ssh_remove_authorized_keys () {
   local USER=$1
   local CLI_NAME=$2
-  local AUTH_KEY=$(cat ~/.ssh/id_rsa.pub|awk '{print $3}')
+  local AUTH_KEY=$(cat /root/.ssh/id_rsa.pub|awk '{print $3}')
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p AUTH_KEY ; declare -f remove_authorized_keys); remove_authorized_keys" &> /dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
@@ -650,7 +652,7 @@ function copy_ssh_id () {
   local DRLM_USER=$3
   local SUDO=$4
 
-  PUBKEY=$(<~/.ssh/id_rsa.pub)
+  PUBKEY=$(</root/.ssh/id_rsa.pub)
 
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "DRLM_USER_HOME_DIR=\"\$(getent passwd \"$DRLM_USER\" | cut -d: -f6)\" ;
       DRLM_USER_GROUP=\"\$(id -gn $DRLM_USER)\" ;
@@ -824,10 +826,13 @@ function send_rear_drlm_extra () {
   local USER=$1
   local CLI_NAME=$2
   tar -cf /tmp/drlm-extra.tar -C /usr/share/drlm/conf/rear-extra .
-  [ "$CLI_NAME" == "internal" ] && chmod o+rw /tmp/drlm-extra.tar
-  scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${DRLM_USER}@${CLI_NAME}:/tmp/ &> /dev/null
-  if [ $? -eq 0 ]; then AddExitTask "rm -f /tmp/drlm-extra.tar"; return 0; else return 1;fi
+ 
+  if [ "$CLI_NAME" != "internal" ]; then
+    scp $SCP_OPTS -P $SSH_PORT /tmp/drlm-extra.tar ${DRLM_USER}@${CLI_NAME}:/tmp/ &> /dev/null
+    if [ $? -ne 0 ]; then AddExitTask "rm -f /tmp/drlm-extra.tar"; return 1; fi
+  fi
 
+  return 0
 }
 
 function setup_rear_git_dist () {
