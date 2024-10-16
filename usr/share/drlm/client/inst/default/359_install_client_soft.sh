@@ -196,6 +196,90 @@ if [ -z "$CONFIG_ONLY" ]; then
         fi
         ;;
 
+      arch)
+        if check_pacman "$USER" "$CLI_NAME" "$SUDO"; then
+          LogPrint "Installing dependencies and ReaR"
+          if install_dependencies_pacman "$USER" "$CLI_NAME" "$REAR_DEPS" "$SUDO"; then
+            Log "Dependencies have been installed"
+          else
+            Error "Problem installing dependencies, check logfile"
+          fi
+
+          # if parameter -r/--repo in installclient try to install from oficial repositories
+          if [ "$REPO_INST" == "true" ]; then
+            if install_rear_pacman_repo "$USER" "$CLI_NAME" "$SUDO"; then
+              Log "ReaR has been installed from repo"
+            else
+              Error "Problem installing ReaR from repo, check logfile"
+            fi
+
+          # if parameter -U/--url_rear in installclient try to install from specified URL
+          elif [ "$URL_REAR" != "" ]; then
+            if ssh_install_rear_pacman "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then
+              Log "ReaR has been installed"
+            else
+              Error "Problem installing ReaR, check logfile"
+            fi
+
+          # if not -r or -U install ReaR from DRLM Git dist.
+          else
+            if [ "$GIT_REAR" == "" ]; then
+              Error "No GIT branch/tag for Arch in default.conf"
+            elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO_LIKE"; then
+                Log "ReaR has been installed"
+              else
+                Error "Problem installing ReaR, check logfile"
+              fi
+            fi
+          fi
+        else
+          Error "pacman problem, some dependencies are missing."
+        fi
+        ;;
+
+      gentoo)
+        if check_emerge "$USER" "$CLI_NAME" "$SUDO"; then
+          LogPrint "Installing dependencies and ReaR"
+          if install_dependencies_emerge "$USER" "$CLI_NAME" "$REAR_DEPS" "$SUDO"; then
+            Log "Dependencies have been installed"
+          else
+            Error "Problem installing dependencies, check logfile"
+          fi
+
+          # if parameter -r/--repo in installclient try to install from oficial repositories
+          if [ "$REPO_INST" == "true" ]; then
+            if install_rear_emerge_repo "$USER" "$CLI_NAME" "$SUDO"; then
+              Log "ReaR has been installed from repo"
+            else
+              Error "Problem installing ReaR from repo, check logfile"
+            fi
+
+          # if parameter -U/--url_rear in installclient try to install from specified URL
+          elif [ "$URL_REAR" != "" ]; then
+            if ssh_install_rear_emerge "$USER" "$CLI_NAME" "$URL_REAR" "$SUDO"; then
+              Log "ReaR has been installed"
+            else
+              Error "Problem installing ReaR, check logfile"
+            fi
+
+          # if not -r or -U install ReaR from DRLM Git dist.
+          else
+            if [ "$GIT_REAR" == "" ]; then
+              Error "No GIT branch/tag for Gentoo in default.conf"
+            elif setup_rear_git_dist "$REAR_GIT_REPO_URL"; then
+              if install_rear_git "$USER" "$CLI_NAME" "$SUDO" "$GIT_REAR" "$DISTRO_LIKE"; then
+                Log "ReaR has been installed"
+              else
+                Error "Problem installing ReaR, check logfile"
+              fi
+            fi
+          fi
+        else
+          Error "emerge problem, some dependencies are missing."
+        fi
+        ;;
+
       *)
         Error "GNU/Linux Distribution not identified"
         ;;

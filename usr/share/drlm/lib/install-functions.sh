@@ -1,7 +1,7 @@
 
 function get_client_os () {
 
-  local DISTRO_LIST="rhel fedora centos debian ubuntu"
+  local DISTRO_LIST="rhel fedora centos debian ubuntu arch gentoo"
 
   if [ -f /etc/os-release ]; then
     source <(grep -E "ID|VERSION_ID|ID_LIKE" /etc/os-release)
@@ -17,6 +17,8 @@ function get_client_os () {
     elif [[ $ID_LIKE =~ debian ]]; then echo "DISTRO_LIKE=debian";
     elif [[ $ID_LIKE =~ ubuntu ]]; then echo "DISTRO_LIKE=ubuntu";
     elif [[ $ID_LIKE =~ suse || $ID == sled || $ID == sles || $ID == sles_sap ]]; then echo "DISTRO_LIKE=suse";
+    elif [[ $ID_LIKE =~ arch ]]; then echo "DISTRO_LIKE=arch";
+    elif [[ $ID_LIKE =~ gentoo ]]; then echo "DISTRO_LIKE=gentoo";
     else echo "DISTRO_LIKE=unknown";
     fi
   else
@@ -106,6 +108,22 @@ function check_zypper () {
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function check_pacman() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "($SUDO pacman -Ss netcat | grep -w netcat &>/dev/null)" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function check_emerge() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "($SUDO emerge --search netcat | grep -w netcat &>/dev/null)" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function install_dependencies_apt () {
   local USER=$1
   local CLI_NAME=$2
@@ -135,6 +153,26 @@ function install_dependencies_zypper () {
     ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "( $SUDO zypper --no-gpg-checks in -y $REAR_DEP_SUSE &>/dev/null )" &> /dev/null
     if [ $? -eq 0 ]; then return 0; else return 1; fi
   fi
+}
+
+function install_dependencies_pacman() {
+  local USER=$1
+  local CLI_NAME=$2
+  local DEPENDENCIES="$3"
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$( $SUDO pacman -Syu --noconfirm ${DEPENDENCIES[@]} &> /dev/null )" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_dependencies_emerge() {
+  local USER=$1
+  local CLI_NAME=$2
+  local DEPENDENCIES="$3"
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$( $SUDO emerge --sync && $SUDO emerge --quiet --ask=n ${DEPENDENCIES[@]} &> /dev/null )" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function install_rear_yum () {
@@ -225,6 +263,71 @@ function ssh_install_rear_zypper () {
   local URL_REAR=$3
   local SUDO=$4
   ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO URL_REAR; declare -f install_rear_zypper); install_rear_zypper" &> /dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_rear_pacman() {
+  $SUDO pacman -Rns --noconfirm rear &>/dev/null
+  $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.pkg.tar.zst "$URL_REAR" &>/dev/null
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    $SUDO pacman -U --noconfirm /tmp/rear.pkg.tar.zst &>/dev/null
+    if [ $? -ne 0 ]; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
+function install_rear_pacman_repo() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "( $SUDO pacman -Rns --noconfirm rear; $SUDO pacman -Syu --noconfirm rear &>/dev/null )" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function ssh_install_rear_pacman() {
+  local USER=$1
+  local CLI_NAME=$2
+  local URL_REAR=$3
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -p SUDO URL_REAR; declare -f install_rear_pacman); install_rear_pacman" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function install_rear_emerge() {
+  $SUDO emerge --unmerge rear &>/dev/null
+  $SUDO wget --no-check-certificate -P /tmp -O /tmp/rear.tbz2 "$URL_REAR" &>/dev/null
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    $SUDO emerge /tmp/rear.tbz2 &>/dev/null
+    if [ $? -ne 0 ]; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
+function install_rear_emerge_repo() {
+  local USER=$1
+  local CLI_NAME=$2
+  local SUDO=$3
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "( $SUDO emerge --unmerge rear; $SUDO emerge --quiet rear &>/dev/null )" &>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function ssh_install_rear_emerge() {
+  local USER=$1
+  local CLI_NAME=$2
+  local URL_REAR=$3
+  local SUDO=$4
+
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -p SUDO URL_REAR; declare -f install_rear_emerge); install_rear_emerge" &>/dev/null
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -776,6 +879,16 @@ function install_rear_git () {
     suse)
       # install deps with zypper
       ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO zypper --no-gpg-checks in -y \"$(repoquery --depends --resolve rear 2>/dev/null | tr '\n' ' ')\" &>/dev/null )" &> /dev/null
+      if [ $? -eq 0 ]; then return 0; else return 1;fi
+      ;;
+    arch)
+      # Install dependencies with pacman
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( $SUDO pacman -Sy --noconfirm; for pkg in \$(pactree -u rear | tail -n +2); do $SUDO pacman -S --noconfirm \$pkg &>/dev/null; done )" &> /dev/null
+      if [ $? -eq 0 ]; then return 0; else return 1;fi
+      ;;
+    gentoo)
+      # Install dependencies with emerge
+      ssh $SSH_OPTS -p $SSH_PORT $USER@$CLI_NAME "$(declare -p SUDO); ( for pkg in \$(equery depgraph rear --quiet | awk '{print \$1}'); do $SUDO emerge --quiet \$pkg &>/dev/null; done )" &> /dev/null
       if [ $? -eq 0 ]; then return 0; else return 1;fi
       ;;
     *)
