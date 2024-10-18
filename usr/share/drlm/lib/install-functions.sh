@@ -1,5 +1,5 @@
 
-function get_client_os () {
+function get_os () {
 
   local DISTRO_LIST="rhel fedora centos debian ubuntu arch gentoo"
 
@@ -27,10 +27,10 @@ function get_client_os () {
 
 }
 
-function ssh_get_client_os () {
+function ssh_get_os () {
   local USER=$1
   local CLI_NAME=$2
-  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -f get_client_os); get_client_os" | tr -d '\r' | tr -d '\$'
+  ssh $SSH_OPTS -p "$SSH_PORT" "$USER@$CLI_NAME" "$(declare -f get_os); get_os" | tr -d '\r' | tr -d '\$'
 }
 
 function get_distro () {
