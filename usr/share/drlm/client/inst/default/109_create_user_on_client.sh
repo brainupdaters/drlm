@@ -31,7 +31,7 @@ else
   Error "Error updating DRLM hostname information, check logfile"; 
 fi
 
-source <(ssh_get_client_os $USER $CLI_NAME)
+source <(ssh_get_os $USER $CLI_NAME)
 
 if [ "$DISTRO" == "old" ]; then
   DISTRO=$(ssh_get_distro $USER $CLI_NAME)

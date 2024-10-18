@@ -28,7 +28,7 @@ else
 fi
 
 # Update OS version and Rear Version to the database
-source <(ssh_get_client_os $DRLM_USER $CLI_NAME)
+source <(ssh_get_os $DRLM_USER $CLI_NAME)
 if [ "$DISTRO" == "old" ]; then
   CLI_DISTO=$(ssh_get_distro $DRLM_USER $CLI_NAME)
   CLI_RELEASE=$(ssh_get_release $DRLM_USER $CLI_NAME)
@@ -37,10 +37,12 @@ else
   CLI_RELEASE=$RELEASE
 fi
 
-if mod_client_os "$CLI_ID" "$CLI_DISTO $CLI_RELEASE"; then
-  Log "Updating OS version $CLI_DISTO $CLI_RELEASE of client $CLI_ID in the database"
-else
-  LogPrint "Warning: Can not update OS version of client $CLI_ID in the database"
+if [ "$(get_client_os $CLI_ID)" != "$CLI_DISTO $CLI_RELEASE" ]; then
+  if mod_client_os "$CLI_ID" "$CLI_DISTO $CLI_RELEASE"; then
+    Log "Updating OS version $CLI_DISTO $CLI_RELEASE of client $CLI_ID in the database"
+  else
+    LogPrint "Warning: Can not update OS version of client $CLI_ID in the database"
+  fi
 fi
 
 CLI_REAR="$(ssh_get_rear_version $CLI_NAME)"
