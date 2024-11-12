@@ -160,3 +160,7 @@ CREATE TABLE IF NOT EXISTS policy (
 -- New column scan for feature ClamAV (backups)
 ALTER TABLE backups ADD COLUMN "scan" tinyint(1);
 UPDATE backups SET scan=0 WHERE scan is null;
+
+-- New column scan for feature rclone (backups)
+ALTER TABLE backups ADD COLUMN "archived" tinyint(1);
+UPDATE backups SET scan=0 WHERE archived is null;
