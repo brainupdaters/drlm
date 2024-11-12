@@ -161,6 +161,6 @@ CREATE TABLE IF NOT EXISTS policy (
 ALTER TABLE backups ADD COLUMN "scan" tinyint(1);
 UPDATE backups SET scan=0 WHERE scan is null;
 
--- New column scan for feature rclone (backups)
+-- New column archived for feature rclone (backups)
 ALTER TABLE backups ADD COLUMN "archived" tinyint(1);
 UPDATE backups SET archived=0 WHERE archived is null;
