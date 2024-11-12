@@ -1524,7 +1524,7 @@ function list_backup () {
     fi
   fi
 
-  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s %-${BAC_SCAN}s \n"
+  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s %-${BAC_SCAN}s %-${BAC_ARCHIVED}s\n"
   SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
   
    # Check if pretty mode is enabled and toggle it if is called with -p option
@@ -1538,7 +1538,7 @@ function list_backup () {
 
   # Print header in pretty mode if is enabled
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
-  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan"
+  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan" "Archived"
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
 
   save_default_pretty_params_list_backup
@@ -1589,6 +1589,14 @@ function list_backup () {
       BAC_SCAN="Clean"
     elif [ "$BAC_SCAN" == "2" ]; then
       BAC_SCAN="Infected"
+    fi
+
+    local BAC_ARCHIVED="$(echo $line|awk -F":" '{print $18}')"
+
+    if [ "$BAC_ARCHIVED" == "1" ]; then
+      BAC_ARCHIVED="Archived"
+    else
+      BAC_ARCHIVED="Not Archived"
     fi
 
     if [ "$BAC_PXE" == "1" ]; then
@@ -1661,8 +1669,17 @@ function list_backup () {
       BAC_SCAN_DEC="%-9s"
     fi
 
-    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} %-11s\n"
-    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN"; 
+    if [ "$DEF_PRETTY" == "true" ]; then
+       if [ "$BAC_ARCHIVED" == "Archived" ]; then 
+	 BAC_ARCHIVED_DEC="\\e[0;32m%-9s\\e[0m"
+       else
+         BAC_ARCHIVE_DEC="\\e[0;31m%-9s\\e[0m"
+       fi
+    fi
+
+
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} %-11s ${BAC_ARCHIVED_DEC} %-12s\n"
+    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN" "$BAC_ARCHIVED"; 
     
     # Check if BAC_ID have snapshots and list them
     found_enabled=0
