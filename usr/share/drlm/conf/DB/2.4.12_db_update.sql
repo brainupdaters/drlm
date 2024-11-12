@@ -21,4 +21,4 @@ UPDATE backups SET scan=0 WHERE scan is null;
 
 -- New column scan for feature Rclone (backups)
 ALTER TABLE backups ADD COLUMN "archived" tinyint(1);
-UPDATE backups SET archived=0 WHERE scan is null;
+UPDATE backups SET archived=0 WHERE archived is null;

@@ -981,6 +981,13 @@ function register_scan_db_dbdrv () {
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function register_archive_db_dbdrv () {
+  local BKP_ID=$1
+  local RCLONE_STATUS="$2"
+  echo "update  backups set archive='${SCAN_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function get_backup_drfile_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local BKP_DR=$(echo "select drfile from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
