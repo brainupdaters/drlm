@@ -984,7 +984,7 @@ function register_scan_db_dbdrv () {
 function register_archive_db_dbdrv () {
   local BKP_ID=$1
   local RCLONE_STATUS="$2"
-  echo "update  backups set archive='${RCLONE_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "update  backups set archived='${RCLONE_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
