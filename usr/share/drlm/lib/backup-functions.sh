@@ -1524,7 +1524,7 @@ function list_backup () {
     fi
   fi
 
-  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s %-${BAC_SCAN}s %-${BAC_ARCHIVED}s\n"
+  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s %-12s %-11s\n"
   SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
   
    # Check if pretty mode is enabled and toggle it if is called with -p option
@@ -1659,26 +1659,26 @@ function list_backup () {
     # if Pretty mode is enabled show in green when the backup is not Clean of viruses and in red for the  Infected 
     if [ "$DEF_PRETTY" == "true" ]; then
       if [ "$BAC_SCAN" == "Clean" ]; then 
-        BAC_SCAN_DEC="\\e[0;32m%-9s\\e[0m"
+        BAC_SCAN_DEC="\\e[0;32m%-12s\\e[0m"
       elif [ "$BAC_SCAN" == "Infected" ]; then 
-        BAC_SCAN_DEC="\\e[0;31m%-9s\\e[0m"
+        BAC_SCAN_DEC="\\e[0;31m%-12s\\e[0m"
       else
-        BAC_SCAN_DEC="\\e[0;33m%-9s\\e[0m"
+        BAC_SCAN_DEC="\\e[0;33m%-12\\e[0m"
       fi
     else
-      BAC_SCAN_DEC="%-9s"
+      BAC_SCAN_DEC="%-12s"
     fi
 
     if [ "$DEF_PRETTY" == "true" ]; then
        if [ "$BAC_ARCHIVED" == "Archived" ]; then 
-	 BAC_ARCHIVED_DEC="\\e[0;32m%-9s\\e[0m"
+	 BAC_ARCHIVED_DEC="\\e[0;32m%-12s\\e[0m"
        else
-         BAC_ARCHIVE_DEC="\\e[0;31m%-9s\\e[0m"
+         BAC_ARCHIVE_DEC="\\e[0;31m%-12s\\e[0m"
        fi
     fi
 
 
-    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} %-11s ${BAC_ARCHIVED_DEC} %-12s\n"
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} %-10s ${BAC_ARCHIVED_DEC} %-11s\n"
     printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN" "$BAC_ARCHIVED"; 
     
     # Check if BAC_ID have snapshots and list them
