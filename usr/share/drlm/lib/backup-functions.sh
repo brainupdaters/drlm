@@ -1595,7 +1595,7 @@ function list_backup () {
 
     if [ "$BAC_ARCHIVED" == "1" ]; then
       BAC_ARCHIVED="Archived"
-    else
+    elif [ "$BAC_ARCHIVED" == "0" ]; then
       BAC_ARCHIVED="Not Archived"
     fi
 
@@ -1671,14 +1671,14 @@ function list_backup () {
 
     if [ "$DEF_PRETTY" == "true" ]; then
        if [ "$BAC_ARCHIVED" == "Archived" ]; then 
-	 BAC_ARCHIVED_DEC="\\e[0;32m%-12s\\e[0m"
-       else
+	 BAC_ARCHIVED_DEC="\\e[0;36m%-12s\\e[0m"
+       elif [ "$BAC_ARCHIVED" == "Not Archived" ]; then
          BAC_ARCHIVE_DEC="\\e[0;31m%-12s\\e[0m"
        fi
     fi
 
 
-    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} %-10s ${BAC_ARCHIVED_DEC} %-11s\n"
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} %-10s ${BAC_ARCHIVED_DEC}\n"
     printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN" "$BAC_ARCHIVED"; 
     
     # Check if BAC_ID have snapshots and list them
