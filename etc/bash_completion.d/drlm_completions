@@ -13,7 +13,7 @@ _drlm()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan archived"
+    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan archive"
 
     local workflow="$(__drlm_find_on_cmdline "$workflows")"
   if [ -z "$workflow" ]; then
@@ -106,8 +106,8 @@ _drlm()
       __drlm_scan
       return
       ;;
-    archived)
-      __drlm_archived
+    archive)
+      __drlm_archive
       return
       ;;
     *)
@@ -1143,7 +1143,7 @@ __drlm_scan ()
   esac
 }
 
-__drlm_archived ()
+__drlm_archive ()
 {
   local options_s="-c -I -h"
   local options_l="--client --id --help"
