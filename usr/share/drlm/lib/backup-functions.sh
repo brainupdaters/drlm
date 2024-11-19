@@ -1594,9 +1594,9 @@ function list_backup () {
     local BAC_ARCHIVED="$(echo $line|awk -F":" '{print $18}')"
 
     if [ "$BAC_ARCHIVED" == "1" ]; then
-      BAC_ARCHIVED="Archived"
+      BAC_ARCHIVED="Cloud"
     elif [ "$BAC_ARCHIVED" == "0" ]; then
-      BAC_ARCHIVED="Not Archived"
+      BAC_ARCHIVED="Local"
     fi
 
     if [ "$BAC_PXE" == "1" ]; then
@@ -1670,10 +1670,10 @@ function list_backup () {
     fi
 
     if [ "$DEF_PRETTY" == "true" ]; then
-       if [ "$BAC_ARCHIVED" == "Archived" ]; then 
-	 BAC_ARCHIVED_DEC="\\e[0;36m%-12s\\e[0m"
-       elif [ "$BAC_ARCHIVED" == "Not Archived" ]; then
-         BAC_ARCHIVE_DEC="\\e[0;31m%-12s\\e[0m"
+       if [ "$BAC_ARCHIVED" == "Cloud" ]; then 
+	 BAC_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
+       elif [ "$BAC_ARCHIVED" == "Local" ]; then
+         BAC_ARCHIVE_DEC="\\e[0;37m%-9s\\e[0m"
        fi
     fi
 
