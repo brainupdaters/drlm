@@ -652,9 +652,9 @@ function get_all_backups_dbdrv () {
   local CLI_ID=$1
 
   if [  -z "$CLI_ID" ]; then
-    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end,":", case when archived is NULL then "0" else archived end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   else
-    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end from backups where clients_id='${CLI_ID}';' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end, ":", case when archived is NULL then "0" else archived end from backups where clients_id='${CLI_ID}';' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   fi
 }
 
