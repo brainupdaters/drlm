@@ -1595,7 +1595,7 @@ function list_backup () {
 
     if [ "$BAC_ARCHIVED" == "1" ]; then
       BAC_ARCHIVED="Cloud"
-    elif [ "$BAC_ARCHIVED" == "0" ]; then
+    elif  [ "$BAC_ARCHIVED" == "0" ]; then
       BAC_ARCHIVED="Local"
     fi
 
@@ -1663,7 +1663,7 @@ function list_backup () {
       elif [ "$BAC_SCAN" == "Infected" ]; then 
         BAC_SCAN_DEC="\\e[0;31m%-12s\\e[0m"
       else
-        BAC_SCAN_DEC="\\e[0;33m%-12\\e[0m"
+        BAC_SCAN_DEC="\\e[0;33m%-12s\\e[0m"
       fi
     else
       BAC_SCAN_DEC="%-12s"
