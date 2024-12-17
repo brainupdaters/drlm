@@ -50,20 +50,15 @@ please visit: http://docs.drlm.org
 INSTALLATION
 ------------
 
-On RPM based systems you should use the drlm RPM package. Either obtain it
-from the DRLM homepage or build it yourself from the source
-tree with:
-::
+It is assumed that you have performed a minimal installation of the selected distribution, **dedicated exclusively** to running the DRLM server to avoid interference with existing services.
 
-  $ make rpm
+To install DRLM, execute the following command in the terminal as the root user and follow the spteps. Once completed, you will have a fully functional DRLM server.
 
-This will create an RPM for your distribution. The RPM is not platform-
-dependant and should work also on other RPM based distributions.
+.. code-block:: bash
 
-On DEB based systems you can execute the command:
-::
+  bash < <(curl -sSL https://drlm.org/install.sh)
 
-  $ make deb
+If the installation fails you can try the `DRLM Step by Step Installation <./manual_Install.html>`_ to find out where it fails and/or report the error to `DRLM Contributing <./About.html#contributing>`_
 
 For more information about Disaster Recovery Linux Manager installation,
 please read the Disaster Recovery Linux Manager `Documentation Page
