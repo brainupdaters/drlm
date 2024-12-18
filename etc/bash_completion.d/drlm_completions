@@ -13,7 +13,7 @@ _drlm()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan"
+    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan archive"
 
     local workflow="$(__drlm_find_on_cmdline "$workflows")"
   if [ -z "$workflow" ]; then
@@ -104,6 +104,10 @@ _drlm()
       ;;
     scan)
       __drlm_scan
+      return
+      ;;
+    archive)
+      __drlm_archive
       return
       ;;
     *)
@@ -1097,6 +1101,49 @@ __drlm_sched ()
 }
 
 __drlm_scan ()
+{
+  local options_s="-c -I -h"
+  local options_l="--client --id --help"
+
+  if __drlm_exist_option "-h --help" "$workflow"; then
+    local options_s="-h"
+    local options_l="--help"
+  elif __drlm_exist_option "-I --id" "$workflow"; then
+    local options_s="-I"
+    local options_l="--id"
+  elif __drlm_exist_option "-c --client" "$workflow"; then
+    local options_s="-c"
+    local options_l="--client"
+  elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
+    local options_s="-c -I"
+    local options_l="--client --id"
+  fi
+
+  case "$prev" in
+    -c | --client)
+      local i=0
+      query=$(get_all_client_names_dbdrv "$cur")
+      for result in $query; do
+        COMPREPLY[i++]="$result"
+      done
+      ;;
+    -I | --id)
+      local i=0
+      query=$(get_all_backup_id_dbdrv "$cur")
+      for result in $query; do
+        COMPREPLY[i++]="$result"
+      done
+      ;;
+    "-"*)
+      COMPREPLY=()
+      ;;
+    *)
+      __drlmcomp3 "$options_s" "$options_l"
+      ;;
+  esac
+}
+
+__drlm_archive ()
 {
   local options_s="-c -I -h"
   local options_l="--client --id --help"
