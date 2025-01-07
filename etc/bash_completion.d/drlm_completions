@@ -1192,11 +1192,9 @@ __drlm_archive ()
 
 __drlm_oci ()
 {
-  local options_s="-h"
   local options_l="--enable --disable --disableUP --connect --disconnect --status --statusInstance --startInstance --stopInstance --help"
 
-  if __drlm_exist_option "-h --help" "$workflow"; then
-    local options_s="-h"
+  if __drlm_exist_option "--help" "$workflow"; then
     local options_l="--help"
   fi
 
@@ -1205,7 +1203,7 @@ __drlm_oci ()
       COMPREPLY=()
       ;;
     *)
-      __drlmcomp3 "$options_s" "$options_l"
+      __drlmcomp3 "$options_l"
       ;;
   esac
 }
