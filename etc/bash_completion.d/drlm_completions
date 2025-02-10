@@ -13,7 +13,7 @@ _drlm()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan archive"
+    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan archive oci"
 
     local workflow="$(__drlm_find_on_cmdline "$workflows")"
   if [ -z "$workflow" ]; then
@@ -108,6 +108,10 @@ _drlm()
       ;;
     archive)
       __drlm_archive
+      return
+      ;;
+    oci)
+      __drlm_oci
       return
       ;;
     *)
@@ -1182,6 +1186,24 @@ __drlm_archive ()
       ;;
     *)
       __drlmcomp3 "$options_s" "$options_l"
+      ;;
+  esac
+}
+
+__drlm_oci ()
+{
+  local options_l="--enable --disable --disableUP --connect --disconnect --status --statusInstance --startInstance --stopInstance --help"
+
+  if __drlm_exist_option "--help" "$workflow"; then
+    local options_l="--help"
+  fi
+
+  case "$prev" in
+    "-"*)
+      COMPREPLY=()
+      ;;
+    *)
+      __drlmcomp3 "$options_l"
       ;;
   esac
 }
