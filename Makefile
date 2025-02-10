@@ -12,6 +12,7 @@ drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 drlm_proxy = usr/sbin/drlm-proxy
 drlm_send_error = usr/sbin/drlm-send-error
+drlm_gitd_hook = usr/sbin/drlm-gitd-hook
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' $(drlmbin))
 
@@ -163,6 +164,7 @@ install-bin:
 	install -Dp -m0755 $(drlm_api) $(DESTDIR)$(sbindir)/drlm-api
 	install -Dp -m0755 $(drlm_proxy) $(DESTDIR)$(sbindir)/drlm-proxy
 	install -Dp -m0755 $(drlm_send_error) $(DESTDIR)$(sbindir)/drlm-send-error
+	install -Dp -m0755 $(drlm_gitd_hook) $(DESTDIR)$(sbindir)/drlm-gitd-hook
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
