@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.11
+Version: 2.4.12
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -31,6 +31,7 @@ Requires: rpcbind
 Requires: rsync
 Requires: bc
 Requires: parted
+Requires: git
 
 ### SUSE packages
 %if %{?suse_version:1}0
@@ -117,7 +118,7 @@ fi
 ### If --> is upgrade save old data and stop systemd services
 if [ "$1" == "2" ]; then
 
-drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
+[ -f /usr/sbin/drlm ] && drlm_ver="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm)"
 mv /var/lib/drlm/drlm.sqlite /var/lib/drlm/$drlm_ver-drlm.sqlite.save
 
 systemctl is-active --quiet drlm-stord.service && systemctl stop drlm-stord.service
@@ -135,7 +136,36 @@ systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsync
 systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
 systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
 
+systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
+
+systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.service
+
 systemctl daemon-reload
+
+[ -f /usr/sbin/drlm ] && drlm_ver_num="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
+if [ -n $drlm_ver_num ]; then
+  ### Check if older versions than 2.4.12
+  if [ $drlm_ver_num -lt 020412 ]; then
+    for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do 
+      sed -i '/^OUTPUT\|^OUTPUT_PREFIX\|^OUTPUT_PREFIX_PXE\|^OUTPUT_URL\|^BACKUP\|^NETFS_PREFIX\|^BACKUP_URL/s/^/#/g' $cfg
+    done
+    echo "INFO: Since DRLM 2.4.12 the RSYNC protocol transport is secure by default!!!"
+    echo "      Setting insecure transport to all current configuirations using RSYNC."
+    echo "      To secure it run [ drlm instclient -c <cli_name> -C ] to each client "
+    echo "      and comment out DRLM_BKP_SEC_PROT=no in all required client configurations."
+    echo "      New installed clients will be secure by default!"
+    for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do
+    PROT="$(grep -v "^#" $cfg | grep DRLM_BKP_PROT=NETFS | cat)"
+    [ -z $PROT ] && echo "DRLM_BKP_SEC_PROT=no" >> $cfg
+    done
+  fi
+else
+  echo "INFO: Unable to identify DRLM version, keeping configurations."
+fi
+
+
 fi
 
 %post
@@ -161,7 +191,8 @@ tar --no-same-owner -xzf /var/lib/drlm/store/boot/grub/grub2.04rc1_drlm_i386-pc_
 
 ### If --> is install create keys
 if [ "$1" == "1" ]; then
-openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+openssl ecparam -name secp384r1 -genkey -out /etc/drlm/cert/drlm.key
+openssl req -new -x509 -key /etc/drlm/cert/drlm.key -out /etc/drlm/cert/drlm.crt -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)"
 ### Else --> is update save keys
 else
   if [ -f /etc/drlm/cert/drlm.key ]; then
@@ -212,6 +243,8 @@ fi
 %{__cp} /usr/share/drlm/conf/systemd/drlm-proxy.service /etc/systemd/system/tmp_drlm-proxy.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/tmp_drlm-rsyncd.service
 %{__cp} /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/tmp_drlm-tftpd.service
+%{__cp} /usr/share/drlm/conf/systemd/drlm-stunnel.service /etc/systemd/system/tmp_drlm-stunnel.service
+%{__cp} /usr/share/drlm/conf/systemd/drlm-gitd.service /etc/systemd/system/tmp_drlm-gitd.service
 
 ### Change TimeoutSec according to systemctl version
 %if %(systemctl --version | head -n 1 | cut -d' ' -f2) < 229
@@ -238,12 +271,20 @@ systemctl is-enabled --quiet drlm-rsyncd.service && systemctl disable drlm-rsync
 systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
 systemctl is-enabled --quiet drlm-tftpd.service && systemctl disable drlm-tftpd.service
 
+systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+systemctl is-enabled --quiet drlm-stunnel.service && systemctl disable drlm-stunnel.service
+
+systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+systemctl is-enabled --quiet drlm-gitd.service && systemctl disable drlm-gitd.service
+
 systemctl daemon-reload
 %{__rm} -f /etc/systemd/system/drlm-stord.service
 %{__rm} -f /etc/systemd/system/drlm-api.service
 %{__rm} -f /etc/systemd/system/drlm-proxy.service
 %{__rm} -f /etc/systemd/system/drlm-rsyncd.service
 %{__rm} -f /etc/systemd/system/drlm-tftpd.service
+%{__rm} -f /etc/systemd/system/drlm-stunnel.service
+%{__rm} -f /etc/systemd/system/drlm-gitd.service
 
 # Unconfigure nbd
 /usr/share/drlm/conf/nbd/config-nbd.sh remove
@@ -266,6 +307,7 @@ systemctl daemon-reload
 %{_sbindir}/drlm-api
 %{_sbindir}/drlm-proxy
 %{_sbindir}/drlm-send-error
+%{_sbindir}/drlm-gitd-hook
 
 %posttrans
 ### Rcover certificates post transaction
@@ -300,6 +342,16 @@ if [ -f /etc/systemd/system/tmp_drlm-tftpd.service ]; then
   systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
 fi
 
+if [ -f /etc/systemd/system/tmp_drlm-stunnel.service ]; then
+  mv /etc/systemd/system/tmp_drlm-stunnel.service /etc/systemd/system/drlm-stunnel.service
+  systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+fi
+
+if [ -f /etc/systemd/system/tmp_drlm-gitd.service ]; then
+  mv /etc/systemd/system/tmp_drlm-gitd.service /etc/systemd/system/drlm-gitd.service
+  systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
+fi
+
 systemctl daemon-reload
 
 systemctl is-enabled --quiet drlm-stord.service || systemctl enable drlm-stord.service
@@ -317,7 +369,39 @@ systemctl start drlm-rsyncd.service
 systemctl is-enabled --quiet drlm-tftpd.service || systemctl enable drlm-tftpd.service
 systemctl start drlm-tftpd.service
 
+systemctl is-enabled --quiet drlm-stunnel.service || systemctl enable drlm-stunnel.service
+systemctl start drlm-stunnel.service
+
+systemctl is-enabled --quiet drlm-gitd.service || systemctl enable drlm-gitd.service
+systemctl start drlm-gitd.service
+
 %changelog
+
+* Thu Feb 20 2025 Pau Roura <pau@brainupdaters.net> 2.4.12
+- Bugfix in listbackup when no backups are available
+- Bugfix in listclient when no clients are available
+- Bugfix in listnetwork when no networks are available
+- Bugfix in listjob when no jobs are available 
+- NEW! Virtual IP support to backup active cluster services
+- Removed unmaintained Docker support
+- NEW! Backup Policy support 
+- Bugfix in API listing holded snaps
+- NEW! Ubuntu 24.04 client & server support
+- NEW! Configurable extra partition size on runbackup
+- Improvement in remove_client_scripts. Avoid removal of other content.
+- Bugfix storing logs in incremental backups
+- NEW! Added TLS secure transport to DRLM rsync Backups
+- NEW! Added ReaR restorefiles workflow
+- NEW! Added DRLM restore workflow
+- NEW! Added drlm-extra interface to patch/extend rear integrations
+- NEW! Added new client git install method as default. (-r/-U keeps old style install)
+- Updated install script
+- NEW! Added support for AlmaLinux, Oracle, OpenSUSE Fedora clients
+- NEW! DRLM can backup itself with internal client.
+- Bugfix in ssh key location
+- Updated ReaR to 2.8
+- Bugfix in make package, drlm-gitd-hook added.
+- Added basics for the enterprise version functionalities (archive, oci, scan & sync)
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported

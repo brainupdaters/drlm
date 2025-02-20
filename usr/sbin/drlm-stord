@@ -74,7 +74,7 @@ case "$1" in
 		if [ ! -d $VAR_DIR/run ]; then
 			mkdir $VAR_DIR/run
 		fi
-    
+    source /etc/drlm/stord/pre_start 2>/dev/null
     Log "Starting $DESC: "
     for BACKUPLINE in $(get_active_backups); do
       BKP_ID=$(echo ${BACKUPLINE} | awk -F":" '{ print $1 }')
@@ -169,6 +169,7 @@ case "$1" in
         RETVAL="1"
       fi 
     done
+    source /etc/drlm/stord/post_stop 2>/dev/null
 		;;
 
 	status)

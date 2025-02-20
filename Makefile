@@ -12,6 +12,7 @@ drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 drlm_proxy = usr/sbin/drlm-proxy
 drlm_send_error = usr/sbin/drlm-send-error
+drlm_gitd_hook = usr/sbin/drlm-gitd-hook
 name = drlm
 version := $(shell awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' $(drlmbin))
 
@@ -73,7 +74,6 @@ help:
   dist            - Create tar file\n\
   deb             - Create DEB package\n\
   rpm             - Create RPM package\n\
-  docker          - Create Docker image\n\
 \n\
 DRLM make variables (optional):\n\
 \n\
@@ -84,7 +84,6 @@ DRLM make variables (optional):\n\
 clean:
 	rm -f $(name)-$(distversion).tar.gz
 	rm -f build-stamp
-	rm -f packaging/docker/src/drlm*.deb
 	rm -f usr/sbin/drlm-api
 	rm -f usr/sbin/drlm-proxy
 	rm -f usr/sbin/drlm-send-error
@@ -96,7 +95,7 @@ validate:
 	find etc/ usr/share/drlm/conf/ -name '*.conf' ! -path etc/drlm/rsyncd/rsyncd.conf | xargs bash -n
 	bash -n $(drlmbin)
 	bash -n $(drlm_store_svc)
-	for file in $$(find . -name '*.sh'); do bash -n $$file || exit 1; done
+	for file in $$(find . -type f -name '*.sh'); do bash -n $$file || exit 1; done
 
 ifneq ($(shell which gofmt),)
 	#Validating GO Syntax
@@ -165,6 +164,7 @@ install-bin:
 	install -Dp -m0755 $(drlm_api) $(DESTDIR)$(sbindir)/drlm-api
 	install -Dp -m0755 $(drlm_proxy) $(DESTDIR)$(sbindir)/drlm-proxy
 	install -Dp -m0755 $(drlm_send_error) $(DESTDIR)$(sbindir)/drlm-send-error
+	install -Dp -m0755 $(drlm_gitd_hook) $(DESTDIR)$(sbindir)/drlm-gitd-hook
 
 install-data:
 	@echo -e "\033[1m== Installing scripts ==\033[0;0m"
@@ -255,8 +255,3 @@ deb: dist
 	rm usr/sbin/drlm-api
 	rm usr/sbin/drlm-proxy
 	rm usr/sbin/drlm-send-error
-
-docker: dist
-	@echo -e "\033[1m== Building Docker image $(name)-$(distversion) ==\033[0;0m"
-	packaging/docker/setup.sh
-	echo "Docker DRLM image built, now start with 'packaging/docker/run.sh'"

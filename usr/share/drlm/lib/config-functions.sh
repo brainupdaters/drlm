@@ -202,6 +202,12 @@ function check_drlm_rsyncd_service() {
   systemctl is-failed --quiet drlm-rsyncd.service && Error "drlm-rsyncd.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-rsyncd.service'"
 }
 
+function check_drlm_stunnel_service() {
+  # Check rsync service
+  systemctl is-active --quiet drlm-stunnel.service || Error "drlm-stunnel.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-stunnel.service'"
+  systemctl is-failed --quiet drlm-stunnel.service && Error "drlm-stunnel.service is failed. Restart before run $WORKFLOW with 'systemctl restart drlm-stunnel.service'"
+}
+
 function check_drlm_tftpd_service() {
   # Check tftpd service
   systemctl is-active --quiet drlm-tftpd.service || Error "drlm-tftpd.service is stoped. Start before run $WORKFLOW with 'systemctl start drlm-tftpd.service'"

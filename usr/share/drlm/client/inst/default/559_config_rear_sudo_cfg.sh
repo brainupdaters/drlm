@@ -1,10 +1,16 @@
 # instclient workflow
 
+if send_rear_drlm_extra "$USER" "$CLI_NAME"; then LogPrint "DRLM ReaR extras sent to ${CLI_NAME}"; else Error "Error sending DRLM ReaR extras to ${CLI_NAME}"; fi
+
+if ssh_rear_drlm_extra "$USER" "$CLI_NAME" "$SUDO"; then LogPrint "DRLM ReaR extras for ${CLI_NAME} installed successfully"; else Error "Error installing DRLM ReaR extras for ${CLI_NAME}"; fi
+
 if ssh_tunning_rear "$USER" "$CLI_NAME" "$SUDO"; then LogPrint "Tunning ${CLI_NAME} ReaR installation successfully done"; else Error "Error tunning ${CLI_NAME} ReaR installation"; fi
 
 if send_drlm_managed ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "${CLI_NAME} is now managed by DRLM"; else Error "Error sending config, check logfile"; fi
 
 if send_drlm_token ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "${CLI_NAME} DRLM API token send"; else Error "Error sending DRLM API token, check logfile"; fi
+
+if send_drlm_stunnel_cfg ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "${CLI_NAME} DRLM stunnel config sent"; else Error "Error sending DRLM stunnel config, check logfile"; fi
 
 if make_ssl_capath ${USER} ${CLI_NAME} ${SUDO}; then LogPrint "SSL CApath successfully created in ${CLI_NAME}"; else Error "Error creating CApath, check logfile"; fi
 
@@ -28,4 +34,9 @@ if [ "$REMOVE_SSH_ID" == "true" ]; then
   else 
     Error "Error removing ${USER} authorized_keys from client ${CLI_NAME}" 
   fi
+fi
+
+if [ "$CLI_NAME" == "internal" ]; then
+  [ -f /etc/rear/site.conf ] || cp /usr/share/drlm/conf/samples/drlm_internal_full_dr_site_conf.cfg /etc/rear/site.conf
+  chmod 600 /etc/rear/site.conf
 fi

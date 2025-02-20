@@ -1,8 +1,8 @@
 Format: 1.0
 Source: drlm
-Version: 2.4.11
+Version: 2.4.12
 Binary: drlm
-Maintainer: Pau Roura (pau@brainupdaters.net)
+Maintainer: Pau Roura <pau@brainupdaters.net>
 Architecture: all
 Build-Depends: debhelper (>> 10.0.0)
 Files:

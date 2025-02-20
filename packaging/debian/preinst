@@ -25,8 +25,29 @@ case "$1" in
     fi
     
     #Stop apache2 server of older drlm versions
-    systemctl is-active --quiet apache2.service && systemctl stop apache2.service
-    systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
+    #systemctl is-active --quiet apache2.service && systemctl stop apache2.service
+    #systemctl is-enabled --quiet apache2.service && systemctl disable apache2.service
+
+    [ -f /usr/sbin/drlm ] && drlm_ver_num="$(awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' /usr/sbin/drlm | awk -F. '{printf("%02d%02d%02d\n", $1, $2, $3)}')"
+    if [ -n $drlm_ver_num ]; then
+      # Check if older versions than 2.4.12
+      if [ $drlm_ver_num -lt 020412 ]; then 
+        for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do 
+          sed -i '/^OUTPUT\|^OUTPUT_PREFIX\|^OUTPUT_PREFIX_PXE\|^OUTPUT_URL\|^BACKUP\|^NETFS_PREFIX\|^BACKUP_URL/s/^/#/g' $cfg
+        done
+        echo "INFO: Since DRLM 2.4.12 the RSYNC protocol transport is secure by default!!!"
+        echo "      Setting insecure transport to all current configuirations using RSYNC."
+        echo "      To secure it run [ drlm instclient -c <cli_name> -C ] to each client "
+        echo "      and comment out DRLM_BKP_SEC_PROT=no in all required client configurations."
+        echo "      New installed clients will be secure by default!"
+        for cfg in $(find /etc/drlm/clients -type f -name "*.cfg" ! -name "*.drlm.cfg"); do 
+        PROT="$(grep -v "^#" $cfg | grep DRLM_BKP_PROT=NETFS | cat)"
+        [ -z $PROT ] && echo "DRLM_BKP_SEC_PROT=no" >> $cfg
+        done
+      fi
+    else
+      echo "INFO: Unable to identify DRLM version, keeping configurations."
+    fi
     ;;
 
   *)

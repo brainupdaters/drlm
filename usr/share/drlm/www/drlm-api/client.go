@@ -5,7 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -21,7 +21,7 @@ type ClientConfig = models.ClientConfig
 // Get slice with all clients from database
 func (c *Client) GetAll() ([]Client, error) {
 	db := GetConnection()
-	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients"
+	q := "SELECT clients.idclient, clients.cliname, clients.mac, clients.ip, clients.networks_netname, clients.os, clients.rear, (select GROUP_CONCAT( vipclients.idclient, ',') from vipclients WHERE vipclients.idvipclient=clients.idclient) as vip FROM clients"
 	rows, err := db.Query(q)
 	if err != nil {
 		return []Client{}, err
@@ -38,6 +38,7 @@ func (c *Client) GetAll() ([]Client, error) {
 			&c.NetworkName,
 			&c.OS,
 			&c.ReaR,
+			&c.VIP,
 		)
 		c.getClientToken()
 		c.getClientConfigurations()
@@ -49,9 +50,18 @@ func (c *Client) GetAll() ([]Client, error) {
 // Get client from database by client id
 func (c *Client) GetByID(id string) error {
 	db := GetConnection()
-	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients where idclient=?"
+	q := "SELECT clients.idclient," +
+		"clients.cliname, " +
+		"clients.mac, " +
+		"clients.ip, " +
+		"clients.networks_netname, " +
+		"clients.os, " +
+		"clients.rear, " +
+		"(select GROUP_CONCAT(vipclients.idclient, ',') from vipclients WHERE vipclients.idvipclient = clients.idclient) as vip " +
+		"FROM clients " +
+		"WHERE clients.idclient=?"
 
-	err := db.QueryRow(q, id).Scan(
+	db.QueryRow(q, id).Scan(
 		&c.ID,
 		&c.Name,
 		&c.Mac,
@@ -59,14 +69,14 @@ func (c *Client) GetByID(id string) error {
 		&c.NetworkName,
 		&c.OS,
 		&c.ReaR,
+		&c.VIP,
 	)
-	if err != nil {
-		return err
-	}
 
 	if c.Name != "" {
 		c.getClientToken()
 		c.getClientConfigurations()
+	} else {
+		return fmt.Errorf("Client ID " + id + " not found")
 	}
 
 	return nil
@@ -75,9 +85,9 @@ func (c *Client) GetByID(id string) error {
 // Get client from database by client name
 func (c *Client) GetByName(name string) error {
 	db := GetConnection()
-	q := "SELECT idclient, cliname, mac, ip, networks_netname, os, rear	FROM clients where cliname=?"
+	q := "SELECT clients.idclient, clients.cliname, clients.mac, clients.ip, clients.networks_netname, clients.os, clients.rear, (select GROUP_CONCAT( vipclients.idclient, ',') from vipclients WHERE vipclients.idvipclient=clients.idclient) as vip FROM clients where clients.cliname=?"
 
-	err := db.QueryRow(q, name).Scan(
+	db.QueryRow(q, name).Scan(
 		&c.ID,
 		&c.Name,
 		&c.Mac,
@@ -85,14 +95,14 @@ func (c *Client) GetByName(name string) error {
 		&c.NetworkName,
 		&c.OS,
 		&c.ReaR,
+		&c.VIP,
 	)
-	if err != nil {
-		return err
-	}
 
 	if c.Name != "" {
 		c.getClientToken()
 		c.getClientConfigurations()
+	} else {
+		return fmt.Errorf("Client Name " + name + " not found")
 	}
 
 	return nil
@@ -148,15 +158,75 @@ func (c *Client) getClientServerIP() (string, error) {
 	return serverIP, nil
 }
 
+// Get Client Name by IP
+func (c *Client) getClientNameByIP(ip string) (string, error) {
+	db := GetConnection()
+	q := "SELECT clients.cliname FROM clients where clients.ip=?"
+
+	clientName := ""
+	err := db.QueryRow(q, ip).Scan(
+		&clientName,
+	)
+	if err != nil {
+		return clientName, err
+	}
+	return clientName, nil
+}
+
 // Get Client Token
 func (c *Client) getClientToken() (string, error) {
-	token, err := ioutil.ReadFile("/etc/drlm/clients/" + c.Name + ".token")
+	token, err := os.ReadFile("/etc/drlm/clients/" + c.Name + ".token")
 	if err != nil {
 		logger.Println("Error getting token of user ", c.Name, " err: ", err)
 	}
 	c.Token = string(token)
 
 	return string(token), err
+}
+
+func (c *Client) getClientVipTokens() ([]string, error) {
+	db := GetConnection()
+	q := "SELECT clients.cliname FROM clients, vipclients WHERE clients.idclient=vipclients.idclient AND vipclients.idvipclient=?"
+	rows, err := db.Query(q, c.ID)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+
+	vipTokens := []string{}
+
+	for rows.Next() {
+		var cliname string
+		rows.Scan(&cliname)
+
+		token, err := os.ReadFile("/etc/drlm/clients/" + cliname + ".token")
+		if err != nil {
+			logger.Println("Error getting token of user ", cliname, " err: ", err)
+		}
+		vipTokens = append(vipTokens, string(token))
+	}
+
+	return vipTokens, nil
+}
+
+func (c *Client) getClientVipIPs() ([]string, error) {
+	db := GetConnection()
+	q := "SELECT clients.ip FROM clients, vipclients WHERE clients.idclient=vipclients.idclient AND vipclients.idvipclient=?"
+	rows, err := db.Query(q, c.ID)
+	if err != nil {
+		return []string{}, err
+	}
+	defer rows.Close()
+
+	vipIPs := []string{}
+
+	for rows.Next() {
+		var ip string
+		rows.Scan(&ip)
+		vipIPs = append(vipIPs, ip)
+	}
+
+	return vipIPs, nil
 }
 
 // Get Client Configurations
@@ -169,7 +239,7 @@ func (c *Client) getClientConfigurations() ([]ClientConfig, error) {
 
 	configs = append(configs, ClientConfig{Name: configName, File: configFile, Content: configContent})
 
-	files, err := ioutil.ReadDir(configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/")
+	files, err := os.ReadDir(configDRLM.CliConfigDir + "/" + c.Name + ".cfg.d/")
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -208,6 +278,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 
 	drlmBkpType := ""
 	drlmBkpProt := ""
+	drlmBkpSecProt := ""
 	drlmBkpProg := ""
 
 	// Splits on newlines by default.
@@ -227,6 +298,8 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				drlmBkpType = varValue
 			} else if varName == "DRLM_BKP_PROT" {
 				drlmBkpProt = varValue
+			} else if varName == "DRLM_BKP_SEC_PROT" {
+				drlmBkpSecProt = varValue
 			} else if varName == "DRLM_BKP_PROG" {
 				drlmBkpProg = varValue
 			} else if varName == "OUTPUT" {
@@ -248,15 +321,21 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
 			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
 			clientConfig += "OUTPUT=ISO\n"
+			clientConfig += "OUTPUT_PREFIX=ISO\n"
 			clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=ISO\n"
-				clientConfig += "OUTPUT_PREFIX=\n"
+				clientConfig += "OUTPUT_PREFIX=ISO\n"
 				clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 				clientConfig += "BACKUP=NETFS\n"
 				clientConfig += "NETFS_PREFIX=backup\n"
@@ -301,12 +380,18 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
 			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
 			clientConfig += "OUTPUT=PXE\n"
-			clientConfig += "OUTPUT_PREFIX_PXE=\"" + c.Name + "/" + configName + "/PXE\"\n"
-			clientConfig += "OUTPUT_URL=\"rsync://" + c.Name + "@" + serverIP + "/" + c.Name + "_" + configName + "/PXE/\"\n"
+			clientConfig += "OUTPUT_PREFIX=PXE\n"
+			clientConfig += "OUTPUT_PREFIX_PXE=" + c.Name + "/" + configName + "/PXE\n"
+			clientConfig += "OUTPUT_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
-			clientConfig += "BACKUP_URL=\"rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\"\n"
+			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=PXE\n"
@@ -339,6 +424,11 @@ func (c *Client) generateDefaultConfig(configName string) string {
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
 			clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=ISO\n"
@@ -360,6 +450,7 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				clientConfig += "BACKUP_ONLY_INCLUDE=yes\n"
 			}
 		}
+		clientConfig += "TARGET_FS_DATA=/var/tmp/drlm/restored\n"
 		/////////////
 		// RAWDISK
 		/////////////
@@ -367,18 +458,22 @@ func (c *Client) generateDefaultConfig(configName string) string {
 		if drlmBkpProt == "RSYNC" || drlmBkpProt == "\"RSYNC\"" || drlmBkpProt == "" {
 			clientConfig = "export RSYNC_PASSWORD=$(cat /etc/rear/drlm.token)\n"
 			clientConfig += "OUTPUT=RAWDISK\n"
+			clientConfig += "OUTPUT_PREFIX=RAWDISK\n"
 			clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
-			//clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 			clientConfig += "BACKUP=RSYNC\n"
 			clientConfig += "RSYNC_PREFIX=\n"
 			clientConfig += "BACKUP_URL=rsync://" + c.Name + "@" + serverIP + "::/" + c.Name + "_" + configName + "\n"
 			clientConfig += "BACKUP_RSYNC_OPTIONS+=( --devices --acls --xattrs )\n"
+			if drlmBkpSecProt == "yes" || drlmBkpSecProt == "\"yes\"" || drlmBkpSecProt == "" {
+				clientConfig += "BACKUP_RSYNC_OPTIONS+=( '-e stunnel /etc/rear/stunnel/drlm.conf' )\n"
+				clientConfig += "RSYNC_PORT=874\n"
+				clientConfig += "REQUIRED_PROGS+=( 'stunnel' )\n"
+			}
 		} else if drlmBkpProt == "NETFS" || drlmBkpProt == "\"NETFS\"" {
 			if drlmBkpProg == "TAR" || drlmBkpProg == "\"TAR\"" || drlmBkpProg == "" {
 				clientConfig = "OUTPUT=RAWDISK\n"
+				clientConfig += "OUTPUT_PREFIX=RAWDISK\n"
 				clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
-				clientConfig += "OUTPUT_PREFIX=\n"
-				//clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 				clientConfig += "BACKUP=NETFS\n"
 				clientConfig += "NETFS_PREFIX=backup\n"
 				clientConfig += "BACKUP_URL=nfs://" + serverIP + configDRLM.StoreDir + "/" + c.Name + "/" + configName + "\n"
@@ -386,7 +481,6 @@ func (c *Client) generateDefaultConfig(configName string) string {
 				clientConfig = "OUTPUT=RAWDISK\n"
 				clientConfig += "RAWDISK_IMAGE_COMPRESSION_COMMAND=\n"
 				clientConfig += "OUTPUT_PREFIX=\n"
-				//clientConfig += "ISO_PREFIX=" + c.Name + "-" + configName + "-DRLM-recover\n"
 				clientConfig += "BACKUP=NETFS\n"
 				clientConfig += "BACKUP_PROG=rsync\n"
 				clientConfig += "NETFS_PREFIX=\n"
@@ -412,16 +506,29 @@ func (c *Client) generateDefaultConfig(configName string) string {
 }
 
 // Generate and send client backup configuration
-func (c *Client) sendConfig(w http.ResponseWriter, configName string) {
-	configuration, err := c.generateConfiguration(configName)
-	if err != nil {
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusNotFound)
+func (c *Client) sendConfig(w http.ResponseWriter, configName string, vipClient string) {
+
+	if configName == "/" || configName == "" {
+		configName = "default"
 	}
 
-	w.Write([]byte(configuration))
+	// find the configuration in the client configurations
+	for i := range c.Configs {
+		if c.Configs[i].Name == configName {
+
+			// If vipClient !="" we need to change the client_name@ to the vipClient@ in the BACKUP_URL
+			if vipClient != "" {
+				c.Configs[i].Content = strings.Replace(c.Configs[i].Content, c.Name+"@", vipClient+"@", -1)
+			}
+
+			w.Write([]byte(c.Configs[i].Content))
+			w.Header().Set("Content-Type", "text/html")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+	}
 	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNotFound)
 }
 
 func (c *Client) generateConfiguration(configName string) (string, error) {
@@ -454,7 +561,7 @@ func (c *Client) generateConfiguration(configName string) (string, error) {
 			varName := strings.TrimSpace(strings.Split(line, "=")[0])
 
 			//Ignore old configurations (< DRLM 2.4.0)
-			if varName != "OUTPUT" && varName != "OUTPUT_PREFIX" && varName != "OUTPUT_PREFIX_PXE" && varName != "OUTPUT_URL" && varName != "BACKUP" && varName != "NETFS_PREFIX" && varName != "BACKUP_URL" {
+			//if varName != "OUTPUT" && varName != "OUTPUT_PREFIX" && varName != "OUTPUT_PREFIX_PXE" && varName != "OUTPUT_URL" && varName != "BACKUP" && varName != "NETFS_PREFIX" && varName != "BACKUP_URL" {
 				scannerDefault := bufio.NewScanner(strings.NewReader(defaultConfig))
 				for scannerDefault.Scan() {
 					defaultVarName := strings.TrimSpace(strings.Split(scannerDefault.Text(), "=")[0])
@@ -473,7 +580,7 @@ func (c *Client) generateConfiguration(configName string) (string, error) {
 				defaultConfig = tmpDefaultConfig
 				tmpDefaultConfig = ""
 				found = false
-			}
+			//}
 		}
 	}
 
@@ -522,11 +629,17 @@ func apiGetClientConfigLegacy(w http.ResponseWriter, r *http.Request) {
 	client := new(Client)
 	client.GetByName(receivedClientName)
 
-	if receivedConfig == "/" || receivedConfig == "" {
-		client.sendConfig(w, "default")
-	} else {
-		client.sendConfig(w, receivedConfig)
+	vipClientName := ""
+	// check if is VIP client
+	if client.VIP != "" {
+		receivedClientIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+		vipIPs, _ := client.getClientVipIPs()
+		if contains(vipIPs, receivedClientIP) {
+			vipClientName, _ = client.getClientNameByIP(receivedClientIP)
+		}
 	}
+
+	client.sendConfig(w, receivedConfig, vipClientName)
 }
 
 // Get JSON of selected client

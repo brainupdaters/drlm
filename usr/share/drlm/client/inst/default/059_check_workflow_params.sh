@@ -45,13 +45,14 @@ if ! check_ssh_port $CLI_IP; then
 fi
 
 Log "Checking id_rsa.pub key "
-if [ ! -f ~/.ssh/id_rsa.pub ]; then
+if [ ! -f /root/.ssh/id_rsa.pub ]; then
   ssh_keygen
   if [ $? -eq 0  ]; then 
     Log " .ssh/id_rsa.pub key have been created"; 
   else 
     Error "Error creating .ssh/id_rsa.pub key"; 
   fi
+  cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 fi 
 
 CLI_NET=$(get_client_net ${CLI_ID})

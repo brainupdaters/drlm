@@ -1,19 +1,24 @@
 #!/bin/bash
 
 # "DRLM build & install script"
-INSTALLER_VERSION="202312.01"
-DRLM_VERSION="2.4.11"
+INSTALLER_VERSION="202409.04"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"
 # "GitHub: https://github.com/brainupdaters/drlm"
 
 
+# Set default Repository and Branch
+DRLM_GIT_BASE_URL="${DRLM_GIT_BASE_URL:-https://github.com/}"
+DRLM_GIT_REPOSITORY="${DRLM_GIT_REPOSITORY:-brainupdaters/drlm}"
+DRLM_GIT_BRANCH="${DRLM_GIT_BRANCH:-develop}"
+
+
 # Show information about the script
 echo "DRLM build & installation script"
 echo "Version: $INSTALLER_VERSION"
 echo "Website: https://drlm.org"
-echo "GitHub: https://github.com/brainupdaters/drlm"
+echo "Git: ${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY} -- Branch: ${DRLM_GIT_BRANCH}"
 echo ""
 
 
@@ -104,7 +109,9 @@ check_go() {
 # Function to install golang
 install_golang() {
     # Download Go binary
-    curl -OL https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
+    GOLANG_URL="https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz"
+    echo "Downloading $GOLANG_URL"
+    curl -OL $GOLANG_URL
     # Remove any existing Go installation and extract the downloaded Go binary
     rm -rf /usr/local/go && tar -C /usr/local -xzf go${GOLANG_VERSION}.linux-amd64.tar.gz
     # Add Go binary to PATH
@@ -117,6 +124,47 @@ install_golang() {
     rm -rf go${GOLANG_VERSION}.linux-amd64.tar.gz
 }
 
+# Function to get DRLM version
+get_drlm_version() {
+    DRLM_VERSION="$(curl https://raw.githubusercontent.com/${DRLM_GIT_REPOSITORY}/${DRLM_GIT_BRANCH}/usr/sbin/drlm | grep "readonly VERSION=" | awk -F= '{print $2}')"
+}
+
+# Function to clone DRLM repository
+drlm_clon_repo() {
+    # Get DRLM version
+    get_drlm_version
+    # DRLM URL
+    DRLM_CLONE_URL="${DRLM_GIT_BASE_URL}${DRLM_GIT_REPOSITORY}"
+    echo "Clonning $DRLM_CLONE_URL"
+    # Clone the DRLM project
+    git clone $DRLM_CLONE_URL
+    # Navigate into the project directory
+    cd drlm
+    # Checkout Branch/Commit
+    git checkout $DRLM_GIT_BRANCH
+}
+
+# Function to add DRLM internal client
+add_drlm_internal_client() {
+    # check if drlm.sqlite exists
+    if [ ! -f "/var/lib/drlm/drlm.sqlite" ]; then return; fi
+
+    # Checkl if client internal exists
+    num_internals=$(echo "SELECT count(*) FROM clients WHERE idclient = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+    if [ $num_internals -eq 0 ]; then
+        # add and install drlm internal client
+        drlm -vD addclient --internal -I 
+    fi
+    
+    # add drlm internal client jobs and disable
+    num_jobs=$(echo "SELECT count(*) FROM jobs WHERE clients_id = 0;" | sqlite3 /var/lib/drlm/drlm.sqlite)
+    if [ $num_jobs -eq 0 ]; then
+        drlm addjob -c internal -s $(date -d "tomorrow" +'%Y-%m-%dT08:00') -r 1day
+        drlm addjob -c internal -C iso -s $(date -d "next friday" +'%Y-%m-%dT12:00') -r 1month
+        
+        for job in $(echo "SELECT idjob FROM jobs WHERE clients_id = 0;" | sqlite3 -init <(echo .timeout 2000) /var/lib/drlm/drlm.sqlite); do drlm sched -d -I $job; done
+    fi
+}
 
 echo "Installing DRLM on $linux_distro $linux_distro_version"
 case "$linux_distro" in
@@ -124,16 +172,14 @@ case "$linux_distro" in
 
     # Check if the linux_distro is "Debian" or "Ubuntu"
     Debian | Ubuntu )
-        # Update and upgrade the system packages
-        apt update && apt -y upgrade
+        # Update the system packages
+        apt update
         # Install necessary packages
         apt -y install git build-essential debhelper curl bash-completion
          # Check Go Installation
         check_go
         # Clone the DRLM project
-        git clone https://github.com/brainupdaters/drlm
-        # Navigate into the project directory
-        cd drlm
+        drlm_clon_repo
         # Build the Debian package
         make deb
         # Navigate back to the parent directory
@@ -186,9 +232,7 @@ case "$linux_distro" in
          # Check Go Installation
         check_go
         # Clone the DRLM project
-        git clone https://github.com/brainupdaters/drlm
-        # Navigate into the project directory
-        cd drlm
+        drlm_clon_repo
         # Build the RPM package
         make rpm
         # Install the built RPM package
@@ -220,9 +264,7 @@ case "$linux_distro" in
         # Check Go Installation
         check_go
         # Clone the DRLM project
-        git clone https://github.com/brainupdaters/drlm
-        # Navigate into the project directory
-        cd drlm
+        drlm_clon_repo
         # Build the RPM package
         make rpm
         # Install the built RPM package
@@ -241,6 +283,9 @@ esac
 
 # Check if the DRLM installation was successful
 if [ -f /usr/sbin/drlm ]; then
+    echo "Adding DRLM internal client"
+    add_drlm_internal_client
+
     echo "DRLM installed successfully"
     echo "You can now start using DRLM"
     echo "Please visit https://drlm.org for more information"
@@ -248,4 +293,3 @@ else
     echo "DRLM installation failed"
     echo "Please visit https://drlm.org for more information"
 fi
-

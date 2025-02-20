@@ -20,9 +20,9 @@ function enable_rsync_fs_rw ()
   local CLI_CFG=$2
   local RSYNC_FILE=${RSYNC_DIR}/rsyncd.d/${CLI_NAME}.$CLI_CFG.drlm.conf
 
-  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.secrets ]; then
-    generate_client_secrets "$CLI_NAME"
-  fi
+  generate_client_secrets "$CLI_NAME"
+
+  local VIP_CLIENTS=$(get_client_vip_names_by_name $CLI_NAME)
 
   cat <<EOF > ${RSYNC_FILE} 
 [${CLI_NAME}_${CLI_CFG}]
@@ -30,9 +30,9 @@ function enable_rsync_fs_rw ()
   comment = DRLM backup ${CLI_CFG} of client ${CLI_NAME}
   read only = false
   list = false
-  auth users = ${CLI_NAME}
+  auth users = ${CLI_NAME} ${VIP_CLIENTS}
   secrets file = /etc/drlm/clients/${CLI_NAME}.secrets
-  hosts allow = ${CLI_NAME}
+  hosts allow = localhost ${CLI_NAME} ${VIP_CLIENTS}
 EOF
 
   if [ ${?} -eq 0 ]; then return 0; else return 1; fi
@@ -45,19 +45,19 @@ function enable_rsync_fs_ro ()
   local CLI_CFG=$2
   local RSYNC_FILE=${RSYNC_DIR}/rsyncd.d/${CLI_NAME}.$CLI_CFG.drlm.conf
 
-  if  [ ! -f $CONFIG_DIR/clients/${CLI_NAME}.secrets ]; then
-    generate_client_secrets "$CLI_NAME"
-  fi
+  generate_client_secrets "$CLI_NAME"
 
+  local VIP_CLIENTS=$(get_client_vip_names_by_name $CLI_NAME)
+  
   cat <<EOF > ${RSYNC_FILE}
 [${CLI_NAME}_${CLI_CFG}]
   path = ${STORDIR}/${CLI_NAME}/${CLI_CFG}
   comment = DRLM backup ${CLI_CFG} of client ${CLI_NAME}
   read only = true
   list = false
-  auth users = ${CLI_NAME}
+  auth users = ${CLI_NAME} ${VIP_CLIENTS}
   secrets file = /etc/drlm/clients/${CLI_NAME}.secrets
-  hosts allow = ${CLI_NAME}
+  hosts allow = localhost ${CLI_NAME} ${VIP_CLIENTS}
 EOF
 
   if [ ${?} -eq 0 ]; then return 0; else return 1; fi

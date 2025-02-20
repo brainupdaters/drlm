@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} addclient )
 
 if [ "$WORKFLOW" == "addclient" ]; then
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:i:M:ICru:U:h" -l "client:,ipaddr:,macaddr:,installclient,config,repo,user:,urlrear:,url_rear:,help" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:i:M:ICru:U:h" -l "client:,ipaddr:,macaddr:,installclient,config,repo,user:,urlrear:,url_rear:,help,internal" -- "$@")"
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
@@ -67,7 +67,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
         ;;
 
       (-I|--installclient)
-        INSTALL="Y"
+        INSTALL=true
         ;;
 
       (-C|--config)
@@ -101,6 +101,10 @@ if [ "$WORKFLOW" == "addclient" ]; then
         shift
         ;;
 
+      (--internal)
+        ADD_INTERNAL=true
+        ;;
+
       (-h|--help)
         addclienthelp
         exit 0
@@ -121,7 +125,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
     shift
   done
 
-  if [ -z "$CLI_IP" ] && [ -z "$CLI_NAME" ]; then
+  if [ -z "$CLI_IP" ] && [ -z "$CLI_NAME" ] && [ ! "$ADD_INTERNAL" == "true" ]; then
     echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
     exit 1
@@ -129,7 +133,7 @@ if [ "$WORKFLOW" == "addclient" ]; then
 
   WORKFLOW_addclient () {
     SourceStage "client/add"
-    if [ "$INSTALL" == "Y" ]; then
+    if [ "$INSTALL" == "true" ]; then
       SourceStage "client/inst"
     fi
   }

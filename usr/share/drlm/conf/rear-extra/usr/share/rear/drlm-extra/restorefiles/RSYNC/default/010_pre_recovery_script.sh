@@ -1,0 +1,1 @@
+../../../../setup/default/010_pre_recovery_script.sh

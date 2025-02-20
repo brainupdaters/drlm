@@ -23,94 +23,121 @@ WORKFLOWS=( ${WORKFLOWS[@]} modclient )
 #LOCKLESS_WORKFLOWS=( ${LOCKLESS_WORKFLOWS[@]} modclient )
 
 if [ "$WORKFLOW" == "modclient" ]; then 
-        # Parse options
-        OPT="$(getopt -n $WORKFLOW -o "I:c:i:M:n:h" -l "id:,client:,ipaddr:,macaddr:,netname:,help" -- "$@")"
-        if (( $? != 0 )); then
-                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-                exit 1
+  # Parse options
+  OPT="$(getopt -n $WORKFLOW -o "I:c:i:M:n:a:d:h" -l "id:,client:,ipaddr:,macaddr:,netname:,add:,del:,help" -- "$@")"
+  if (( $? != 0 )); then
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+  
+  eval set -- "$OPT"
+  while true; do
+    case "$1" in
+      (-I|--id)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_ID="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"  
+          exit 1
         fi
-        
-        eval set -- "$OPT"
-        while true; do
-                case "$1" in
-                        (-I|--id)
-                                # We need to take the option argument
-                                if [ -n "$2" ]
-                                then 
-                                	CLI_ID="$2"
-                                else
-                                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-                                	exit 1
-                                fi
-                                shift 
-                                ;;
-                        (-c|--client)
-                                # We need to take the option argument
-                                if [ -n "$2" ]
-                                then 
-                                	CLI_NAME="$2"
-                                else
-                                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"	
-                                	exit 1
-                                fi
-                                shift 
-                                ;;
-                        (-i|--ipaddr)
-                                # We need to take the option argument
-                                if [ -n "$2" ]
-                                then 
-                                	CLI_IP="$2" 
-                                else
-                                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-                                	exit 1
-                                fi 
-                                shift
-                                ;;
-                        (-M|--macaddr)
-                                # We need to take the option argument
-                                if [ -n "$2" ]
-                                then 
-                                	CLI_MAC="$2" 
-                                else
-                                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-                                	exit 1
-                                fi 
-                                shift
-                                ;;
-                        (-n|--netname)
-                                # We need to take the option argument
-                                if [ -n "$2" ]
-                                then 
-                                	CLI_NET="$2" 
-                                else
-                                	echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
-                                	exit 1
-                                fi 
-                                shift
-                                ;;
-                        (-h|--help)
-                                modclienthelp
-				exit 0
-                                ;;
-                        (--) shift; break;;
-                        (-*)
-                                echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
-                                echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-                                exit 1
-                                ;;
-                esac
-                shift
-        done
+        shift 
+        ;;
 
-	if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
-		echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
-		echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
-		exit 1
-	fi
+      (-c|--client)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_NAME="$2"
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument"  
+          exit 1
+        fi
+        shift 
+        ;;
 
-	WORKFLOW_modclient () {
-    		#echo modclient workflow
-    		SourceStage "client/mod"
-	}
+      (-i|--ipaddr)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_IP="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-M|--macaddr)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_MAC="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-n|--netname)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_NET="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-a|--add)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_VIP_ADD="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-d|--del)
+        # We need to take the option argument
+        if [ -n "$2" ]; then 
+          CLI_VIP_DEL="$2" 
+        else
+          echo "$PROGRAM $WORKFLOW - $1 needs a valid argument" 
+          exit 1
+        fi 
+        shift
+        ;;
+
+      (-h|--help)
+        modclienthelp
+        exit 0
+        ;;
+
+      (--) 
+        shift; 
+        break;;
+
+      (-*)
+        echo "$PROGRAM $WORKFLOW: unrecognized option '$option'"
+        echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+        exit 1
+        ;;
+
+    esac
+    shift
+  done
+
+  if [ -z "$CLI_NAME" ] && [ -z "$CLI_ID" ]; then
+    echo "$PROGRAM $WORKFLOW: there are no all parameters required to run the command."
+    echo "Try \`$PROGRAM $WORKFLOW --help' for more information."
+    exit 1
+  fi
+
+  WORKFLOW_modclient () {
+    #echo modclient workflow
+    SourceStage "client/mod"
+  }
 
 fi

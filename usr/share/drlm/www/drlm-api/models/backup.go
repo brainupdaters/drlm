@@ -15,6 +15,7 @@ type Backup struct {
 	Encrypted  string `json:"encrypted"`
 	EncrypPass string `json:"encryppass"`
 	Hold       string `json:"hold"`
+	Saved_by   string `json:"saved_by"`
 }
 
 type BackupResponse struct {

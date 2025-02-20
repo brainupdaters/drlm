@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 case "$1" in
@@ -25,7 +25,8 @@ case "$1" in
     
     # Check if drlm.key has been generated in older installations.
     if [ ! -f /etc/drlm/cert/drlm.key ]; then
-        openssl req -newkey rsa:4096 -nodes -keyout /etc/drlm/cert/drlm.key -x509 -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)" -out /etc/drlm/cert/drlm.crt
+        openssl ecparam -name secp384r1 -genkey -out /etc/drlm/cert/drlm.key
+        openssl req -new -x509 -key /etc/drlm/cert/drlm.key -out /etc/drlm/cert/drlm.crt -days 1825 -subj "/C=ES/ST=CAT/L=GI/O=SA/CN=$(hostname -s)"
     fi
     
     # Update old database or create new one running drlm_db_version script.
@@ -52,7 +53,9 @@ case "$1" in
     systemctl is-active --quiet drlm-api.service && systemctl stop drlm-api.service
     systemctl is-active --quiet drlm-proxy.service && systemctl stop drlm-proxy.service
     systemctl is-active --quiet drlm-rsyncd.service && systemctl stop drlm-rsyncd.service
-    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-rsyncd.service
+    systemctl is-active --quiet drlm-tftpd.service && systemctl stop drlm-tftpd.service
+    systemctl is-active --quiet drlm-stunnel.service && systemctl stop drlm-stunnel.service
+    systemctl is-active --quiet drlm-gitd.service && systemctl stop drlm-gitd.service
 
     # Add systemd drlm services
     cp /usr/share/drlm/conf/systemd/drlm-stord.service /etc/systemd/system/
@@ -63,6 +66,8 @@ case "$1" in
     cp /usr/share/drlm/conf/systemd/drlm-proxy.service /etc/systemd/system/
     cp /usr/share/drlm/conf/systemd/drlm-rsyncd.service /etc/systemd/system/
     cp /usr/share/drlm/conf/systemd/drlm-tftpd.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-stunnel.service /etc/systemd/system/
+    cp /usr/share/drlm/conf/systemd/drlm-gitd.service /etc/systemd/system/
 
     # Reload systemd services
     systemctl daemon-reload
@@ -78,14 +83,17 @@ case "$1" in
     systemctl enable drlm-proxy.service
     systemctl enable drlm-rsyncd.service
     systemctl enable drlm-tftpd.service
-
+    systemctl enable drlm-stunnel.service
+    systemctl enable drlm-gitd.service
 
     # Start drlm services
     systemctl start drlm-stord.service
     systemctl start drlm-api.service
     systemctl start drlm-proxy.service
-    systemctl start drlm-rsyncd.service  
-    systemctl start drlm-tftpd.service  
+    systemctl start drlm-rsyncd.service
+    systemctl start drlm-tftpd.service
+    systemctl start drlm-stunnel.service
+    systemctl start drlm-gitd.service
 
     #################
     # DRLM services #
@@ -101,7 +109,7 @@ case "$1" in
     ;;
 
   *)
-    echo "postinst called with unknown argument \`$1'" >&2
+    echo "postinst called with unknown argument: $1" >&2
     exit 0
     ;;
     

@@ -7,6 +7,8 @@ type Snap struct {
 	Active   string `json:"active"`
 	Duration string `json:"duration"`
 	Size     string `json:"size"`
+	Hold     string `json:"hold"`
+	Saved_by string `json:"saved_by"`
 }
 
 type SnapResponse struct {

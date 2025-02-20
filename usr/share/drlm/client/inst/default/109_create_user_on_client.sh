@@ -31,10 +31,18 @@ else
   Error "Error updating DRLM hostname information, check logfile"; 
 fi
 
-DISTRO=$(ssh_get_distro $USER $CLI_NAME)
-RELEASE=$(ssh_get_release $USER $CLI_NAME)
-CLI_VERSION=$(echo $RELEASE | cut -d "." -f 1)
-ARCH=$(get_arch $USER $CLI_NAME)
+source <(ssh_get_os $USER $CLI_NAME)
+
+if [ "$DISTRO" == "old" ]; then
+  DISTRO=$(ssh_get_distro $USER $CLI_NAME)
+  RELEASE=$(ssh_get_release $USER $CLI_NAME)
+  CLI_VERSION=$(echo $RELEASE | cut -d "." -f 1)
+  ARCH=$(get_arch $USER $CLI_NAME)
+fi
+
+if [ "$DISTRO" == "unknown" ]; then
+  Error "Unknown GNU/Linux Distribution."
+fi
 
 if [ $DISTRO = "" ] || [ $RELEASE = "" ]; then
   Error "Missing Release or Distro!"

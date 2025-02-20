@@ -1,5 +1,42 @@
 # file with default backup functions to implement.
 
+function run_restorefiles_ssh_remote () {
+  #returns stdo of ssh
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local CLI_NAME=$(get_client_name $CLI_ID)
+  #local SRV_IP=$(get_network_srv $(get_network_id_by_name $(get_client_net $CLI_ID)))
+  local BKPOUT
+
+  #Get the global options and generate GLOB_OPT string var to pass it to ReaR
+  if [[ "$VERBOSE" -eq 1 ]] || [[ "$DEBUG" -eq 1 ]] || [[ "$DEBUGSCRIPTS" -eq 1 ]]; then
+    GLOB_OPT="-"
+    if [[ "$VERBOSE" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"v"; fi
+    if [[ "$DEBUG" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"d"; fi
+    if [[ "$DEBUGSCRIPTS" -eq 1 ]]; then GLOB_OPT=$GLOB_OPT"D"; fi
+  fi
+
+  if [ "$CLI_CFG" != "default" ]; then
+    GLOB_OPT="$GLOB_OPT -C $CLI_CFG"
+  fi
+
+  if [ "$DRLM_BKP_TYPE" == "DATA" ]; then
+    REAR_RUN="restorefiles"
+  else
+    REAR_RUN="restorefiles"
+  fi
+  if [[ "$VERBOSE" -eq 1 ]]; then
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" FILES_TO_RECOVER="$FILES_TO_RECOVER" TARGET_FS_DATA="$TARGET_FS_DATA" 2>&1
+  else
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" FILES_TO_RECOVER="$FILES_TO_RECOVER" TARGET_FS_DATA="$TARGET_FS_DATA" >/dev/null 2>&1
+  fi
+  if [ $? -ne 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 function run_mkbackup_ssh_remote () {
   #returns stdo of ssh
   local CLI_ID=$1
@@ -26,10 +63,12 @@ function run_mkbackup_ssh_remote () {
     REAR_RUN="mkbackup"
   fi
 
-  BKPOUT=$(ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1)
+  if [[ "$VERBOSE" -eq 1 ]]; then
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" 2>&1
+  else
+    ssh $SSH_OPTS -p $SSH_PORT ${DRLM_USER}@${CLI_NAME} sudo /usr/sbin/rear "$GLOB_OPT" "$REAR_RUN" SERVER=$(hostname -s) REST_OPTS=\"$REST_OPTS\" ID="$CLI_NAME" >/dev/null 2>&1
+  fi
   if [ $? -ne 0 ]; then
-    BKPOUT=$( echo $BKPOUT | tr -d "\r" )
-    echo "$BKPOUT"
     return 1
   else
     return 0
@@ -58,173 +97,6 @@ function mod_pxe_link () {
   cd ${STORDIR}/boot/cfg
   mv ${OLD_CLI_MAC} ${CLI_MAC}
   if [ $? -eq 0 ];then return 0; else return 1;fi
-}
-
-function list_backup () {
-  local CLI_NAME_REC=$1 
-  local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
-
-  local BAC_ID_LEN="$(get_max_backup_id_length_dbdrv)"
-  if [ "$BAC_ID_LEN" -le "9" ]; then BAC_ID_LEN="9"; fi
-  BAC_ID_LEN=$((BAC_ID_LEN+1))
-
-  local BAC_CLI_LEN="$(get_max_client_name_length_dbdrv "backups")"
-  if [ "$BAC_CLI_LEN" -le "11" ]; then BAC_CLI_LEN="11"; fi
-  BAC_CLI_LEN=$((BAC_CLI_LEN+1))
-
-  local BAC_DURA_LEN="$(get_max_backup_duration_length_dbdrv)"
-  if [ "$BAC_DURA_LEN" -le "8" ]; then BAC_DURA_LEN="8"; fi
-  BAC_DURA_LEN=$((BAC_DURA_LEN+1))
-
-  local BAC_SIZE_LEN="$(get_max_backup_size_length_dbdrv)"
-  if [ "$BAC_SIZE_LEN" -le "4" ]; then BAC_SIZE_LEN="4"; fi
-  BAC_SIZE_LEN=$((BAC_SIZE_LEN+1))
-
-  local BAC_CFG_LEN="$(get_max_backup_configuration_length_dbdrv)"
-  if [ "$BAC_CFG_LEN" -le "6" ]; then BAC_CFG_LEN="6"; fi
-  BAC_CFG_LEN=$((BAC_CFG_LEN+1))
-
-  SNP_ID_LEN=$((BAC_ID_LEN+BAC_CLI_LEN-4))
-  
-  local SNP_SIZE_LEN="$(get_max_snap_size_length_dbdrv)"
-  if [ -n "$SNP_SIZE_LEN" ]; then 
-    if [ "$BAC_SIZE_LEN" -gt "$SNP_SIZE_LEN" ]; then 
-      BAC_SIZE_LEN=$((BAC_SIZE_LEN+3))
-    else
-      BAC_SIZE_LEN=$((SNP_SIZE_LEN+3))
-    fi
-  fi
-
-  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s\n"
-  SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
-  
-   # Check if pretty mode is enabled and toggle it if is called with -p option
-  if [ "$PRETTY_TOGGLE" == "true" ]; then
-    if [ "$DEF_PRETTY" == "true" ]; then
-      DEF_PRETTY="false"
-    else
-      DEF_PRETTY="true"
-    fi
-  fi
-
-  # Print header in pretty mode if is enabled
-  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
-  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type"
-  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
-
-  save_default_pretty_params_list_backup
-
-  for line in $(get_all_backups_dbdrv "$CLI_ID")
-  do
-    local BAC_ID="$(echo $line|awk -F":" '{print $1}')"
-    local CLI_BAC_ID="$(echo $line|awk -F":" '{print $2}')"
-    local CLI_NAME="$(get_client_name $CLI_BAC_ID)"
-    local BAC_FILE="$(echo $line|awk -F":" '{print $3}')"
-    local BAC_STATUS="$(echo $line|awk -F":" '{print $5}')"
-    local CLI_CFG="$(echo $line|awk -F":" '{print $10}')"
-    local BAC_PXE="$(echo $line|awk -F":" '{print $11}')"
-    local BAC_TYPE="$(echo $line|awk -F":" '{print $12}')"
-    local BAC_PROT="$(echo $line|awk -F":" '{print $13}')"
-
-    local BAC_DATE="$(echo $line|awk -F":" '{print $14}')"
-    local BAC_DAY="$(echo $BAC_DATE|cut -c1-8)"
-    local BAC_TIME="$(echo $BAC_DATE|cut -c9-12)"
-    local BAC_DATE="$(date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M")"
-
-    local BAC_ENCRYPT="$(echo $line|awk -F":" '{print $15}')"
-    if [ "$BAC_ENCRYPT" == "1" ]; then
-      BAC_ENCRYPT="(C)"
-    else
-      BAC_ENCRYPT=""
-    fi
-
-    local BAC_HOLD="$(echo $line|awk -F":" '{print $16}')"
-    if [ "$BAC_HOLD" == "1" ]; then
-      BAC_HOLD="(H)"
-    else
-      BAC_HOLD=""
-    fi
-    
-    if [ "$BAC_PXE" == "1" ]; then
-      BAC_PXE=" *"
-    else 
-      BAC_PXE=""
-    fi 
-
-    if [ "$BAC_STATUS" == "0" ]; then
-      BAC_STATUS="disabled"
-    elif [ "$BAC_STATUS" == "1" ]; then
-      BAC_STATUS="enabled"
-    elif [ "$BAC_STATUS" == "2" ]; then
-      BAC_STATUS=" write"
-    elif [ "$BAC_STATUS" == "3" ]; then
-      BAC_STATUS="write F"
-    fi
-
-    load_default_pretty_params_list_backup
-    load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
-
-    local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
-    if [ "$DEF_PRETTY" == "true" ]; then
-      BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA $BAC_DURA_LEN)"
-    else
-      BAC_DURA_DEC="%-${BAC_DURA_LEN}s"
-    fi
-
-    local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
-    if [ "$DEF_PRETTY" == "true" ]; then
-      BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE $BAC_SIZE_LEN)"
-    else
-      BAC_SIZE_DEC="%-${BAC_SIZE_LEN}s"
-    fi
-
-    # if Pretty mode is enabled show in green enabled backups and in red disabled backups
-    if [ "$DEF_PRETTY" == "true" ]; then
-      if [ "$BAC_STATUS" == "enabled" ]; then 
-        BAC_STATUS_DEC="\\e[0;32m%-9s\\e[0m"
-      elif [ "$BAC_STATUS" == "disabled" ]; then 
-        BAC_STATUS_DEC="\\e[0;31m%-9s\\e[0m"
-      else
-        BAC_STATUS_DEC="\\e[0;33m%-9s\\e[0m"
-      fi
-    else
-      BAC_STATUS_DEC="%-9s"
-    fi
-
-    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s\n"
-    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}"; 
-    
-    # Check if BAC_ID have snapshots and list them
-    found_enabled=0
-    
-    for snap_line in $(get_all_snaps_by_backup_id_dbdrv $BAC_ID); do
-      SNAP_ID="$(echo $snap_line | awk -F'|' '{print $2}')"
-      SNAP_DATE="$(date --date "$(echo $snap_line | awk -F'|' '{print $3}' | sed 's/.\{8\}/& /g')" "+%Y-%m-%d %H:%M")"
-      SNAP_STATUS="$(echo $snap_line | awk -F'|' '{print $4}')"
-      SNAP_DURA="$(echo $snap_line | awk -F'|' '{print $5}')"
-      SNAP_SIZE="$(echo $snap_line | awk -F'|' '{print $6}')"
-      SNAP_PXE=" "
-      SNAP_TYPE="Snap"
-      SNAP_HOLD="$(echo $snap_line | awk -F'|' '{print $7}')"
-      if [ "$SNAP_HOLD" == "1" ]; then
-        SNAP_TYPE=$SNAP_TYPE"(H)"
-      fi 
-
-      if [ "$BAC_STATUS" == "disabled" ]; then
-        SNAP_STATUS=""
-      else
-        if [ "$SNAP_STATUS" == "1" ]; then
-          SNAP_STATUS="   @"
-          found_enabled=1
-        else
-          [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
-        fi
-      fi
-      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─$SNAP_TYPE";
-    done
-
-  done
-  if [ $? -eq 0 ];then return 0; else return 1; fi
 }
 
 function get_free_nbd() {
@@ -1116,7 +988,8 @@ function get_fs_used_mb ()
 function get_client_used_mb () {
     export PATH="$PATH:/sbin:/usr/sbin" # vgs is located in diferent places depending of the version this allows to find the command
     if [[ -n ${INCLUDE_LIST_VG} ]]; then
-        EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
+        #EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | egrep -v "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
+        EXCLUDE_LIST_VG=( ${EXCLUDE_LIST_VG[@]} $(echo $(sudo vgs -o vg_name --noheadings 2>/dev/null  | grep -Ev "$(echo "${INCLUDE_LIST_VG[@]}" | tr ' ' '|')")) )
     fi
 
     EXCLUDE_LIST=( ${EXCLUDE_LIST[@]} ${EXCLUDE_LIST_VG[@]} )
@@ -1127,10 +1000,12 @@ function get_client_used_mb () {
 
     #FIXME: If any better way to get this info in future.
     # Get FS list excluding BTRFS filesystems if any.
-    FS_LIST=( $(sudo mount -l -t "$(echo $(egrep -v 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | grep -v '/var/lib/snapd/*.snap' | awk '{print $3}') )
+    #FS_LIST=( $(sudo mount -l -t "$(echo $(egrep -v 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | grep -v '/var/lib/snapd/*.snap' | awk '{print $3}') )
+    FS_LIST=( $(sudo mount -l -t "$(echo $(grep -Ev 'nodev|btrfs' /proc/filesystems) | tr ' ' ',')" | sed "/mapper/s/--/-/" | grep -Ev "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | grep -v '/var/lib/snapd/*.snap' | awk '{print $3}') )
     # Now get reduced list of FS under BTRFS to get correct used space.
     ###FS_LIST=( ${FS_LIST[@]} $(sudo mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | egrep "subvolid=5|subvol=/@\)|subvol=/@/.snapshots/" | awk '{print $3}') )
-    for btrfs in $(mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
+    #for btrfs in $(mount -l -t btrfs | egrep -v "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
+    for btrfs in $(mount -l -t btrfs | grep -Ev "$(echo ${EXCLUDE_LIST[@]} | tr ' ' '|')" | awk '{print $1}' | uniq); do FS_LIST=( ${FS_LIST[@]} $(df $btrfs | tail -1 | awk '{print $6}')); done
 
     for fs in ${FS_LIST[@]}
     do
@@ -1613,3 +1488,242 @@ function my_udevsettle () {
     # as final fallback just wait a bit and hope for the best
     sleep 10
 }
+
+function list_backup () {
+  local CLI_NAME_REC=$1 
+  local CLI_ID=$(get_client_id_by_name $CLI_NAME_REC)
+
+  local BAC_ID_LEN="$(get_max_backup_id_length_dbdrv)"
+  if [ -z "$BAC_ID_LEN" ] || [ "$BAC_ID_LEN" -le "9" ]; then BAC_ID_LEN="9"; fi
+  BAC_ID_LEN=$((BAC_ID_LEN+1))
+
+  local BAC_CLI_LEN="$(get_max_client_name_length_dbdrv "backups")"
+  if [ -z "$BAC_CLI_LEN" ] || [ "$BAC_CLI_LEN" -le "11" ]; then BAC_CLI_LEN="11"; fi
+  BAC_CLI_LEN=$((BAC_CLI_LEN+1))
+
+  local BAC_DURA_LEN="$(get_max_backup_duration_length_dbdrv)"
+  if [ -z "$BAC_DURA_LEN" ] || [ "$BAC_DURA_LEN" -le "8" ]; then BAC_DURA_LEN="8"; fi
+  BAC_DURA_LEN=$((BAC_DURA_LEN+1))
+
+  local BAC_SIZE_LEN="$(get_max_backup_size_length_dbdrv)"
+  if [ -z "$BAC_SIZE_LEN" ] || [ "$BAC_SIZE_LEN" -le "6" ]; then BAC_SIZE_LEN="6"; fi
+  BAC_SIZE_LEN=$((BAC_SIZE_LEN+2))
+
+  local BAC_CFG_LEN="$(get_max_backup_configuration_length_dbdrv)"
+  if [ -z "$BAC_CFG_LEN" ] || [ "$BAC_CFG_LEN" -le "6" ]; then BAC_CFG_LEN="6"; fi
+  BAC_CFG_LEN=$((BAC_CFG_LEN+1))
+
+  SNP_ID_LEN=$((BAC_ID_LEN+BAC_CLI_LEN-4))
+  
+  local SNP_SIZE_LEN="$(get_max_snap_size_length_dbdrv)"
+  if [ -n "$SNP_SIZE_LEN" ]; then 
+    if [ "$BAC_SIZE_LEN" -gt "$SNP_SIZE_LEN" ]; then 
+      BAC_SIZE_LEN=$((BAC_SIZE_LEN+3))
+    else
+      BAC_SIZE_LEN=$((SNP_SIZE_LEN+3))
+    fi
+  fi
+
+  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s %-12s %-11s\n"
+  SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
+  
+   # Check if pretty mode is enabled and toggle it if is called with -p option
+  if [ "$PRETTY_TOGGLE" == "true" ]; then
+    if [ "$DEF_PRETTY" == "true" ]; then
+      DEF_PRETTY="false"
+    else
+      DEF_PRETTY="true"
+    fi
+  fi
+
+  # Print header in pretty mode if is enabled
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
+  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan" "Archived"
+  if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
+
+  save_default_pretty_params_list_backup
+
+  if [ "$POLICY_TOGGLE" == "true" ]; then 
+    if [ "$BKP_POLICY_LIST" == "true" ]; then
+      BKP_POLICY_LIST="false"
+    else
+      BKP_POLICY_LIST="true"
+    fi
+  fi
+
+  for line in $(get_all_backups_dbdrv "$CLI_ID"); do
+    local BAC_ID="$(echo $line|awk -F":" '{print $1}')"
+    local CLI_BAC_ID="$(echo $line|awk -F":" '{print $2}')"
+    local CLI_NAME="$(get_client_name $CLI_BAC_ID)"
+    local BAC_FILE="$(echo $line|awk -F":" '{print $3}')"
+    local BAC_STATUS="$(echo $line|awk -F":" '{print $5}')"
+    local CLI_CFG="$(echo $line|awk -F":" '{print $10}')"
+    local BAC_PXE="$(echo $line|awk -F":" '{print $11}')"
+    local BAC_TYPE="$(echo $line|awk -F":" '{print $12}')"
+    local BAC_PROT="$(echo $line|awk -F":" '{print $13}')"
+
+    local BAC_DATE="$(echo $line|awk -F":" '{print $14}')"
+    local BAC_DAY="$(echo $BAC_DATE|cut -c1-8)"
+    local BAC_TIME="$(echo $BAC_DATE|cut -c9-12)"
+    local BAC_DATE="$(date --date "$BAC_DAY $BAC_TIME" "+%Y-%m-%d %H:%M")"
+
+    local BAC_ENCRYPT="$(echo $line|awk -F":" '{print $15}')"
+    if [ "$BAC_ENCRYPT" == "1" ]; then
+      BAC_ENCRYPT="(C)"
+    else
+      BAC_ENCRYPT=""
+    fi
+
+    local BAC_HOLD="$(echo $line|awk -F":" '{print $16}')"
+    if [ "$BAC_HOLD" == "1" ]; then
+      BAC_HOLD="(H)"
+    else
+      BAC_HOLD=""
+    fi
+
+    local BAC_SCAN="$(echo $line|awk -F":" '{print $17}')"
+
+    if [ "$BAC_SCAN" == "0" ]; then
+      BAC_SCAN="Not Scanned"
+    elif [ "$BAC_SCAN" == "1" ]; then
+      BAC_SCAN="Clean"
+    elif [ "$BAC_SCAN" == "2" ]; then
+      BAC_SCAN="Infected"
+    fi
+
+    local BAC_ARCHIVED="$(echo $line|awk -F":" '{print $18}')"
+
+    if [ "$BAC_ARCHIVED" == "1" ]; then
+      BAC_ARCHIVED="Cloud"
+    elif  [ "$BAC_ARCHIVED" == "0" ]; then
+      BAC_ARCHIVED="Local"
+    fi
+
+    if [ "$BAC_PXE" == "1" ]; then
+      BAC_PXE=" *"
+    else 
+      BAC_PXE=""
+    fi 
+   
+    BAC_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" "")"
+  
+    if [ -n "$BAC_POLICY_RULES" ]; then
+      BAC_POLICY="(P)"
+      if [ "$BKP_POLICY_LIST" == "true" ]; then
+        BAC_POLICY="(P)${BAC_POLICY_RULES}"
+      fi
+    else
+      BAC_POLICY=""
+    fi
+
+    if [ "$BAC_STATUS" == "0" ]; then
+      BAC_STATUS="disabled"
+    elif [ "$BAC_STATUS" == "1" ]; then
+      BAC_STATUS="enabled"
+    elif [ "$BAC_STATUS" == "2" ]; then
+      BAC_STATUS=" write"
+    elif [ "$BAC_STATUS" == "3" ]; then
+      BAC_STATUS="write F"
+    fi
+
+    load_default_pretty_params_list_backup
+    load_client_pretty_params_list_backup $CLI_NAME $CLI_CFG
+
+    local BAC_DURA=`echo $line|awk -F":" '{print $8}'`
+    if [ "$DEF_PRETTY" == "true" ]; then
+      BAC_DURA_DEC="$(check_backup_time_status $BAC_DURA $BAC_DURA_LEN)"
+    else
+      BAC_DURA_DEC="%-${BAC_DURA_LEN}s"
+    fi
+
+    local BAC_SIZE=`echo $line|awk -F":" '{print $9}'`
+    if [ "$DEF_PRETTY" == "true" ]; then
+      BAC_SIZE_DEC="$(check_backup_size_status $BAC_SIZE $BAC_SIZE_LEN)"
+    else
+      BAC_SIZE_DEC="%-${BAC_SIZE_LEN}s"
+    fi
+
+    # if Pretty mode is enabled show in green enabled backups and in red disabled backups
+    if [ "$DEF_PRETTY" == "true" ]; then
+      if [ "$BAC_STATUS" == "enabled" ]; then 
+        BAC_STATUS_DEC="\\e[0;32m%-9s\\e[0m"
+      elif [ "$BAC_STATUS" == "disabled" ]; then 
+        BAC_STATUS_DEC="\\e[0;31m%-9s\\e[0m"
+      else
+        BAC_STATUS_DEC="\\e[0;33m%-9s\\e[0m"
+      fi
+    else
+      BAC_STATUS_DEC="%-9s"
+    fi
+
+    # if Pretty mode is enabled show in green when the backup is not Clean of viruses and in red for the  Infected 
+    if [ "$DEF_PRETTY" == "true" ]; then
+      if [ "$BAC_SCAN" == "Clean" ]; then 
+        BAC_SCAN_DEC="\\e[0;32m%-12s\\e[0m"
+      elif [ "$BAC_SCAN" == "Infected" ]; then 
+        BAC_SCAN_DEC="\\e[0;31m%-12s\\e[0m"
+      else
+        BAC_SCAN_DEC="\\e[0;33m%-12s\\e[0m"
+      fi
+    else
+      BAC_SCAN_DEC="%-12s"
+    fi
+
+    if [ "$DEF_PRETTY" == "true" ]; then
+       if [ "$BAC_ARCHIVED" == "Cloud" ]; then 
+	BAC_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
+       elif [ "$BAC_ARCHIVED" == "Local" ]; then
+	BAC_ARCHIVED_DEC="\\e[0;37m%-9s\\e[0m"
+       fi
+    fi
+
+
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} ${BAC_ARCHIVED_DEC}\n"
+    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN" "$BAC_ARCHIVED"; 
+    
+    # Check if BAC_ID have snapshots and list them
+    found_enabled=0
+    
+    for snap_line in $(get_all_snaps_by_backup_id_dbdrv $BAC_ID); do
+      SNAP_ID="$(echo $snap_line | awk -F'|' '{print $2}')"
+      SNAP_DATE="$(date --date "$(echo $snap_line | awk -F'|' '{print $3}' | sed 's/.\{8\}/& /g')" "+%Y-%m-%d %H:%M")"
+      SNAP_STATUS="$(echo $snap_line | awk -F'|' '{print $4}')"
+      SNAP_DURA="$(echo $snap_line | awk -F'|' '{print $5}')"
+      SNAP_SIZE="$(echo $snap_line | awk -F'|' '{print $6}')"
+      SNAP_PXE=" "
+      SNAP_TYPE="Snap"
+      SNAP_HOLD="$(echo $snap_line | awk -F'|' '{print $7}')"
+      if [ "$SNAP_HOLD" == "1" ]; then
+        SNAP_HOLD="(H)"
+      else
+        SNAP_HOLD=""
+      fi 
+
+      SNAP_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" ""$SNAP_ID)"
+  
+      if [ -n "$SNAP_POLICY_RULES" ]; then
+        SNAP_POLICY="(P)"
+        if [ "$BKP_POLICY_LIST" == "true" ]; then
+          SNAP_POLICY="(P)${SNAP_POLICY_RULES}"
+        fi
+      else
+        SNAP_POLICY=""
+      fi
+
+      if [ "$BAC_STATUS" == "disabled" ]; then
+        SNAP_STATUS=""
+      else
+        if [ "$SNAP_STATUS" == "1" ]; then
+          SNAP_STATUS="   @"
+          found_enabled=1
+        else
+          [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
+        fi
+      fi
+      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}";
+    done
+
+  done
+  if [ $? -eq 0 ];then return 0; else return 1; fi
+}
+

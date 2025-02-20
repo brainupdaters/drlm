@@ -1,7 +1,41 @@
 # modclient workflow
 
+if [ -n "$CLI_VIP_ADD" ]; then
+  if exist_client_id "$CLI_VIP_ADD"; then
+    if ! exist_client_vip_id "$CLI_ID" "$CLI_VIP_ADD"; then
+      Log "VIP: $CLI_VIP_ADD not registered ..."
+      Log "Adding VIP to client $CLI_NAME ..."
+      if add_client_vip_id "$CLI_ID" "$CLI_VIP_ADD"; then       
+        Log "VIP: $CLI_VIP_ADD added to $CLI_NAME ..."
+        generate_client_secrets "$CLI_NAME"
+      else
+        Error "Problem adding VIP: $CLI_VIP_ADD to $CLI_NAME! See $LOGFILE for details."
+      fi
+    else
+      Error "VIP: $CLI_VIP_ADD already registered! [ VIP required before any client addition ]"
+    fi
+  else
+    Error "Client ID: $CLI_VIP_ADD not found! See $LOGFILE for details."
+  fi
+fi
+
+if [ -n "$CLI_VIP_DEL" ]; then
+  if exist_client_vip_id "$CLI_ID" "$CLI_VIP_DEL"; then
+    Log "VIP: $CLI_VIP_DEL registered ..."
+    Log "Deleting VIP from client $CLI_NAME ..."
+    if del_client_vip_id "$CLI_ID" "$CLI_VIP_DEL"; then
+      Log "VIP: $CLI_VIP_DEL deleted from $CLI_NAME ..."
+      generate_client_secrets "$CLI_NAME"
+    else
+      Error "Problem deleting VIP: $CLI_VIP_DEL from $CLI_NAME! See $LOGFILE for details."
+    fi
+  else
+    Error "VIP: $CLI_VIP_DEL not registered! [ VIP required before any client addition ]"
+  fi
+fi
+
 # Check the vales to change
-if test -n "$CLI_IP"; then
+if [ -n "$CLI_IP" ]; then
 
   LogPrint "$CLI_NAME: Setting new IP address for client $CLI_NAME to $CLI_IP ..."
 
@@ -13,7 +47,7 @@ if test -n "$CLI_IP"; then
       Log "Client IP: $CLI_IP not in use ..."
       Log "Testing IP connectivity and MAC address for $CLI_NAME ..."
 
-      if test -n "$CLI_MAC"; then
+      if [ -n "$CLI_MAC" ]; then
         CLI_MAC_L=$CLI_MAC
       else
         CLI_MAC_L=$(get_client_mac $CLI_ID)
@@ -54,7 +88,7 @@ if test -n "$CLI_IP"; then
   fi
 fi
 
-if test -n "$CLI_MAC"; then
+if [ -n "$CLI_MAC" ]; then
 
   LogPrint "Modifying MAC address for client $CLI_NAME to $CLI_MAC ..."
 
@@ -68,7 +102,7 @@ if test -n "$CLI_MAC"; then
       Log "Client MAC: $CLI_MAC not in use ..."
       Log "Testing IP connectivity and MAC for $CLI_NAME ..."
 
-      if ! test -n "$CLI_IP"; then
+      if [ -z "$CLI_IP" ]; then
         CLI_IP=$(get_client_ip $CLI_ID)
       fi
 
@@ -100,7 +134,7 @@ if test -n "$CLI_MAC"; then
   fi       
 fi
 
-if test -n "$CLI_NET"; then
+if [ -n "$CLI_NET" ]; then
 
   LogPrint "Modifying network for client $CLI_NAME to $CLI_NET ..."
   if [[ "$CLI_NET" =~ ^(null)$ ]]; then

@@ -15,25 +15,22 @@ function configure_nfs_exports ()
 
   # Then enable active backups
   for BACKUPLINE in $(get_active_backups) ; do
-    local DR_FILE=$(echo ${BACKUPLINE} | awk -F":" '{ print $3 }')
-    local CLI_NAME=$(echo ${DR_FILE}| cut -d"." -f1)
-    local ACTIVE_BKP=$(echo ${BACKUPLINE} | awk -F":" '{ print $5 }')
+    local CLI_ID=$(echo ${BACKUPLINE} | awk -F":" '{ print $2 }')
+    local CLI_NAME=$(get_client_name ${CLI_ID})
     local CLI_CFG=$(echo ${BACKUPLINE} | awk -F":" '{ print $8 }')
-
+    local BKP_ACTIVE=$(echo ${BACKUPLINE} | awk -F":" '{ print $5 }')
+    
     local EXPORT_CLI_NAME=${NFS_DIR}/exports.d/${CLI_NAME}.${CLI_CFG}.drlm.exports
     local EXPORT_CLI_NAME_DISABLED=${NFS_DIR}/exports.d/.${CLI_NAME}.${CLI_CFG}.drlm.exports
 
     if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
-        rm -f ${EXPORT_CLI_NAME_DISABLED}
+      rm -f ${EXPORT_CLI_NAME_DISABLED}
     fi
 
-    if [ $ACTIVE_BKP == "3" ]; then
-      echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
-      Log "Enabling NFS export (rw): $EXPORT_CLI_NAME"
+    if [ $BKP_ACTIVE == "3" ]; then
+      enable_nfs_fs_rw ${CLI_NAME} ${CLI_CFG}
     else
-      local NFS_OPTS=$( echo ${NFS_OPTS} | sed 's|rw,|ro,|' )
-      echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
-      Log "Enabling NFS export : $EXPORT_CLI_NAME"
+      enable_nfs_fs_ro ${CLI_NAME} ${CLI_CFG}
     fi
   done
 }
@@ -72,7 +69,16 @@ function enable_nfs_fs_ro ()
   if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
     rm -f ${EXPORT_CLI_NAME_DISABLED}
   fi
-  echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+
+  local VIP_CLIENTS=$(get_client_vip_names_by_name $CLI_NAME)
+  VIP_CLIENTS="${CLI_NAME} ${VIP_CLIENTS}"
+
+  EXPORT_LINE="${STORDIR}/${CLI_NAME}/${CLI_CFG} "
+  for VIP in ${VIP_CLIENTS}; do
+    EXPORT_LINE="${EXPORT_LINE} ${VIP}(${NFS_OPTS})"
+  done
+
+  echo "$EXPORT_LINE" | tee ${EXPORT_CLI_NAME} > /dev/null
   reload_nfs ${EXPORT_CLI_NAME}
   if [ ${?} -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
@@ -87,7 +93,16 @@ function enable_nfs_fs_rw ()
   if [ -f ${EXPORT_CLI_NAME_DISABLED} ]; then
     rm -f ${EXPORT_CLI_NAME_DISABLED}
   fi
-  echo "${STORDIR}/${CLI_NAME}/${CLI_CFG} ${CLI_NAME}(${NFS_OPTS})" | tee ${EXPORT_CLI_NAME} > /dev/null
+
+  local VIP_CLIENTS=$(get_client_vip_names_by_name $CLI_NAME)
+  VIP_CLIENTS="${CLI_NAME} ${VIP_CLIENTS}"
+
+  EXPORT_LINE="${STORDIR}/${CLI_NAME}/${CLI_CFG} "
+  for VIP in ${VIP_CLIENTS}; do
+    EXPORT_LINE="${EXPORT_LINE} ${VIP}(${NFS_OPTS})"
+  done
+
+  echo "$EXPORT_LINE" | tee ${EXPORT_CLI_NAME} > /dev/null
   reload_nfs ${EXPORT_CLI_NAME}
   if [ ${?} -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK

@@ -23,6 +23,14 @@ function exist_client_id_dbdrv ()
   if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
 }
 
+function exist_client_vip_id_dbdrv ()
+{
+  local CLI_VIP_ID=$1
+  local CLI_ID=$2
+  COUNT=$(echo "select count(*) from vipclients where idvipclient='${CLI_VIP_ID}' and idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  if [[ "$COUNT" -eq 1 ]]; then return 0; else return 1; fi
+}
+
 function exist_client_name_dbdrv ()
 {
   local CLI_NAME=$1
@@ -63,6 +71,13 @@ function get_client_name_dbdrv ()
   local CLI_ID=$1
   CLI_NAME=$(echo "select cliname from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo "$CLI_NAME"
+}
+
+function get_client_vip_names_by_name_dbdrv () {
+  local CLI_NAME=$1
+  local CLI_ID=$(get_client_id_by_name_dbdrv $CLI_NAME)
+
+  echo $(echo "select GROUP_CONCAT(clients.cliname, ' ') from clients where clients.idclient in (select vipclients.idclient from vipclients where vipclients.idvipclient = '${CLI_ID}');" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
 function get_client_mac_dbdrv ()
@@ -135,7 +150,7 @@ function get_all_client_list_dbdrv ()
     CLI_NAME_SQL="where clients.cliname='$CLI_NAME'"
   fi
 
-  echo "select clients.*, case when count(j.clients_id) = 0 then 'false' else 'true' end from clients left join jobs j on clients.idclient = clients_id $CLI_NAME_SQL group by clients.idclient $CLI_UNSCHED_SQL order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "select clients.*, case when count(j.clients_id) = 0 then 'false' else 'true' end, (select GROUP_CONCAT( idclient, ',') from vipclients WHERE vipclients.idvipclient = clients.idclient) from clients left join jobs j on clients.idclient = clients_id $CLI_NAME_SQL group by clients.idclient $CLI_UNSCHED_SQL order by clients.cliname;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
 }
 
 function get_all_client_id_dbdrv ()
@@ -167,10 +182,18 @@ function add_client_dbdrv ()
     fi
 }
 
+function add_client_vip_id_dbdrv () {
+    local CLI_VIP_ID=$1
+    local CLI_ID=$2
+
+    echo "INSERT INTO vipclients (idvipclient, idclient) VALUES (${CLI_VIP_ID}, ${CLI_ID});" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+    if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function generate_client_id_dbdrv () {
     local CLI_ID=$(echo "select count(*) from counters where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
     if [ $CLI_ID -eq  0 ]; then
-        CLI_ID=$(echo "select ifnull(max(idclient)+1, 100) from clients;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+        CLI_ID=$(echo "select ifnull(max(idclient)+1, 100) from clients where idclient != 0;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
         echo "INSERT INTO counters (idcounter, value) VALUES ('clients', $CLI_ID);" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
     else
         CLI_ID=$(echo "select value+1 from counters where idcounter='clients'; UPDATE counters set value=(value+1) where idcounter='clients';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
@@ -179,10 +202,22 @@ function generate_client_id_dbdrv () {
     echo $CLI_ID
 }
 
-function del_client_id_dbdrv ()
-{
+function del_client_id_dbdrv () {
   local CLI_ID=$1
   echo "delete from clients where idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function del_client_vip_id_dbdrv () {
+  local CLI_VIP_ID=$1
+  local CLI_ID=$2
+  echo "delete from vipclients where idvipclient='${CLI_VIP_ID}' and idclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function del_client_vip_dbdrv () {
+  local CLI_ID=$1
+  echo "delete from vipclients where idclient='${CLI_ID}' or idvipclient='${CLI_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -617,9 +652,9 @@ function get_all_backups_dbdrv () {
   local CLI_ID=$1
 
   if [  -z "$CLI_ID" ]; then
-    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end,":", case when archived is NULL then "0" else archived end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   else
-    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold from backups where clients_id='${CLI_ID}';' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end, ":", case when archived is NULL then "0" else archived end from backups where clients_id='${CLI_ID}';' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   fi
 }
 
@@ -769,7 +804,7 @@ function register_backup_dbdrv () {
     BKP_ENCRYPTED="0"
   fi
 
-  echo "INSERT INTO backups VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO backups (idbackup,clients_id,drfile,active,duration,size,config,PXE,type,protocol,date,encrypted,encryp_pass,hold) VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -782,7 +817,7 @@ function register_snap_dbdrv (){
   local SNAP_SIZE="$6"
   local SNAP_HOLD="$7"
   
-  echo "INSERT INTO snaps VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO snaps (idbackup,idsnap,date,active,duration,size,hold) VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -925,6 +960,32 @@ function get_backup_client_id_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local CLI_ID=$(echo "select clients_id from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $CLI_ID
+}
+
+function get_backup_client_name_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local CLI_NAME=$(echo "SELECT c.cliname FROM clients c INNER JOIN backups b ON c.idclient = b.clients_id WHERE b.idbackup = '${BKP_ID}';"  | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_NAME
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+function get_backup_config_file_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local CLI_CFG=$(echo "select config from backups where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $CLI_CFG
+}                                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                      
+function register_scan_db_dbdrv () {
+  local BKP_ID=$1
+  local SCAN_STATUS="$2"
+  echo "update  backups set scan='${SCAN_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function register_archive_db_dbdrv () {
+  local BKP_ID=$1
+  local RCLONE_STATUS="$2"
+  echo "update  backups set archived='${RCLONE_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
 function get_backup_drfile_by_backup_id_dbdrv () {
@@ -1158,6 +1219,159 @@ function get_max_snap_size_length_dbdrv() {
 function get_max_backup_configuration_length_dbdrv() {
   echo "$(echo "select max(length(config)) from backups" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
 }
+
+#############################
+# Policy database functions #
+#############################
+
+function delete_policy_lines_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "DELETE FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG';" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function get_client_policy_backup_to_delete_by_config_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT * FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and saved_by='' order by date desc;" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function get_client_backups_by_config_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT backups.idbackup, backups.date, backups.hold FROM backups WHERE backups.clients_id = '$CLI_ID' and backups.config = '$CLI_CFG';" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function get_policy_saved_by_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local BKP_ID=$3
+  local SNAP_ID=$4
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT saved_by FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and idbackup='$BKP_ID' and idsnap='$SNAP_ID';" 2>/dev/null 
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function add_client_policy_line_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local BKP_ID=$3
+  local SNAP_ID=$4
+  local DATE=$5
+  local SAVED_BY=$6
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "INSERT INTO policy (idclient, config, idbackup, idsnap, date, saved_by) VALUES ('$CLI_ID', '$CLI_CFG', '$BKP_ID', '$SNAP_ID', '$DATE', '$SAVED_BY');" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function save_by_hist_snap_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local HIST_SNAP=$3
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "UPDATE policy SET saved_by=saved_by||'[hist_snap]' WHERE idclient='$CLI_ID' and config='$CLI_CFG' and idsnap in (SELECT idsnap FROM snaps WHERE idbackup in (SELECT idbackup FROM backups WHERE clients_id='$CLI_ID' and config='$CLI_CFG') ORDER BY date DESC LIMIT $HIST_SNAP);" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function save_by_hist_bkp_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local HIST_BKP=$3
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "UPDATE policy SET saved_by=saved_by||'[hist_bkp]' WHERE idclient='$CLI_ID' and config='$CLI_CFG' and idbackup in (SELECT idbackup FROM backups WHERE clients_id='$CLI_ID' and config='$CLI_CFG' and idsnap = '' ORDER BY date DESC LIMIT $HIST_BKP);" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function apply_policy_day_rule_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local rule_default_save=$3
+  local rule_fromHour=$4
+  local rule_toHour=$5
+  local i=$6
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$i days') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function apply_policy_week_rule_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local rule_default_save=$3
+  local rule_fromHour=$4
+  local rule_toHour=$5
+  local rule_day=$6
+  local i=$7
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$((i*7)) days', '-6 days', 'weekday $rule_day') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function apply_policy_month_rule_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local rule_default_save=$3
+  local rule_fromHour=$4
+  local rule_toHour=$5
+  local rule_day=$6
+  local i=$7
+
+  case $rule_day in
+    ""|"last")
+      sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$i months', '+1 day', 'start of month', '-1 days') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+      ;;
+    "first")
+      sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$i months', 'start of month') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+      ;;
+    *)
+      sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$i months', '+7 days', 'start of month', '-7 days', 'weekday $rule_day') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+      ;;
+  esac
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function apply_policy_year_rule_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local rule_default_save=$3
+  local rule_fromHour=$4
+  local rule_toHour=$5
+  local rule_day=$6
+  local i=$7
+
+  case $rule_day in
+    ""|"last")
+      sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$i year', '+1 day', 'start of year', '-1 days') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+      ;;
+    "first")
+      sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$i year', 'start of year') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+      ;;
+    *)
+      sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8)=strftime('%Y%m%d', 'now', '-$i year', '+7 days', 'start of year', '-7 days', 'weekday $rule_day') and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour');" 2>/dev/null
+      ;;
+  esac
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function apply_policy_special_rule_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local rule_default_save=$3
+  local rule_fromHour=$4
+  local rule_unit=$5
+  local rule_day=$6
+  local rule_qty=$7
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "SELECT *, $rule_default_save(date) FROM policy WHERE idclient='$CLI_ID' and config='$CLI_CFG' and substr(date,1,8) like '$rule_unit' and time(substr(date,9,2) || ':' || substr(date,11,2)) between time('$rule_fromHour') and time ('$rule_toHour') GROUP BY substr(date,1,8) ORDER BY date DESC LIMIT $rule_qty;" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
+function set_policy_saved_by_dbdrv () {
+  local CLI_ID=$1
+  local CLI_CFG=$2
+  local BKP_ID=$3
+  local SNAP_ID=$4
+  local SAVED_BY=$5
+  sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH "UPDATE policy SET saved_by='$SAVED_BY' WHERE idclient='$CLI_ID' and config='$CLI_CFG' and idbackup='$BKP_ID' and idsnap='$SNAP_ID';" 2>/dev/null
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 
 ##########################
 # Job database functions #
