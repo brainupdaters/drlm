@@ -377,14 +377,14 @@ systemctl start drlm-gitd.service
 
 %changelog
 
-* Fri Sep 20 2024 Pau Roura <pau@brainupdaters.net> 2.4.12
+* Thu Feb 20 2025 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available
 - Bugfix in listclient when no clients are available
 - Bugfix in listnetwork when no networks are available
 - Bugfix in listjob when no jobs are available 
 - NEW! Virtual IP support to backup active cluster services
 - Removed unmaintained Docker support
-- NEW! Backup Policy support
+- NEW! Backup Policy support 
 - Bugfix in API listing holded snaps
 - NEW! Ubuntu 24.04 client & server support
 - NEW! Configurable extra partition size on runbackup
@@ -396,6 +396,12 @@ systemctl start drlm-gitd.service
 - NEW! Added drlm-extra interface to patch/extend rear integrations
 - NEW! Added new client git install method as default. (-r/-U keeps old style install)
 - Updated install script
+- NEW! Added support for AlmaLinux, Oracle, OpenSUSE Fedora clients
+- NEW! DRLM can backup itself with internal client.
+- Bugfix in ssh key location
+- Updated ReaR to 2.8
+- Bugfix in make package, drlm-gitd-hook added.
+- Added basics for the enterprise version functionalities (archive, oci, scan & sync)
 
 * Wed Mar 13 2024 Pau Roura <pau@brainupdaters.net> 2.4.11
 - NEW! RAWDISK output backup type supported
