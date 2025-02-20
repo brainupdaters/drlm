@@ -13,7 +13,7 @@ _drlm()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan archive oci"
+    workflows="addnetwork delnetwork listnetwork modnetwork addclient delclient listclient instclient modclient runbackup restore delbackup listbackup bkpmgr expbackup impbackup addjob listjob deljob sched scan archive oci sync"
 
     local workflow="$(__drlm_find_on_cmdline "$workflows")"
   if [ -z "$workflow" ]; then
@@ -112,6 +112,10 @@ _drlm()
       ;;
     oci)
       __drlm_oci
+      return
+      ;;
+    sync)
+      __drlm_sync
       return
       ;;
     *)
@@ -1204,6 +1208,35 @@ __drlm_oci ()
       ;;
     *)
       __drlmcomp3 "$options_l"
+      ;;
+  esac
+}
+
+__drlm_sync ()
+{
+  local options_s="-C -h"
+  local options_l="--config_file --help"
+
+  if __drlm_exist_option "-h --help" "$workflow"; then
+    local options_s="-h"
+    local options_l="--help"
+  elif __drlm_exist_option "-C --config_file" "$workflow"; then
+    local options_s="-C"
+    local options_l="--config_file"
+  elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
+    local options_s="-C"
+    local options_l="--config_file"
+  fi
+
+  case "$prev" in
+    -C | --config_file)
+      _filedir
+      ;;
+    "-"*)
+      COMPREPLY=()
+      ;;
+    *)
+      __drlmcomp3 "$options_s" "$options_l"
       ;;
   esac
 }
