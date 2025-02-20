@@ -70,7 +70,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.12 (September 2024) - Release Notes
+DRLM Version 2.4.12 (February 2025) - Release Notes
 ------------------------------------------------
   * Bugfix in listbackup when no backups are available
 
@@ -107,6 +107,18 @@ DRLM Version 2.4.12 (September 2024) - Release Notes
   * NEW! Added new client git install method as default. (-r/-U keeps old style install)
 
   * Updated install script
+
+  * NEW! Added support for AlmaLinux, Oracle, OpenSUSE Fedora clients
+
+  * NEW! DRLM can backup itself with internal client.
+
+  * Bugfix in ssh key location
+
+  * Updated ReaR to 2.8
+
+  * Bugfix in make package, drlm-gitd-hook added.
+
+  * Added basics for the enterprise version functionalities (archive, oci, scan & sync)
 
 
 DRLM Version 2.4.11 (March 2024) - Release Notes
