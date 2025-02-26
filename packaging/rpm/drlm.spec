@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.12
+Version: 2.4.13
 Release: 1%{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -376,6 +376,9 @@ systemctl is-enabled --quiet drlm-gitd.service || systemctl enable drlm-gitd.ser
 systemctl start drlm-gitd.service
 
 %changelog
+
+* Thu Wed 26 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
+- Dummy line to be replaced
 
 * Thu Feb 20 2025 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available
