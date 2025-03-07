@@ -377,7 +377,7 @@ systemctl start drlm-gitd.service
 
 %changelog
 
-* Thu Wed 26 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
+* Fri Mar 06 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
 - Bugfix in bash_completion if not root
 
 * Thu Feb 20 2025 Pau Roura <pau@brainupdaters.net> 2.4.12

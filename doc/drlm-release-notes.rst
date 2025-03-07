@@ -70,7 +70,7 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
-DRLM Version 2.4.13 (February 2025) - Release Notes
+DRLM Version 2.4.13 (March 2025) - Release Notes
 ---------------------------------------------------
   * Bugfix in bash_completion if not root
 
