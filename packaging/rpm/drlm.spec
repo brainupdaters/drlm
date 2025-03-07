@@ -378,7 +378,7 @@ systemctl start drlm-gitd.service
 %changelog
 
 * Thu Wed 26 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
-- Dummy line to be replaced
+- Bugfix in bash_completion if not root
 
 * Thu Feb 20 2025 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available

@@ -72,7 +72,7 @@ The references pointing to fix #nr or issue #nr refer to our issues tracker
 
 DRLM Version 2.4.13 (February 2025) - Release Notes
 ---------------------------------------------------
-  * Dummy line to be replaced
+  * Bugfix in bash_completion if not root
 
 DRLM Version 2.4.12 (February 2025) - Release Notes
 ---------------------------------------------------

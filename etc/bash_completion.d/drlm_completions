@@ -1,6 +1,11 @@
 #drlm_completions
 #Bash Completion file for DRLM
 
+# exit if not root
+if [ "$EUID" -ne 0 ]; then
+  return
+fi
+
 SHARE_DIR="/usr/share/drlm"
 source $SHARE_DIR/conf/default.conf
 [ -f /etc/drlm/site.conf  ] && source /etc/drlm/site.conf

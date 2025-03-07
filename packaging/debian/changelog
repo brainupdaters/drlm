@@ -1,5 +1,5 @@
 drlm (2.4.13) stable release; urgency=high
-  * dummy line
+  * Bugfix in bash_completion if not root
 
 drlm (2.4.12) stable release; urgency=high
   * Bugfix in listbackup when no backups are available
