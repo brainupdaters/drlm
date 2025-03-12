@@ -24,7 +24,7 @@ WORKFLOWS=( ${WORKFLOWS[@]} instclient )
 
 if [ $WORKFLOW == "instclient" ]; then
   # Parse options
-  OPT="$(getopt -n $WORKFLOW -o "c:I:u:U:Crh" -l "client:,id:,user:,urlrear:,url_rear:,configk,repo,help,Authors" -- "$@")"
+  OPT="$(getopt -n $WORKFLOW -o "c:I:u:U:Crh" -l "client:,id:,user:,urlrear:,url_rear:,config,repo,help,Authors" -- "$@")"
   
   if (( $? != 0 )); then
     echo "Try \`$PROGRAM $WORKFLOW --help' for more information."

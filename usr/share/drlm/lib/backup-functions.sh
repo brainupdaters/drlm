@@ -1256,7 +1256,7 @@ function disable_backup_store () {
   # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
   local NBD_DEVICE=$(pgrep -fa ${DR_FILE} | awk '{print $4}')
 
-  Log "Disabling DR Backup Store $NBD_MOUNT_POINT"
+  LogPrint "Disabling DR Backup Store $NBD_MOUNT_POINT ..."
 
   # Disable NFS
   if disable_nfs_fs $CLI_NAME $CLI_CFG; then
