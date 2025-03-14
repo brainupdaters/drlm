@@ -64,6 +64,9 @@ else
     if [ $drlm_old_ver -lt 20412 ]; then
         /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/2.4.12_db_update.sql
     fi
+    if [ $drlm_old_ver -lt 20413 ]; then
+        /usr/bin/sqlite3 /var/lib/drlm/drlm.sqlite < /usr/share/drlm/conf/DB/2.4.13_db_update.sql
+    fi
 fi
 
 # Update drlm.sqlite permissions

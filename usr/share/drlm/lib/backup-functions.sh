@@ -773,6 +773,13 @@ function get_backup_date_by_backup_id ()
   echo $BKP_DATE
 }
 
+function get_backup_scan_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_SCAN=$(get_backup_scan_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_SCAN
+}   
+
 function get_backup_encrypted_by_backup_id ()
 {
   local BKP_ID=$1
@@ -1526,7 +1533,7 @@ function list_backup () {
     fi
   fi
 
-  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s %-12s %-11s\n"
+  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-17s %-12s %-11s\n"
   SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
   
    # Check if pretty mode is enabled and toggle it if is called with -p option
@@ -1680,7 +1687,7 @@ function list_backup () {
     fi
 
 
-    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} ${BAC_ARCHIVED_DEC}\n"
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-17s ${BAC_SCAN_DEC} ${BAC_ARCHIVED_DEC}\n"
     printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN" "$BAC_ARCHIVED"; 
     
     # Check if BAC_ID have snapshots and list them
@@ -1700,6 +1707,26 @@ function list_backup () {
       else
         SNAP_HOLD=""
       fi 
+      SNAP_SCAN="$(echo $snap_line|awk -F"|" '{print $8}')"
+      if [ "$SNAP_SCAN" == "0" ]; then
+        SNAP_SCAN="Not Scanned"
+      elif [ "$SNAP_SCAN" == "1" ]; then
+        SNAP_SCAN="Clean"
+      elif [ "$SNAP_SCAN" == "2" ]; then
+        SNAP_SCAN="Infected"
+      fi
+      # if Pretty mode is enabled show in green when the backup is not Clean of viruses and in red for the  Infected 
+      if [ "$DEF_PRETTY" == "true" ]; then
+        if [ "$SNAP_SCAN" == "Clean" ]; then
+          SNAP_SCAN_DEC="\\e[0;32m%-12s\\e[0m"
+        elif [ "$SNAP_SCAN" == "Infected" ]; then
+          SNAP_SCAN_DEC="\\e[0;31m%-12s\\e[0m"
+        else
+          SNAP_SCAN_DEC="\\e[0;33m%-12s\\e[0m"
+        fi
+      else
+        SNAP_SCAN_DEC="%-12s"
+      fi
 
       SNAP_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" ""$SNAP_ID)"
   
@@ -1722,7 +1749,8 @@ function list_backup () {
           [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
         fi
       fi
-      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}";
+      SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-8s %-${BAC_CFG_LEN}s  %-20s ${SNAP_SCAN_DEC} ${SNAP_ARCHIVED_DEC}\n"
+      printf "$SNP_FORMAT" "└──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}" "${SNAP_SCAN}";
     done
 
   done
