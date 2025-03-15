@@ -134,7 +134,7 @@ else
     Error "Problem updating backup ($BKP_BASE_ID) duration to $BKP_SIZE"
   fi
   if [ -z "$CLAMAV_SCAN" ]; then
-    if register_scan_db "${BKP_BASE_ID}" 0; then
+    if register_scan_db "${BKP_BASE_ID}" 0 "no"; then
       Log "Updating backup ($BKP_BASE_ID) scan to 0"
     else
       Error "Problem updating backup ($BKP_BASE_ID) scan to 0"

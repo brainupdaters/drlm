@@ -979,7 +979,12 @@ function get_backup_config_file_by_backup_id_dbdrv () {
 function register_scan_db_dbdrv () {
   local BKP_ID=$1
   local SCAN_STATUS="$2"
-  echo "update  backups set scan='${SCAN_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  local IS_SNAP=$3
+  if [ "$IS_SNAP" == "no" ]; then
+    echo "update backups set scan='${SCAN_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  else
+    echo "update snaps set scan='${SCAN_STATUS}' where idsnap='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  fi
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
