@@ -895,7 +895,7 @@ function get_all_snap_disabled_id_by_client_dbdrv () {
 
 function get_all_snaps_by_backup_id_dbdrv () {
   local BKP_ID=$1
-  echo $(echo "select * from snaps where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $(echo "select * from snaps where idbackup='$BKP_ID' order by idsnap desc;" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
 }
 
 function get_all_backup_id_dbdrv () {

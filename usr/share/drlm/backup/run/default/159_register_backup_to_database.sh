@@ -63,6 +63,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   BKP_SIZE=$(du -h $ARCHDIR/$DR_FILE | cut -f1)
   BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )" 
   BKP_HOLD=0
+  BKP_SCAN=0
 
   if [ "$DRLM_BKP_TYPE" == "PXE" ] && [ "$DRLM_DEFAULT_BKP_STATUS" != "disabled" ]; then
     ACTIVE_PXE=1

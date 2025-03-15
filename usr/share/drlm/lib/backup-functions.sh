@@ -543,8 +543,9 @@ function register_backup () {
   local BKP_ENCRYPTED="${12}"
   local BKP_ENCRYP_PASS="${13}"
   local BKP_HOLD="${14}"
+  local BKP_SCAN="${15}"
 
-  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD" "$BKP_SCAN"
 }
 
 function register_snap () {
@@ -555,8 +556,9 @@ function register_snap () {
   local SNAP_DURATION="$5"
   local SNAP_SIZE="$6"
   local SNAP_HOLD="$7"
+  local SNAP_SCAN="$8"
 
-  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD"
+  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN"
 }
 
 function del_backup () {
@@ -1547,7 +1549,7 @@ function list_backup () {
 
   # Print header in pretty mode if is enabled
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
-  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan" "Archived"
+  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan" "Archive"
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
 
   save_default_pretty_params_list_backup
@@ -1750,7 +1752,7 @@ function list_backup () {
         fi
       fi
       SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-8s %-${BAC_CFG_LEN}s  %-20s ${SNAP_SCAN_DEC} ${SNAP_ARCHIVED_DEC}\n"
-      printf "$SNP_FORMAT" "└──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}" "${SNAP_SCAN}";
+      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}" "${SNAP_SCAN}";
     done
 
   done
