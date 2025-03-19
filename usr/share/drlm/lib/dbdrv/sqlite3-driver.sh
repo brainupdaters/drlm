@@ -798,6 +798,7 @@ function register_backup_dbdrv () {
   local BKP_ENCRYP_PASS="${13}"
   local BKP_HOLD="${14}"
   local BKP_SCAN="${15}"
+  local BKP_ARCHIVED="${16}"
 
   if [ "$BKP_ENCRYPTED" == "enabled" ]; then
     BKP_ENCRYPTED="1"
@@ -805,7 +806,7 @@ function register_backup_dbdrv () {
     BKP_ENCRYPTED="0"
   fi
 
-  echo "INSERT INTO backups (idbackup,clients_id,drfile,active,duration,size,config,PXE,type,protocol,date,encrypted,encryp_pass,hold,scan) VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}', '${BKP_SCAN}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO backups (idbackup,clients_id,drfile,active,duration,size,config,PXE,type,protocol,date,encrypted,encryp_pass,hold,scan,archived) VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}', '${BKP_SCAN}', '${BKP_ARCHIVED}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -818,8 +819,9 @@ function register_snap_dbdrv (){
   local SNAP_SIZE="$6"
   local SNAP_HOLD="$7"
   local SNAP_SCAN="$8"
+  local SNAP_ARCHIVED="$9"
   
-  echo "INSERT INTO snaps (idbackup,idsnap,date,active,duration,size,hold,scan) VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD', '$SNAP_SCAN' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO snaps (idbackup,idsnap,date,active,duration,size,hold,scan,archived) VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD', '$SNAP_SCAN', '$SNAP_ARCHIVED');" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -990,8 +992,13 @@ function register_scan_db_dbdrv () {
 
 function register_archive_db_dbdrv () {
   local BKP_ID=$1
-  local RCLONE_STATUS="$2"
-  echo "update  backups set archived='${RCLONE_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  local STATUS="$2"
+  local IS_SNAP=$3
+  if [ "$IS_SNAP" == "no" ]; then
+    echo "update backups set archived='${STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  else
+    echo "update snaps set archived='${STATUS}' where idsnap='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  fi
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -1029,6 +1036,12 @@ function get_backup_scan_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local BKP_SCAN=$(echo "select scan from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $BKP_SCAN
+}
+
+function get_backup_archive_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_ARCHIVED=$(echo "select archived from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_ARCHIVED  
 }
 
 function get_backup_encrypted_by_backup_id_dbdrv () {

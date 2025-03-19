@@ -1145,21 +1145,21 @@ __drlm_scan ()
 
 __drlm_archive ()
 {
-  local options_s="-c -I -h"
-  local options_l="--client --id --help"
+  local options_s="-I -U -F -R -D -L -c -A -C -h"
+  local options_l="--id --upload --file --remove --download --list --client --all --check --help"
 
   if __drlm_exist_option "-h --help" "$workflow"; then
     local options_s="-h"
     local options_l="--help"
   elif __drlm_exist_option "-I --id" "$workflow"; then
-    local options_s="-I"
-    local options_l="--id"
-  elif __drlm_exist_option "-c --client" "$workflow"; then
-    local options_s="-c"
-    local options_l="--client"
-  elif [ $(__drlm_count_options "$workflow" "$options_s $options_l") != "0" ]; then
-    local options_s="-c -I"
-    local options_l="--client --id"
+    local options_s="-I -U"
+    local options_l="--id --upload"
+  elif __drlm_exist_option "-F --file" "$workflow"; then
+    local options_s="-F -R -D"
+    local options_l="--file --remove --download"
+  elif __drlm_exist_option "-L --list" "$workflow"; then
+    local options_s="-L -c -A"
+    local options_l="--list --client --all"
   fi
 
   case "$prev" in
