@@ -1739,7 +1739,7 @@ function list_backup () {
         SNAP_SCAN_DEC="%-12s"
       fi
       
-      SNAP_ARCHIVED="$(echo $line|awk -F"|" '{print $9}')"
+      SNAP_ARCHIVED="$(echo $snap_line|awk -F"|" '{print $9}')"
 
       if [ "$SNAP_ARCHIVED" == "1" ]; then
         SNAP_ARCHIVED="Cloud"
