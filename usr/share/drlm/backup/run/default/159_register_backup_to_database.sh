@@ -142,5 +142,10 @@ else
       Error "Problem updating backup ($BKP_BASE_ID) scan to 0"
     fi
   fi
+  if register_archive_db "${BKP_BASE_ID}" 0 "no"; then
+    Log "Updating backup ($BKP_BASE_ID) archive to 0"
+  else
+    Error "Problem updating backup ($BKP_BASE_ID) archive to 0"
+  fi
 
 fi
