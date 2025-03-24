@@ -544,8 +544,9 @@ function register_backup () {
   local BKP_ENCRYP_PASS="${13}"
   local BKP_HOLD="${14}"
   local BKP_SCAN="${15}"
+  local BKP_ARCHIVED="${16}"
 
-  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD" "$BKP_SCAN"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD" "$BKP_SCAN" "$BKP_ARCHIVED"
 }
 
 function register_snap () {
@@ -557,8 +558,9 @@ function register_snap () {
   local SNAP_SIZE="$6"
   local SNAP_HOLD="$7"
   local SNAP_SCAN="$8"
+  local SNAP_ARCHIVED="$9"
 
-  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN"
+  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN" "$SNAP_ARCHIVED"
 }
 
 function del_backup () {
@@ -780,6 +782,13 @@ function get_backup_scan_by_backup_id ()
   local BKP_ID=$1
   local BKP_SCAN=$(get_backup_scan_by_backup_id_dbdrv "$BKP_ID")
   echo $BKP_SCAN
+}   
+
+function get_backup_archive_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_ARCHIVED=$(get_backup_archive_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_ARCHIVED
 }   
 
 function get_backup_encrypted_by_backup_id ()
@@ -1171,7 +1180,7 @@ function disable_backup () {
 
     # Umount NBD device
     if [ -n "$NBD_MOUNT_POINT" ]; then
-	  LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
+	    LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
       if do_umount $NBD_MOUNT_POINT; then
         LogPrint "- Unmounted NBD device $NBD_DEVICE from mount point $NBD_MOUNT_POINT"
       else
@@ -1283,6 +1292,7 @@ function disable_backup_store () {
   
   # Umount NBD device
   if [ -n "$NBD_MOUNT_POINT" ]; then
+	  LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
     if do_umount $NBD_MOUNT_POINT; then
       Log "- Unmounted Filesystem $NBD_MOUNT_POINT"
     else
@@ -1729,6 +1739,21 @@ function list_backup () {
       else
         SNAP_SCAN_DEC="%-12s"
       fi
+      
+      SNAP_ARCHIVED="$(echo $snap_line|awk -F"|" '{print $9}')"
+
+      if [ "$SNAP_ARCHIVED" == "1" ]; then
+        SNAP_ARCHIVED="Cloud"
+      elif  [ "$SNAP_ARCHIVED" == "0" ]; then
+        SNAP_ARCHIVED="Local"
+      fi
+      if [ "$DEF_PRETTY" == "true" ]; then
+        if [ "$SNAP_ARCHIVED" == "Cloud" ]; then 
+	        SNAP_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
+        elif [ "$SNAP_ARCHIVED" == "Local" ]; then
+	        SNAP_ARCHIVED_DEC="\\e[0;37m%-9s\\e[0m"
+        fi
+      fi
 
       SNAP_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" ""$SNAP_ID)"
   
@@ -1752,7 +1777,7 @@ function list_backup () {
         fi
       fi
       SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-8s %-${BAC_CFG_LEN}s  %-20s ${SNAP_SCAN_DEC} ${SNAP_ARCHIVED_DEC}\n"
-      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}" "${SNAP_SCAN}";
+      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}" "${SNAP_SCAN}" "${SNAP_ARCHIVED}";
     done
 
   done

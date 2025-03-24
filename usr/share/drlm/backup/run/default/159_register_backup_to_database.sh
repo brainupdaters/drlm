@@ -64,6 +64,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   BKP_DATE="$(echo $BKP_ID | awk -F"." '{print $2}' | cut -c1-12 )" 
   BKP_HOLD=0
   BKP_SCAN=0
+  BKP_ARCHIVED=0
 
   if [ "$DRLM_BKP_TYPE" == "PXE" ] && [ "$DRLM_DEFAULT_BKP_STATUS" != "disabled" ]; then
     ACTIVE_PXE=1
@@ -71,7 +72,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
     ACTIVE_PXE=0
   fi
 
-  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY" "$BKP_HOLD" "$BKP_SCAN"; then
+  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY" "$BKP_HOLD" "$BKP_SCAN" "$BKP_ARCHIVED"; then
     LogPrint "Registered backup $BKP_ID in the database"
   else
     Error "Problem registering backup $BKP_ID in database"
@@ -108,8 +109,9 @@ else
   SNAP_DATE="$(get_backup_date_by_backup_id $BKP_BASE_ID)"
   SNAP_HOLD=0
   SNAP_SCAN="$(get_backup_scan_by_backup_id $BKP_BASE_ID)"
+  SNAP_ARCHIVED="$(get_backup_archive_by_backup_id $BKP_BASE_ID)"
 
-  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN"; then
+  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN" "$SNAP_ARCHIVED"; then
     LogPrint "Registered snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
   else
     Error "Problem registering snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
@@ -139,6 +141,11 @@ else
     else
       Error "Problem updating backup ($BKP_BASE_ID) scan to 0"
     fi
+  fi
+  if register_archive_db "${BKP_BASE_ID}" 0 "no"; then
+    Log "Updating backup ($BKP_BASE_ID) archive to 0"
+  else
+    Error "Problem updating backup ($BKP_BASE_ID) archive to 0"
   fi
 
 fi
