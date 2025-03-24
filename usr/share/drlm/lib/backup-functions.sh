@@ -1180,7 +1180,7 @@ function disable_backup () {
 
     # Umount NBD device
     if [ -n "$NBD_MOUNT_POINT" ]; then
-	  LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
+	    LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
       if do_umount $NBD_MOUNT_POINT; then
         LogPrint "- Unmounted NBD device $NBD_DEVICE from mount point $NBD_MOUNT_POINT"
       else
@@ -1292,6 +1292,7 @@ function disable_backup_store () {
   
   # Umount NBD device
   if [ -n "$NBD_MOUNT_POINT" ]; then
+	  LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
     if do_umount $NBD_MOUNT_POINT; then
       Log "- Unmounted Filesystem $NBD_MOUNT_POINT"
     else
