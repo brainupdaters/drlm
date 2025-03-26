@@ -32,6 +32,7 @@ Requires: rsync
 Requires: bc
 Requires: parted
 Requires: git
+Requires: stunnel
 
 ### SUSE packages
 %if %{?suse_version:1}0
