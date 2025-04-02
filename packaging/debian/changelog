@@ -1,3 +1,15 @@
+drlm (2.4.13) stable release; urgency=high
+  * NEW! Added support for ReaR 2.9
+  * Bugfix in bash_completion if not root
+  * Updated bash_completion (sync options)
+  * Update drlm setup ReaR rescue script TLS transport
+  * Bugfix unmounting DR files. Sync writes before unmounting.
+  * Updated database snaps tables
+  * Updated RPM dependencies
+  * Improved Makefile to manage versions
+
+ -- Pau Roura <pau@brainupdaters.net>  Wed, 02 Apr 2025 00:00:00 +0100
+
 drlm (2.4.12) stable release; urgency=high
   * Bugfix in listbackup when no backups are available
   * Bugfix in listclient when no clients are available

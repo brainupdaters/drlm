@@ -10,8 +10,8 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.12
-Release: 1%{?rpmrelease}%{?dist}
+Version: 2.4.13
+Release: %{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
 URL: http://drlm.org/
@@ -32,6 +32,8 @@ Requires: rsync
 Requires: bc
 Requires: parted
 Requires: git
+Requires: stunnel
+Requires: git-daemon
 
 ### SUSE packages
 %if %{?suse_version:1}0
@@ -376,6 +378,16 @@ systemctl is-enabled --quiet drlm-gitd.service || systemctl enable drlm-gitd.ser
 systemctl start drlm-gitd.service
 
 %changelog
+
+* Wed Apr 02 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
+- NEW! Added support for ReaR 2.9
+- Bugfix in bash_completion if not root
+- Updated bash_completion (sync options)
+- Update drlm setup ReaR rescue script TLS transport
+- Bugfix unmounting DR files. Sync writes before unmounting.
+- Updated database snaps tables
+- Updated RPM dependencies
+- Improved Makefile to manage versions
 
 * Thu Feb 20 2025 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available

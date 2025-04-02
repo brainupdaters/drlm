@@ -291,6 +291,7 @@ function do_umount ()
 {
   local DEVICE=$1
 
+  /bin/sync -f $DEVICE >> /dev/null 2>&1
   /bin/umount -f $DEVICE >> /dev/null 2>&1
   if [ $? -eq 0 ]; then sleep 1; return 0; else return 1; fi
   # Return 0 if OK or 1 if NOK
@@ -542,8 +543,10 @@ function register_backup () {
   local BKP_ENCRYPTED="${12}"
   local BKP_ENCRYP_PASS="${13}"
   local BKP_HOLD="${14}"
+  local BKP_SCAN="${15}"
+  local BKP_ARCHIVED="${16}"
 
-  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD" "$BKP_SCAN" "$BKP_ARCHIVED"
 }
 
 function register_snap () {
@@ -554,8 +557,10 @@ function register_snap () {
   local SNAP_DURATION="$5"
   local SNAP_SIZE="$6"
   local SNAP_HOLD="$7"
+  local SNAP_SCAN="$8"
+  local SNAP_ARCHIVED="$9"
 
-  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD"
+  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN" "$SNAP_ARCHIVED"
 }
 
 function del_backup () {
@@ -771,6 +776,20 @@ function get_backup_date_by_backup_id ()
   local BKP_DATE=$(get_backup_date_by_backup_id_dbdrv "$BKP_ID")
   echo $BKP_DATE
 }
+
+function get_backup_scan_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_SCAN=$(get_backup_scan_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_SCAN
+}   
+
+function get_backup_archive_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_ARCHIVED=$(get_backup_archive_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_ARCHIVED
+}   
 
 function get_backup_encrypted_by_backup_id ()
 {
@@ -1161,10 +1180,11 @@ function disable_backup () {
 
     # Umount NBD device
     if [ -n "$NBD_MOUNT_POINT" ]; then
+	    LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
       if do_umount $NBD_MOUNT_POINT; then
-        LogPrint "- Umounted NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
+        LogPrint "- Unmounted NBD device $NBD_DEVICE from mount point $NBD_MOUNT_POINT"
       else
-        Error "- Problem NBD device $NBD_DEVICE at mount point $NBD_MOUNT_POINT"
+        Error "- Problem unmounting NBD device $NBD_DEVICE from mount point $NBD_MOUNT_POINT"
       fi
     fi
 
@@ -1254,7 +1274,7 @@ function disable_backup_store () {
   # pgrep may return this process and the drlm bkpmgr process with the Backup id we are trying to disable
   local NBD_DEVICE=$(pgrep -fa ${DR_FILE} | awk '{print $4}')
 
-  Log "Disabling DR Backup Store $NBD_MOUNT_POINT"
+  LogPrint "Disabling DR Backup Store $NBD_MOUNT_POINT ..."
 
   # Disable NFS
   if disable_nfs_fs $CLI_NAME $CLI_CFG; then
@@ -1272,6 +1292,7 @@ function disable_backup_store () {
   
   # Umount NBD device
   if [ -n "$NBD_MOUNT_POINT" ]; then
+	  LogPrint "- Syncing writes and unmounting device $NBD_DEVICE ..."
     if do_umount $NBD_MOUNT_POINT; then
       Log "- Unmounted Filesystem $NBD_MOUNT_POINT"
     else
@@ -1524,7 +1545,7 @@ function list_backup () {
     fi
   fi
 
-  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-10s %-12s %-11s\n"
+  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-17s %-12s %-11s\n"
   SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
   
    # Check if pretty mode is enabled and toggle it if is called with -p option
@@ -1538,7 +1559,7 @@ function list_backup () {
 
   # Print header in pretty mode if is enabled
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
-  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan" "Archived"
+  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan" "Archive"
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
 
   save_default_pretty_params_list_backup
@@ -1678,7 +1699,7 @@ function list_backup () {
     fi
 
 
-    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-10s ${BAC_SCAN_DEC} ${BAC_ARCHIVED_DEC}\n"
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-17s ${BAC_SCAN_DEC} ${BAC_ARCHIVED_DEC}\n"
     printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN" "$BAC_ARCHIVED"; 
     
     # Check if BAC_ID have snapshots and list them
@@ -1698,6 +1719,41 @@ function list_backup () {
       else
         SNAP_HOLD=""
       fi 
+      SNAP_SCAN="$(echo $snap_line|awk -F"|" '{print $8}')"
+      if [ "$SNAP_SCAN" == "0" ]; then
+        SNAP_SCAN="Not Scanned"
+      elif [ "$SNAP_SCAN" == "1" ]; then
+        SNAP_SCAN="Clean"
+      elif [ "$SNAP_SCAN" == "2" ]; then
+        SNAP_SCAN="Infected"
+      fi
+      # if Pretty mode is enabled show in green when the backup is not Clean of viruses and in red for the  Infected 
+      if [ "$DEF_PRETTY" == "true" ]; then
+        if [ "$SNAP_SCAN" == "Clean" ]; then
+          SNAP_SCAN_DEC="\\e[0;32m%-12s\\e[0m"
+        elif [ "$SNAP_SCAN" == "Infected" ]; then
+          SNAP_SCAN_DEC="\\e[0;31m%-12s\\e[0m"
+        else
+          SNAP_SCAN_DEC="\\e[0;33m%-12s\\e[0m"
+        fi
+      else
+        SNAP_SCAN_DEC="%-12s"
+      fi
+      
+      SNAP_ARCHIVED="$(echo $snap_line|awk -F"|" '{print $9}')"
+
+      if [ "$SNAP_ARCHIVED" == "1" ]; then
+        SNAP_ARCHIVED="Cloud"
+      elif  [ "$SNAP_ARCHIVED" == "0" ]; then
+        SNAP_ARCHIVED="Local"
+      fi
+      if [ "$DEF_PRETTY" == "true" ]; then
+        if [ "$SNAP_ARCHIVED" == "Cloud" ]; then 
+	        SNAP_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
+        elif [ "$SNAP_ARCHIVED" == "Local" ]; then
+	        SNAP_ARCHIVED_DEC="\\e[0;37m%-9s\\e[0m"
+        fi
+      fi
 
       SNAP_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" ""$SNAP_ID)"
   
@@ -1720,7 +1776,8 @@ function list_backup () {
           [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
         fi
       fi
-      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}";
+      SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-8s %-${BAC_CFG_LEN}s  %-20s ${SNAP_SCAN_DEC} ${SNAP_ARCHIVED_DEC}\n"
+      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}" "${SNAP_SCAN}" "${SNAP_ARCHIVED}";
     done
 
   done

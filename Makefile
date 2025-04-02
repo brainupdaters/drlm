@@ -6,42 +6,13 @@ SHELL=/bin/bash
 DESTDIR =
 OFFICIAL =
 
-### Get version from DRLM itself
+name = drlm
 drlmbin = usr/sbin/drlm
 drlm_store_svc = usr/sbin/drlm-stord
 drlm_api = usr/sbin/drlm-api
 drlm_proxy = usr/sbin/drlm-proxy
 drlm_send_error = usr/sbin/drlm-send-error
 drlm_gitd_hook = usr/sbin/drlm-gitd-hook
-name = drlm
-version := $(shell awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' $(drlmbin))
-
-### Get the branch information from git
-ifeq ($(OFFICIAL),)
-ifneq ($(shell which git),)
-git_date := $(shell git log -n 1 --format="%ai")
-git_ref := $(shell git symbolic-ref -q HEAD)
-ifeq ($(word 3,$(subst /, ,$(git_ref))),release)
-git_branch = release/$(lastword $(subst /, ,$(git_ref)))
-else
-ifeq ($(word 3,$(subst /, ,$(git_ref))),feature)
-git_branch = feature/$(lastword $(subst /, ,$(git_ref)))
-else
-ifeq ($(word 3,$(subst /, ,$(git_ref))),hotfix)
-git_branch = hotfix/$(lastword $(subst /, ,$(git_ref)))
-else
-git_branch = $(lastword $(subst /, ,$(git_ref)))
-endif
-endif
-endif
-endif
-else
-git_branch = drlm-$(version)
-endif
-git_branch ?= master
-
-date := $(shell date --date="$(git_date)" +%Y%m%d%H%M)
-release_date := $(shell date --date="$(git_date)" +%Y-%m-%d)
 
 prefix = /usr
 sysconfdir = /etc
@@ -52,15 +23,33 @@ localstatedir = /var
 
 specfile = packaging/rpm/$(name).spec
 dscfile = packaging/debian/$(name).dsc
+changelog = packaging/debian/changelog
 
-distversion = $(version)
-debrelease = 0
-rpmrelease = %nil
+# Get the version from the drlm binary
+base_version := $(shell awk 'BEGIN { FS="=" } /VERSION=/ { print $$2 }' $(drlmbin))
+version := $(base_version)
+deb_version := $(base_version)
+rpmrelease = 1
+
+### Get the branch information from git
 ifeq ($(OFFICIAL),)
-distversion = $(version)-git
-debrelease = git
-rpmrelease = git
+    ifneq ($(shell which git),)
+        git_date := $(shell git log -n 1 --format="%ai")
+        release_date := $(shell date --date="$(git_date)" +%Y-%m-%d)
+        name_date := $(shell date --date="$(git_date)" +%Y%m%d%H%M)
+        git_branch := $(shell git rev-parse --abbrev-ref HEAD)
+        head_hash := $(shell git rev-parse --short HEAD)
+        ifneq ($(git_branch), master)
+            version := $(base_version)-$(git_branch)_$(head_hash)_$(name_date)
+            deb_version := $(base_version)-$(git_branch)-$(head_hash)-$(name_date)
+            rpmrelease = $(git_branch)_$(head_hash)_$(name_date)
+        endif
+    endif
 endif
+
+.PHONY: show-version
+show-version:
+	@echo "Version: $(version)"
 
 all:
 	@echo "Nothing to build. Use 'make help' for more information."
@@ -82,7 +71,8 @@ DRLM make variables (optional):\n\
 "
 
 clean:
-	rm -f $(name)-$(distversion).tar.gz
+	@echo -e "\033[1m== Cleaning up ==\033[0;0m"
+	rm -f $(name)-$(version).tar.gz
 	rm -f build-stamp
 	rm -f usr/sbin/drlm-api
 	rm -f usr/sbin/drlm-proxy
@@ -113,16 +103,18 @@ ifneq ($(git_date),)
 rewrite:
 	@echo -e "\033[1m== Rewriting $(specfile), $(dscfile) and $(drlmbin) ==\033[0;0m"
 	sed -i.orig \
-		-e 's#^Source:.*#Source: http://drlm.org/download/${version}/$(name)-${distversion}.tar.gz#' \
-		-e 's#^Version:.*#Version: $(version)#' \
+		-e 's#^Source:.*#Source: http://drlm.org/download/${version}/$(name)-${version}.tar.gz#' \
+		-e 's#^Version:.*#Version: $(base_version)#' \
 		-e 's#^%define rpmrelease.*#%define rpmrelease $(rpmrelease)#' \
-		-e 's#^%setup.*#%setup -q -n $(name)-$(distversion)#' \
+		-e 's#^%setup.*#%setup -q -n $(name)-$(version)#' \
 		$(specfile)
 	sed -i.orig \
-		-e 's#^Version:.*#Version: $(version)-$(debrelease)#' \
+		-e 's#^Version:.*#Version: $(version)#' \
 		$(dscfile)
+	sed -i.orig '1s/(\(.*\))/($(deb_version))/' \
+		$(changelog)
 	sed -i.orig \
-		-e 's#VERSION=.*#VERSION=$(distversion)#' \
+		-e 's#VERSION=.*#VERSION=$(version)#' \
 		-e 's#RELEASE_DATE=.*#RELEASE_DATE="$(release_date)"#' \
 		$(drlmbin)
 
@@ -131,6 +123,7 @@ restore:
 	mv -f $(specfile).orig $(specfile)
 	mv -f $(dscfile).orig $(dscfile)
 	mv -f $(drlmbin).orig $(drlmbin)
+	mv -f $(changelog).orig $(changelog)
 else
 rewrite:
 	@echo "Nothing to do."
@@ -226,32 +219,49 @@ else
 	@echo -e "No Go binaries detected to build DRLM SEND ERROR, will be copied the builded one"
 endif
 
-dist: clean validate drlmapi drlmproxy drlmsenderror man rewrite $(name)-$(distversion).tar.gz restore
+dist: clean validate drlmapi drlmproxy drlmsenderror man rewrite $(name)-$(version).tar.gz
 
-$(name)-$(distversion).tar.gz:
-	@echo -e "\033[1m== Building archive $(name)-$(distversion) ==\033[0;0m"
+$(name)-$(version).tar.gz:
+	@echo -e "\033[1m== Building archive $(name)-$(version) ==\033[0;0m"
 	git checkout $(git_branch)
 	git ls-tree -r --name-only --full-tree $(git_branch) | \
-		tar -czf $(name)-$(distversion).tar.gz --transform='s,^,$(name)-$(distversion)/,S' \
+		tar -czf $(name)-$(version).tar.gz --transform='s,^,$(name)-$(version)/,S' \
 		--files-from=- ./usr/sbin/drlm-api ./usr/sbin/drlm-proxy ./usr/sbin/drlm-send-error
 
-rpm: dist
-	@echo -e "\033[1m== Building RPM package $(name)-$(distversion) ==\033[0;0m"
+rpm: dist restore
+	@echo -e "\033[1m== Building RPM package $(name)-$(version) ==\033[0;0m"
 	rpmbuild -tb --clean \
 		--define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
 		--define "debug_package %{nil}" \
-		--define "_rpmdir %(pwd)" $(name)-$(distversion).tar.gz
+		--define "_rpmdir %(pwd)" $(name)-$(version).tar.gz
+	
+deb_backup:
+	@echo -e "\033[1m== Backing up $(specfile) and $(drlmbin) ==\033[0;0m"
+	cp $(specfile) $(specfile).bkp
+	cp $(dscfile) $(dscfile).bkp
+	cp $(drlmbin) $(drlmbin).bkp
+	cp $(changelog) $(changelog).bkp
 
-deb: dist
-	@echo -e "\033[1m== Building DEB package $(name)-$(distversion) ==\033[0;0m"
+deb_restore:
+	@echo -e "\033[1m== Restoring $(specfile) and $(drlmbin) ==\033[0;0m"
+	mv -f $(specfile).bkp $(specfile)
+	mv -f $(dscfile).bkp $(dscfile)
+	mv -f $(drlmbin).bkp $(drlmbin)
+	mv -f $(changelog).bkp $(changelog)
+
+deb_packer:
+	@echo -e "\033[1m== Building DEB package $(name)-$(version) ==\033[0;0m"
 	cp -r packaging/debian/ .
 	chmod 755 debian/rules
 	fakeroot debian/rules clean
 	fakeroot dh_install
 	fakeroot debian/rules binary
 	-rm -rf debian/
-	rm $(name)-$(distversion).tar.gz
+	rm $(name)-$(version).tar.gz
 	rm build-stamp
 	rm usr/sbin/drlm-api
 	rm usr/sbin/drlm-proxy
 	rm usr/sbin/drlm-send-error
+
+deb: deb_backup dist deb_packer deb_restore
+
