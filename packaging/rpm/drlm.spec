@@ -11,7 +11,7 @@
 Summary: DRLM
 Name: drlm
 Version: 2.4.13
-Release: 1%{?rpmrelease}%{?dist}
+Release: %{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
 URL: http://drlm.org/

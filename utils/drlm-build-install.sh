@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # "DRLM build & install script"
-INSTALLER_VERSION="202409.04"
+INSTALLER_VERSION="202504.01"
 GOLANG_VERSION="1.21.5"
 # "Author: Pau Roura - Brain Updaters"
 # "Website: https://drlm.org"
@@ -185,7 +185,7 @@ case "$linux_distro" in
         # Navigate back to the parent directory
         cd ..
         # Install the built Debian package
-        apt -y install ./drlm_${DRLM_VERSION}_all.deb    
+        apt -y install ./drlm_${DRLM_VERSION}*_all.deb    
         ;;
     
 
