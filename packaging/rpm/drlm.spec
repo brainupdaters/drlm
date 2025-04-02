@@ -10,7 +10,7 @@
 
 Summary: DRLM
 Name: drlm
-Version: 2.4.13
+Version: 2.4.14
 Release: %{?rpmrelease}%{?dist}
 License: GPLv3
 Group: Applications/File
@@ -378,6 +378,9 @@ systemctl is-enabled --quiet drlm-gitd.service || systemctl enable drlm-gitd.ser
 systemctl start drlm-gitd.service
 
 %changelog
+
+* Wed Apr 02 2025 Pau Roura <pau@brainupdaters.net> 2.4.14
+- Dummy line
 
 * Wed Apr 02 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
 - NEW! Added support for ReaR 2.9

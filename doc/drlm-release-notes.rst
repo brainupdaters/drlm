@@ -70,6 +70,11 @@ DRLM are compatible with previous versions, unless otherwise noted.
 
 The references pointing to fix #nr or issue #nr refer to our issues tracker
 
+DRLM Version 2.4.14 (April 2025) - Release Notes
+------------------------------------------------
+  * Dummy release line
+
+
 DRLM Version 2.4.13 (April 2025) - Release Notes
 ---------------------------------------------------
   * NEW! Added support for ReaR 2.9
