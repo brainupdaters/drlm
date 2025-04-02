@@ -379,8 +379,15 @@ systemctl start drlm-gitd.service
 
 %changelog
 
-* Fri Mar 06 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
+* Wed Apr 02 2025 Pau Roura <pau@brainupdaters.net> 2.4.13
+- NEW! Added support for ReaR 2.9
 - Bugfix in bash_completion if not root
+- Updated bash_completion (sync options)
+- Update drlm setup ReaR rescue script TLS transport
+- Bugfix unmounting DR files. Sync writes before unmounting.
+- Updated database snaps tables
+- Updated RPM dependencies
+- Improved Makefile to manage versions
 
 * Thu Feb 20 2025 Pau Roura <pau@brainupdaters.net> 2.4.12
 - Bugfix in listbackup when no backups are available
