@@ -65,6 +65,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
   BKP_HOLD=0
   BKP_SCAN=0
   BKP_ARCHIVED=0
+  BKP_OVAL=0
 
   if [ "$DRLM_BKP_TYPE" == "PXE" ] && [ "$DRLM_DEFAULT_BKP_STATUS" != "disabled" ]; then
     ACTIVE_PXE=1
@@ -72,7 +73,7 @@ if [ "$DRLM_INCREMENTAL" != "yes" ]; then
     ACTIVE_PXE=0
   fi
 
-  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY" "$BKP_HOLD" "$BKP_SCAN" "$BKP_ARCHIVED"; then
+  if register_backup "$BKP_ID" "$CLI_ID" "$DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$CLI_CFG" "$ACTIVE_PXE" "$DRLM_BKP_TYPE" "$DRLM_BKP_PROT" "$BKP_DATE" "$DRLM_ENCRYPTION" "$DRLM_ENCRYPTION_KEY" "$BKP_HOLD" "$BKP_SCAN" "$BKP_ARCHIVED" "$BKP_OVAL"; then
     LogPrint "Registered backup $BKP_ID in the database"
   else
     Error "Problem registering backup $BKP_ID in database"
@@ -110,14 +111,15 @@ else
   SNAP_HOLD=0
   SNAP_SCAN="$(get_backup_scan_by_backup_id $BKP_BASE_ID)"
   SNAP_ARCHIVED="$(get_backup_archive_by_backup_id $BKP_BASE_ID)"
+  SNAP_OVAL="$(get_backup_oval_by_backup_id $BKP_BASE_ID)"
 
-  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN" "$SNAP_ARCHIVED"; then
+  if register_snap "$BKP_BASE_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN" "$SNAP_ARCHIVED" "$SNAP_OVAL"; then
     LogPrint "Registered snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
   else
     Error "Problem registering snap $SNAP_ID of backup ${BKP_BASE_ID} in the database"
   fi
 
-  # Update backup date, duration, size
+  # Update backup date, duration, size, scan, archive and oval
   BKP_DATE="$(echo $SNAP_ID | awk -F"." '{print $2}' | cut -c1-12)"
   BKP_SIZE="$(du -h $ARCHDIR/$DR_FILE | cut -f1)"
   if set_backup_date_by_backup_id "$BKP_BASE_ID" "$BKP_DATE"; then
@@ -125,27 +127,45 @@ else
   else
     Error "Problem updating backup ($BKP_BASE_ID) date to $BKP_DATE"
   fi
+
   if set_backup_duration_by_backup_id "$BKP_BASE_ID" "$BKP_DURATION"; then
     Log "Updating backup ($BKP_BASE_ID) duration to $BKP_DURATION"
   else
     Error "Problem updating backup ($BKP_BASE_ID) duration to $BKP_DURATION"
   fi
+
   if set_backup_size_by_backup_id "$BKP_BASE_ID" "$BKP_SIZE"; then
     Log "Updating backup ($BKP_BASE_ID) duration to $BKP_SIZE"
   else
     Error "Problem updating backup ($BKP_BASE_ID) duration to $BKP_SIZE"
   fi
-  if [ -z "$CLAMAV_SCAN" ]; then
-    if register_scan_db "${BKP_BASE_ID}" 0 "no"; then
-      Log "Updating backup ($BKP_BASE_ID) scan to 0"
+
+  ######################################################################
+  # Function only available on Enterprise Edition
+  # check if path /etc/drlm/enterprise exists 
+  ######################################################################
+  if [ -d "/etc/drlm/enterprise" ]; then
+
+    if [ -z "$CLAMAV_SCAN" ]; then
+      if register_scan_db "${BKP_BASE_ID}" 0 "no"; then
+        Log "Updating backup ($BKP_BASE_ID) scan to 0"
+      else
+        Error "Problem updating backup ($BKP_BASE_ID) scan to 0"
+      fi
+    fi
+
+    if register_oval_db "${BKP_BASE_ID}" 0 "no"; then
+      Log "Updating backup ($BKP_BASE_ID) oval to 0"
     else
-      Error "Problem updating backup ($BKP_BASE_ID) scan to 0"
+      Error "Problem updating backup ($BKP_BASE_ID) oval to 0"
+    fi
+
+    if register_archive_db "${BKP_BASE_ID}" 0 "no"; then
+      Log "Updating backup ($BKP_BASE_ID) archive to 0"
+    else
+      Error "Problem updating backup ($BKP_BASE_ID) archive to 0"
     fi
   fi
-  if register_archive_db "${BKP_BASE_ID}" 0 "no"; then
-    Log "Updating backup ($BKP_BASE_ID) archive to 0"
-  else
-    Error "Problem updating backup ($BKP_BASE_ID) archive to 0"
-  fi
+  ######################################################################
 
 fi

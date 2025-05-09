@@ -652,9 +652,9 @@ function get_all_backups_dbdrv () {
   local CLI_ID=$1
 
   if [  -z "$CLI_ID" ]; then
-    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end,":", case when archived is NULL then "0" else archived end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end, ":", case when archived is NULL then "0" else archived end,  ":", case when oval is NULL then "0" else oval end from backups;' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   else
-    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end, ":", case when archived is NULL then "0" else archived end from backups where clients_id='${CLI_ID}';' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
+    echo "$(echo -e '.separator ""\n select idbackup,":",clients_id,":",drfile,"::",active,":::", case when duration is null then "-" else duration end,":", case when size is null then "-" else size end,":", case when config is null then "default" else config end, ":", PXE, ":", type, ":", protocol, ":", date, ":", case when encrypted is null then "0" else encrypted end, ":", hold,  ":", case when scan is NULL then "0" else scan end, ":", case when archived is NULL then "0" else archived end,  ":", case when oval is NULL then "0" else oval end from backups where clients_id='${CLI_ID}';' | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)"
   fi
 }
 
@@ -799,6 +799,7 @@ function register_backup_dbdrv () {
   local BKP_HOLD="${14}"
   local BKP_SCAN="${15}"
   local BKP_ARCHIVED="${16}"
+  local BKP_OVAL="${17}"
 
   if [ "$BKP_ENCRYPTED" == "enabled" ]; then
     BKP_ENCRYPTED="1"
@@ -806,7 +807,7 @@ function register_backup_dbdrv () {
     BKP_ENCRYPTED="0"
   fi
 
-  echo "INSERT INTO backups (idbackup,clients_id,drfile,active,duration,size,config,PXE,type,protocol,date,encrypted,encryp_pass,hold,scan,archived) VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}', '${BKP_SCAN}', '${BKP_ARCHIVED}' );" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO backups (idbackup,clients_id,drfile,active,duration,size,config,PXE,type,protocol,date,encrypted,encryp_pass,hold,scan,archived,oval) VALUES('${BKP_ID}', '${BKP_CLI_ID}', '${BKP_DR_FILE}', '${BKP_IS_ACTIVE}', '${BKP_DURATION}', '${BKP_SIZE}', '${BKP_CFG}', '${BKP_PXE}', '${BKP_TYPE}', '${BKP_PROTO}', '${BKP_DATE}', '${BKP_ENCRYPTED}', '${BKP_ENCRYP_PASS}', '${BKP_HOLD}', '${BKP_SCAN}', '${BKP_ARCHIVED}', '${BKP_OVAL}');" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -820,8 +821,9 @@ function register_snap_dbdrv (){
   local SNAP_HOLD="$7"
   local SNAP_SCAN="$8"
   local SNAP_ARCHIVED="$9"
+  local SNAP_OVAL="${10}"
   
-  echo "INSERT INTO snaps (idbackup,idsnap,date,active,duration,size,hold,scan,archived) VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD', '$SNAP_SCAN', '$SNAP_ARCHIVED');" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  echo "INSERT INTO snaps (idbackup,idsnap,date,active,duration,size,hold,scan,archived,oval) VALUES('$BKP_ID', '$SNAP_ID', '$SNAP_DATE', $SNAP_IS_ACTIVE, '$SNAP_DURATION', '$SNAP_SIZE', '$SNAP_HOLD', '$SNAP_SCAN', '$SNAP_ARCHIVED', '$SNAP_OVAL');" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
@@ -990,6 +992,18 @@ function register_scan_db_dbdrv () {
   if [ $? -eq 0 ]; then return 0; else return 1; fi
 }
 
+function register_oval_db_dbdrv () {
+  local BKP_ID=$1
+  local OVAL_STATUS="$2"
+  local IS_SNAP=$3
+  if [ "$IS_SNAP" == "no" ]; then
+    echo "update backups set oval='${OVAL_STATUS}' where idbackup='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  else
+    echo "update snaps set oval='${OVAL_STATUS}' where idsnap='${BKP_ID}';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH
+  fi
+  if [ $? -eq 0 ]; then return 0; else return 1; fi
+}
+
 function register_archive_db_dbdrv () {
   local BKP_ID=$1
   local STATUS="$2"
@@ -1036,6 +1050,12 @@ function get_backup_scan_by_backup_id_dbdrv () {
   local BKP_ID=$1
   local BKP_SCAN=$(echo "select scan from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
   echo $BKP_SCAN
+}
+
+function get_backup_oval_by_backup_id_dbdrv () {
+  local BKP_ID=$1
+  local BKP_OVAL=$(echo "select oval from backups where idbackup='$BKP_ID';" | sqlite3 -init <(echo .timeout $SQLITE_TIMEOUT) $DB_PATH)
+  echo $BKP_OVAL
 }
 
 function get_backup_archive_by_backup_id_dbdrv () {

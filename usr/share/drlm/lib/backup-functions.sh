@@ -545,8 +545,9 @@ function register_backup () {
   local BKP_HOLD="${14}"
   local BKP_SCAN="${15}"
   local BKP_ARCHIVED="${16}"
+  local BKP_OVAL="${17}"
 
-  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD" "$BKP_SCAN" "$BKP_ARCHIVED"
+  register_backup_dbdrv "$BKP_ID" "$BKP_CLI_ID" "$BKP_DR_FILE" "$BKP_IS_ACTIVE" "$BKP_DURATION" "$BKP_SIZE" "$BKP_CFG" "$BKP_PXE" "$BKP_TYPE" "$BKP_PROTO" "$BKP_DATE" "$BKP_ENCRYPTED" "$BKP_ENCRYP_PASS" "$BKP_HOLD" "$BKP_SCAN" "$BKP_ARCHIVED" "$BKP_OVAL"
 }
 
 function register_snap () {
@@ -559,8 +560,9 @@ function register_snap () {
   local SNAP_HOLD="$7"
   local SNAP_SCAN="$8"
   local SNAP_ARCHIVED="$9"
+  local SNAP_OVAL="${10}"
 
-  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN" "$SNAP_ARCHIVED"
+  register_snap_dbdrv "$BKP_ID" "$SNAP_ID" "$SNAP_DATE" "$SNAP_IS_ACTIVE" "$SNAP_DURATION" "$SNAP_SIZE" "$SNAP_HOLD" "$SNAP_SCAN" "$SNAP_ARCHIVED" "$SNAP_OVAL"
 }
 
 function del_backup () {
@@ -783,6 +785,13 @@ function get_backup_scan_by_backup_id ()
   local BKP_SCAN=$(get_backup_scan_by_backup_id_dbdrv "$BKP_ID")
   echo $BKP_SCAN
 }   
+
+function get_backup_oval_by_backup_id ()
+{
+  local BKP_ID=$1
+  local BKP_OVAL=$(get_backup_oval_by_backup_id_dbdrv "$BKP_ID")
+  echo $BKP_OVAL
+}  
 
 function get_backup_archive_by_backup_id ()
 {
@@ -1545,8 +1554,7 @@ function list_backup () {
     fi
   fi
 
-  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-17s %-12s %-11s\n"
-  SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s  %-10s\n"
+  BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-4s %-${BAC_CFG_LEN}s %-12s %-11s %-12s %-17s\n"
   
    # Check if pretty mode is enabled and toggle it if is called with -p option
   if [ "$PRETTY_TOGGLE" == "true" ]; then
@@ -1559,7 +1567,7 @@ function list_backup () {
 
   # Print header in pretty mode if is enabled
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput bold)"; fi
-  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Type" "Scan" "Archive"
+  printf "$BKP_FORMAT" "Backup Id" "Client Name" "Backup Date" "Status" "Duration" "Size" "PXE" "Config" "Scan" "Archive" "Oval" "Type" 
   if [ "$DEF_PRETTY" == "true" ]; then printf "$(tput sgr0)"; fi
 
   save_default_pretty_params_list_backup
@@ -1620,6 +1628,18 @@ function list_backup () {
       BAC_ARCHIVED="Cloud"
     elif  [ "$BAC_ARCHIVED" == "0" ]; then
       BAC_ARCHIVED="Local"
+    fi
+
+    local BAC_OVAL="$(echo $line|awk -F":" '{print $19}')"
+
+    if [ "$BAC_OVAL" == "0" ]; then
+      BAC_OVAL="Not Scanned"
+    elif [ "$BAC_OVAL" == "1" ]; then
+      BAC_OVAL="Done"
+    elif [ "$BAC_OVAL" == "2" ]; then
+      BAC_OVAL="Error"
+    elif [ "$BAC_OVAL" == "3" ]; then
+      BAC_OVAL="Scanning..."
     fi
 
     if [ "$BAC_PXE" == "1" ]; then
@@ -1694,15 +1714,15 @@ function list_backup () {
 
     if [ "$DEF_PRETTY" == "true" ]; then
       if [ "$BAC_ARCHIVED" == "Cloud" ]; then 
-	      BAC_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
+	      BAC_ARCHIVED_DEC="\\e[0;36m%-11s\\e[0m"
       elif [ "$BAC_ARCHIVED" == "Local" ]; then
-	      BAC_ARCHIVED_DEC="\\e[0;37m%-9s\\e[0m"
+	      BAC_ARCHIVED_DEC="\\e[0;37m%-11s\\e[0m"
       fi
     fi
 
 
-    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s %-17s ${BAC_SCAN_DEC} ${BAC_ARCHIVED_DEC}\n"
-    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}" "$BAC_SCAN" "$BAC_ARCHIVED"; 
+    BKP_FORMAT="%-${BAC_ID_LEN}s %-${BAC_CLI_LEN}s %-17s ${BAC_STATUS_DEC} ${BAC_DURA_DEC} ${BAC_SIZE_DEC} %-4s %-${BAC_CFG_LEN}s ${BAC_SCAN_DEC} ${BAC_ARCHIVED_DEC} %-12s %-17s\n"
+    printf "$BKP_FORMAT" "$BAC_ID" "$CLI_NAME" "$BAC_DATE" "$BAC_STATUS" "$BAC_DURA" "$BAC_SIZE" "$BAC_PXE" "$CLI_CFG" "$BAC_SCAN" "$BAC_ARCHIVED" "$BAC_OVAL" "${BAC_TYPE}-${BAC_PROT}${BAC_ENCRYPT}${BAC_HOLD}${BAC_POLICY}"; 
     
     # Check if BAC_ID have snapshots and list them
     found_enabled=0
@@ -1728,6 +1748,8 @@ function list_backup () {
         SNAP_SCAN="Clean"
       elif [ "$SNAP_SCAN" == "2" ]; then
         SNAP_SCAN="Infected"
+      elif [ "$SNAP_SCAN" == "3" ]; then
+        SNAP_SCAN="Scanning..."
       fi
       # if Pretty mode is enabled show in green when the backup is not Clean of viruses and in red for the  Infected 
       if [ "$DEF_PRETTY" == "true" ]; then
@@ -1751,10 +1773,21 @@ function list_backup () {
       fi
       if [ "$DEF_PRETTY" == "true" ]; then
         if [ "$SNAP_ARCHIVED" == "Cloud" ]; then 
-	        SNAP_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
+	        SNAP_ARCHIVED_DEC="\\e[0;36m%-11s\\e[0m"
         elif [ "$SNAP_ARCHIVED" == "Local" ]; then
-	        SNAP_ARCHIVED_DEC="\\e[0;37m%-9s\\e[0m"
+	        SNAP_ARCHIVED_DEC="\\e[0;37m%-11s\\e[0m"
         fi
+      fi
+
+      OVAL_SCAN="$(echo $snap_line|awk -F"|" '{print $10}')"
+      if [ "$OVAL_SCAN" == "0" ]; then
+        OVAL_SCAN="Not Scanned"
+      elif [ "$OVAL_SCAN" == "1" ]; then
+        OVAL_SCAN="OK"
+      elif [ "$OVAL_SCAN" == "2" ]; then
+        OVAL_SCAN="Error"
+      elif [ "$OVAL_SCAN" == "3" ]; then
+        OVAL_SCAN="Scanning..."
       fi
 
       SNAP_POLICY_RULES="$(get_policy_saved_by "$CLI_BAC_ID" "$CLI_CFG" "$BAC_ID" ""$SNAP_ID)"
@@ -1778,8 +1811,8 @@ function list_backup () {
           [ "$found_enabled" == "0" ] && SNAP_STATUS="   |" || SNAP_STATUS=""
         fi
       fi
-      SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-8s %-${BAC_CFG_LEN}s  %-20s ${SNAP_SCAN_DEC} ${SNAP_ARCHIVED_DEC}\n"
-      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}" "${SNAP_SCAN}" "${SNAP_ARCHIVED}";
+      SNP_FORMAT="%-4s %-${SNP_ID_LEN}s %-17s %-9s %-${BAC_DURA_LEN}s %-${BAC_SIZE_LEN}s %-8s %-${BAC_CFG_LEN}s ${SNAP_SCAN_DEC} ${SNAP_ARCHIVED_DEC} %-12s %-20s\n"
+      printf "$SNP_FORMAT" " └──" "$SNAP_ID" "$SNAP_DATE" "$SNAP_STATUS" "$SNAP_DURA" " └─$SNAP_SIZE" "$SNAP_PXE" "" "${SNAP_SCAN}" "${SNAP_ARCHIVED}" "${OVAL_SCAN}" " └─${SNAP_TYPE} ${SNAP_HOLD}${SNAP_POLICY}";
     done
 
   done
