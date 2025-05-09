@@ -1610,6 +1610,8 @@ function list_backup () {
       BAC_SCAN="Clean"
     elif [ "$BAC_SCAN" == "2" ]; then
       BAC_SCAN="Infected"
+    elif [ "$BAC_SCAN" == "3" ]; then
+      BAC_SCAN="Scanning..."
     fi
 
     local BAC_ARCHIVED="$(echo $line|awk -F":" '{print $18}')"
@@ -1691,11 +1693,11 @@ function list_backup () {
     fi
 
     if [ "$DEF_PRETTY" == "true" ]; then
-       if [ "$BAC_ARCHIVED" == "Cloud" ]; then 
-	BAC_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
-       elif [ "$BAC_ARCHIVED" == "Local" ]; then
-	BAC_ARCHIVED_DEC="\\e[0;37m%-9s\\e[0m"
-       fi
+      if [ "$BAC_ARCHIVED" == "Cloud" ]; then 
+	      BAC_ARCHIVED_DEC="\\e[0;36m%-9s\\e[0m"
+      elif [ "$BAC_ARCHIVED" == "Local" ]; then
+	      BAC_ARCHIVED_DEC="\\e[0;37m%-9s\\e[0m"
+      fi
     fi
 
 
